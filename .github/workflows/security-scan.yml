@@ -1,0 +1,48 @@
+name: Security Checklist Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Slither
+        run: |
+          pip3 install slither-analyzer
+          
+      - name: Install Solidity compiler
+        run: |
+          sudo add-apt-repository ppa:ethereum/ethereum -y
+          sudo apt-get update
+          sudo apt-get install solc -y
+          
+      - name: Install dependencies
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci
+          fi
+          
+      - name: Run checklist scanner
+        run: |
+          bash ./automation/scan-contracts.sh
+          
+      - name: Save scan results
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-scan-results
+          path: |
+            scan-results/
+            slither-report.md 
