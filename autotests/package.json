@@ -8,4 +8,4 @@
   "dependencies": {
     "@playwright/test": "^1.52.0"
   }
-} 
+}

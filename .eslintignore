@@ -1,0 +1,27 @@
+# Generated files
+reports/
+reports/trace/
+*.chunk.*
+**/node_modules/**
+coverage/
+test-output/
+test-results/
+playwright-report/
+
+# Generated trace files (these cause many linting errors)
+**/reports/trace/**
+**/reports/trace/**/*.js
+
+# Build output
+dist/
+out/
+build/
+
+# Third-party code
+vendor/
+Web3FuzzForge-*.tgz
+
+# Frontend apps
+Web3FuzzForge/**
+my-vue-app/**
+docs-site/ 

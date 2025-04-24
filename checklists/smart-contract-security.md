@@ -3,40 +3,46 @@
 ## Security Items by Severity
 
 ### Critical 🔴
+
 ✅ Use SafeMath or built-in overflow checks (Solidity 0.8.0+) — 🔴 Critical  
 ✅ Avoid reentrancy vulnerabilities (use ReentrancyGuard) — 🔴 Critical  
 ✅ Validate input parameters (require statements) — 🔴 Critical  
 ✅ Protect against flash loan attacks — 🔴 Critical  
-✅ Use access control for privileged functions — 🔴 Critical  
+✅ Use access control for privileged functions — 🔴 Critical
 
 ### High 🟠
+
 ✅ Apply "Checks-Effects-Interactions" pattern — 🟠 High  
 ✅ Use OpenZeppelin libraries — 🟠 High  
 ✅ Set appropriate visibility (public/private/internal) — 🟠 High  
 ✅ Avoid hardcoded addresses or secrets — 🟠 High  
 ✅ Protect against front-running (use commit-reveal if needed) — 🟠 High  
 ✅ Beware of timestamp manipulation (block.timestamp issues) — 🟠 High  
-✅ Check for integer underflow/overflow — 🟠 High  
+✅ Check for integer underflow/overflow — 🟠 High
 
 ### Medium 🟡
+
 ✅ Use latest compiler version — 🟡 Medium  
 ✅ Limit `selfdestruct` usage — 🟡 Medium  
 ✅ Have fallback functions under control — 🟡 Medium  
 ✅ Audit before mainnet deployment (even with test coverage) — 🟡 Medium  
 ✅ Implement circuit breakers/pause mechanisms — 🟡 Medium  
-✅ Avoid tx.origin for authentication — 🟡 Medium  
+✅ Avoid tx.origin for authentication — 🟡 Medium
 
 ### Low 🟢
+
 ✅ Add NatSpec comments — 🟢 Low  
 ✅ Use events for important state changes — 🟢 Low  
-✅ Consider gas optimization but not at expense of security — 🟢 Low  
+✅ Consider gas optimization but not at expense of security — 🟢 Low
 
 ## Practice Examples
 
 ### Sample Vulnerable Contracts
+
 Learn by identifying vulnerabilities in these practice challenges:
 
 - **Ethernaut Challenges** - Gamified smart contract hacking
+
   - [Fallback](https://ethernaut.openzeppelin.com/level/0x9CB391dbcD447E645D6Cb55dE6ca23164130D008) - Ownership takeover vulnerability
   - [Fallout](https://ethernaut.openzeppelin.com/level/0x5732B2F88cbd19B6f01E3a96e9f0D90B917281E5) - Constructor naming issue
   - [Re-entrancy](https://ethernaut.openzeppelin.com/level/0x4dF32584890A0026e56f7535d0f2C6486753624f) - Classic reentrancy attack
@@ -44,9 +50,10 @@ Learn by identifying vulnerabilities in these practice challenges:
   - [Full Challenges List](https://ethernaut.openzeppelin.com/) - 20+ challenges covering different vulnerabilities
 
 - **Damn Vulnerable DeFi**
+
   - [Unstoppable](https://www.damnvulnerabledefi.xyz/challenges/unstoppable/) - Flash loan manipulation
   - [Naive Receiver](https://www.damnvulnerabledefi.xyz/challenges/naive-receiver/) - Unprotected functions
-  - [Truster](https://www.damnvulnerabledefi.xyz/challenges/truster/) - Unsafe external calls 
+  - [Truster](https://www.damnvulnerabledefi.xyz/challenges/truster/) - Unsafe external calls
   - [Side Entrance](https://www.damnvulnerabledefi.xyz/challenges/side-entrance/) - Alternative attack vectors
   - [Full Challenges List](https://www.damnvulnerabledefi.xyz/) - Comprehensive DeFi vulnerabilities examples
 

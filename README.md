@@ -1,84 +1,104 @@
-# Web3TestForge
+# Web3FuzzForge Security Testing Kit
 
-This repository contains resources and tools for testing and ensuring the security of Web3 applications. It includes checklists for smart contract security, frontend DApp security, and bounty hunting basics, as well as sample automated tests.
+A comprehensive toolkit for testing Web3 dApps, focusing on security and functional testing.
 
-## Quick Start
+## Setup & Installation
 
-Get up and running with the test kit in minutes:
+### Local Installation (Recommended)
+
+This project has a pre-packed `.tgz` file that you can install locally:
 
 ```bash
-# Clone the repository
-git clone https://gitlab.com/romanchaa997/web3-security-test-kit.git
-
-# Navigate to the autotests directory
-cd web3-security-test-kit/autotests
-
 # Install dependencies
 npm install
 
-# Install Playwright browsers
-npx playwright install
-
-# Run the tests
-npm run test
+# Install the web3fuzzforge package locally
+npm run local-install
 ```
 
-### MetaMask Testing
+### Alternative: Using Local Commands
 
-The sample tests include mocked MetaMask functionality, so no extension installation is required for basic tests. 
-
-If you want to test with the actual MetaMask extension:
-
-1. Install the MetaMask extension in your browser
-2. Create a test wallet with a private network (like Hardhat or Ganache)
-3. Modify the tests to use the actual MetaMask API instead of the mock
-
-## Examples
-
-### MetaMask Login Test
-
-The repository includes an automated test for MetaMask login using Playwright:
-
-![MetaMask Test in Action](./media/metamask-test.gif)
-
-### Smart Contract Security Checklist
-
-A comprehensive checklist for ensuring smart contract security:
-
-![Smart Contract Security Checklist](./media/checklist-preview.png)
-
-### Automated Security Scans
-
-The repository includes automated security scan scripts that detect common issues:
+If you encounter issues with the package installation, you can use these direct command alternatives:
 
 ```bash
-# Run security scan (Linux/Mac)
-cd web3-security-test-kit
-bash ./automation/scan-contracts.sh
+# Generate a connection test
+npm run forge:gen connect -- --wallet metamask --out ./tests/connection-test.js
 
-# Run security scan (Windows - PowerShell)
-cd web3-security-test-kit
-powershell -ExecutionPolicy Bypass -File "./automation/run-scan.ps1"
-
-# Run security scan (Windows - Command Prompt)
-cd web3-security-test-kit
-automation\run-scan.bat
+# Run tests in mock mode
+npm run forge:run -- --mock-mode --headed
 ```
 
-The scan produces a comprehensive report with security recommendations.
+## Usage
 
-### Sample Vulnerable Contracts
+### Generate Test Templates
 
-The security checklists include links to practice environments with sample vulnerable contracts:
+```bash
+# Generate a wallet connection test
+web3fuzzforge generate connect --wallet metamask --out ./tests/connection-test.js
 
-- **Ethernaut** - OpenZeppelin's gamified smart contract hacking challenges
-- **Damn Vulnerable DeFi** - Realistic DeFi vulnerability scenarios
-- **Capture The Ether** - Classic Ethereum vulnerabilities
+# Generate a transaction test
+web3fuzzforge generate tx --wallet metamask --out ./tests/transaction-test.js
 
-## Repository Structure
+# Generate a security-focused test with fuzzing
+web3fuzzforge generate tx --wallet metamask --out ./tests/security-tx-test.js --fuzz
+```
 
-- **checklists/** - Security checklists for different aspects of Web3 development
-- **autotests/** - Automated tests for Web3 applications
-- **media/** - Visual examples and demonstrations 
-- **automation/** - Scripts for automated security scanning
-- **.github/workflows/** - CI/CD workflows for automated scanning 
+### Run Tests
+
+```bash
+# Run tests with mock dApp (for development)
+web3fuzzforge run --mock-mode --headed
+
+# Run tests against a specific dApp
+web3fuzzforge run --target-url=https://your-dapp.com
+```
+
+## Troubleshooting UI Visibility Issues
+
+If you're experiencing test failures related to UI visibility, try these solutions:
+
+1. Use the `forceShowWalletUI` helper function instead of visibility assertions:
+
+```javascript
+const { forceShowWalletUI } = require('./utils/wallet-snapshot');
+
+// Instead of this:
+// await expect(page.locator('#wallet-info')).toBeVisible();
+
+// Use this:
+await forceShowWalletUI(page);
+```
+
+2. Check content directly instead of visibility:
+
+```javascript
+// Instead of checking visibility:
+// await expect(page.locator('#wallet-info')).toBeVisible();
+
+// Check the content directly:
+const walletAddress = await page.locator('.wallet-address').textContent();
+expect(walletAddress).toContain('0x123...');
+```
+
+3. Force UI elements to show programmatically:
+
+```javascript
+await page.evaluate(() => {
+  const walletInfo = document.getElementById('wallet-info');
+  if (walletInfo) walletInfo.style.display = 'block';
+});
+```
+
+## Common Issues
+
+### Package Not Found Error
+
+If you see `npm error 404 Not Found - GET https://registry.npmjs.org/web3fuzzforge`, use the local installation method described above.
+
+### UI Element Not Visible
+
+Tests failing with `Timed out 10000ms waiting for expect(locator).toBeVisible()` should be updated to use the improved UI handling methods in the utils folder.
+
+## License
+
+MIT

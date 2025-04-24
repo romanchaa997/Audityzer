@@ -1,5 +1,5 @@
 // @ts-check
-const { defineConfig } = require('@playwright/test');
+const { defineConfig } = require('@playwright/test')
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -8,7 +8,7 @@ module.exports = defineConfig({
   testDir: './sample-tests',
   timeout: 30 * 1000,
   expect: {
-    timeout: 5000
+    timeout: 5000,
   },
   // Run tests in files in parallel
   fullyParallel: true,
@@ -19,19 +19,30 @@ module.exports = defineConfig({
   // Opt out of parallel tests on CI
   workers: process.env.CI ? 1 : undefined,
   // Reporter to use
-  reporter: 'html',
-  
+  reporter: process.env.CI
+    ? [
+        ['html', { outputFolder: '../reports', open: 'never' }],
+        ['list']
+      ]
+    : [
+        ['html', { outputFolder: '../reports', open: 'on-failure' }],
+        ['list']
+      ],
+
   use: {
     // Base URL to use in actions like `await page.goto('/')`
     // baseURL: 'http://localhost:3000',
-    
+
     // Collect trace when retrying the failed test
-    trace: 'on-first-retry',
-    
+    trace: 'retain-on-failure',
+
     // Take screenshot on test failure
-    screenshot: 'only-on-failure'
+    screenshot: 'only-on-failure',
+
+    // Video recording settings
+    video: 'on-first-retry',
   },
-  
+
   // Configure projects for different browsers if needed
   projects: [
     {
@@ -39,6 +50,9 @@ module.exports = defineConfig({
       use: {
         browserName: 'chromium',
       },
-    }
+    },
   ],
-}); 
+
+  // Folder for test artifacts like screenshots, videos, traces, etc.
+  outputDir: '../test-output/',
+})

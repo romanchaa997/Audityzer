@@ -1,0 +1,8 @@
+{
+  "wallet": "metamask",
+  "dapp_url": "https://app.uniswap.org",
+  "connect_button_selector": ".connect-wallet-button",
+  "lang": "js",
+  "out": "./tests/test.js",
+  "lint": true
+}
