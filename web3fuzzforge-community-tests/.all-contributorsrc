@@ -1,0 +1,37 @@
+{
+  "projectName": "web3fuzzforge-community-tests",
+  "projectOwner": "Web3FuzzForge",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributors": [],
+  "contributorsPerLine": 7,
+  "skipCi": false,
+  "contributorsSortAlphabetically": false,
+  "badgeTemplate": "[![All Contributors](https://img.shields.io/github/all-contributors/Web3FuzzForge/web3fuzzforge-community-tests?color=ee8449&style=flat-square)](#contributors)",
+  "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"<%= contributor.name %>\"/><br /><sub><b><%= contributor.name %></b></sub></a>",
+  "types": {
+    "custom": {
+      "symbol": "🔍",
+      "description": "Security Test Cases",
+      "link": "[<%= symbol %>](<%= url %> \"<%= description %>\")"
+    },
+    "test": {
+      "symbol": "⚗️",
+      "description": "Tests"
+    },
+    "bug": {
+      "symbol": "🐛",
+      "description": "Bug reports"
+    },
+    "security": {
+      "symbol": "🔒",
+      "description": "Security"
+    }
+  }
+} 

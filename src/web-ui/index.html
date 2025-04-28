@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web3FuzzForge CLI Playground</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Web3FuzzForge CLI Playground</h1>
+      <p>Browser-based CLI emulator for Web3 security testing</p>
+    </header>
+
+    <div class="playground">
+      <div class="terminal">
+        <div class="terminal-header">
+          <span class="title">Terminal</span>
+          <div class="terminal-controls">
+            <button class="terminal-button minimize">-</button>
+            <button class="terminal-button maximize">□</button>
+            <button class="terminal-button close">×</button>
+          </div>
+        </div>
+        <div class="terminal-content" id="terminal-content">
+          <div class="welcome-message">
+            <span class="highlight">Web3FuzzForge v1.1.0</span> - CLI tool for generating Web3 test templates
+            <br>
+            Type <span class="cmd">help</span> to see available commands.
+          </div>
+          <div id="output"></div>
+          <div class="input-line">
+            <span class="prompt">$ </span>
+            <input type="text" id="terminal-input" autofocus>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-panel">
+        <h2>Quick Reference</h2>
+        <div class="command-list">
+          <div class="command">
+            <span class="cmd">create</span>
+            <span class="description">Create a new test template</span>
+          </div>
+          <div class="command">
+            <span class="cmd">list</span>
+            <span class="description">List available templates</span>
+          </div>
+          <div class="command">
+            <span class="cmd">run</span>
+            <span class="description">Run a test</span>
+          </div>
+          <div class="command">
+            <span class="cmd">help</span>
+            <span class="description">Show help information</span>
+          </div>
+        </div>
+
+        <h2>Test Templates</h2>
+        <div class="template-list">
+          <div class="template">
+            <span class="template-name">connect</span>
+            <span class="description">Test wallet connection flow</span>
+          </div>
+          <div class="template">
+            <span class="template-name">tx</span>
+            <span class="description">Test transaction flow</span>
+          </div>
+          <div class="template">
+            <span class="template-name">sign</span>
+            <span class="description">Test message signing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html> 

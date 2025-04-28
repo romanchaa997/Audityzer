@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Web3FuzzForge Configuration",
+  "description": "Configuration schema for Web3FuzzForge testing framework",
+  "type": "object",
+  "properties": {
+    "wallet": {
+      "type": "string",
+      "description": "Wallet provider to use",
+      "enum": ["metamask", "walletconnect", "rabby", "coinbase"]
+    },
+    "provider": {
+      "type": "string",
+      "description": "Provider to use (alias for wallet)",
+      "enum": ["metamask", "walletconnect", "rabby", "coinbase"]
+    },
+    "dapp_url": {
+      "type": "string",
+      "description": "URL of the dApp to test"
+    },
+    "lang": {
+      "type": "string",
+      "description": "Language to use for generated tests",
+      "enum": ["js", "ts"]
+    },
+    "address": {
+      "type": "string",
+      "description": "Wallet address to use"
+    },
+    "walletName": {
+      "type": "string",
+      "description": "Name of the wallet"
+    },
+    "recipient": {
+      "type": "string",
+      "description": "Recipient address for transactions"
+    },
+    "amount": {
+      "type": "string",
+      "description": "Amount for transactions"
+    },
+    "network": {
+      "type": "string",
+      "description": "Network to use"
+    },
+    "chain_id": {
+      "type": "string",
+      "description": "Chain ID"
+    },
+    "connect_button_selector": {
+      "type": "string",
+      "description": "CSS selector for the connect wallet button"
+    },
+    "wallet_info_selector": {
+      "type": "string",
+      "description": "CSS selector for wallet info"
+    },
+    "wallet_address_selector": {
+      "type": "string",
+      "description": "CSS selector for wallet address display"
+    },
+    "recipient_field_selector": {
+      "type": "string",
+      "description": "CSS selector for recipient field"
+    },
+    "amount_field_selector": {
+      "type": "string",
+      "description": "CSS selector for amount field"
+    },
+    "send_button_selector": {
+      "type": "string",
+      "description": "CSS selector for send button"
+    },
+    "tx_confirmation_selector": {
+      "type": "string",
+      "description": "CSS selector for transaction confirmation"
+    },
+    "tx_hash_selector": {
+      "type": "string",
+      "description": "CSS selector for transaction hash"
+    },
+    "sign_button_selector": {
+      "type": "string",
+      "description": "CSS selector for sign button"
+    },
+    "signature_confirmation_selector": {
+      "type": "string",
+      "description": "CSS selector for signature confirmation"
+    },
+    "signature_selector": {
+      "type": "string",
+      "description": "CSS selector for signature"
+    },
+    "out": {
+      "type": "string",
+      "description": "Output file path"
+    },
+    "fuzz": {
+      "type": "boolean",
+      "description": "Enable fuzzing"
+    },
+    "lint": {
+      "type": "boolean",
+      "description": "Enable linting"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,96 @@
+name: Update Hall of Fame
+
+on:
+  pull_request:
+    types: [closed]
+    paths:
+      - 'dapp-tests/**/*.js'
+      - 'dapp-tests/**/*.ts'
+  workflow_dispatch:
+
+jobs:
+  update-hall-of-fame:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Need full history for git blame
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run Hall of Fame update script
+        run: |
+          # Find all test files that were modified in the PR
+          files=$(git diff --name-only HEAD^ HEAD | grep -E "dapp-tests/.*\.(js|ts)$" || echo "")
+          
+          if [ -n "$files" ]; then
+            # Create initial HALL_OF_FAME.json if it doesn't exist
+            if [ ! -f "HALL_OF_FAME.json" ]; then
+              echo "[]" > HALL_OF_FAME.json
+            fi
+            
+            # Create script to update Hall of Fame
+            cat > update-hall.js << 'EOF'
+            const { recordContribution, generateHallOfFame } = require('./utils/contributor-tracker');
+            
+            async function updateHallOfFame() {
+              const files = process.argv.slice(2);
+              
+              for (const file of files) {
+                console.log(`Processing contribution for file: ${file}`);
+                // Extract metadata from file comments
+                const fs = require('fs');
+                const content = fs.readFileSync(file, 'utf-8');
+                
+                // Parse file header comments for metadata
+                const descriptionMatch = content.match(/Test case description: (.*)/);
+                const vulnerabilityMatch = content.match(/Vulnerability\/edge case: (.*)/);
+                
+                const metadata = {
+                  description: descriptionMatch ? descriptionMatch[1] : '',
+                  type: file.includes('/wallet-connection/') ? 'Wallet Connection' : 
+                        file.includes('/transaction-flow/') ? 'Transaction Flow' : 'Other'
+                };
+                
+                await recordContribution(file, metadata);
+              }
+              
+              await generateHallOfFame();
+            }
+            
+            updateHallOfFame();
+            EOF
+            
+            # Run the script with the list of modified files
+            node update-hall.js $files
+          else
+            # Run without specific files (just regenerate)
+            node -e "const { generateHallOfFame } = require('./utils/contributor-tracker'); generateHallOfFame();"
+          fi
+      
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add HALL_OF_FAME.md HALL_OF_FAME.json
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🏆 Update Hall of Fame [skip ci]"
+            git push
+          fi 

@@ -1,0 +1,207 @@
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Source Code Pro', 'Courier New', monospace;
+  line-height: 1.6;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+header h1 {
+  font-size: 2.2rem;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+header p {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+}
+
+/* Playground Layout */
+.playground {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  height: calc(100vh - 150px);
+}
+
+/* Terminal */
+.terminal {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.terminal-header {
+  background-color: #323232;
+  padding: 8px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #424242;
+}
+
+.title {
+  color: #f0f0f0;
+  font-size: 0.9rem;
+}
+
+.terminal-controls {
+  display: flex;
+  gap: 5px;
+}
+
+.terminal-button {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #333;
+}
+
+.minimize {
+  background-color: #f1c40f;
+}
+
+.maximize {
+  background-color: #2ecc71;
+}
+
+.close {
+  background-color: #e74c3c;
+}
+
+.terminal-content {
+  flex: 1;
+  padding: 15px;
+  color: #f0f0f0;
+  overflow-y: auto;
+  font-size: 0.95rem;
+}
+
+.welcome-message {
+  margin-bottom: 15px;
+  color: #ccc;
+}
+
+.highlight {
+  color: #3498db;
+  font-weight: bold;
+}
+
+.cmd {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+.input-line {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.prompt {
+  color: #3498db;
+  margin-right: 5px;
+}
+
+#terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #f0f0f0;
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+}
+
+/* Info Panel */
+.info-panel {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.info-panel h2 {
+  color: #2c3e50;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.command-list, .template-list {
+  margin-bottom: 25px;
+}
+
+.command, .template {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed #ecf0f1;
+}
+
+.template-name {
+  color: #9b59b6;
+  font-weight: bold;
+}
+
+.description {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+/* Terminal Output Styling */
+.output-line {
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+
+.error {
+  color: #e74c3c;
+}
+
+.success {
+  color: #2ecc71;
+}
+
+.warning {
+  color: #f39c12;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .playground {
+    grid-template-columns: 1fr;
+    grid-template-rows: 2fr 1fr;
+  }
+} 

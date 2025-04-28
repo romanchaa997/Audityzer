@@ -1,0 +1,11 @@
+{
+  "name": "web3-security-test-kit-autotests",
+  "version": "1.0.0",
+  "description": "Automated tests for Web3 applications",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "web3fuzzforge-community-tests",
+  "version": "1.0.0",
+  "description": "Community-contributed fuzz test cases for Web3 applications",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "test:wallet-connection": "npx playwright test dapp-tests/wallet-connection/",
+    "test:transaction-flow": "npx playwright test dapp-tests/transaction-flow/",
+    "update:hall-of-fame": "node -e \"const { generateHallOfFame } = require('./utils/contributor-tracker'); generateHallOfFame();\"",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "web3",
+    "dapp",
+    "testing",
+    "security",
+    "blockchain",
+    "ethereum",
+    "metamask",
+    "fuzzing",
+    "community"
+  ],
+  "author": "Web3FuzzForge Community",
+  "license": "MIT",
+  "dependencies": {
+    "@chainsafe/dappeteer": "^5.2.1",
+    "@playwright/test": "^1.52.0",
+    "chalk": "^4.1.2",
+    "Web3FuzzForge": "^1.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5"
+  }
+}
