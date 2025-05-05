@@ -1,0 +1,1 @@
+This is a text-based representation of what the demo GIF would show.`n`nThe actual GIF would demonstrate:`n1. ZK-SNARK security testing`n2. Debug mode with cross-chain message visualization`n3. Security reporting with vulnerability classification
