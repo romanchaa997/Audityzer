@@ -1,434 +1,352 @@
-# Web3FuzzForge | The Ultimate Security Test Kit for Web3
+# Audityzer
 
-![Web3FuzzForge Banner](./assets/img/web3fuzzforge-banner.png)
+[![npm version](https://img.shields.io/npm/v/audityzer.svg)](https://www.npmjs.com/package/audityzer)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI/CD Pipeline](https://github.com/username/web3-security-test-kit/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/username/web3-security-test-kit/actions/workflows/ci-cd.yml)
 
-**Catch Web3 vulnerabilities before hackers do.** Generate security tests for wallets, transactions, and cross-chain bridges in seconds, not days.
+Audityzer is an automated security analysis toolkit for Web3 dApps. It helps identify common vulnerabilities and security issues in decentralized applications through automated testing.
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Playwright Tests](https://img.shields.io/badge/tested%20with-Playwright-45ba4b.svg)](https://playwright.dev/)
-[![Security Hardened](https://img.shields.io/badge/security-hardened-purple.svg)](https://github.com/romanchaa997/Web3FuzzForge/blob/main/docs/security-hardening.md)
-
-<p align="center">
-  <img src="./assets/demo/demo.gif" alt="Web3FuzzForge Demo" width="80%">
-</p>
-
-## 🔐 Why Web3FuzzForge?
-
-Web3 security is hard. Testing wallet interactions is harder. Most projects have smart contract tests but lack dApp security testing—leaving critical vulnerabilities in wallet connections, transaction flows, and UI/UX security.
-
-Web3FuzzForge solves this by:
-- **Automating** security test generation for MetaMask, WalletConnect, and other wallets
-- **Detecting** vulnerabilities in dApp-to-wallet connections and transaction processing
-- **Fuzzing** inputs to discover edge cases before they become expensive exploits
-- **Integrating** directly into CI/CD pipelines for continuous security verification
-
-## 🚀 Enterprise Security Integration
-
-Web3FuzzForge now includes an enterprise-grade CI/CD integration module that helps teams automate security testing in their development pipelines:
-
-### Key Enterprise Features:
-
-- **Platform-Specific CI/CD Adapters**: Seamless integration with GitHub Actions, GitLab CI, Jenkins, and Azure DevOps
-- **Headless Wallet Testing**: Automated testing of wallet interactions in CI environments
-- **Static Analysis Integration**: Built-in support for Slither, Mythril, and Solhint 
-- **Industry-Standard Reporting**: SARIF, JUnit, and platform-specific reporting
-- **Enterprise Notification System**: Configurable alerts via Email, Slack, and custom webhooks
+## Installation
 
 ```bash
-# Generate a security rules configuration file
-npm run security-rules
+# Global installation
+npm install -g audityzer
 
-# Create CI configuration for your platform
-npm run ci-config-gen
-
-# Run security tests in CI environment
-npm run ci-run
-
-# Configure notification system
-npm run generate-notification-config
+# Project installation
+npm install --save-dev audityzer
 ```
 
-Read the [CI/CD Integration Guide](./docs/ci-integration.md) for detailed instructions.
+### Troubleshooting Installation Issues
 
-<p align="center">
-  <img src="./assets/img/ci-cd-pipeline.png" alt="CI/CD Integration" width="80%">
-</p>
+If you encounter dependency conflicts during installation, try:
 
-## 🌟 Implemented Functionality Showcase
+```bash
+npm install -g audityzer --legacy-peer-deps
+```
 
-### 1. Cross-Chain Bridge Security Testing
+## Quick Start
 
-Our LayerZero bridge testing framework provides comprehensive security validation:
+```bash
+# Generate a MetaMask connection test
+audityzer generate connect --out ./tests/metamask-test.js
+
+# Generate a test with security fuzzing enabled
+audityzer generate tx --wallet metamask --out ./tests/transaction-test.js --fuzz
+
+# Run a specific security test for reentrancy vulnerabilities
+audityzer run security reentrancy --target-url http://your-dapp-url
+```
+
+## Command Reference
+
+### Generate Test Templates
+
+```bash
+# Basic syntax
+audityzer generate <type> --out <file-path> [options]
+
+# Available test types
+# - connect: Wallet connection tests
+# - tx: Transaction tests
+# - sign: Message signing tests
+# - error: Error handling tests
+# - security: Security vulnerability tests
+
+# Options
+# --wallet        Wallet provider to use (metamask, walletconnect, coinbase, rabby, phantom)
+# --lang          Programming language (js, ts)
+# --fuzz          Enable security fuzzing
+# --lint          Enable linting and formatting
+```
+
+### Run Tests
+
+```bash
+# Run tests against a mock dApp
+audityzer run --mock-mode
+
+# Run tests against a real dApp
+audityzer run --target-url http://your-dapp-url
+
+# Generate security report after tests
+audityzer run --generate-report
+```
+
+### Initialize Configuration
+
+```bash
+# Create default configuration
+audityzer init
+
+# Override existing configuration
+audityzer init --force
+```
+
+### AI-Assisted Test Generation
+
+```bash
+# Generate a test configuration with AI
+audityzer ask "Create a test for MetaMask wallet connecting to a Uniswap-like dApp"
+
+# Generate and immediately run a test
+audityzer ask "Test WalletConnect transaction flow" --run-with tx
+```
+
+## Security Reports
+
+Generate comprehensive security reports from test results:
+
+```bash
+# Generate HTML report
+node scripts/generate-security-report.js -f html
+
+# Generate markdown report
+node scripts/generate-security-report.js -f md
+
+# Upload report to Firebase (requires Firebase configuration)
+node scripts/generate-security-report.js -c
+```
+
+## Troubleshooting
+
+### Common Issues
+
+- **Missing Dependencies**: If you see errors about missing dependencies, try installing with `--legacy-peer-deps` flag
+- **CLI Command Not Found**: Ensure the package is installed globally with `-g` flag and the binary path is in your PATH
+- **Playwright Browser Installation**: If browser tests fail, run `npx playwright install chromium`
+- **Firebase Errors**: Set proper Firebase API key in `.env` file or disable cloud features
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Key Features
+
+- **Complete Web3 Testing Framework**: Test wallet connections, transactions, signatures, and smart contract interactions across multiple chains and wallets.
+- **Automated Security Analysis**: Detect vulnerabilities in DApps and smart contracts using powerful automated testing techniques.
+- **Bug Bounty Integration**: Generate standardized reports for Immunefi, HackenProof, Code4rena, and Sherlock platforms.
+- **Cross-Chain Testing**: Validate your application's behavior across multiple chains, including L2 networks.
+- **CI/CD Integration**: Automate security testing in your deployment pipeline with GitHub Actions and other CI platforms.
+- **Deployment Validation**: Validate smart contract deployments before they go live to catch potential issues.
+
+## Vulnerability Detection
+
+Audityzer can detect various smart contract and DApp vulnerabilities including:
+
+### Smart Contract Vulnerabilities
+- **Reentrancy Attacks**: Detect improper state updates after external calls
+- **Front-running Vulnerabilities**: Identify missing slippage protection and transaction deadlines
+- **Oracle Manipulation**: Check for dependence on manipulable price feeds
+- **Flash Loan Attack Vectors**: Assess vulnerability to flash loan exploitation
+- **eth_sign Phishing**: Detect improper use of eth_sign that could lead to phishing
+
+### Web3 DApp Vulnerabilities
+- **Unsafe Message Signing**: Identify improper message signing practices
+- **Wallet Connection Issues**: Detect insecure wallet connection patterns
+- **Transaction Approval Problems**: Find unlimited approval vulnerabilities
+- **Transaction Monitoring Gaps**: Identify missing transaction confirmation checks
+
+## DeFi Trading Strategy Security Analyzer
+
+Audityzer includes a powerful trading strategy security analyzer specifically designed for DeFi protocols. This tool helps developers and security researchers identify potential vulnerabilities in trading strategies before deploying them on-chain.
+
+### Key Features
+
+- **Comprehensive Vulnerability Detection**: Identifies 10+ common DeFi trading vulnerabilities including price manipulation, sandwich attacks, flash loan vulnerabilities, and more
+- **Risk Scoring**: Calculates an overall risk score based on detected vulnerabilities and their severity
+- **Actionable Recommendations**: Provides specific remediation steps for each detected vulnerability
+- **Strategy Simulation**: Tests trading strategies in a simulated environment to assess their behavior
+- **CLI Interface**: Easy-to-use command line interface for running analysis
+
+### Usage Examples
+
+#### Command Line Interface
+
+```bash
+# Analyze an arbitrage trading strategy
+node src/core/defi-testing/cli.js analyze-strategy arbitrage --params '{"slippageTolerance": 1.0, "priceFeeds": ["single-dex"]}'
+
+# Execute a strategy with security analysis first
+node src/core/defi-testing/cli.js execute-strategy flash_loan --params '{"targetProtocol": "aave"}' --analyze --simulate
+```
+
+#### JavaScript API
 
 ```javascript
-// From tests/layerzero-crosschain-fuzz.js
-test('Detect LayerZero message replay vulnerabilities', async ({ page }) => {
-  const debugLogger = new DebugLogger('verbose');
-  
-  // Initialize bridge test harness with detailed logging
-  const bridgeTest = new LayerZeroBridgeTest(page, {
-    sourceChain: 'ethereum',
-    destChain: 'arbitrum',
-    debugMode: true
-  });
+const defiTesting = require('./src/core/defi-testing');
 
-  // Fuzzing parameters for comprehensive testing
-  await bridgeTest.fuzzMessagePayloads({
-    iterations: 50,
-    mutationRate: 0.3,
-    payloadSizeVariation: true
-  });
-  
-  // Analyze and report findings
-  const vulnerabilities = await bridgeTest.analyzeReplayProtection();
-  expect(vulnerabilities.replayAttackVectors).toHaveLength(0);
+// Create a trading strategy analyzer
+const analyzer = defiTesting.tradingStrategyAnalyzer.createAnalyzer({
+  outputDir: './reports/trading-security',
 });
+
+// Analyze a trading strategy
+const strategyData = {
+  name: 'My Arbitrage Strategy',
+  type: 'arbitrage',
+  usesOnChainPriceFeeds: true,
+  priceFeeds: ['uniswap'],
+  slippageTolerance: 2.0,
+  // Additional strategy parameters...
+};
+
+// Perform the analysis
+const results = await analyzer.analyzeStrategy(strategyData);
+
+// Access the results
+console.log(`Risk Score: ${results.riskScore}/100`);
+console.log(`Vulnerabilities: ${results.vulnerabilities.length}`);
 ```
 
-<p align="center">
-  <img src="./assets/img/bridge-testing-diagram.png" alt="Bridge Testing Flow" width="80%">
-</p>
+### Supported Vulnerability Types
 
-### 2. Multi-Wallet Matrix Testing
+The analyzer can detect the following types of vulnerabilities:
 
-Test across MetaMask, WalletConnect, and Coinbase Wallet with a single test suite:
+- **Price Manipulation**: Strategies vulnerable to price oracle manipulation
+- **Sandwich Attacks**: Strategies that can be front-run and back-run
+- **Flash Loan Attacks**: Vulnerabilities related to flash loan exploitation
+- **Oracle Manipulation**: Reliance on manipulable price oracles
+- **Impermanent Loss Risk**: High exposure to impermanent loss
+- **Rug Pull Risk**: Exposure to tokens with high rug pull potential
+- **Smart Contract Risk**: Interaction with unaudited smart contracts
+- **MEV Exploitation**: Susceptibility to MEV extraction
+- **Insufficient Slippage Protection**: Inadequate slippage controls
+- **Unlimited Approvals**: Security issues with token approvals
 
-```javascript
-// From tests/wallet-matrix-fuzz.js
-test('Verify transaction security across multiple wallets', async ({ page }) => {
-  const wallets = ['metamask', 'walletconnect', 'coinbase'];
-  
-  for (const wallet of wallets) {
-    const walletTest = new WalletSecurityTest(page, {
-      walletType: wallet,
-      networkId: 1, // Ethereum Mainnet
-      captureScreenshots: true
-    });
-    
-    // Test transaction flow with fuzzed input values
-    await walletTest.fuzzTransactionParameters({
-      valueRanges: {
-        eth: { min: '0.0001', max: '1.5' },
-        gasLimit: { min: 21000, max: 500000 }
-      },
-      iterations: 25
-    });
-    
-    const securityIssues = await walletTest.generateSecurityReport();
-    expect(securityIssues.criticalVulnerabilities).toHaveLength(0);
-  }
-});
-```
+## Comprehensive Documentation
 
-<p align="center">
-  <img src="./assets/img/wallet-matrix-testing.png" alt="Multi-Wallet Testing" width="80%">
-</p>
+### Vulnerability Testing
 
-### 3. ZK-SNARK Security Validation
-
-Advanced ZK-SNARK security testing with our specialized tools:
-
-```javascript
-// From tests/zk-snark-security.test.js
-test('Detect invalid ZK circuit constraint vulnerabilities', async ({ page }) => {
-  const zkTest = new ZkSnarkSecurityTest(page);
-  
-  // Test circuit constraints with edge cases
-  await zkTest.testInvalidEllipticCurvePoints();
-  await zkTest.testMaliciousProofGeneration();
-  await zkTest.testHardcodedInputValidation();
-  
-  // Export detailed vulnerability report
-  const report = await zkTest.generateVulnerabilityReport();
-  expect(report.vulnerableConstraints).toEqual([]);
-});
-```
-
-<p align="center">
-  <img src="./assets/img/zk-snark-testing.png" alt="ZK-SNARK Testing Visualization" width="80%">
-</p>
-
-### 4. AI-Powered Vulnerability Detection
-
-Our advanced ML-based vulnerability detection automatically classifies and reports issues:
-
-```javascript
-// From examples/ai-vulnerability-detection-demo.js
-test('AI-powered detection of transaction vulnerabilities', async ({ page }) => {
-  const aiDetector = new VulnerabilityClassifier({
-    modelPath: './src/core/ai-vulnerability-detection/model-development/vulnerability-model.pt',
-    confidenceThreshold: 0.85
-  });
-  
-  // Capture transaction flow and analyze for vulnerabilities
-  const transactionTrace = await captureTransactionFlow(page, {
-    walletType: 'metamask',
-    targetContract: '0x1234...5678',
-    method: 'transfer',
-    parameters: [recipient, amount]
-  });
-  
-  // Classify vulnerability types and severity
-  const analysis = await aiDetector.classifyVulnerabilities(transactionTrace);
-  
-  // Generate human-readable report with remediation suggestions
-  const report = await aiDetector.generateRemediationReport(analysis);
-  console.log(report.securityRecommendations);
-});
-```
-
-<p align="center">
-  <img src="./assets/img/ai-vulnerability-detection.png" alt="AI-Powered Vulnerability Detection" width="80%">
-</p>
-
-## 💻 Live Demo Interface
-
-Web3FuzzForge includes a simple test interface for manual interaction testing:
-
-<p align="center">
-  <img src="./assets/img/test-interface-example.png" alt="Test Interface Example" width="80%">
-</p>
-
-The interface allows you to:
-- Connect various wallet types
-- Test transaction flows
-- Simulate error conditions
-- View detailed transaction results
-
-## ✨ Key Features
-
-🔍 **Test Generation** - Auto-generated test templates for connections, transactions, fuzzed inputs, and error states
-
-🔐 **Vulnerability Reporting** - Detailed reporting with severity scoring and multi-format export (JSON, HTML, PDF)
-
-📱 **Multi-Wallet Support** - Test wallet interactions across MetaMask, WalletConnect, and Coinbase Wallet
-
-🔁 **Cross-chain Testing** - Simulate bridging, switching networks, and testnet/mainnet compatibility with LayerZero, Stargate, and Radiant Capital
-
-🧠 **AI-Powered Analysis** - Machine learning models for vulnerability classification and remediation recommendations
-
-🧪 **Mock Mode** - Run tests without deploying to live environments
-
-## 🚀 Quick Start
-
-### 🔧 Local Installation
+Detect vulnerabilities in your DApps and smart contracts:
 
 ```bash
-# Install dependencies
-npm install
+# Run full security scan
+npm run security-scan -- --mode=full
 
-# Install the package locally from tarball
-npm run local-install
+# Use AI-powered detection
+npm run ai-scan:verbose
+
+# Test bridge security
+npm run test-bridge:all
 ```
 
-### 🧬 Generate Tests
+### Bug Bounty Integration
+
+Seamlessly integrate with bug bounty platforms:
 
 ```bash
-# Connection test
-yarn forge:gen connect --wallet metamask --out ./tests/connection.js
+# Generate Immunefi submission
+npm run submit-to-immunefi -- --input=reports/security-report.json
 
-# Transaction test with fuzzing
-yarn forge:gen tx --wallet metamask --fuzz --out ./tests/tx-fuzz.js
+# Generate HackenProof submission
+npm run submit-to-hackenproof -- --input=reports/security-report.json
 
-# Error handling test
-yarn forge:gen error --wallet metamask --out ./tests/error-test.js
+# Start unified bounty dashboard
+npm run bounty-dashboard -- --port=3030
 ```
 
-<p align="center">
-  <img src="./assets/img/test-generation-example.png" alt="Test Generation Example" width="80%">
-</p>
+### L2 Network Validation
 
-### 🧪 Run Tests
+Validate your contracts on Layer 2 networks:
 
 ```bash
-# Run in mock mode (local dApp)
-yarn forge:run --mock-mode --headed
+# Generate L2-specific validation rules
+npm run generate-l2-template -- optimism --output=./optimism-rules.json
 
-# Run against deployed dApp
-yarn forge:run --target-url=https://your-dapp.com
+# Validate against L2 protocol
+npm run validate-l2-protocol -- optimism --config=./optimism-rules.json
 
-# Run tests with code coverage
-npm run test:coverage
-
-# View coverage report locally
-npm run coverage:report
+# Measure L2 finality performance
+npm run measure-l2-finality
 ```
 
-<p align="center">
-  <img src="./assets/img/test-execution-example.png" alt="Test Execution Example" width="80%">
-</p>
+### CI/CD Integration
 
-## 📊 Code Coverage
-
-Web3FuzzForge uses Codecov for tracking test coverage:
-
-[![Codecov](https://img.shields.io/badge/codecov-enabled-brightgreen.svg)](https://codecov.io/gh/romanchaa997/Web3FuzzForge)
-
-To generate and view code coverage reports:
+Set up automated security testing in your CI pipeline:
 
 ```bash
-# Run tests with coverage enabled
-npm run test:coverage
+# Set up all GitHub workflows
+npm run github-workflows:setup
 
-# View the coverage report locally
-npm run coverage:report
-
-# Upload coverage to Codecov (CI environment)
-npm run codecov:upload
+# Update existing workflows
+npm run github-workflows:update
 ```
 
-<p align="center">
-  <img src="./assets/img/coverage-report-example.png" alt="Coverage Report Example" width="80%">
-</p>
+## Smart Contract Deployment Validation
 
-## 🔌 Wallet Support Roadmap
-
-Web3FuzzForge prioritizes support for the most widely used wallets first:
-
-### Phase 1: Foundation (Complete) ✅
-- **Core Wallets**: Full support for MetaMask, WalletConnect, and Coinbase Wallet
-- **Common Interface**: Unified testing interface that works across all wallet providers
-- **Test Templates**: Ready-to-use templates for wallet switching and session persistence
-
-### Phase 2: Advanced Features (In Progress) 🚧
-- Enhanced bridge testing with additional protocols
-- AI-powered vulnerability analysis
-- Extended DeFi protocol testing 
-
-<p align="center">
-  <img src="./assets/img/wallet-support-roadmap.png" alt="Wallet Support Roadmap" width="80%">
-</p>
-
-See the [complete roadmap](./docs/wallet-support-roadmap.md) for detailed implementation plans.
-
-## 📖 Docs & Guides
-
-Full documentation available at [Web3FuzzForge GitLab Docs](https://gitlab.com/romanchaa997/web3-security-test-kit)
-
-- [Wallet Support](https://gitlab.com/romanchaa997/web3-security-test-kit/-/blob/main/docs-site/docs/wallet-support.md)
-- [Reporting Overview](https://gitlab.com/romanchaa997/web3-security-test-kit/-/blob/main/docs/reporting.md)
-- [Mobile Wallet Configs](https://gitlab.com/romanchaa997/web3-security-test-kit/-/blob/main/docs/mobile-wallets.md)
-- [Cross-Chain Setup](https://gitlab.com/romanchaa997/web3-security-test-kit/-/blob/main/docs/cross-chain.md)
-- [Community Test Examples](https://gitlab.com/romanchaa997/web3-security-test-kit/-/blob/main/docs/examples.md)
-- [Visual Assets Guide](./docs/visual-assets-guide.md) - How to create diagrams and screenshots
-
-## 📂 Directory Structure
-
-```
-├── tests/                  # Generated test templates and examples
-│   ├── layerzero-crosschain-fuzz.js  # Bridge security tests
-│   ├── wallet-matrix-fuzz.js         # Multi-wallet testing
-│   ├── zk-snark-security.test.js     # ZK-SNARK validation
-├── examples/               # Example test implementations
-│   ├── exploits/           # Example vulnerability tests
-│   ├── demo-dapp/          # Demo application for testing
-├── src/core/               # Core functionality modules
-│   ├── ai-vulnerability-detection/  # ML-based security analysis
-│   ├── bridge-testing/              # Cross-chain security testing
-│   ├── ci-integration/              # CI/CD pipeline integration
-├── utils/                  # Wallet mocks, UI helpers
-├── docs/                   # Markdown-based documentation
-├── reports/                # Auto-generated vulnerability reports
-```
-
-## 🧠 Pro Tips
-
-- Use `forceShowWalletUI()` to avoid visibility test flakiness.
-- Combine fuzzing with error tests for maximum surface coverage.
-- Export test results to PDF for bug bounty reporting.
-- Focus on MetaMask, WalletConnect, and Coinbase Wallet for highest test coverage value.
-- Utilize debug mode with `new DebugLogger('verbose')` for detailed insights.
-
-<p align="center">
-  <img src="./assets/img/debug-mode-example.png" alt="Debug Mode Example" width="80%">
-</p>
-
-## 💡 Use Cases
-
-### 1. Continuous Security Testing in CI/CD Pipeline
-
-<p align="center">
-  <img src="./assets/img/ci-usecase-diagram.png" alt="CI/CD Use Case" width="80%">
-</p>
-
-### 2. Vulnerability Detection Before Launch
-
-<p align="center">
-  <img src="./assets/img/pre-launch-testing.png" alt="Pre-launch Testing" width="80%">
-</p>
-
-### 3. Bridge Security Validation
-
-<p align="center">
-  <img src="./assets/img/bridge-security-usecase.png" alt="Bridge Security Use Case" width="80%">
-</p>
-
-## 🤝 Community & Support
-
-- 💬 Telegram: [@Web3FuzzQA](https://t.me/Web3FuzzQA)
-- 🐦 Twitter: [@romanchaa997](https://x.com/romanchaa997/status/1916868442356945084)
-- ☕ Support: [Ko-fi](https://ko-fi.com/post/Web3FuzzForge-L3L61E74QH)
-- 🛠️ Buy the Pro Kit: [Gumroad](https://romanchaa997.gumroad.com/l/Web3FuzzForge?wanted=true)
-- ⚖️ [License](https://github.com/romanchaa997/Web3FuzzForge/blob/main/LICENSE)
-
-## Implementation Status
-
-### Recently Completed Features ✅
-
-- **ZK-SNARK Security Testing**: Advanced ZK-SNARK validation with tests for invalid curve points, circuit constraints, malicious proofs, and hardcoded validation.
-- **Debug Mode Implementation**: Robust debugging utility with visualization for cross-chain messages, transaction tracing, and detailed logging.
-- **Multi-Wallet Testing**: Support for testing with MetaMask, WalletConnect, and Coinbase Wallet.
-- **LayerZero Bridge Testing**: Cross-chain message testing with replay detection and security validation.
-- **CI/CD Integration**: GitHub Actions workflows with automated test report generation and vulnerability classification.
-- **Stargate Finance Integration**: Enhanced test harness with comprehensive vulnerability detection.
-
-### Next Steps 🚧
-
-1. **Advanced Protocol Integration**
-   - [ ] Expand Radiant Capital test scenarios with liquidity validation
-   - [ ] Integrate with Synapse and additional popular bridges
-   - [ ] Add support for Uniswap V3 security testing
-
-2. **Improved Visualization**
-   - [ ] Create interactive test result dashboards
-   - [ ] Enhance transaction flow visualization with sequence diagrams
-   - [ ] Implement user-friendly debugging UI
-
-3. **AI Analysis Enhancement**
-   - [ ] Train on larger dataset of security vulnerabilities
-   - [ ] Improve remediation suggestion accuracy
-   - [ ] Add novel vulnerability pattern detection
-
-<p align="center">
-  <img src="./assets/img/implementation-status.png" alt="Implementation Status" width="80%">
-</p>
-
-## Usage
+Ensure your deployments are secure and optimized:
 
 ```bash
-# Install dependencies
-npm install
+# Validate deployments with security checks
+npm run deploy-validate -- --check-security --format=md
 
-# Run tests with debug logging
-npm run test:with-debug
-
-# Run specific test suites
-npm run test:zk-snark
-npm run test:layerzero
+# Generate gas usage report
+npm run gas-report -- --deployments=./deployments
 ```
 
-For more details on implementation status and roadmap, see [README-IMPLEMENTATION-STATUS.md](./README-IMPLEMENTATION-STATUS.md)
+## Cross-Chain Bridge Testing
 
-## Screenshots Gallery
+Test the security of cross-chain bridges:
 
-<p align="center">
-  <img src="./assets/img/screenshots/wallet-connection.png" alt="Wallet Connection" width="45%">
-  <img src="./assets/img/screenshots/transaction-testing.png" alt="Transaction Testing" width="45%">
-</p>
+```bash
+# Test bridge security
+npm run test-bridge -- optimism-bridge --source=ethereum --destination=optimism
 
-<p align="center">
-  <img src="./assets/img/screenshots/vulnerability-report.png" alt="Vulnerability Report" width="45%">
-  <img src="./assets/img/screenshots/test-result-dashboard.png" alt="Test Result Dashboard" width="45%">
-</p>
+# Run comprehensive tests across all supported chains
+npm run test-bridge:all
+```
 
-MIT License © 2025
+## Customization and Extensions
+
+The toolkit is designed to be extensible. Add your own plugins in the `plugins/` directory or customize the existing ones.
+
+## GitHub CI/CD Integration
+
+### Setting up GitHub Actions
+
+This project includes GitHub workflow configurations to run automated security tests. To set up the GitHub CI/CD:
+
+1. Go to your GitHub repository settings
+2. Navigate to "Secrets and variables" > "Actions"
+3. Add the following repository secrets:
+   - `OPENAI_API_KEY` - Your OpenAI API key for enhanced security analysis
+
+### OpenAI API Key Setup
+
+The security analysis workflow uses OpenAI for enhanced vulnerability detection. To set up your OpenAI API key:
+
+1. Get an API key from [OpenAI's platform](https://platform.openai.com/)
+2. In your GitHub repository, go to Settings > Secrets and variables > Actions
+3. Create a new repository secret named `OPENAI_API_KEY` with your API key as the value
+4. The workflows will automatically use this key when running security scans
+
+If the OpenAI API key is not available, the system will fall back to basic analysis mode without AI assistance.
+
+### Running Security Scans
+
+Once set up, the security analysis will run automatically on:
+
+- Push to main/master/develop branches
+- Pull requests to these branches
+
+You can also manually trigger scans from the Actions tab by selecting the "Web3FuzzForge Security Analysis" workflow and clicking "Run workflow".
+
+### Dependencies Installation
+
+If you encounter dependency issues when running examples locally, use the following scripts:
+
+```bash
+# Install all critical dependencies with proper flags
+npm run install:deps
+
+# Install specific dependencies
+npm run install:ethers
+npm run install:web3
+npm run install:openai
+```
+
+These scripts handle compatibility conflicts and use the correct version and flags for installation.
