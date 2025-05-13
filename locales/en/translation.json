@@ -1,0 +1,49 @@
+{
+  "header": {
+    "home": "Home",
+    "features": "Features",
+    "docs": "Documentation",
+    "download": "Download",
+    "community": "Community"
+  },
+  "hero": {
+    "title": "Bulletproof Your dApp's Wallet Logic",
+    "subtitle": "Generate automated tests for MetaMask, WalletConnect, Coinbase & more—no guesswork, no BS.",
+    "cta": "Get Started — It's Free"
+  },
+  "features": {
+    "title": "Security Testing for Web3",
+    "subtitle": "Catch vulnerabilities before hackers do",
+    "card1": {
+      "title": "Automated Testing",
+      "description": "Generate security tests for wallet connections and transactions in seconds"
+    },
+    "card2": {
+      "title": "Multi-Wallet Support",
+      "description": "Test MetaMask, WalletConnect, Coinbase Wallet, and more with one suite"
+    },
+    "card3": {
+      "title": "CI/CD Integration",
+      "description": "Run security tests automatically in your CI/CD pipeline"
+    }
+  },
+  "newsletter": {
+    "title": "Stay Updated",
+    "subtitle": "Get the latest security tips and product updates",
+    "placeholder": "Enter your email",
+    "button": "Subscribe",
+    "consent": "I agree to receive occasional emails and understand I can unsubscribe anytime.",
+    "privacy": "View our Privacy Policy"
+  },
+  "download": {
+    "title": "Ready to secure your dApp?",
+    "button": "Download Now",
+    "version": "Current version:",
+    "requirements": "System Requirements"
+  },
+  "footer": {
+    "copyright": "© 2025 Web3FuzzForge. All rights reserved.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  }
+}

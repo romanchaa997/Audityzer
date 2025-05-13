@@ -1,0 +1,101 @@
+stages:
+  - setup
+  - security_validation
+  - security_testing
+  - reporting
+
+variables:
+  NODE_VERSION: '18'
+  PLAYWRIGHT_VERSION: '1.41.2'
+
+default:
+  image: node:${NODE_VERSION}
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+      - .npm/
+      - ~/.cache/ms-playwright/
+
+setup:
+  stage: setup
+  script:
+    - npm ci
+    - npx playwright install --with-deps chromium
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 day
+
+validate_security_rules:
+  stage: security_validation
+  needs:
+    - setup
+  script:
+    - npx web3fuzzforge security-validate ./security-rules.json
+  artifacts:
+    paths:
+      - security-rules.json
+    expire_in: 1 week
+
+web3_security_tests:
+  stage: security_testing
+  needs:
+    - validate_security_rules
+  script:
+    - mkdir -p test-results
+    - npx web3fuzzforge ci-run --reporter=gitlab,html,json,junit --notify=true
+  artifacts:
+    paths:
+      - test-results/
+    reports:
+      junit: test-results/junit-report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: test-results/coverage/cobertura-coverage.xml
+      security_report:
+        path: test-results/gl-security-report.json
+    expire_in: 1 month
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: always
+    - when: manual
+
+static_analysis:
+  stage: security_testing
+  needs:
+    - validate_security_rules
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && exists("contracts/")'
+      when: always
+    - if: 'exists("contracts/")'
+      when: manual
+  script:
+    - mkdir -p test-results/static-analysis
+    - npm install -g solhint
+    - npx web3fuzzforge ci-run --reporter=gitlab,html,json --static-analysis=true --contracts-dir=./contracts
+  artifacts:
+    paths:
+      - test-results/static-analysis/
+    reports:
+      security_report:
+        path: test-results/static-analysis/gl-security-report.json
+    expire_in: 1 month
+
+visualization:
+  stage: reporting
+  needs:
+    - web3_security_tests
+  script:
+    - mkdir -p gl-report
+    - cp test-results/gl-pipeline-visualization.json gl-report/
+  artifacts:
+    reports:
+      visualization: gl-report/gl-pipeline-visualization.json
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+    - when: manual

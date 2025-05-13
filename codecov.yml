@@ -1,0 +1,33 @@
+codecov:
+  require_ci_to_pass: yes
+  repository: romanchaa997/Web3FuzzForge
+
+coverage:
+  precision: 2
+  round: down
+  range: '70...100'
+
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 5%
+    patch:
+      default:
+        target: auto
+        threshold: 10%
+
+parsers:
+  javascript:
+    enable_partials: yes
+
+comment:
+  layout: 'reach, diff, flags, files'
+  behavior: default
+  require_changes: false
+
+ignore:
+  - 'examples/**/*'
+  - 'docs/**/*'
+  - 'docs-site/**/*'
+  - 'media/**/*'

@@ -1,0 +1,49 @@
+{
+  "header": {
+    "home": "Inicio",
+    "features": "Características",
+    "docs": "Documentación",
+    "download": "Descargar",
+    "community": "Comunidad"
+  },
+  "hero": {
+    "title": "Protege la Lógica de Carteras de tu dApp",
+    "subtitle": "Genera pruebas automatizadas para MetaMask, WalletConnect, Coinbase y más—sin conjeturas.",
+    "cta": "Comienza - Es Gratis"
+  },
+  "features": {
+    "title": "Pruebas de Seguridad para Web3",
+    "subtitle": "Detecta vulnerabilidades antes que los hackers",
+    "card1": {
+      "title": "Pruebas Automatizadas",
+      "description": "Genera pruebas de seguridad para conexiones de carteras y transacciones en segundos"
+    },
+    "card2": {
+      "title": "Soporte Multi-Cartera",
+      "description": "Prueba MetaMask, WalletConnect, Coinbase Wallet y más con una sola suite"
+    },
+    "card3": {
+      "title": "Integración CI/CD",
+      "description": "Ejecuta pruebas de seguridad automáticamente en tu pipeline CI/CD"
+    }
+  },
+  "newsletter": {
+    "title": "Mantente Actualizado",
+    "subtitle": "Recibe los últimos consejos de seguridad y actualizaciones del producto",
+    "placeholder": "Ingresa tu email",
+    "button": "Suscribirse",
+    "consent": "Acepto recibir correos ocasionales y entiendo que puedo darme de baja en cualquier momento.",
+    "privacy": "Ver nuestra Política de Privacidad"
+  },
+  "download": {
+    "title": "¿Listo para asegurar tu dApp?",
+    "button": "Descargar Ahora",
+    "version": "Versión actual:",
+    "requirements": "Requisitos del Sistema"
+  },
+  "footer": {
+    "copyright": "© 2025 Web3FuzzForge. Todos los derechos reservados.",
+    "terms": "Términos de Servicio",
+    "privacy": "Política de Privacidad"
+  }
+}

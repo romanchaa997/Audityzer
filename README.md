@@ -1,41 +1,148 @@
-# Audityzer
+# DevForge
 
-[![npm version](https://img.shields.io/npm/v/audityzer.svg)](https://www.npmjs.com/package/audityzer)
+[![npm version](https://img.shields.io/npm/v/devforge.svg)](https://www.npmjs.com/package/devforge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI/CD Pipeline](https://github.com/username/web3-security-test-kit/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/username/web3-security-test-kit/actions/workflows/ci-cd.yml)
+[![CI/CD Pipeline](https://github.com/username/devforge/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/username/devforge/actions/workflows/ci-cd.yml)
+[![Cross-Platform Tests](https://github.com/username/devforge/actions/workflows/cross-platform-tests.yml/badge.svg)](https://github.com/username/devforge/actions/workflows/cross-platform-tests.yml)
+[![Lighthouse Regression](https://github.com/username/devforge/actions/workflows/website-regression.yml/badge.svg)](https://github.com/username/devforge/actions/workflows/website-regression.yml)
 
-Audityzer is an automated security analysis toolkit for Web3 dApps. It helps identify common vulnerabilities and security issues in decentralized applications through automated testing.
+DevForge is an intelligent development server with automatic port management, specifically designed for Web3 security testing environments. It eliminates port conflicts, provides health monitoring endpoints, and delivers robust process management across all platforms.
+
+<p align="center">
+  <img src="https://github.com/username/devforge/raw/main/assets/img/devforge-logo.svg" width="250" alt="DevForge Logo">
+</p>
 
 ## Installation
 
 ```bash
 # Global installation
-npm install -g audityzer
+npm install -g devforge
 
 # Project installation
-npm install --save-dev audityzer
-```
-
-### Troubleshooting Installation Issues
-
-If you encounter dependency conflicts during installation, try:
-
-```bash
-npm install -g audityzer --legacy-peer-deps
+npm install --save-dev devforge
 ```
 
 ## Quick Start
 
 ```bash
-# Generate a MetaMask connection test
-audityzer generate connect --out ./tests/metamask-test.js
+# Start a development server on the default port (5050)
+devforge start
 
-# Generate a test with security fuzzing enabled
-audityzer generate tx --wallet metamask --out ./tests/transaction-test.js --fuzz
+# Start with a specific port (will find next available if occupied)
+devforge start -p 3000
 
-# Run a specific security test for reentrancy vulnerabilities
-audityzer run security reentrancy --target-url http://your-dapp-url
+# Start with a custom directory to serve
+devforge start -d ./public
+
+# Check server status
+devforge status
+
+# Restart the server
+devforge restart
+
+# Stop the server
+devforge stop
 ```
+
+## Key Features
+
+- ✅ **Automatic Port Management** - Automatically finds open ports when your preferred one is in use
+- ✅ **Health API Endpoint** - Built-in monitoring endpoint with server metadata
+- ✅ **Cross-Platform** - Works seamlessly on Windows, macOS, and Linux
+- ✅ **Smart Process Management** - Properly handles process cleanup and termination
+- ✅ **Detailed Logging** - Configurable logging for troubleshooting
+- ✅ **Security-Focused** - Built for Web3 security testing workflows
+
+## Development Environment
+
+We've streamlined the development experience with automated setup scripts and improved workflow tools:
+
+### Cross-Platform Setup
+
+We now support multiple platforms for development:
+
+1. **Windows**:
+   ```powershell
+   # Run the setup script
+   .\scripts\setup-windows.ps1
+   
+   # Start the development server
+   .\start-server.bat
+   ```
+
+2. **Linux/macOS**:
+   ```bash
+   # Set up the environment
+   ./scripts/setup-unix.sh
+   
+   # Start the development server
+   ./start-server.sh
+   ```
+
+3. **Docker** (works on all platforms):
+   ```bash
+   # Start Docker environment
+   ./scripts/docker-setup.sh start
+   
+   # For Windows
+   powershell -ExecutionPolicy Bypass -File "scripts\docker-setup.sh" start
+   ```
+
+For detailed instructions, see our [Cross-Platform Setup Guide](docs/cross-platform-setup.md).
+
+### Using the Server Manager
+
+#### Windows PowerShell:
+```powershell
+.\scripts\server-manager.ps1 -Action start -Port 5000
+.\scripts\server-manager.ps1 -Action stop -Port 5000
+.\scripts\server-manager.ps1 -Action restart -Port 5000
+```
+
+#### Linux/macOS:
+```bash
+./scripts/server-manager.sh start 5000
+./scripts/server-manager.sh stop 5000
+./scripts/server-manager.sh restart 5000
+```
+
+#### Docker:
+```bash
+./scripts/docker-setup.sh start
+./scripts/docker-setup.sh stop
+./scripts/docker-setup.sh restart
+```
+
+For more detailed setup instructions, see our [Development Environment Setup Guide](docs/development-setup.md).
+
+## Security Testing
+
+We've enhanced the security testing capabilities with new test scenarios:
+
+```bash
+# Run all security tests
+npm run test:security
+
+# Test for specific vulnerabilities
+npm run test:reentrancy
+npm run test:oracle
+npm run test:front-running
+npm run test:phishing
+npm run test:signature-replay
+npm run test:access-control
+npm run test:flash-loan  # New test for flash loan attacks
+
+# Run a subset of tests
+npm run test:all-vulns
+```
+
+### Automated CI Testing
+
+Our GitHub Actions workflow now includes comprehensive security testing that runs automatically on code changes.
+
+### Custom Test Development
+
+You can create custom test scenarios for your specific dApp vulnerabilities in `examples/security-bug-tests/`. See our [Custom Test Guide](docs/custom-test-development.md) for examples.
 
 ## Command Reference
 
@@ -107,6 +214,87 @@ node scripts/generate-security-report.js -f md
 node scripts/generate-security-report.js -c
 ```
 
+## Firebase Integration
+
+Audityzer offers seamless Firebase integration for storing test reports and sharing results with your team:
+
+### Configuration
+
+1. Create a Firebase project at [https://console.firebase.google.com/](https://console.firebase.google.com/)
+2. Configure your Firebase credentials:
+
+   Option 1: Environment variables in your `.env` file:
+   ```
+   FIREBASE_API_KEY=your_api_key
+   FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+   FIREBASE_PROJECT_ID=your-project-id
+   FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+   FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+   FIREBASE_APP_ID=your_app_id
+   FIREBASE_MEASUREMENT_ID=your_measurement_id
+   ```
+
+   Option 2: Create a local `.firebase-config.json` file:
+   ```json
+   {
+     "apiKey": "YOUR_API_KEY",
+     "authDomain": "your-project-id.firebaseapp.com",
+     "projectId": "your-project-id",
+     "storageBucket": "your-project-id.appspot.com",
+     "messagingSenderId": "YOUR_MESSAGING_SENDER_ID",
+     "appId": "YOUR_APP_ID",
+     "measurementId": "YOUR_MEASUREMENT_ID"
+   }
+   ```
+
+### Usage
+
+Once configured, you can:
+- Automatically store test reports in Firestore
+- Upload report files to Firebase Storage
+- Share report URLs with your team
+- Access historical test reports via the Firebase console
+
+```bash
+# Generate and upload a report to Firebase
+npm run report:upload
+
+# Generate HTML report and upload to Firebase
+npm run report:html -- -c
+```
+
+## Docker Environment
+
+For enhanced reproducibility and simplified setup, we provide a Docker-based development environment:
+
+```bash
+# Start the basic environment
+./scripts/docker-setup.sh start
+
+# Start with ElasticSearch and Kibana for advanced reporting
+./scripts/docker-setup.sh full
+
+# Run tests in Docker
+./scripts/docker-setup.sh test test:security
+
+# Shell into the container
+./scripts/docker-setup.sh shell
+```
+
+## CI/CD Integration
+
+The project includes a comprehensive GitHub Actions workflow that:
+
+1. Runs linting and unit tests
+2. Performs security vulnerability tests
+3. Builds and tests the Docker image
+4. Builds and packages the application
+5. Publishes releases to NPM and GitHub
+6. Deploys documentation to GitHub Pages
+
+To use it in your project, configure the following GitHub repository secrets:
+- `NPM_TOKEN` - For publishing to NPM
+
 ## Troubleshooting
 
 ### Common Issues
@@ -115,6 +303,45 @@ node scripts/generate-security-report.js -c
 - **CLI Command Not Found**: Ensure the package is installed globally with `-g` flag and the binary path is in your PATH
 - **Playwright Browser Installation**: If browser tests fail, run `npx playwright install chromium`
 - **Firebase Errors**: Set proper Firebase API key in `.env` file or disable cloud features
+
+### vLLM / Large-Language-Model API Server on Windows
+
+The vLLM project currently ships binary wheels **for Linux only**.  On Windows you have three practical options:
+
+1. **Docker (recommended – GPU & CPU)**
+   ```powershell
+   # Requires Docker Desktop with WSL integration and (optionally) NVIDIA Container Toolkit for GPU
+   docker run --gpus all -p 8000:8000 \ \
+     -v %USERPROFILE%\.cache\huggingface:/root/.cache/huggingface \
+     ghcr.io/vllm-project/vllm:latest \
+     --model WhiteRabbitNeo/WhiteRabbitNeo-13B-v1 --dtype float16 --port 8000
+   ```
+
+2. **WSL 2 + Conda / Pip (CPU or CUDA)**
+   ```bash
+   # Inside Ubuntu-20.04 WSL shell (Python 3.10 recommended)
+   conda create -n vllm python=3.10 -y
+   conda activate vllm
+   pip install vllm sentencepiece
+   python -m vllm.entrypoints.api_server \
+       --model WhiteRabbitNeo/WhiteRabbitNeo-13B-v1 --dtype float16 --port 8000
+   ```
+
+3. **Use an older Python (≤ 3.11) with unofficial wheels**
+   If you must stay native on Windows, install **Python 3.10** x86_64 and then:  
+   ```powershell
+   pip install sentencepiece==0.1.99  # pre-built wheel exists for Win64
+   pip install "vllm @ git+https://github.com/vllm-project/vllm.git"
+   ```
+   ⚠️  Expect limited stability and no GPU acceleration.
+
+### FFmpeg not found after installation on Windows
+
+`winget` (or Chocolatey) adds FFmpeg to `PATH` for **new** shells only.  If the `create:demo-video` script still complains:
+
+1. Close and reopen your terminal (PowerShell / Git Bash) – this reloads the PATH.  
+2. Run `where ffmpeg` (PowerShell) or `which ffmpeg` (Git Bash) – it should print the full path.  
+3. If it still fails, verify `%PROGRAMFILES%\ffmpeg\bin` (or `C:\ffmpeg\bin`) is present in your PATH.
 
 ## Contributing
 

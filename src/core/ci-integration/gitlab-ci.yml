@@ -1,0 +1,158 @@
+# Web3 Security Testing Pipeline for GitLab CI/CD
+# Analyzes smart contracts and other Web3 code for security issues
+
+stages:
+  - setup
+  - analysis
+  - comprehensive
+  - report
+
+variables:
+  # Define contract path, can be overridden in the pipeline UI
+  CONTRACT_PATH: ${CONTRACT_PATH:-"contracts"}
+  # Testing level: basic, standard, comprehensive
+  TEST_LEVEL: ${TEST_LEVEL:-"standard"}
+  # Node.js version to use
+  NODE_VERSION: '16'
+
+# Cache dependencies to speed up builds
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+setup:
+  stage: setup
+  image: node:${NODE_VERSION}
+  script:
+    - npm ci
+    # Check if the contract path exists
+    - |
+      if [ ! -d "$CONTRACT_PATH" ]; then
+        echo "Contract path $CONTRACT_PATH not found."
+        echo "Looking for alternative directories..."
+        if [ -d "contracts" ]; then
+          export CONTRACT_PATH="contracts"
+        elif [ -d "src/contracts" ]; then
+          export CONTRACT_PATH="src/contracts"
+        fi
+        echo "Using $CONTRACT_PATH"
+      fi
+    - echo "CONTRACT_PATH=$CONTRACT_PATH" >> setup.env
+  artifacts:
+    reports:
+      dotenv: setup.env
+
+static-analysis:
+  stage: analysis
+  image: node:${NODE_VERSION}
+  needs:
+    - setup
+  script:
+    - npx @web3-security-test-kit/cli analyze --path $CONTRACT_PATH --output static-analysis.json
+    - npx @web3-security-test-kit/cli generate-rules --path $CONTRACT_PATH --output security-rules.json
+    - npx @web3-security-test-kit/cli verify-rules --rules security-rules.json
+  artifacts:
+    paths:
+      - static-analysis.json
+      - security-rules.json
+    expire_in: 1 week
+
+vulnerability-detection:
+  stage: analysis
+  image: node:${NODE_VERSION}
+  needs:
+    - setup
+  rules:
+    - if: $TEST_LEVEL != "basic"
+  script:
+    - npx @web3-security-test-kit/cli detect-vulnerabilities --path $CONTRACT_PATH --output vulnerability-report.json
+  artifacts:
+    paths:
+      - vulnerability-report.json
+    expire_in: 1 week
+
+protocol-testing:
+  stage: comprehensive
+  image: node:${NODE_VERSION}
+  needs:
+    - setup
+  rules:
+    - if: $TEST_LEVEL == "comprehensive"
+  script:
+    - npx @web3-security-test-kit/cli test-protocol --path $CONTRACT_PATH --output protocol-report.json
+  artifacts:
+    paths:
+      - protocol-report.json
+    expire_in: 1 week
+
+l2-compatibility:
+  stage: comprehensive
+  image: node:${NODE_VERSION}
+  needs:
+    - setup
+  rules:
+    - if: $TEST_LEVEL == "comprehensive"
+  script:
+    - npx @web3-security-test-kit/cli test-l2 --path $CONTRACT_PATH --output l2-report.json
+  artifacts:
+    paths:
+      - l2-report.json
+    expire_in: 1 week
+
+generate-report:
+  stage: report
+  image: node:${NODE_VERSION}
+  needs:
+    - static-analysis
+    - vulnerability-detection
+    - protocol-testing
+    - l2-compatibility
+  # Allow this job to run even if some of the dependency jobs failed/were skipped
+  allow_failure: true
+  script:
+    - |
+      ARGS="--path $CONTRACT_PATH --static-analysis-result security-rules.json"
+      if [ -f "vulnerability-report.json" ]; then
+        ARGS="$ARGS --vulnerability-report vulnerability-report.json"
+      fi
+      if [ -f "protocol-report.json" ]; then
+        ARGS="$ARGS --protocol-report protocol-report.json"
+      fi
+      if [ -f "l2-report.json" ]; then
+        ARGS="$ARGS --l2-report l2-report.json"
+      fi
+      npx @web3-security-test-kit/cli generate-report $ARGS --output security-report.md --format markdown
+      npx @web3-security-test-kit/cli generate-report $ARGS --output security-report.json --format json
+      npx @web3-security-test-kit/cli generate-report $ARGS --output security-report.html --format html
+    # Check for critical vulnerabilities
+    - |
+      if [ -f "vulnerability-report.json" ]; then
+        CRITICAL=$(jq '.vulnerabilities | map(select(.severity == "critical")) | length' vulnerability-report.json)
+        if [ "$CRITICAL" -gt 0 ]; then
+          echo "CRITICAL VULNERABILITY ALERT: Found $CRITICAL critical vulnerabilities!"
+          exit 1
+        fi
+      fi
+  artifacts:
+    paths:
+      - security-report.md
+      - security-report.json
+      - security-report.html
+    expire_in: 1 month
+
+pages:
+  stage: report
+  needs:
+    - generate-report
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - mkdir -p public
+    - cp security-report.html public/index.html
+    - cp security-report.json public/
+    - cp security-report.md public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 month

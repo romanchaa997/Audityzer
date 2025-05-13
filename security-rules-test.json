@@ -1,0 +1,113 @@
+{
+  "version": "1.0.0",
+  "projectId": "web3-security-test-kit",
+  "rules": [
+    {
+      "id": "WALLET-SEC-001",
+      "name": "Insecure wallet connection",
+      "description": "Tests for insecure wallet connection methods",
+      "severity": "high",
+      "category": "wallet-security",
+      "pattern": "insecure wallet connection",
+      "remediation": "Use secure connection methods with proper error handling",
+      "references": [
+        {
+          "url": "https://docs.metamask.io/guide/ethereum-provider.html",
+          "title": "MetaMask Provider API"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true,
+        "autoCreateIssue": true
+      },
+      "platforms": ["ethereum", "polygon"],
+      "enabled": true
+    },
+    {
+      "id": "TX-SEC-001",
+      "name": "Unsigned transaction detection",
+      "description": "Detects when transactions are not properly signed",
+      "severity": "critical",
+      "category": "transaction-safety",
+      "pattern": "unsigned transaction",
+      "remediation": "Ensure all transactions are properly signed before submission",
+      "references": [
+        {
+          "url": "https://docs.ethers.org/v5/api/signer/",
+          "title": "Ethers.js Signing API"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": false
+      },
+      "platforms": ["all"],
+      "enabled": true
+    },
+    {
+      "id": "AUTH-SEC-001",
+      "name": "Weak authentication mechanisms",
+      "description": "Detects weak or insecure authentication mechanisms",
+      "severity": "critical",
+      "category": "authentication",
+      "pattern": "weak authentication",
+      "remediation": "Use strong authentication mechanisms",
+      "references": [
+        {
+          "url": "https://web3.patternresearch.org/authentication",
+          "title": "Web3 Authentication Best Practices"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true,
+        "notifyChannel": "slack"
+      },
+      "platforms": ["all"],
+      "enabled": false
+    },
+    {
+      "id": "DATA-SEC-001",
+      "name": "Personal data protection",
+      "description": "Checks for proper handling of PII data",
+      "severity": "high",
+      "category": "configuration",
+      "pattern": "personal data",
+      "remediation": "Ensure proper encryption and handling of personal data",
+      "references": [
+        {
+          "url": "https://gdpr-info.eu/",
+          "title": "GDPR Guidelines"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true,
+        "notifyChannel": "email"
+      },
+      "platforms": ["all"],
+      "enabled": true
+    },
+    {
+      "id": "WALLET-SEC-001",
+      "name": "Duplicate rule ID",
+      "description": "This is a duplicate rule ID",
+      "severity": "medium",
+      "category": "wallet-security",
+      "pattern": "duplicate rule",
+      "platforms": ["ethereum"],
+      "enabled": true
+    }
+  ],
+  "rulesets": {
+    "default": ["WALLET-SEC-001", "TX-SEC-001", "MISSING-RULE-001"],
+    "production": ["WALLET-SEC-001", "TX-SEC-001", "AUTH-SEC-001", "DATA-SEC-001"]
+  },
+  "environments": {
+    "development": {
+      "activeRulesets": ["default"],
+      "disabledRules": []
+    },
+    "production": {
+      "activeRulesets": ["production"],
+      "disabledRules": ["AUTH-SEC-001"]
+    }
+  }
+}

@@ -1,0 +1,125 @@
+trigger:
+  - main
+  - master
+
+schedules:
+  - cron: '0 0 * * 1'
+    displayName: Weekly Monday build
+    branches:
+      include:
+        - main
+        - master
+    always: true
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  NODE_VERSION: '18.x'
+
+stages:
+  - stage: SecurityTesting
+    displayName: 'Web3 Security Testing'
+    jobs:
+      - job: SetupAndValidation
+        displayName: 'Setup and Validation'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(NODE_VERSION)'
+            displayName: 'Install Node.js'
+
+          - script: npm ci
+            displayName: 'Install dependencies'
+
+          - script: npx playwright install --with-deps chromium
+            displayName: 'Install Playwright browsers'
+
+          - script: npx web3fuzzforge security-validate ./security-rules.json
+            displayName: 'Validate security rules'
+            continueOnError: false
+
+      - job: SecurityTests
+        displayName: 'Run Security Tests'
+        dependsOn: SetupAndValidation
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(NODE_VERSION)'
+            displayName: 'Install Node.js'
+
+          - script: npm ci
+            displayName: 'Install dependencies'
+
+          - script: npx playwright install --with-deps chromium
+            displayName: 'Install Playwright browsers'
+
+          - script: npx web3fuzzforge ci-run --reporter=azure,html,json,junit --notify=true
+            displayName: 'Run Web3FuzzForge security tests'
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'test-results/junit-report.xml'
+              mergeTestResults: true
+              testRunTitle: 'Web3FuzzForge Security Tests'
+            displayName: 'Publish test results'
+            condition: always()
+
+          - task: PublishCodeCoverageResults@1
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: 'test-results/coverage/cobertura-coverage.xml'
+              pathToSources: 'src/'
+            displayName: 'Publish code coverage'
+            condition: succeededOrFailed()
+
+      - job: StaticAnalysis
+        displayName: 'Static Analysis'
+        dependsOn: SetupAndValidation
+        condition: succeeded()
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(NODE_VERSION)'
+            displayName: 'Install Node.js'
+
+          - script: npm ci
+            displayName: 'Install dependencies'
+
+          - script: |
+              if [ -d "./contracts" ]; then
+                mkdir -p test-results/static-analysis
+                npm install -g solhint
+                npx web3fuzzforge ci-run --static-analysis=true --contracts-dir=./contracts
+                echo "Static analysis completed"
+              else
+                echo "No contracts directory found, skipping static analysis"
+              fi
+            displayName: 'Run static analysis on smart contracts'
+
+  - stage: Reporting
+    displayName: 'Generate Reports'
+    dependsOn: SecurityTesting
+    condition: succeededOrFailed()
+    jobs:
+      - job: GenerateReports
+        displayName: 'Generate Security Reports'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(NODE_VERSION)'
+            displayName: 'Install Node.js'
+
+          - script: npm ci
+            displayName: 'Install dependencies'
+
+          - script: npx web3fuzzforge generate-report --format=html,pdf,markdown
+            displayName: 'Generate security reports'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: 'test-results'
+              artifactName: 'security-test-results'
+            displayName: 'Publish test artifacts'
+            condition: always()

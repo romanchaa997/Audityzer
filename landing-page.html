@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevForge - Intelligent Development Server for Web3</title>
+  <style>
+    :root {
+      --primary: #6e42e5;
+      --secondary: #1b2432;
+      --accent: #00ffcc;
+      --text: #f7f9fc;
+      --background: #0f172a;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    header {
+      padding: 2rem 1rem;
+      text-align: center;
+      background: linear-gradient(135deg, var(--secondary), var(--background));
+      border-bottom: 2px solid var(--primary);
+    }
+    
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    h1 {
+      font-size: 3.2rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+    }
+    
+    p {
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
+    
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+    
+    .terminal {
+      background: var(--secondary);
+      border-radius: 6px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 750px;
+      margin: 2rem 0;
+      font-family: 'Fira Code', monospace;
+      overflow-x: auto;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .terminal pre {
+      color: #a4ffb0;
+      font-size: 0.95rem;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .feature-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 3px solid var(--primary);
+      transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .cta {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.8rem 2.5rem;
+      font-size: 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+    
+    .cta:hover {
+      background: #5834c0;
+      transform: translateY(-2px);
+    }
+    
+    footer {
+      text-align: center;
+      padding: 2rem;
+      margin-top: 3rem;
+      background-color: var(--secondary);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>DevForge</h1>
+      <p>Your intelligent development server command center for Web3 projects</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h2>Eliminate port conflicts, instantly.</h2>
+      <p>DevForge automatically handles port conflicts, provides health endpoints, and manages your development servers - perfect for Web3 security testing.</p>
+      
+      <div class="terminal">
+<pre>
+> devforge start
+
+Finding available port starting from 5050...
+Server started with PID: 10324 on port 5050
+Health endpoint available at: http://localhost:5051/health
+
+--- SERVER INFO ---
+Status: Running
+Uptime: 2.3s
+Memory: 24.8MB
+OS: Windows
+Node: v16.14.0
+</pre>
+      </div>
+      
+      <a href="https://github.com/YourUser/devforge" target="_blank">
+        <button class="cta">Get Started on GitHub</button>
+      </a>
+    </section>
+
+    <section>
+      <h2>Why DevForge?</h2>
+      <div class="features">
+        <div class="feature-card">
+          <h3>Intelligent Port Management</h3>
+          <p>Automatically finds available ports when your preferred one is in use, eliminating the "port already in use" frustration.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Health API Endpoints</h3>
+          <p>Built-in health endpoint with server metadata for monitoring and diagnostics during Web3 security testing.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Cross-Platform Support</h3>
+          <p>Works seamlessly on Windows, macOS, and Linux with smart process management.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Security-Focused</h3>
+          <p>Built for Web3 security testing with detailed logging and monitoring capabilities.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Simple CLI Commands</h3>
+          <p>Start, stop, restart and check status with intuitive commands. Easy integration with your workflow.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Open Source</h3>
+          <p>Free to use and improve. Contributions welcome!</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 DevForge. Created with ❤️ for Web3 developers.</p>
+    </div>
+  </footer>
+</body>
+</html> 

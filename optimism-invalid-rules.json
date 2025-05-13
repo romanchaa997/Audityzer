@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "projectId": "optimism-security-test-kit",
+  "rules": [
+    {
+      "id": "OPTIMISM-GAS-001",
+      "name": "optimism gas optimization check",
+      "description": "Validates gas usage patterns on optimism",
+      "severity": "high",
+      "category": "gas-optimization",
+      "pattern": "gas optimization",
+      "remediation": "Follow optimism-specific gas optimization patterns",
+      "references": [
+        {
+          "url": "https://docs.optimism.io/gas",
+          "title": "optimism Gas Model Documentation"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": false
+      },
+      "platforms": ["optimism"],
+      "enabled": true
+    }
+  ],
+  "rulesets": {
+    "default": ["OPTIMISM-GAS-001"],
+    "production": ["OPTIMISM-GAS-001"]
+  },
+  "environments": {
+    "development": {
+      "activeRulesets": ["default"],
+      "disabledRules": []
+    },
+    "production": {
+      "activeRulesets": ["production"],
+      "disabledRules": []
+    }
+  }
+}

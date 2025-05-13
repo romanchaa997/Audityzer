@@ -1,0 +1,32 @@
+{
+  "name": "devforge",
+  "version": "1.0.0",
+  "description": "Intelligent development server with auto port management for Web3 security testing",
+  "main": "index.js",
+  "bin": {
+    "devforge": "bin/dev-server-runner.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "development",
+    "server",
+    "port-management",
+    "cross-platform",
+    "health-monitoring",
+    "devops"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1"
+  },
+  "peerDependencies": {
+    "serve": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

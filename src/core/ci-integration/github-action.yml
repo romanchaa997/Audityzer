@@ -1,0 +1,155 @@
+name: Web3 Security Testing
+
+on:
+  push:
+    branches: [main, master, dev]
+  pull_request:
+    branches: [main, master]
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      test_level:
+        description: 'Testing level (basic, standard, comprehensive)'
+        required: true
+        default: 'standard'
+      contract_path:
+        description: 'Path to smart contracts'
+        required: false
+        default: ''
+
+jobs:
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine test level
+        id: test-level
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            LEVEL="${{ github.event.inputs.test_level }}"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            LEVEL="standard"
+          else
+            LEVEL="basic"
+          fi
+          echo "level=$LEVEL" >> $GITHUB_OUTPUT
+
+      - name: Determine contract path
+        id: contract-path
+        run: |
+          if [[ -n "${{ github.event.inputs.contract_path }}" ]]; then
+            PATH="${{ github.event.inputs.contract_path }}"
+          elif [[ -d "contracts" ]]; then
+            PATH="contracts"
+          elif [[ -d "src/contracts" ]]; then
+            PATH="src/contracts"
+          else
+            PATH="."
+          fi
+          echo "path=$PATH" >> $GITHUB_OUTPUT
+
+      - name: Run static analysis
+        id: static-analysis
+        run: npx @web3-security-test-kit/cli analyze --path ${{ steps.contract-path.outputs.path }}
+
+      - name: Generate security rules
+        run: npx @web3-security-test-kit/cli generate-rules --path ${{ steps.contract-path.outputs.path }} --output security-rules.json
+
+      - name: Verify security rules
+        run: npx @web3-security-test-kit/cli verify-rules --rules security-rules.json
+
+      - name: Run vulnerability detection
+        if: steps.test-level.outputs.level != 'basic'
+        run: npx @web3-security-test-kit/cli detect-vulnerabilities --path ${{ steps.contract-path.outputs.path }} --output vulnerability-report.json
+
+      - name: Run protocol-specific tests
+        if: steps.test-level.outputs.level == 'comprehensive'
+        run: npx @web3-security-test-kit/cli test-protocol --path ${{ steps.contract-path.outputs.path }} --output protocol-report.json
+
+      - name: Run L2 compatibility tests
+        if: steps.test-level.outputs.level == 'comprehensive'
+        run: npx @web3-security-test-kit/cli test-l2 --path ${{ steps.contract-path.outputs.path }} --output l2-report.json
+
+      - name: Generate comprehensive report
+        run: |
+          ARGS="--path ${{ steps.contract-path.outputs.path }} --static-analysis-result security-rules.json"
+          if [[ -f "vulnerability-report.json" ]]; then
+            ARGS="$ARGS --vulnerability-report vulnerability-report.json"
+          fi
+          if [[ -f "protocol-report.json" ]]; then
+            ARGS="$ARGS --protocol-report protocol-report.json"
+          fi
+          if [[ -f "l2-report.json" ]]; then
+            ARGS="$ARGS --l2-report l2-report.json"
+          fi
+          npx @web3-security-test-kit/cli generate-report $ARGS --output security-report.md --format markdown
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: |
+            security-report.md
+            security-rules.json
+            vulnerability-report.json
+            protocol-report.json
+            l2-report.json
+
+      - name: Check for critical vulnerabilities
+        id: check-critical
+        run: |
+          if [[ -f "vulnerability-report.json" ]]; then
+            CRITICAL=$(jq '.vulnerabilities | map(select(.severity == "critical")) | length' vulnerability-report.json)
+            if [[ $CRITICAL -gt 0 ]]; then
+              echo "::error::Found $CRITICAL critical vulnerabilities. See security report for details."
+              echo "has_critical=true" >> $GITHUB_OUTPUT
+              exit 1
+            else
+              echo "has_critical=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "has_critical=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Post report to PR
+        if: github.event_name == 'pull_request' && !failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            // Read the report
+            let reportContent = '';
+            try {
+              reportContent = fs.readFileSync('security-report.md', 'utf8');
+            } catch (error) {
+              console.error('Error reading report:', error);
+              reportContent = 'Error reading security report';
+            }
+
+            // Limit the size if needed
+            if (reportContent.length > 65000) {
+              reportContent = reportContent.substring(0, 65000) + "\n\n... Report truncated due to size. Download full report from artifacts.";
+            }
+
+            // Post as a comment
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Web3 Security Analysis Report\n\n${reportContent}`
+            });

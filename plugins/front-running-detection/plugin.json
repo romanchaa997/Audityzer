@@ -1,0 +1,24 @@
+{
+  "name": "front-running-detection",
+  "version": "1.0.0",
+  "type": "test",
+  "description": "Detects and prevents front-running vulnerabilities in DeFi contracts",
+  "entryPoint": "index.js",
+  "configSchema": "config/schema.json",
+  "dependencies": {
+    "web3fuzzforge": "^1.0.0",
+    "playwright": "^1.30.0"
+  },
+  "author": "Web3FuzzForge Team",
+  "license": "MIT",
+  "tags": ["defi", "front-running", "security", "transaction", "mempool"],
+  "documentation": {
+    "usage": "docs/usage.md",
+    "examples": "docs/examples.md",
+    "configuration": "docs/configuration.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/web3fuzzforge/plugin-front-running-detection"
+  }
+}

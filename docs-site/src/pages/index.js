@@ -1,10 +1,10 @@
-import React from 'react'
-import clsx from 'clsx'
-import Layout from '@theme/Layout'
-import Link from '@docusaurus/Link'
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
-import useBaseUrl from '@docusaurus/useBaseUrl'
-import styles from './styles.module.css'
+import React from 'react';
+import clsx from 'clsx';
+import Layout from '@theme/Layout';
+import Link from '@docusaurus/Link';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import styles from './styles.module.css';
 
 const features = [
   {
@@ -12,8 +12,8 @@ const features = [
     imageUrl: 'img/wallets.svg',
     description: (
       <>
-        Test MetaMask, WalletConnect, Coinbase Wallet, Phantom, and more
-        with a unified testing interface that makes cross-wallet testing simple.
+        Test MetaMask, WalletConnect, Coinbase Wallet, Phantom, and more with a unified testing
+        interface that makes cross-wallet testing simple.
       </>
     ),
   },
@@ -22,8 +22,8 @@ const features = [
     imageUrl: 'img/security.svg',
     description: (
       <>
-        Generate test templates for common Web3 security vulnerabilities
-        to find and fix issues before attackers can exploit them.
+        Generate test templates for common Web3 security vulnerabilities to find and fix issues
+        before attackers can exploit them.
       </>
     ),
   },
@@ -32,15 +32,15 @@ const features = [
     imageUrl: 'img/automation.svg',
     description: (
       <>
-        Generate comprehensive test templates with a single command or
-        use AI-driven configuration to describe tests in natural language.
+        Generate comprehensive test templates with a single command or use AI-driven configuration
+        to describe tests in natural language.
       </>
     ),
   },
-]
+];
 
 function Feature({ imageUrl, title, description }) {
-  const imgUrl = useBaseUrl(imageUrl)
+  const imgUrl = useBaseUrl(imageUrl);
   return (
     <div className={clsx('col col--4', styles.feature)}>
       {imgUrl && (
@@ -51,16 +51,17 @@ function Feature({ imageUrl, title, description }) {
       <h3>{title}</h3>
       <p>{description}</p>
     </div>
-  )
+  );
 }
 
 function Home() {
-  const context = useDocusaurusContext()
-  const { siteConfig = {} } = context
+  const context = useDocusaurusContext();
+  const { siteConfig = {} } = context;
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Automated test scaffolding for Web3 developers">
+      description="Automated test scaffolding for Web3 developers"
+    >
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title">{siteConfig.title}</h1>
@@ -69,9 +70,10 @@ function Home() {
             <Link
               className={clsx(
                 'button button--outline button--secondary button--lg',
-                styles.getStarted,
+                styles.getStarted
               )}
-              to={useBaseUrl('docs/intro')}>
+              to={useBaseUrl('docs/intro')}
+            >
               Get Started
             </Link>
           </div>
@@ -91,7 +93,7 @@ function Home() {
         )}
       </main>
     </Layout>
-  )
+  );
 }
 
-export default Home
+export default Home;

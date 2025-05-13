@@ -81,4 +81,4 @@ This will create a `.web3fuzzforge.json` configuration file you can use for subs
 
 ## Next Steps
 
-Explore the [Commands](commands) documentation to learn about all available options, or check out [Wallet Support](wallet-support) to see which wallets you can test with. 
+Explore the [Commands](commands) documentation to learn about all available options, or check out [Wallet Support](wallet-support) to see which wallets you can test with.

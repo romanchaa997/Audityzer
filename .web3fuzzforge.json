@@ -4,5 +4,24 @@
   "connect_button_selector": ".connect-wallet-button",
   "lang": "js",
   "out": "./tests/test.js",
-  "lint": true
+  "lint": true,
+  "debug": {
+    "enabled": true,
+    "level": "basic",
+    "output_to_console": true,
+    "output_to_file": true,
+    "output_path": "./test-output/debug-logs"
+  },
+  "templates": {
+    "approval_overflow": "./examples/exploits/uniswap-approval-overflow.fuzz.js",
+    "airdrop_batch": "./examples/exploits/airdrop-batch-loss.test.ts",
+    "zk_snark": "./examples/exploits/darkforest-zk-replay.fuzz.ts",
+    "session_handling": "./examples/exploits/session-handling.test.js"
+  },
+  "test_suites": {
+    "uniswap": ["approval_overflow", "session_handling"],
+    "airdrop": ["airdrop_batch", "session_handling"],
+    "game": ["zk_snark", "session_handling"],
+    "all": ["approval_overflow", "airdrop_batch", "zk_snark", "session_handling"]
+  }
 }

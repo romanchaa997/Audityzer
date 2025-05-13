@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .text { 
+      font: bold 40px sans-serif; 
+      fill: #f7f9fc;
+    }
+    .anvil {
+      fill: #6e42e5;
+    }
+    .hammer {
+      fill: #00ffcc;
+    }
+    .spark {
+      fill: #ffbd2e;
+      animation: spark 1.5s infinite;
+    }
+    @keyframes spark {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+  </style>
+  
+  <!-- Background Circle -->
+  <circle cx="150" cy="150" r="140" fill="#1b2432" stroke="#6e42e5" stroke-width="4"/>
+  
+  <!-- Anvil -->
+  <path class="anvil" d="M80 200 L220 200 L200 230 L100 230 Z" />
+  <path class="anvil" d="M120 160 L180 160 L200 200 L100 200 Z" />
+  
+  <!-- Hammer -->
+  <path class="hammer" d="M190 80 L210 100 L170 140 L150 120 Z" />
+  <path class="hammer" d="M150 120 L170 140 L130 180 L110 160 Z" />
+  
+  <!-- Sparks -->
+  <circle class="spark" cx="170" cy="140" r="8" />
+  <circle class="spark" cx="180" cy="130" r="6" />
+  <circle class="spark" cx="190" cy="120" r="4" />
+  
+  <!-- Text -->
+  <text class="text" x="150" y="270" text-anchor="middle">DevForge</text>
+</svg> 

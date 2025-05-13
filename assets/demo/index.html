@@ -1,1 +1,37 @@
-<html><head><title>Web3FuzzForge Demo</title><style>body{font-family:Arial;max-width:800px;margin:0 auto;padding:20px;background:#f5f5f5;}pre{background:#1a1a1a;color:#f0f0f0;padding:20px;border-radius:5px;overflow:auto;}</style></head><body><h1>Web3FuzzForge Demo</h1><p>This page demonstrates the key features implemented:</p><h2>ZK-SNARK Security Testing</h2><pre># Testing ZK-SNARK security\n$ npm run test:zk-snark\n\nòÜÓ Detected invalid elliptic curve points\nòÜÓ Detected circuit constraint violations\nòÜÓ Found hardcoded proof attempts\nòÜÓ Prevented proof replay attacks\n\nAll tests passed!</pre><h2>Debug Mode Visualization</h2><pre># Cross-chain message flow\n\nTime      | ethereum   | optimism   | arbitrum   \n----------|------------|------------|------------\n12:34:56  |   OUT >    |  < IN      |            \n12:34:58  |            |   OUT >    |  < IN      \n12:35:01  |  < IN      |            |   OUT >    \n\n# Debug report generated at test-output/debug-logs/flow-12345.txt</pre><h2>Security Report</h2><pre>Security assessment complete:\n- 0 critical issues\n- 0 high issues\n- 0 medium issues\n\nAll security tests passed!</pre></body></html>
+<html>
+  <head>
+    <title>Web3FuzzForge Demo</title>
+    <style>
+      body {
+        font-family: Arial;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      pre {
+        background: #1a1a1a;
+        color: #f0f0f0;
+        padding: 20px;
+        border-radius: 5px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Web3FuzzForge Demo</h1>
+    <p>This page demonstrates the key features implemented:</p>
+    <h2>ZK-SNARK Security Testing</h2>
+    <pre>
+# Testing ZK-SNARK security\n$ npm run test:zk-snark\n\nï¿½ï¿½ï¿½ Detected invalid elliptic curve points\nï¿½ï¿½ï¿½ Detected circuit constraint violations\nï¿½ï¿½ï¿½ Found hardcoded proof attempts\nï¿½ï¿½ï¿½ Prevented proof replay attacks\n\nAll tests passed!</pre
+    >
+    <h2>Debug Mode Visualization</h2>
+    <pre>
+# Cross-chain message flow\n\nTime      | ethereum   | optimism   | arbitrum   \n----------|------------|------------|------------\n12:34:56  |   OUT >    |  < IN      |            \n12:34:58  |            |   OUT >    |  < IN      \n12:35:01  |  < IN      |            |   OUT >    \n\n# Debug report generated at test-output/debug-logs/flow-12345.txt</pre
+    >
+    <h2>Security Report</h2>
+    <pre>
+Security assessment complete:\n- 0 critical issues\n- 0 high issues\n- 0 medium issues\n\nAll security tests passed!</pre
+    >
+  </body>
+</html>

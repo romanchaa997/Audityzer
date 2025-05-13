@@ -159,11 +159,13 @@ header p {
   border-bottom: 1px solid #ecf0f1;
 }
 
-.command-list, .template-list {
+.command-list,
+.template-list {
   margin-bottom: 25px;
 }
 
-.command, .template {
+.command,
+.template {
   display: flex;
   justify-content: space-between;
   padding: 6px 0;
@@ -204,4 +206,4 @@ header p {
     grid-template-columns: 1fr;
     grid-template-rows: 2fr 1fr;
   }
-} 
+}

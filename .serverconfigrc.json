@@ -1,0 +1,39 @@
+{
+  "public": "./",
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "**/*.@(jpg|jpeg|png|gif|webp)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "**/*.@(js|css)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "**/*.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/test",
+      "destination": "/audit-test.html"
+    }
+  ]
+} 

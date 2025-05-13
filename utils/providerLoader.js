@@ -3,19 +3,19 @@
 export async function loadProviderPlugin(provider) {
   switch (provider) {
     case 'walletconnect':
-      return await import('./walletconnect.js')
+      return await import('./walletconnect.js');
     case 'coinbase':
-      return await import('./coinbase.js')
+      return await import('./coinbase.js');
     case 'phantom':
-      return await import('./phantom.js') // Note: This file needs to be created
+      return await import('./phantom.js'); // Note: This file needs to be created
     case 'rabby':
-      return await import('./rabby.js') // Note: This file needs to be created
+      return await import('./rabby.js'); // Note: This file needs to be created
     // Add more providers as needed
     default:
-      throw new Error(`Unknown provider: ${provider}`)
+      throw new Error(`Unknown provider: ${provider}`);
   }
 }
 
 module.exports = {
   loadProviderPlugin,
-}
+};

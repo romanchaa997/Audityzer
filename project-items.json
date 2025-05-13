@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "type": "issue",
+      "number": 123,
+      "fields": {
+        "status": "In Progress",
+        "priority": "High",
+        "assignee": "username"
+      }
+    },
+    {
+      "type": "pr",
+      "number": 456,
+      "fields": {
+        "status": "Review Needed",
+        "priority": "Medium"
+      }
+    },
+    {
+      "type": "issue",
+      "number": 789,
+      "fields": {
+        "status": "To Do",
+        "priority": "Low",
+        "labels": ["bug", "documentation"]
+      }
+    }
+  ]
+}

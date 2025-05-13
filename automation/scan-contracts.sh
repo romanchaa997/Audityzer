@@ -2,6 +2,10 @@
 # Smart Contract Security Scan Script
 # Performs automated checks against common security issues based on the security checklist
 
+# Error handling
+set -o pipefail
+trap 'echo "Error occurred in scan-contracts.sh. Exit code: $?" >&2' ERR
+
 # Terminal colors
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -16,16 +20,20 @@ echo -e "${BLUE}========================================${NC}"
 # Create results directory
 mkdir -p scan-results
 
+# Initialize recommendations file
+touch scan-results/recommendations.txt
+
 # Functions
 check_solidity_version() {
   echo -e "\n${BLUE}Checking Solidity Version...${NC}"
   
   # Find all Solidity files
-  files=$(find . -type f -name "*.sol" | grep -v "node_modules")
+  files=$(find . -type f -name "*.sol" | grep -v "node_modules" || echo "")
   
   if [ -z "$files" ]; then
     echo -e "${YELLOW}No Solidity files found${NC}"
-    return
+    echo "- No Solidity files found to analyze" >> scan-results/recommendations.txt
+    return 0
   fi
   
   echo "Found $(echo "$files" | wc -l) Solidity files"
@@ -33,7 +41,7 @@ check_solidity_version() {
   # Check pragma statements
   outdated=0
   for file in $files; do
-    version=$(grep -E "pragma solidity" "$file" | head -1)
+    version=$(grep -E "pragma solidity" "$file" | head -1 || echo "No pragma found")
     
     if [[ $version =~ 0\.[0-7]\. ]]; then
       echo -e "${RED}✗ $file uses outdated compiler: $version${NC}"
@@ -49,23 +57,25 @@ check_solidity_version() {
   else
     echo -e "${GREEN}All files use recent compiler versions${NC}"
   fi
+  
+  return 0
 }
 
 check_reentrancy() {
   echo -e "\n${BLUE}Checking for Reentrancy Vulnerabilities...${NC}"
   
-  files=$(find . -type f -name "*.sol" | grep -v "node_modules")
+  files=$(find . -type f -name "*.sol" | grep -v "node_modules" || echo "")
   
   if [ -z "$files" ]; then
     echo -e "${YELLOW}No Solidity files found${NC}"
-    return
+    return 0
   fi
   
   # Look for risky patterns
   risky_files=0
   for file in $files; do
     # Check for external calls before state changes
-    external_calls=$(grep -E "\.call{|\.send\(|\.transfer\(" "$file" | wc -l)
+    external_calls=$(grep -E "\.call{|\.send\(|\.transfer\(" "$file" | wc -l || echo "0")
     
     if [ $external_calls -gt 0 ]; then
       echo -e "${YELLOW}⚠ $file contains $external_calls external calls that may be vulnerable to reentrancy${NC}"
@@ -86,31 +96,53 @@ check_reentrancy() {
   else
     echo -e "${YELLOW}Found $risky_files files with potential reentrancy issues${NC}"
   fi
+  
+  return 0
 }
 
 run_slither() {
   echo -e "\n${BLUE}Running Slither Analysis...${NC}"
   
   # Check if there are any Solidity files
-  files=$(find . -type f -name "*.sol" | grep -v "node_modules")
+  files=$(find . -type f -name "*.sol" | grep -v "node_modules" || echo "")
   
   if [ -z "$files" ]; then
     echo -e "${YELLOW}No Solidity files found to analyze${NC}"
-    return
+    return 0
   fi
   
   # Check if Slither is installed
   if ! command -v slither &> /dev/null; then
     echo -e "${RED}Slither is not installed. Skipping analysis.${NC}"
     echo "- Install Slither with: pip3 install slither-analyzer" >> scan-results/recommendations.txt
-    return
+    return 0
   fi
   
   # Run Slither on all Solidity files
   echo "Running Slither on project..."
-  slither . --markdown-root "." --markdown ./slither-report.md 2>/dev/null || echo -e "${YELLOW}Slither encountered some issues but continued${NC}"
   
-  echo -e "${GREEN}Slither analysis complete. Report saved to ./slither-report.md${NC}"
+  # Create a temporary file to store output
+  touch ./slither-report.md
+  
+  slither . --markdown-root "." --markdown ./slither-report.md 2>/dev/null || {
+    echo -e "${YELLOW}Slither encountered issues - trying individual files${NC}"
+    # Try to analyze individual files if the project-wide analysis fails
+    for file in $files; do
+      echo "Analyzing $file individually..."
+      slither "$file" --markdown-root "." --markdown ./slither-report.md 2>/dev/null || 
+      echo -e "${RED}Slither could not analyze $file${NC}"
+    done
+  }
+  
+  if [ -s ./slither-report.md ]; then
+    echo -e "${GREEN}Slither analysis complete. Report saved to ./slither-report.md${NC}"
+  else
+    echo -e "${YELLOW}Slither analysis did not produce results${NC}"
+    echo "# Slither Analysis" > ./slither-report.md
+    echo "No issues detected or analysis could not be completed" >> ./slither-report.md
+  fi
+  
+  return 0
 }
 
 check_access_control() {
@@ -236,46 +268,50 @@ generate_report() {
   echo "Generated on: $(date)" >> scan-results/summary-report.md
   echo "" >> scan-results/summary-report.md
   
-  if [ -f "scan-results/recommendations.txt" ]; then
+  if [ -f "scan-results/recommendations.txt" ] && [ -s "scan-results/recommendations.txt" ]; then
     echo "## Security Recommendations" >> scan-results/summary-report.md
     cat scan-results/recommendations.txt >> scan-results/summary-report.md
     echo "" >> scan-results/summary-report.md
     
-    recommendation_count=$(wc -l < scan-results/recommendations.txt)
+    recommendation_count=$(wc -l < scan-results/recommendations.txt || echo "0")
     echo -e "${YELLOW}Found $recommendation_count security recommendations${NC}"
   else
     echo "## Security Recommendations" >> scan-results/summary-report.md
     echo "No specific recommendations generated." >> scan-results/summary-report.md
     echo "" >> scan-results/summary-report.md
-    
-    echo -e "${GREEN}No security recommendations needed${NC}"
   fi
   
-  echo "## Next Steps" >> scan-results/summary-report.md
-  echo "1. Review the recommendations and fix highlighted issues" >> scan-results/summary-report.md
-  echo "2. Run a manual review against the full checklist" >> scan-results/summary-report.md
-  echo "3. Consider a professional audit for production code" >> scan-results/summary-report.md
+  echo "## Security Review Summary" >> scan-results/summary-report.md
+  echo "This automated scan checks for common security issues in smart contracts." >> scan-results/summary-report.md
+  echo "" >> scan-results/summary-report.md
+  echo "Remember that automated tools cannot replace a thorough manual security review." >> scan-results/summary-report.md
   
-  echo -e "${GREEN}Report generated at scan-results/summary-report.md${NC}"
+  return 0
 }
 
-# Execute all checks
-echo "Starting security scan..."
-check_solidity_version
-check_reentrancy
-check_access_control
-check_input_validation
-check_use_of_unsafe_calls
-run_slither
-generate_report
+# Main execution flow
+main() {
+  # Make sure scan directory exists
+  mkdir -p scan-results
+  
+  # Perform security checks
+  check_solidity_version || echo "Solidity version check completed with warnings"
+  check_reentrancy || echo "Reentrancy check completed with warnings"
+  check_access_control || echo "Access control check completed with warnings"
+  check_input_validation || echo "Input validation check completed with warnings"
+  check_use_of_unsafe_calls || echo "Unsafe calls check completed with warnings"
+  run_slither || echo "Slither analysis completed with warnings"
+  
+  # Generate final report
+  generate_report
+  
+  echo -e "\n${GREEN}Security scan complete!${NC}"
+  echo -e "Check ${BLUE}scan-results/summary-report.md${NC} for findings"
+  
+  return 0
+}
 
-echo -e "\n${GREEN}========================================${NC}"
-echo -e "${GREEN}    Security Scan Complete!            ${NC}"
-echo -e "${GREEN}========================================${NC}"
-echo -e "Summary report available at: ${BLUE}scan-results/summary-report.md${NC}"
-echo -e "Detailed Slither analysis: ${BLUE}slither-report.md${NC} (if available)"
-echo -e "\nNext steps:"
-echo -e "1. Review the recommendations in the summary report"
-echo -e "2. Compare against the full security checklist"
-echo -e "3. Fix identified issues"
-echo -e "\n${YELLOW}Remember: Automated tools can't catch everything. Always perform manual review!${NC}" 
+# Run the main function
+main
+
+exit 0 

@@ -17,12 +17,14 @@ For a complete Web3FuzzForge implementation, you should create the following vis
 ### Testing Interface Screenshots
 
 Capture clear screenshots of:
+
 - Wallet connection interfaces
 - Transaction testing forms
 - Error testing interfaces
 - Test results dashboards
 
 **Recommended tools:**
+
 - Windows: [Snipping Tool](https://support.microsoft.com/en-us/windows/use-snipping-tool-to-capture-screenshots-00246869-1843-655f-f220-97299b865f6b)
 - macOS: [Screenshot utility](https://support.apple.com/en-us/HT201361)
 - Cross-platform: [Snagit](https://www.techsmith.com/screen-capture.html)
@@ -40,12 +42,14 @@ Capture clear screenshots of:
 ### Workflow Diagrams
 
 Create diagrams to illustrate:
+
 - Test generation process
 - Vulnerability detection workflow
 - CI/CD integration
 - Bridge security testing flow
 
 **Recommended tools:**
+
 - [draw.io](https://app.diagrams.net/) (free, web-based)
 - [Lucidchart](https://www.lucidchart.com/) (freemium)
 - [Mermaid](https://mermaid.js.org/) (code-based diagrams)
@@ -61,11 +65,13 @@ Create diagrams to illustrate:
 ## Creating Demo GIFs
 
 A good demo GIF shows:
+
 1. Generating a security test
 2. Running the test against a dApp
 3. Viewing and interpreting results
 
 **Recommended tools:**
+
 - Windows: [ScreenToGif](https://www.screentogif.com/)
 - macOS: [Gifox](https://gifox.io/) or [Kap](https://getkap.co/)
 - Cross-platform: [Peek](https://github.com/phw/peek) (Linux)
@@ -84,6 +90,7 @@ A good demo GIF shows:
 For creating compelling test result visualizations:
 
 1. **Charts and Graphs:**
+
    - [Chart.js](https://www.chartjs.org/)
    - [D3.js](https://d3js.org/)
 
@@ -109,16 +116,16 @@ You can automate the capture of interface screenshots during test runs:
 test('Capture wallet connection interface', async ({ page }) => {
   await page.goto('https://your-dapp.com');
   await page.click('#connect-wallet-button');
-  
+
   // Wait for wallet interface to appear
   await page.waitForSelector('.wallet-selection-modal', { state: 'visible' });
-  
+
   // Capture screenshot
-  await page.screenshot({ 
+  await page.screenshot({
     path: 'assets/img/screenshots/wallet-connection.png',
-    fullPage: false 
+    fullPage: false,
   });
 });
 ```
 
-Remember, high-quality visual assets significantly improve the user experience and adoption of your Web3FuzzForge implementation! 
+Remember, high-quality visual assets significantly improve the user experience and adoption of your Web3FuzzForge implementation!

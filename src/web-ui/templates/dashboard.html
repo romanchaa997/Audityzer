@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web3 Security Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      color: #212529;
+    }
+    
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #495057;
+    }
+    
+    .card {
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      border: none;
+    }
+    
+    .card-header {
+      font-weight: 600;
+      background-color: #ffffff;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .metric-card {
+      text-align: center;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .metric-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .metric-value {
+      font-size: 36px;
+      font-weight: bold;
+    }
+    
+    .metric-label {
+      font-size: 14px;
+      color: #6c757d;
+    }
+    
+    .severity-critical {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .severity-high {
+      background-color: #fd7e14;
+      color: white;
+    }
+    
+    .severity-medium {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
+    .severity-low {
+      background-color: #0dcaf0;
+      color: #212529;
+    }
+    
+    .severity-info {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .nav-tabs .nav-link.active {
+      font-weight: bold;
+      border-bottom: 2px solid #0d6efd;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+    }
+    
+    .vulnerability-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .vulnerability-item {
+      padding: 10px;
+      border-bottom: 1px solid #e9ecef;
+      cursor: pointer;
+    }
+    
+    .vulnerability-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .badge-pill {
+      border-radius: 20px;
+      padding: 5px 10px;
+    }
+    
+    .chart-container {
+      position: relative;
+      height: 250px;
+    }
+    
+    .filter-container {
+      margin-bottom: 20px;
+    }
+
+    .wallet-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 5px;
+    }
+
+    /* Custom toggle switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="header">
+      <div class="logo">
+        <img src="../assets/img/logo.png" alt="Audityzer Logo" height="40">
+        Audityzer Security Dashboard
+      </div>
+      <div class="d-flex align-items-center">
+        <button class="btn btn-primary me-2" id="refresh-btn">
+          <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Export
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+            <li><a class="dropdown-item" href="#" id="export-pdf">PDF Report</a></li>
+            <li><a class="dropdown-item" href="#" id="export-json">JSON</a></li>
+            <li><a class="dropdown-item" href="#" id="export-csv">CSV</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Project Information</div>
+          <div class="card-body">
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label">Project Name</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" id="project-name" value="Web3 DeFi Protocol">
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label">Last Scan</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" id="last-scan" value="2023-05-15 14:30:22" readonly>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label">Risk Score</label>
+              <div class="col-sm-8 d-flex align-items-center">
+                <div class="progress flex-grow-1" style="height: 25px;">
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65/100</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col-6">
+            <div class="metric-card severity-critical">
+              <div class="metric-value">3</div>
+              <div class="metric-label">Critical Vulnerabilities</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="metric-card severity-high">
+              <div class="metric-value">5</div>
+              <div class="metric-label">High Risk Issues</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="metric-card severity-medium">
+              <div class="metric-value">12</div>
+              <div class="metric-label">Medium Risk Issues</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="metric-card severity-low">
+              <div class="metric-value">8</div>
+              <div class="metric-label">Low Risk Issues</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="vulnerability-tabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">All Issues (28)</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="critical-tab" data-bs-toggle="tab" data-bs-target="#critical" type="button" role="tab" aria-controls="critical" aria-selected="false">Critical (3)</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="high-tab" data-bs-toggle="tab" data-bs-target="#high" type="button" role="tab" aria-controls="high" aria-selected="false">High (5)</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="medium-tab" data-bs-toggle="tab" data-bs-target="#medium" type="button" role="tab" aria-controls="medium" aria-selected="false">Medium (12)</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="low-tab" data-bs-toggle="tab" data-bs-target="#low" type="button" role="tab" aria-controls="low" aria-selected="false">Low (8)</button>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body">
+            <div class="filter-container">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search vulnerabilities..." id="search-vulnerabilities">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Filter</button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><h6 class="dropdown-header">Vulnerability Type</h6></li>
+                  <li><a class="dropdown-item" href="#">Reentrancy</a></li>
+                  <li><a class="dropdown-item" href="#">Oracle Manipulation</a></li>
+                  <li><a class="dropdown-item" href="#">Front-running</a></li>
+                  <li><a class="dropdown-item" href="#">Access Control</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><h6 class="dropdown-header">Status</h6></li>
+                  <li><a class="dropdown-item" href="#">Open</a></li>
+                  <li><a class="dropdown-item" href="#">In Review</a></li>
+                  <li><a class="dropdown-item" href="#">Fixed</a></li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="tab-content" id="vulnerabilityTabsContent">
+              <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                <div class="vulnerability-list">
+                  <!-- Reentrancy vulnerability -->
+                  <div class="vulnerability-item">
+                    <div class="d-flex justify-content-between">
+                      <h5>
+                        <span class="badge bg-danger">Critical</span>
+                        Reentrancy Vulnerability in Withdraw Function
+                      </h5>
+                      <span class="badge bg-secondary">VUL-001</span>
+                    </div>
+                    <p>State variables updated after external calls, allowing potential reentrancy attacks.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <small class="text-muted">Location: contracts/Vault.sol:52-68</small>
+                      <span class="badge bg-warning text-dark">Open</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Oracle manipulation vulnerability -->
+                  <div class="vulnerability-item">
+                    <div class="d-flex justify-content-between">
+                      <h5>
+                        <span class="badge bg-danger">Critical</span>
+                        Single-Source Oracle Without Validation
+                      </h5>
+                      <span class="badge bg-secondary">VUL-002</span>
+                    </div>
+                    <p>Price feed relies on a single oracle source without staleness or deviation checks.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <small class="text-muted">Location: contracts/PriceOracle.sol:34-42</small>
+                      <span class="badge bg-warning text-dark">Open</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Front-running vulnerability -->
+                  <div class="vulnerability-item">
+                    <div class="d-flex justify-content-between">
+                      <h5>
+                        <span class="badge bg-danger">Critical</span>
+                        Missing Slippage Protection in DEX
+                      </h5>
+                      <span class="badge bg-secondary">VUL-003</span>
+                    </div>
+                    <p>Swap function does not implement slippage protection, allowing front-running attacks.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <small class="text-muted">Location: contracts/Exchange.sol:78-95</small>
+                      <span class="badge bg-warning text-dark">Open</span>
+                    </div>
+                  </div>
+                  
+                  <!-- High severity issue -->
+                  <div class="vulnerability-item">
+                    <div class="d-flex justify-content-between">
+                      <h5>
+                        <span class="badge bg-warning text-dark">High</span>
+                        Unlimited Token Approvals
+                      </h5>
+                      <span class="badge bg-secondary">VUL-004</span>
+                    </div>
+                    <p>Protocol requests unlimited token approvals from users without option for limited amounts.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <small class="text-muted">Location: src/components/ApprovalButton.tsx:45-62</small>
+                      <span class="badge bg-info text-dark">In Review</span>
+                    </div>
+                  </div>
+                  
+                  <!-- More vulnerabilities would be listed here -->
+                </div>
+              </div>
+              
+              <div class="tab-pane fade" id="critical" role="tabpanel" aria-labelledby="critical-tab">
+                <!-- Critical vulnerabilities only -->
+              </div>
+              
+              <div class="tab-pane fade" id="high" role="tabpanel" aria-labelledby="high-tab">
+                <!-- High vulnerabilities only -->
+              </div>
+              
+              <div class="tab-pane fade" id="medium" role="tabpanel" aria-labelledby="medium-tab">
+                <!-- Medium vulnerabilities only -->
+              </div>
+              
+              <div class="tab-pane fade" id="low" role="tabpanel" aria-labelledby="low-tab">
+                <!-- Low vulnerabilities only -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card mb-4">
+          <div class="card-header">Vulnerability Distribution</div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="vulnerabilityChart"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">Test Results</div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>Total Tests:</div>
+              <div class="fw-bold">96</div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>Passed:</div>
+              <div class="text-success fw-bold">68 (71%)</div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>Failed:</div>
+              <div class="text-danger fw-bold">28 (29%)</div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>Duration:</div>
+              <div>3m 45s</div>
+            </div>
+            
+            <div class="mt-4">
+              <h6>Test Categories</h6>
+              <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Reentrancy Tests
+                  <span class="badge bg-danger rounded-pill">2/5</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Oracle Manipulation Tests
+                  <span class="badge bg-success rounded-pill">3/3</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Front-running Tests
+                  <span class="badge bg-danger rounded-pill">1/4</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  Access Control Tests
+                  <span class="badge bg-success rounded-pill">6/6</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Initialize charts
+    document.addEventListener('DOMContentLoaded', function() {
+      const vulnerabilityCtx = document.getElementById('vulnerabilityChart').getContext('2d');
+      const vulnerabilityChart = new Chart(vulnerabilityCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Critical', 'High', 'Medium', 'Low'],
+          datasets: [{
+            data: [3, 5, 12, 8],
+            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#0dcaf0'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+      
+      // Populate tab content
+      const criticalTab = document.getElementById('critical');
+      const highTab = document.getElementById('high');
+      const mediumTab = document.getElementById('medium');
+      const lowTab = document.getElementById('low');
+      
+      // Clone critical vulnerabilities to critical tab
+      const criticalItems = document.querySelectorAll('.vulnerability-item:has(.badge.bg-danger)');
+      criticalItems.forEach(item => {
+        criticalTab.appendChild(item.cloneNode(true));
+      });
+      
+      // Similar cloning would be done for other severity levels
+    });
+  </script>
+</body>
+</html>

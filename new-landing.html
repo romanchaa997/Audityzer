@@ -1,0 +1,3511 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web3FuzzForge | Bulletproof Your dApp's Wallet Logic</title>
+    <meta
+      name="description"
+      content="Generate automated tests for MetaMask, WalletConnect, Coinbase & more—no guesswork, no BS."
+    />
+
+    <!-- OpenGraph -->
+    <meta property="og:title" content="Web3FuzzForge | Bulletproof Your dApp's Wallet Logic" />
+    <meta
+      property="og:description"
+      content="The fastest way to test wallet interactions and catch bugs before they cost you bounties—or your job."
+    />
+    <meta
+      property="og:image"
+      content="https://your-website.com/assets/img/web3fuzzforge-banner.png"
+    />
+    <meta property="og:url" content="https://your-website.com/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Web3FuzzForge | Bulletproof Your dApp's Wallet Logic" />
+    <meta
+      name="twitter:description"
+      content="The fastest way to test wallet interactions and catch bugs before they cost you bounties—or your job."
+    />
+    <meta
+      name="twitter:image"
+      content="https://your-website.com/assets/img/web3fuzzforge-banner.png"
+    />
+
+    <!-- SEO Improvements -->
+    <link rel="canonical" href="https://web3fuzzforge.io/" />
+    <meta
+      name="keywords"
+      content="web3, security testing, wallet testing, dApp testing, blockchain security, smart contract security, automated testing"
+    />
+    <meta name="author" content="Web3FuzzForge" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+
+    <!-- Localization Support -->
+    <script src="https://cdn.jsdelivr.net/npm/i18next@21.6.10/i18next.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/i18next-browser-languagedetector@6.1.3/i18nextBrowserLanguageDetector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@1.3.2/i18nextHttpBackend.min.js"></script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX'); // Replace with your actual Google Analytics ID
+    </script>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Web3FuzzForge",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "description": "Generate automated tests for MetaMask, WalletConnect, Coinbase & more—no guesswork, no BS.",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "120"
+        }
+      }
+    </script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+      :root {
+        --primary: #ff6b2b;
+        --primary-dark: #e85a1a;
+        --dark: #121212;
+        --darker: #0a0a0a;
+        --light: #f2f2f2;
+        --accent: #13c3ff;
+        --accent-alt: #0099ff;
+        --success: #10b981;
+        --gray-800: #1f2937;
+        --gray-700: #374151;
+        --gray-600: #4b5563;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          Oxygen,
+          Ubuntu,
+          Cantarell,
+          'Open Sans',
+          sans-serif;
+      }
+
+      body {
+        background-color: var(--dark);
+        color: var(--light);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header */
+      header {
+        padding: 20px 0;
+        background-color: var(--darker);
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .logo img {
+        height: 40px;
+        filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1)) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.06));
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .tagline {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--primary);
+        padding: 6px 12px;
+        background-color: rgba(255, 107, 43, 0.1);
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+      }
+
+      .nav-menu {
+        display: flex;
+        gap: 30px;
+      }
+
+      .nav-link {
+        color: var(--light);
+        text-decoration: none;
+        font-weight: 500;
+        position: relative;
+        transition: all 0.3s ease;
+        padding: 5px 0;
+      }
+
+      .nav-link:hover {
+        color: var(--primary);
+      }
+
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+        transition: width 0.3s ease;
+      }
+
+      .nav-link:hover::after {
+        width: 100%;
+      }
+
+      .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--light);
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      @media (max-width: 768px) {
+        .nav-menu {
+          display: none;
+          position: absolute;
+          top: 80px;
+          left: 0;
+          right: 0;
+          background-color: var(--darker);
+          flex-direction: column;
+          padding: 20px;
+          gap: 15px;
+          z-index: 10;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-menu.active {
+          display: flex;
+        }
+
+        .mobile-menu-toggle {
+          display: block;
+        }
+      }
+
+      /* Hero Section */
+      .hero {
+        padding: 120px 0 100px;
+        background: linear-gradient(to bottom, var(--dark), var(--darker));
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, rgba(255, 107, 43, 0.15) 0%, transparent 70%);
+        z-index: 0;
+      }
+
+      .hero h2 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        font-weight: 800;
+        position: relative;
+        z-index: 1;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero p {
+        font-size: 1.25rem;
+        margin-bottom: 40px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        position: relative;
+        z-index: 1;
+        color: rgba(242, 242, 242, 0.9);
+      }
+
+      .cta-button {
+        display: inline-block;
+        padding: 16px 32px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+        box-shadow:
+          0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+
+      .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+      }
+
+      .cta-button i {
+        margin-right: 10px;
+      }
+
+      /* Problem & Solution Section */
+      .problem-solution {
+        padding: 80px 0;
+        background-color: var(--dark);
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.25rem;
+        margin-bottom: 20px;
+        color: var(--light);
+      }
+
+      .section-subtitle {
+        text-align: center;
+        font-size: 1.25rem;
+        margin-bottom: 40px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        color: rgba(242, 242, 242, 0.8);
+      }
+
+      .problem-list {
+        max-width: 800px;
+        margin: 0 auto 40px;
+        padding: 20px;
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .problem-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .problem-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .problem-icon {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 0, 0, 0.1);
+        color: #ff5252;
+        border-radius: 50%;
+        margin-right: 16px;
+      }
+
+      .solution-card {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: rgba(19, 195, 255, 0.05);
+        border-radius: 16px;
+        border: 1px solid rgba(19, 195, 255, 0.2);
+      }
+
+      /* How It Works Section */
+      .how-it-works {
+        padding: 80px 0;
+        background-color: var(--darker);
+      }
+
+      .demo-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+
+      .demo-gif {
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .code-snippet {
+        background-color: var(--gray-800);
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+        overflow-x: auto;
+        font-family: 'Courier New', monospace;
+      }
+
+      .code-snippet code {
+        color: #e6e6e6;
+      }
+
+      /* Supported Wallets & Chains */
+      .supported {
+        padding: 80px 0;
+        background-color: var(--dark);
+      }
+
+      .logos-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 40px;
+      }
+
+      .logo-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-item img {
+        height: 50px;
+        filter: grayscale(0.2);
+        transition: all 0.3s ease;
+      }
+
+      .logo-item:hover img {
+        filter: grayscale(0);
+        transform: translateY(-2px);
+      }
+
+      .logo-item span {
+        font-size: 0.9rem;
+        color: rgba(242, 242, 242, 0.7);
+      }
+
+      /* Use Cases */
+      .use-cases {
+        padding: 80px 0;
+        background-color: var(--darker);
+      }
+
+      .use-cases-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+      }
+
+      .use-case-card {
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 30px;
+        transition: all 0.3s ease;
+      }
+
+      .use-case-card:hover {
+        transform: translateY(-5px);
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .use-case-icon {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: var(--primary);
+      }
+
+      .use-case-title {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: var(--light);
+      }
+
+      .use-case-description {
+        color: rgba(242, 242, 242, 0.7);
+      }
+
+      /* Social Proof */
+      .social-proof {
+        padding: 80px 0;
+        background-color: var(--dark);
+      }
+
+      .github-stars {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 40px;
+      }
+
+      .github-stars i {
+        color: #ffd700;
+      }
+
+      .github-stars span {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .testimonials {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+      }
+
+      .testimonial-card {
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 30px;
+        position: relative;
+      }
+
+      .testimonial-text {
+        font-style: italic;
+        margin-bottom: 20px;
+        color: rgba(242, 242, 242, 0.8);
+      }
+
+      .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .testimonial-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+      }
+
+      .testimonial-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .testimonial-info h4 {
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+      }
+
+      .testimonial-info p {
+        font-size: 0.9rem;
+        color: rgba(242, 242, 242, 0.6);
+      }
+
+      /* Footer */
+      footer {
+        padding: 60px 0;
+        background-color: var(--darker);
+        text-align: center;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .footer-link {
+        color: rgba(242, 242, 242, 0.7);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .footer-link:hover {
+        color: var(--primary);
+      }
+
+      .copyright {
+        color: rgba(242, 242, 242, 0.5);
+        font-size: 0.9rem;
+      }
+
+      /* Media Queries */
+      @media (max-width: 768px) {
+        .hero h2 {
+          font-size: 2.5rem;
+        }
+
+        .hero p {
+          font-size: 1.1rem;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .testimonials,
+        .use-cases-grid,
+        .features-grid,
+        .benefits-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-tagline {
+          font-size: 1.3rem;
+        }
+
+        .logos-container {
+          gap: 15px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .hero h2 {
+          font-size: 2rem;
+        }
+
+        .header-container {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .logo h1 {
+          font-size: 1.2rem;
+        }
+
+        .cta-button {
+          padding: 12px 24px;
+          font-size: 1rem;
+        }
+      }
+
+      /* Benefits Section */
+      .benefits {
+        padding: 80px 0;
+        background-color: var(--dark);
+        position: relative;
+      }
+
+      .benefits::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, rgba(19, 195, 255, 0.05) 0%, transparent 70%);
+        z-index: 0;
+      }
+
+      .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .benefit-card {
+        background-color: rgba(30, 30, 30, 0.7);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 30px;
+        transition: all 0.3s ease;
+      }
+
+      .benefit-card:hover {
+        transform: translateY(-5px);
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(19, 195, 255, 0.2);
+      }
+
+      .benefit-icon {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: var(--accent);
+      }
+
+      .benefit-title {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: var(--light);
+      }
+
+      .benefit-description {
+        color: rgba(242, 242, 242, 0.7);
+      }
+
+      /* Features Section */
+      .features {
+        padding: 100px 0;
+        position: relative;
+      }
+
+      .features::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, rgba(255, 107, 43, 0.05) 0%, transparent 70%);
+        z-index: 0;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .feature-card {
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 30px;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(255, 107, 43, 0.2);
+      }
+
+      .feature-icon {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: var(--primary);
+      }
+
+      .feature-title {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: var(--light);
+      }
+
+      .feature-description {
+        color: rgba(242, 242, 242, 0.7);
+      }
+
+      /* Hero tagline */
+      .hero-tagline {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      /* Language Selector */
+      .language-selector {
+        background-color: var(--darker);
+        padding: 15px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        z-index: 100;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .language-selector:hover,
+      .language-selector.visible {
+        transform: translateY(0);
+      }
+
+      .language-selector::before {
+        content: '🌐 Language';
+        position: absolute;
+        top: -40px;
+        left: 20px;
+        background-color: var(--darker);
+        padding: 10px 15px;
+        border-radius: 8px 8px 0 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .lang-options {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .lang-btn {
+        background-color: rgba(30, 30, 30, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--light);
+        padding: 8px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+
+      .lang-btn:hover {
+        background-color: rgba(30, 30, 30, 0.8);
+        transform: translateY(-2px);
+      }
+
+      .lang-btn.active {
+        background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+        border-color: var(--primary);
+        box-shadow: 0 4px 6px -1px rgba(255, 107, 43, 0.2);
+      }
+
+      @media (max-width: 768px) {
+        .lang-options {
+          gap: 10px;
+        }
+
+        .lang-btn {
+          padding: 6px 10px;
+          font-size: 0.8rem;
+        }
+      }
+      /* Features Section */
+      /* ... existing code ... */
+
+      /* Newsletter Section */
+      .newsletter {
+        padding: 100px 0;
+        background-color: var(--darker);
+        position: relative;
+      }
+      /* Removed duplicate properties */
+      /* The following properties are already defined in the .newsletter class */
+      /* Correctly close the previous block */
+
+      .newsletter::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(to bottom, transparent, var(--darker));
+        z-index: 1;
+        /* Ensure proper closing of the selector */
+        /* End of Selection */
+        top: -50px;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(to bottom, transparent, var(--darker));
+        z-index: 1;
+        /* Ensure proper closing of the selector */
+        /* End of Selection */
+        top: -50px;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(to bottom, transparent, var(--darker));
+        z-index: 1;
+        /* Ensure proper closing of the selector */
+        /* End of Selection */
+        /* End of Selection */
+        top: -50px;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(to bottom, transparent, var(--darker));
+        z-index: 1;
+        /* Ensure proper closing of the selector */
+        /* End of Selection */
+        top: -50px;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: linear-gradient(to bottom, transparent, var(--darker));
+        z-index: 1;
+      }
+
+      .newsletter h2 {
+        text-align: center;
+        font-size: 2.25rem;
+        margin-bottom: 20px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .newsletter p {
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto 40px;
+        color: rgba(242, 242, 242, 0.8);
+      }
+
+      .newsletter-form {
+        max-width: 500px;
+        margin: 0 auto 40px;
+      }
+
+      .form-group {
+        display: flex;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .form-group input {
+        flex: 1;
+        padding: 15px 20px;
+        border: none;
+        background-color: rgba(255, 255, 255, 0.05);
+        color: var(--light);
+        font-size: 16px;
+      }
+
+      .form-group input::placeholder {
+        color: rgba(242, 242, 242, 0.5);
+      }
+
+      .form-group input:focus {
+        outline: none;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .form-group button {
+        padding: 15px 25px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .form-group button:hover {
+        background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+      }
+
+      .gdpr-consent {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .consent-label {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 10px;
+        color: rgba(242, 242, 242, 0.7);
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .consent-label input {
+        margin-right: 10px;
+        margin-top: 5px;
+      }
+
+      .privacy-link {
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+      }
+
+      .privacy-link:hover {
+        color: var(--accent-alt);
+        text-decoration: underline;
+      }
+
+      .form-feedback {
+        display: none;
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .success-message,
+      .error-message {
+        display: none;
+        padding: 15px;
+        border-radius: 8px;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .success-message {
+        background-color: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: var(--success);
+      }
+
+      .error-message {
+        background-color: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+      }
+
+      .form-feedback i {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+
+      .data-usage {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .data-usage h3 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: var(--accent);
+        font-size: 1.25rem;
+      }
+
+      .data-points {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+      }
+
+      .data-point {
+        text-align: center;
+        padding: 15px;
+        transition: transform 0.3s ease;
+      }
+
+      .data-point:hover {
+        transform: translateY(-5px);
+      }
+
+      .data-point i {
+        color: var(--primary);
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+
+      .data-point h4 {
+        margin-bottom: 8px;
+        color: var(--light);
+        font-size: 1rem;
+      }
+
+      .data-point p {
+        font-size: 0.9rem;
+        color: rgba(242, 242, 242, 0.7);
+        margin-bottom: 0;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .form-group {
+          flex-direction: column;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+
+        .form-group input {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px 8px 0 0;
+        }
+
+        .form-group button {
+          border-radius: 0 0 8px 8px;
+        }
+
+        .data-points {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .data-points {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Interactive Demo Section */
+      .interactive-demo {
+        padding: 100px 0;
+        background-color: var(--dark);
+        position: relative;
+      }
+
+      .interactive-demo h2 {
+        text-align: center;
+        font-size: 2.25rem;
+        margin-bottom: 10px;
+        color: var(--light);
+      }
+
+      .interactive-demo > .container > p {
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto 50px;
+        color: rgba(242, 242, 242, 0.8);
+      }
+
+      .demo-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: rgba(15, 15, 15, 0.5);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 107, 43, 0.1);
+      }
+
+      .demo-nav {
+        display: flex;
+        background-color: rgba(30, 30, 30, 0.5);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary) var(--dark);
+      }
+
+      .demo-nav::-webkit-scrollbar {
+        height: 6px;
+      }
+
+      .demo-nav::-webkit-scrollbar-track {
+        background: var(--dark);
+      }
+
+      .demo-nav::-webkit-scrollbar-thumb {
+        background-color: var(--primary);
+        border-radius: 6px;
+      }
+
+      .demo-step {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        background: none;
+        border: none;
+        color: var(--light);
+        cursor: pointer;
+        min-width: 200px;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+        text-align: left;
+      }
+
+      .demo-step:last-child {
+        border-right: none;
+      }
+
+      .demo-step:hover {
+        background-color: rgba(255, 107, 43, 0.1);
+      }
+
+      .demo-step.active {
+        background-color: rgba(255, 107, 43, 0.2);
+        position: relative;
+      }
+
+      .demo-step.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      }
+
+      .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: rgba(255, 107, 43, 0.2);
+        color: var(--primary);
+        font-weight: 600;
+        margin-right: 15px;
+      }
+
+      .demo-step.active .step-number {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .step-text h4 {
+        margin-bottom: 3px;
+        font-size: 1rem;
+        color: var(--light);
+      }
+
+      .step-text p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: rgba(242, 242, 242, 0.6);
+      }
+
+      .demo-screen {
+        position: relative;
+        min-height: 500px;
+        background-color: rgba(15, 15, 15, 0.8);
+      }
+
+      .demo-content {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .demo-content.active {
+        display: block;
+        opacity: 1;
+      }
+
+      .screen-header {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        background-color: var(--darker);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .browser-controls {
+        display: flex;
+        gap: 6px;
+        margin-right: 15px;
+      }
+
+      .browser-controls span {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .browser-controls span:nth-child(1) {
+        background-color: #ff5f56;
+      }
+
+      .browser-controls span:nth-child(2) {
+        background-color: #ffbd2e;
+      }
+
+      .browser-controls span:nth-child(3) {
+        background-color: #27c93f;
+      }
+
+      .url-bar {
+        flex: 1;
+        padding: 5px 10px;
+        background-color: rgba(30, 30, 30, 0.8);
+        border-radius: 4px;
+        color: rgba(242, 242, 242, 0.6);
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      .screen-content {
+        padding: 20px;
+      }
+
+      /* Demo Step 1 - Wallet Setup */
+      .wallet-setup h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: var(--accent);
+      }
+
+      .wallet-options {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .wallet-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 8px;
+        width: 120px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .wallet-option.active {
+        background-color: rgba(255, 107, 43, 0.2);
+        border-color: var(--primary);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      .wallet-option img {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
+        object-fit: contain;
+      }
+
+      .config-panel {
+        max-width: 500px;
+        margin: 0 auto 30px;
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      .config-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .config-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .config-row label {
+        width: 150px;
+        color: rgba(242, 242, 242, 0.8);
+      }
+
+      .config-row select {
+        flex: 1;
+        padding: 8px 10px;
+        background-color: rgba(15, 15, 15, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        color: var(--light);
+      }
+
+      .action-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+      }
+
+      .action-btn {
+        padding: 12px 25px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Demo Step 2 - Test Generator */
+      .test-generator h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: var(--accent);
+      }
+
+      .test-types {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        background-color: rgba(15, 15, 15, 0.5);
+        border-radius: 8px;
+        padding: 5px;
+      }
+
+      .test-type {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+      }
+
+      .test-type.active {
+        background-color: rgba(255, 107, 43, 0.2);
+        color: var(--primary);
+      }
+
+      .generation-options {
+        max-width: 500px;
+        margin: 0 auto 30px;
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      .option-group {
+        margin-bottom: 20px;
+      }
+
+      .option-group h4 {
+        margin-bottom: 10px;
+        color: rgba(242, 242, 242, 0.9);
+        font-size: 1rem;
+      }
+
+      .range-slider {
+        position: relative;
+        padding: 10px 0;
+      }
+
+      .range-slider input {
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(15, 15, 15, 0.8);
+        outline: none;
+        margin-bottom: 10px;
+      }
+
+      .range-slider input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+      }
+
+      .range-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: rgba(242, 242, 242, 0.6);
+      }
+
+      .option-toggle {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .option-toggle:last-child {
+        margin-bottom: 0;
+      }
+
+      .toggle {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+        margin-right: 15px;
+      }
+
+      .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(15, 15, 15, 0.8);
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+
+      .toggle-slider:before {
+        position: absolute;
+        content: '';
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      .toggle input:checked + .toggle-slider {
+        background-color: var(--primary);
+      }
+
+      .toggle input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+      }
+
+      /* Demo Step 3 - Test Execution */
+      .test-execution h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: var(--accent);
+      }
+
+      .execution-panel {
+        display: grid;
+        grid-template-columns: 7fr 3fr;
+        gap: 20px;
+      }
+
+      .terminal {
+        background-color: #1e1e1e;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .terminal-header {
+        padding: 8px 12px;
+        background-color: #303030;
+        color: rgba(242, 242, 242, 0.7);
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .terminal-content {
+        padding: 15px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        max-height: 350px;
+        overflow-y: auto;
+      }
+
+      .command {
+        color: var(--light);
+        margin-bottom: 10px;
+      }
+
+      .output {
+        color: rgba(242, 242, 242, 0.7);
+        margin-bottom: 5px;
+        padding-left: 15px;
+      }
+
+      .output.success {
+        color: #27c93f;
+      }
+
+      .output.warning {
+        color: #ffbd2e;
+      }
+
+      .output.error {
+        color: #ff5f56;
+      }
+
+      .loading-cursor {
+        display: inline-block;
+        width: 10px;
+        height: 18px;
+        background-color: var(--primary);
+        margin-left: 15px;
+        animation: blink 1s infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+
+      .execution-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .progress-bar {
+        height: 30px;
+        background-color: rgba(15, 15, 15, 0.5);
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+
+      .progress {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: width 0.5s ease;
+      }
+
+      .test-stats {
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 8px;
+        padding: 15px;
+      }
+
+      .stat {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+      }
+
+      .stat:last-child {
+        margin-bottom: 0;
+      }
+
+      .label {
+        color: rgba(242, 242, 242, 0.7);
+      }
+
+      .value {
+        font-weight: 600;
+        color: var(--light);
+      }
+
+      .value.success {
+        color: #27c93f;
+      }
+
+      .value.warning {
+        color: #ffbd2e;
+      }
+
+      .value.error {
+        color: #ff5f56;
+      }
+
+      .test-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      .control-btn {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .pause-btn {
+        background-color: #ffbd2e;
+        color: #333;
+      }
+
+      .stop-btn {
+        background-color: #ff5f56;
+        color: white;
+      }
+
+      /* Demo Step 4 - Results Dashboard */
+      .results-dashboard h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: var(--accent);
+      }
+
+      .results-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .summary-card {
+        background-color: rgba(30, 30, 30, 0.5);
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .summary-card.success {
+        border-left: 3px solid #27c93f;
+      }
+
+      .summary-card.warning {
+        border-left: 3px solid #ffbd2e;
+      }
+
+      .summary-card.error {
+        border-left: 3px solid #ff5f56;
+      }
+
+      .card-icon {
+        font-size: 2rem;
+      }
+
+      .summary-card.success .card-icon {
+        color: #27c93f;
+      }
+
+      .summary-card.warning .card-icon {
+        color: #ffbd2e;
+      }
+
+      .summary-card.error .card-icon {
+        color: #ff5f56;
+      }
+
+      .card-content h4 {
+        font-size: 1.8rem;
+        margin-bottom: 5px;
+        color: var(--light);
+      }
+
+      .card-content p {
+        margin: 0;
+        color: rgba(242, 242, 242, 0.7);
+        font-size: 0.9rem;
+      }
+
+      .vulnerability-details {
+        background-color: rgba(255, 95, 86, 0.1);
+        border-radius: 8px;
+        margin-bottom: 30px;
+        overflow: hidden;
+      }
+
+      .vuln-header {
+        background-color: rgba(255, 95, 86, 0.2);
+        padding: 15px;
+        color: #ff5f56;
+      }
+
+      .vuln-header h4 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .vuln-content {
+        padding: 20px;
+      }
+
+      .vuln-info {
+        margin-bottom: 20px;
+      }
+
+      .vuln-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--light);
+      }
+
+      .vuln-severity {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .vuln-severity.high {
+        background-color: rgba(255, 95, 86, 0.2);
+        color: #ff5f56;
+      }
+
+      .vuln-desc {
+        color: rgba(242, 242, 242, 0.7);
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .vuln-code,
+      .vuln-fix {
+        margin-bottom: 20px;
+      }
+
+      .vuln-fix h5 {
+        margin-bottom: 10px;
+        color: #27c93f;
+      }
+
+      .vuln-code pre,
+      .vuln-fix pre {
+        background-color: #1e1e1e;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .export-btn {
+        background: linear-gradient(90deg, var(--accent) 0%, var(--accent-alt) 100%);
+      }
+
+      .fix-btn {
+        background: linear-gradient(90deg, #27c93f 0%, #1db954 100%);
+      }
+
+      @media (max-width: 768px) {
+        .execution-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .results-summary {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container header-container">
+        <div class="logo">
+          <svg width="40" height="40" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background Shield -->
+            <defs>
+              <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF6B2B" />
+                <stop offset="100%" stop-color="#13C3FF" />
+              </linearGradient>
+              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            <!-- Shield Background -->
+            <path
+              d="M60 10 L100 30 L100 70 C100 85 80 100 60 110 C40 100 20 85 20 70 L20 30 Z"
+              fill="#1A1A1A"
+              stroke="url(#logoGradient)"
+              stroke-width="2"
+            />
+
+            <!-- Web3 Symbol -->
+            <g filter="url(#glow)">
+              <path
+                d="M40 40 L50 65 L60 40 L70 65 L80 40"
+                fill="none"
+                stroke="#FF6B2B"
+                stroke-width="4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </g>
+
+            <!-- Security Lock Symbol -->
+            <g transform="translate(60, 75) scale(0.8)">
+              <rect x="-15" y="-5" width="30" height="20" rx="5" ry="5" fill="#13C3FF" />
+              <path
+                d="M-5 -5 L-5 -15 C-5 -20 5 -20 5 -15 L5 -5"
+                fill="none"
+                stroke="#13C3FF"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
+            </g>
+
+            <!-- Bug/Testing Symbol -->
+            <g transform="translate(60, 55)">
+              <circle
+                cx="0"
+                cy="0"
+                r="8"
+                fill="none"
+                stroke="#FF6B2B"
+                stroke-width="1.5"
+                stroke-dasharray="3,2"
+              />
+              <circle cx="-3" cy="-2" r="1" fill="#FF6B2B" />
+              <circle cx="3" cy="-2" r="1" fill="#FF6B2B" />
+              <path
+                d="M-3 2 C-1 4 1 4 3 2"
+                fill="none"
+                stroke="#FF6B2B"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </g>
+          </svg>
+          <h1>Web3FuzzForge</h1>
+        </div>
+        <nav>
+          <div class="nav-menu" id="navMenu">
+            <a href="#features" class="nav-link" data-i18n="header.features">Features</a>
+            <a href="#docs" class="nav-link" data-i18n="header.docs">Documentation</a>
+            <a href="#download" class="nav-link" data-i18n="header.download">Download</a>
+            <a href="#community" class="nav-link" data-i18n="header.community">Community</a>
+          </div>
+          <button class="mobile-menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+        </nav>
+        <div class="tagline">
+          <span>The fastest test kit for Web3</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container">
+        <h2 data-i18n="hero.title">Bulletproof Your dApp's Wallet Logic</h2>
+        <p data-i18n="hero.subtitle">
+          Generate automated tests for MetaMask, WalletConnect, Coinbase & more—no guesswork, no BS.
+        </p>
+        <a href="#download" class="btn primary-btn" data-i18n="hero.cta">Get Started — It's Free</a>
+      </div>
+    </section>
+
+    <section class="problem-solution">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">
+          Most dApps only get tested manually. That's reckless.
+        </h2>
+
+        <div class="problem-list" data-aos="fade-up" data-aos-delay="100">
+          <div class="problem-item">
+            <div class="problem-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+              <h3>Missed wallet disconnects</h3>
+              <p>Your users rage-quit when disconnect flows fail. We catch that.</p>
+            </div>
+          </div>
+
+          <div class="problem-item">
+            <div class="problem-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+              <h3>Rejected TXs</h3>
+              <p>Did your app break after a user rejected a transaction? Ours won't.</p>
+            </div>
+          </div>
+
+          <div class="problem-item">
+            <div class="problem-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+              <h3>Phishing Spoofing</h3>
+              <p>Security holes open when wallet connections don't validate properly.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="solution-card" data-aos="fade-up" data-aos-delay="200">
+          <h3>The Solution: Web3FuzzForge</h3>
+          <p>
+            A CLI-first tool that generates test scaffolds with mocks and fuzz payloads to test
+            every wallet interaction pathway. No more guessing what might break.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="benefits">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">
+          Catch Web3 Vulnerabilities Before Hackers Do
+        </h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+          Web3FuzzForge provides a comprehensive security shield for your dApp
+        </p>
+
+        <div class="benefits-grid">
+          <div class="benefit-card" data-aos="fade-up" data-aos-delay="150">
+            <div class="benefit-icon">
+              <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="benefit-title">Enhanced Security</h3>
+            <p class="benefit-description">
+              Proactively identify vulnerabilities before they can be exploited by malicious actors.
+            </p>
+          </div>
+
+          <div class="benefit-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="benefit-icon">
+              <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <h3 class="benefit-title">Cost Savings</h3>
+            <p class="benefit-description">
+              Prevent expensive security incidents and reduce the cost of manual testing.
+            </p>
+          </div>
+
+          <div class="benefit-card" data-aos="fade-up" data-aos-delay="250">
+            <div class="benefit-icon">
+              <i class="fas fa-tachometer-alt"></i>
+            </div>
+            <h3 class="benefit-title">Faster Releases</h3>
+            <p class="benefit-description">
+              Accelerate your development cycle with automated testing that doesn't slow you down.
+            </p>
+          </div>
+
+          <div class="benefit-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="benefit-icon">
+              <i class="fas fa-user-shield"></i>
+            </div>
+            <h3 class="benefit-title">User Trust</h3>
+            <p class="benefit-description">
+              Build confidence with users knowing your dApp has been thoroughly tested against
+              vulnerabilities.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">How It Works</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+          Simple CLI commands generate powerful test suites in seconds
+        </p>
+
+        <div class="demo-container" data-aos="fade-up" data-aos-delay="200">
+          <iframe
+            src="assets/demo/terminal-demo.html"
+            width="100%"
+            height="500px"
+            frameborder="0"
+            style="border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3)"
+          ></iframe>
+
+          <div
+            class="demo-steps"
+            style="
+              margin-top: 30px;
+              display: flex;
+              flex-wrap: wrap;
+              gap: 20px;
+              justify-content: center;
+            "
+          >
+            <div
+              class="demo-step"
+              style="
+                flex: 1;
+                min-width: 200px;
+                background-color: rgba(30, 30, 30, 0.5);
+                padding: 20px;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+              "
+            >
+              <div style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px">
+                1. Install
+              </div>
+              <p style="color: rgba(242, 242, 242, 0.7)">
+                Install Web3FuzzForge globally using npm or yarn package manager.
+              </p>
+            </div>
+            <div
+              class="demo-step"
+              style="
+                flex: 1;
+                min-width: 200px;
+                background-color: rgba(30, 30, 30, 0.5);
+                padding: 20px;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+              "
+            >
+              <div style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px">
+                2. Generate
+              </div>
+              <p style="color: rgba(242, 242, 242, 0.7)">
+                Create test suites for specific wallet interactions with a single command.
+              </p>
+            </div>
+            <div
+              class="demo-step"
+              style="
+                flex: 1;
+                min-width: 200px;
+                background-color: rgba(30, 30, 30, 0.5);
+                padding: 20px;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+              "
+            >
+              <div style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px">
+                3. Fuzz
+              </div>
+              <p style="color: rgba(242, 242, 242, 0.7)">
+                Apply automated fuzzing to stress-test your dApp's wallet interactions.
+              </p>
+            </div>
+            <div
+              class="demo-step"
+              style="
+                flex: 1;
+                min-width: 200px;
+                background-color: rgba(30, 30, 30, 0.5);
+                padding: 20px;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+              "
+            >
+              <div style="color: var(--primary); font-size: 1.5rem; margin-bottom: 10px">
+                4. Report
+              </div>
+              <p style="color: rgba(242, 242, 242, 0.7)">
+                Receive detailed security reports and fix vulnerabilities before deployment.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Powerful Features</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+          Everything you need to ensure your dApp's wallet integration is secure
+        </p>
+
+        <div class="features-grid">
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="150">
+            <div class="feature-icon">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <h3 class="feature-title">Quick Test Generation</h3>
+            <p class="feature-description">
+              Create comprehensive test suites in seconds with simple CLI commands.
+            </p>
+          </div>
+
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="feature-icon">
+              <i class="fas fa-robot"></i>
+            </div>
+            <h3 class="feature-title">Automated Fuzzing</h3>
+            <p class="feature-description">
+              Discover edge cases with intelligent fuzzing that simulates real-world scenarios.
+            </p>
+          </div>
+
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="250">
+            <div class="feature-icon">
+              <i class="fas fa-desktop"></i>
+            </div>
+            <h3 class="feature-title">Visual Playback</h3>
+            <p class="feature-description">
+              Watch tests execute in real-time or generate videos for sharing with your team.
+            </p>
+          </div>
+
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="feature-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="feature-title">Detailed Reports</h3>
+            <p class="feature-description">
+              Get actionable insights with comprehensive test reports highlighting vulnerabilities.
+            </p>
+          </div>
+
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="350">
+            <div class="feature-icon">
+              <i class="fas fa-code-branch"></i>
+            </div>
+            <h3 class="feature-title">CI/CD Integration</h3>
+            <p class="feature-description">
+              Seamlessly integrate with your CI/CD pipeline for continuous wallet testing.
+            </p>
+          </div>
+
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
+            <div class="feature-icon">
+              <i class="fas fa-plug"></i>
+            </div>
+            <h3 class="feature-title">Extensible Plugins</h3>
+            <p class="feature-description">
+              Extend functionality with custom plugins tailored to your specific needs.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="supported">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Supported Wallets + Chains</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+          Comprehensive testing for the entire Web3 ecosystem
+        </p>
+
+        <div class="logos-container" data-aos="fade-up" data-aos-delay="200">
+          <div class="logo-item">
+            <img
+              src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg"
+              alt="MetaMask"
+              style="height: 50px; width: auto"
+            />
+            <span>MetaMask</span>
+          </div>
+
+          <div class="logo-item">
+            <img
+              src="https://seeklogo.com/images/W/walletconnect-logo-EE83B50C97-seeklogo.com.png"
+              alt="WalletConnect"
+              style="height: 50px; width: auto"
+            />
+            <span>WalletConnect</span>
+          </div>
+
+          <div class="logo-item">
+            <img
+              src="https://seeklogo.com/images/C/coinbase-coin-logo-C86F46D7B8-seeklogo.com.png"
+              alt="Coinbase Wallet"
+              style="height: 50px; width: auto"
+            />
+            <span>Coinbase Wallet</span>
+          </div>
+
+          <div class="logo-item">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Ethereum-icon-purple.svg/1200px-Ethereum-icon-purple.svg.png"
+              alt="Ethereum"
+              style="height: 50px; width: auto"
+            />
+            <span>Ethereum</span>
+          </div>
+
+          <div class="logo-item">
+            <img
+              src="https://cryptologos.cc/logos/polygon-matic-logo.png"
+              alt="Polygon"
+              style="height: 50px; width: auto"
+            />
+            <span>Polygon</span>
+          </div>
+
+          <div class="logo-item">
+            <img
+              src="https://cryptologos.cc/logos/bnb-bnb-logo.png"
+              alt="BSC"
+              style="height: 50px; width: auto"
+            />
+            <span>BSC</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 50px; text-align: center" data-aos="fade-up" data-aos-delay="300">
+          <img
+            src="assets/img/wallet-matrix-testing.png"
+            alt="Wallet Matrix Testing"
+            style="
+              max-width: 100%;
+              border-radius: 8px;
+              box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+              border: 1px solid rgba(255, 255, 255, 0.05);
+            "
+          />
+        </div>
+      </div>
+    </section>
+
+    <section class="use-cases">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Who Uses Web3FuzzForge?</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+          Built for everyone in the dApp ecosystem
+        </p>
+
+        <div class="use-cases-grid">
+          <div class="use-case-card" data-aos="fade-up" data-aos-delay="150">
+            <div class="use-case-icon">
+              <i class="fas fa-user-ninja"></i>
+            </div>
+            <h3 class="use-case-title">Solo Bounty Hunters</h3>
+            <p class="use-case-description">
+              Find wallet vulnerabilities other testers miss and maximize your security bounties
+              with automated fault injection.
+            </p>
+          </div>
+
+          <div class="use-case-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="use-case-icon">
+              <i class="fas fa-users-cog"></i>
+            </div>
+            <h3 class="use-case-title">dApp QA Teams</h3>
+            <p class="use-case-description">
+              Build robust regression test suites that catch wallet bugs before they hit production
+              and cost real money.
+            </p>
+          </div>
+
+          <div class="use-case-card" data-aos="fade-up" data-aos-delay="250">
+            <div class="use-case-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <h3 class="use-case-title">Auditors</h3>
+            <p class="use-case-description">
+              Standardize your wallet testing process and reduce audit time with reproducible,
+              deterministic wallet flow tests.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="social-proof">
+      <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Trusted By The Community</h2>
+
+        <div class="github-stars" data-aos="fade-up" data-aos-delay="100">
+          <i class="fas fa-star"></i>
+          <span>1.2k+ GitHub Stars</span>
+        </div>
+
+        <div class="testimonials">
+          <div class="testimonial-card" data-aos="fade-up" data-aos-delay="150">
+            <div class="testimonial-text">
+              "Web3FuzzForge helped us catch a critical wallet flow bug that would have bypassed our
+              manual QA. Saved us from a potential security incident."
+            </div>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">
+                <img src="https://i.pravatar.cc/150?img=1" alt="Avatar" />
+              </div>
+              <div class="testimonial-info">
+                <h4>Alex Chen</h4>
+                <p>Lead Developer, DeFiProtocol</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="testimonial-text">
+              "I earned a $10k bounty by using Web3FuzzForge to find a wallet disconnect
+              vulnerability other testers missed. This tool pays for itself."
+            </div>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">
+                <img src="https://i.pravatar.cc/150?img=2" alt="Avatar" />
+              </div>
+              <div class="testimonial-info">
+                <h4>Sarah Williams</h4>
+                <p>Independent Security Researcher</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card" data-aos="fade-up" data-aos-delay="250">
+            <div class="testimonial-text">
+              "The test coverage we get from Web3FuzzForge is fantastic. Our wallet interactions are
+              bulletproof now."
+            </div>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">
+                <img src="https://i.pravatar.cc/150?img=3" alt="Avatar" />
+              </div>
+              <div class="testimonial-info">
+                <h4>Michael Johnson</h4>
+                <p>QA Lead, GameFi Platform</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="newsletter">
+      <div class="container">
+        <h2 data-i18n="newsletter.title">Stay Updated</h2>
+        <p data-i18n="newsletter.subtitle">Get the latest security tips and product updates</p>
+
+        <form id="newsletter-form" class="newsletter-form">
+          <div class="form-group">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              data-i18n="newsletter.placeholder"
+              placeholder="Enter your email"
+            />
+            <button type="submit" data-i18n="newsletter.button">Subscribe</button>
+          </div>
+
+          <div class="gdpr-consent">
+            <label class="consent-label">
+              <input type="checkbox" name="consent" id="consent" required />
+              <span data-i18n="newsletter.consent"
+                >I agree to receive occasional emails and understand I can unsubscribe
+                anytime.</span
+              >
+            </label>
+            <a href="#privacy-policy" class="privacy-link" data-i18n="newsletter.privacy"
+              >View our Privacy Policy</a
+            >
+          </div>
+
+          <div class="form-feedback">
+            <div class="success-message">
+              <i class="fas fa-check-circle"></i>
+              <p>Thanks! You're now subscribed.</p>
+            </div>
+            <div class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>Oops! Something went wrong. Please try again.</p>
+            </div>
+          </div>
+        </form>
+
+        <div class="data-usage">
+          <h3>How We Use Your Data</h3>
+          <div class="data-points">
+            <div class="data-point">
+              <i class="fas fa-lock"></i>
+              <h4>Securely Stored</h4>
+              <p>Your email is encrypted and securely stored.</p>
+            </div>
+            <div class="data-point">
+              <i class="fas fa-ban"></i>
+              <h4>Never Sold</h4>
+              <p>We will never sell your data to third parties.</p>
+            </div>
+            <div class="data-point">
+              <i class="fas fa-envelope"></i>
+              <h4>Limited Emails</h4>
+              <p>We only send valuable content, max once a week.</p>
+            </div>
+            <div class="data-point">
+              <i class="fas fa-power-off"></i>
+              <h4>Easy Unsubscribe</h4>
+              <p>One-click unsubscribe in every email.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Demo Section -->
+    <section id="interactive-demo" class="interactive-demo">
+      <div class="container">
+        <h2>See Web3FuzzForge in Action</h2>
+        <p>Interactive walkthrough of key features</p>
+
+        <div class="demo-container">
+          <div class="demo-nav">
+            <button class="demo-step active" data-step="1">
+              <div class="step-number">1</div>
+              <div class="step-text">
+                <h4>Connect Wallet</h4>
+                <p>Setup wallet testing</p>
+              </div>
+            </button>
+            <button class="demo-step" data-step="2">
+              <div class="step-number">2</div>
+              <div class="step-text">
+                <h4>Generate Tests</h4>
+                <p>Auto-generate test cases</p>
+              </div>
+            </button>
+            <button class="demo-step" data-step="3">
+              <div class="step-number">3</div>
+              <div class="step-text">
+                <h4>Run Tests</h4>
+                <p>Execute test suite</p>
+              </div>
+            </button>
+            <button class="demo-step" data-step="4">
+              <div class="step-number">4</div>
+              <div class="step-text">
+                <h4>View Results</h4>
+                <p>Analyze security findings</p>
+              </div>
+            </button>
+          </div>
+
+          <div class="demo-screen">
+            <div class="demo-content active" data-step="1">
+              <div class="screen-header">
+                <div class="browser-controls">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="url-bar">web3fuzzforge.io/demo/wallet-setup</div>
+              </div>
+              <div class="screen-content">
+                <div class="wallet-setup">
+                  <h3>Wallet Connection Testing</h3>
+                  <div class="wallet-options">
+                    <div class="wallet-option active">
+                      <img
+                        src="https://cdn.jsdelivr.net/gh/MetaMask/brand-resources@master/SVG/metamask-fox.svg"
+                        alt="MetaMask"
+                      />
+                      <span>MetaMask</span>
+                    </div>
+                    <div class="wallet-option">
+                      <img
+                        src="https://avatars.githubusercontent.com/u/37784886"
+                        alt="WalletConnect"
+                      />
+                      <span>WalletConnect</span>
+                    </div>
+                    <div class="wallet-option">
+                      <img
+                        src="https://avatars.githubusercontent.com/u/18060234"
+                        alt="Coinbase Wallet"
+                      />
+                      <span>Coinbase</span>
+                    </div>
+                  </div>
+                  <div class="config-panel">
+                    <div class="config-row">
+                      <label>Test Network:</label>
+                      <select>
+                        <option>Ethereum Mainnet</option>
+                        <option>Goerli Testnet</option>
+                        <option>Sepolia Testnet</option>
+                      </select>
+                    </div>
+                    <div class="config-row">
+                      <label>Wallet Version:</label>
+                      <select>
+                        <option>Latest (11.1.1)</option>
+                        <option>10.28.3</option>
+                        <option>10.25.0</option>
+                      </select>
+                    </div>
+                    <div class="config-row">
+                      <label>Test Mode:</label>
+                      <select>
+                        <option>Mock Provider</option>
+                        <option>Live Extension</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="action-buttons">
+                    <button class="action-btn continue-btn">Continue Setup</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-content" data-step="2">
+              <div class="screen-header">
+                <div class="browser-controls">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="url-bar">web3fuzzforge.io/demo/test-generator</div>
+              </div>
+              <div class="screen-content">
+                <div class="test-generator">
+                  <h3>Test Case Generator</h3>
+                  <div class="test-types">
+                    <div class="test-type active">Connection Tests</div>
+                    <div class="test-type">Transaction Tests</div>
+                    <div class="test-type">Network Switch Tests</div>
+                    <div class="test-type">Error Handling Tests</div>
+                  </div>
+                  <div class="generation-options">
+                    <div class="option-group">
+                      <h4>Test Complexity</h4>
+                      <div class="range-slider">
+                        <input type="range" min="1" max="5" value="3" />
+                        <div class="range-labels">
+                          <span>Basic</span>
+                          <span>Advanced</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="option-group">
+                      <h4>Fuzzing Level</h4>
+                      <div class="range-slider">
+                        <input type="range" min="1" max="5" value="3" />
+                        <div class="range-labels">
+                          <span>Low</span>
+                          <span>High</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="option-toggle">
+                      <label class="toggle">
+                        <input type="checkbox" checked />
+                        <span class="toggle-slider"></span>
+                      </label>
+                      <span>Enable Edge Cases</span>
+                    </div>
+                    <div class="option-toggle">
+                      <label class="toggle">
+                        <input type="checkbox" checked />
+                        <span class="toggle-slider"></span>
+                      </label>
+                      <span>Parameter Fuzzing</span>
+                    </div>
+                  </div>
+                  <div class="action-buttons">
+                    <button class="action-btn generate-btn">Generate Test Suite</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-content" data-step="3">
+              <div class="screen-header">
+                <div class="browser-controls">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="url-bar">web3fuzzforge.io/demo/test-runner</div>
+              </div>
+              <div class="screen-content">
+                <div class="test-execution">
+                  <h3>Test Execution</h3>
+                  <div class="execution-panel">
+                    <div class="terminal">
+                      <div class="terminal-header">
+                        <span class="terminal-title">Web3FuzzForge Test Runner</span>
+                      </div>
+                      <div class="terminal-content">
+                        <div class="command">
+                          > web3fuzzforge run --wallet=metamask --test-suite=wallet-connection
+                        </div>
+                        <div class="output">Initializing Web3FuzzForge v1.1.0...</div>
+                        <div class="output">Loading test suite: wallet-connection</div>
+                        <div class="output success">✓ Test 1/12: Basic wallet connection</div>
+                        <div class="output success">✓ Test 2/12: Provider detection</div>
+                        <div class="output success">✓ Test 3/12: Account request</div>
+                        <div class="output success">✓ Test 4/12: Network detection</div>
+                        <div class="output warning">
+                          ⚠ Test 5/12: Connection timeout handling (Warning: Slow response)
+                        </div>
+                        <div class="output">Running test 6/12: Multiple account handling...</div>
+                        <div class="loading-cursor"></div>
+                      </div>
+                    </div>
+                    <div class="execution-sidebar">
+                      <div class="progress-bar">
+                        <div class="progress" style="width: 42%">42%</div>
+                      </div>
+                      <div class="test-stats">
+                        <div class="stat">
+                          <span class="label">Total Tests:</span>
+                          <span class="value">12</span>
+                        </div>
+                        <div class="stat">
+                          <span class="label">Passed:</span>
+                          <span class="value success">4</span>
+                        </div>
+                        <div class="stat">
+                          <span class="label">Warnings:</span>
+                          <span class="value warning">1</span>
+                        </div>
+                        <div class="stat">
+                          <span class="label">Failed:</span>
+                          <span class="value error">0</span>
+                        </div>
+                      </div>
+                      <div class="test-controls">
+                        <button class="control-btn pause-btn">
+                          <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <button class="control-btn stop-btn">
+                          <i class="fas fa-stop"></i> Stop
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-content" data-step="4">
+              <div class="screen-header">
+                <div class="browser-controls">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div class="url-bar">web3fuzzforge.io/demo/results</div>
+              </div>
+              <div class="screen-content">
+                <div class="results-dashboard">
+                  <h3>Test Results & Security Analysis</h3>
+                  <div class="results-summary">
+                    <div class="summary-card success">
+                      <div class="card-icon"><i class="fas fa-check-circle"></i></div>
+                      <div class="card-content">
+                        <h4>10</h4>
+                        <p>Tests Passed</p>
+                      </div>
+                    </div>
+                    <div class="summary-card warning">
+                      <div class="card-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                      <div class="card-content">
+                        <h4>2</h4>
+                        <p>Warnings</p>
+                      </div>
+                    </div>
+                    <div class="summary-card error">
+                      <div class="card-icon"><i class="fas fa-times-circle"></i></div>
+                      <div class="card-content">
+                        <h4>1</h4>
+                        <p>Vulnerability</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="vulnerability-details">
+                    <div class="vuln-header">
+                      <h4>
+                        <i class="fas fa-exclamation-circle"></i> Critical Vulnerability Found
+                      </h4>
+                    </div>
+                    <div class="vuln-content">
+                      <div class="vuln-info">
+                        <div class="vuln-title">Transaction Confirmation Bypass</div>
+                        <div class="vuln-severity high">High Severity</div>
+                        <div class="vuln-desc">
+                          The application does not properly validate transaction confirmation status
+                          before proceeding with critical operations. This could allow an attacker
+                          to bypass confirmation screens.
+                        </div>
+                      </div>
+                      <div class="vuln-code">
+                        <pre><code>// Vulnerable code
+await ethereum.request({
+  method: 'eth_sendTransaction',
+  params: [txParams]
+});
+proceedWithOperation(); // Should wait for confirmation!
+</code></pre>
+                      </div>
+                      <div class="vuln-fix">
+                        <h5>Recommended Fix:</h5>
+                        <pre><code>// Fixed code
+const txHash = await ethereum.request({
+  method: 'eth_sendTransaction', 
+  params: [txParams]
+});
+
+// Wait for confirmation
+const receipt = await waitForTransaction(txHash);
+if (receipt.status === 1) {
+  proceedWithOperation();
+}</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="action-buttons">
+                    <button class="action-btn export-btn">
+                      <i class="fas fa-file-export"></i> Export Report
+                    </button>
+                    <button class="action-btn fix-btn">
+                      <i class="fas fa-wrench"></i> Apply Fixes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="download">
+      <div class="container">
+        <h2 data-i18n="download.title">Ready to secure your dApp?</h2>
+
+        <div class="download-options">
+          <div class="download-card">
+            <div class="download-icon">
+              <i class="fas fa-download"></i>
+            </div>
+            <h3>Web3FuzzForge</h3>
+            <p>Full version with all features</p>
+            <div class="version">
+              <span data-i18n="download.version">Current version:</span>
+              <span class="version-number">1.1.0</span>
+            </div>
+            <a
+              href="Web3FuzzForge-1.1.0.tgz"
+              class="download-btn"
+              data-tracking="main_download"
+              data-i18n="download.button"
+              >Download Now</a
+            >
+            <div class="download-meta">
+              <div class="meta-item">
+                <i class="fas fa-file-archive"></i>
+                <span>14.5 MB</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Updated: May 2025</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="download-card">
+            <div class="download-icon">
+              <i class="fas fa-terminal"></i>
+            </div>
+            <h3>CLI Version</h3>
+            <p>Command-line interface only</p>
+            <div class="version">
+              <span data-i18n="download.version">Current version:</span>
+              <span class="version-number">1.1.0</span>
+            </div>
+            <a href="#" class="download-btn" data-tracking="cli_download">Download CLI</a>
+            <div class="download-meta">
+              <div class="meta-item">
+                <i class="fas fa-file-archive"></i>
+                <span>8.2 MB</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Updated: May 2025</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="download-card">
+            <div class="download-icon">
+              <i class="fas fa-plug"></i>
+            </div>
+            <h3>VSCode Extension</h3>
+            <p>IDE integration</p>
+            <div class="version">
+              <span data-i18n="download.version">Current version:</span>
+              <span class="version-number">1.0.2</span>
+            </div>
+            <a href="#" class="download-btn" data-tracking="vscode_download">Download Extension</a>
+            <div class="download-meta">
+              <div class="meta-item">
+                <i class="fas fa-file-archive"></i>
+                <span>5.7 MB</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Updated: April 2025</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="system-requirements">
+          <h3 data-i18n="download.requirements">System Requirements</h3>
+          <div class="requirements-grid">
+            <div class="req-section">
+              <h4>Minimum Requirements</h4>
+              <div class="req-item">
+                <div class="req-icon"><i class="fas fa-microchip"></i></div>
+                <div class="req-text">
+                  <h4>Processor</h4>
+                  <p>Intel or AMD dual-core 2GHz+ processor</p>
+                </div>
+              </div>
+              <div class="req-item">
+                <div class="req-icon"><i class="fas fa-memory"></i></div>
+                <div class="req-text">
+                  <h4>Memory</h4>
+                  <p>4GB RAM</p>
+                </div>
+              </div>
+              <div class="req-item">
+                <div class="req-icon"><i class="fas fa-hdd"></i></div>
+                <div class="req-text">
+                  <h4>Disk Space</h4>
+                  <p>500MB free disk space</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="req-section">
+              <h4>Recommended</h4>
+              <div class="req-item">
+                <div class="req-icon"><i class="fas fa-microchip"></i></div>
+                <div class="req-text">
+                  <h4>Processor</h4>
+                  <p>Intel or AMD quad-core 3GHz+ processor</p>
+                </div>
+              </div>
+              <div class="req-item">
+                <div class="req-icon"><i class="fas fa-memory"></i></div>
+                <div class="req-text">
+                  <h4>Memory</h4>
+                  <p>8GB RAM</p>
+                </div>
+              </div>
+              <div class="req-item">
+                <div class="req-icon"><i class="fas fa-hdd"></i></div>
+                <div class="req-text">
+                  <h4>Disk Space</h4>
+                  <p>1GB free disk space</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <div class="footer-links">
+          <a
+            href="https://github.com/your-username/web3-security-test-kit"
+            target="_blank"
+            class="footer-link"
+          >
+            <i class="fab fa-github"></i> GitHub
+          </a>
+          <a href="https://discord.gg/web3security" target="_blank" class="footer-link">
+            <i class="fab fa-discord"></i> Discord
+          </a>
+          <a href="/docs" class="footer-link"> <i class="fas fa-book"></i> Documentation </a>
+          <a
+            href="https://github.com/your-username/web3-security-test-kit/blob/main/LICENSE"
+            target="_blank"
+            class="footer-link"
+          >
+            <i class="fas fa-file-contract"></i> MIT License
+          </a>
+        </div>
+
+        <div class="copyright">&copy; 2025 Web3FuzzForge. All rights reserved.</div>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Mobile menu toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+
+        if (mobileMenuToggle && navMenu) {
+          mobileMenuToggle.addEventListener('click', function () {
+            navMenu.classList.toggle('active');
+          });
+        }
+
+        // Image loading error handling
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+          img.onerror = function () {
+            // For wallet images
+            if (img.src.includes('wallets/')) {
+              img.src = 'https://placehold.co/200x80/FF6B2B/FFFFFF?text=Wallet';
+              img.alt = 'Wallet Logo Placeholder';
+            }
+            // For chain images
+            else if (img.src.includes('chains/')) {
+              img.src = 'https://placehold.co/100x100/13C3FF/FFFFFF?text=Chain';
+              img.alt = 'Chain Logo Placeholder';
+            }
+            // For other images
+            else {
+              img.src = 'https://placehold.co/300x200/121212/FFFFFF?text=Web3FuzzForge';
+              img.alt = 'Image Placeholder';
+            }
+          };
+        });
+
+        // Initialize AOS library if present
+        if (typeof AOS !== 'undefined') {
+          AOS.init({
+            duration: 800,
+            once: true,
+          });
+        }
+
+        // Check if demo images loaded successfully
+        const demoGif = document.querySelector('.demo-gif');
+        if (demoGif && !demoGif.complete) {
+          demoGif.src = 'https://placehold.co/800x450/121212/FFFFFF?text=Demo+Animation';
+        }
+      });
+    </script>
+
+    <!-- Language Selector -->
+    <div class="language-selector">
+      <div class="container">
+        <div class="lang-options">
+          <button class="lang-btn" data-lang="en">🇺🇸 English</button>
+          <button class="lang-btn" data-lang="es">🇪🇸 Español</button>
+          <button class="lang-btn" data-lang="fr">🇫🇷 Français</button>
+          <button class="lang-btn" data-lang="de">🇩🇪 Deutsch</button>
+          <button class="lang-btn" data-lang="zh">🇨🇳 中文</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Localization Initialization -->
+    <script>
+      // Initialize i18next
+      $(document).ready(function () {
+        // Initialize i18next
+        i18next
+          .use(i18nextHttpBackend)
+          .use(i18nextBrowserLanguageDetector)
+          .init({
+            fallbackLng: 'en',
+            debug: true,
+            ns: ['translation'],
+            defaultNS: 'translation',
+            backend: {
+              loadPath: './locales/{{lng}}/{{ns}}.json',
+            },
+          })
+          .then(function () {
+            // Initial translation
+            updateContent();
+
+            // Set active language button
+            $('.lang-btn[data-lang="' + i18next.language.substring(0, 2) + '"]').addClass('active');
+          });
+
+        // Handle language change
+        $('.lang-btn').click(function () {
+          const lang = $(this).data('lang');
+          i18next.changeLanguage(lang).then(function () {
+            updateContent();
+            $('.lang-btn').removeClass('active');
+            $('.lang-btn[data-lang="' + lang + '"]').addClass('active');
+          });
+        });
+
+        // Update all content with translations
+        function updateContent() {
+          // Header navigation
+          $('[data-i18n="header.home"]').text(i18next.t('header.home'));
+          $('[data-i18n="header.features"]').text(i18next.t('header.features'));
+          $('[data-i18n="header.docs"]').text(i18next.t('header.docs'));
+          $('[data-i18n="header.download"]').text(i18next.t('header.download'));
+          $('[data-i18n="header.community"]').text(i18next.t('header.community'));
+
+          // Hero section
+          $('[data-i18n="hero.title"]').text(i18next.t('hero.title'));
+          $('[data-i18n="hero.subtitle"]').text(i18next.t('hero.subtitle'));
+          $('[data-i18n="hero.cta"]').text(i18next.t('hero.cta'));
+
+          // Features section
+          $('[data-i18n="features.title"]').text(i18next.t('features.title'));
+          $('[data-i18n="features.subtitle"]').text(i18next.t('features.subtitle'));
+          $('[data-i18n="features.card1.title"]').text(i18next.t('features.card1.title'));
+          $('[data-i18n="features.card1.description"]').text(
+            i18next.t('features.card1.description')
+          );
+          $('[data-i18n="features.card2.title"]').text(i18next.t('features.card2.title'));
+          $('[data-i18n="features.card2.description"]').text(
+            i18next.t('features.card2.description')
+          );
+          $('[data-i18n="features.card3.title"]').text(i18next.t('features.card3.title'));
+          $('[data-i18n="features.card3.description"]').text(
+            i18next.t('features.card3.description')
+          );
+
+          // Newsletter section
+          $('[data-i18n="newsletter.title"]').text(i18next.t('newsletter.title'));
+          $('[data-i18n="newsletter.subtitle"]').text(i18next.t('newsletter.subtitle'));
+          $('[data-i18n="newsletter.placeholder"]').attr(
+            'placeholder',
+            i18next.t('newsletter.placeholder')
+          );
+          $('[data-i18n="newsletter.button"]').text(i18next.t('newsletter.button'));
+          $('[data-i18n="newsletter.consent"]').text(i18next.t('newsletter.consent'));
+          $('[data-i18n="newsletter.privacy"]').text(i18next.t('newsletter.privacy'));
+
+          // Download section
+          $('[data-i18n="download.title"]').text(i18next.t('download.title'));
+          $('[data-i18n="download.button"]').text(i18next.t('download.button'));
+          $('[data-i18n="download.version"]').text(i18next.t('download.version'));
+          $('[data-i18n="download.requirements"]').text(i18next.t('download.requirements'));
+
+          // Footer
+          $('[data-i18n="footer.copyright"]').text(i18next.t('footer.copyright'));
+          $('[data-i18n="footer.terms"]').text(i18next.t('footer.terms'));
+          $('[data-i18n="footer.privacy"]').text(i18next.t('footer.privacy'));
+
+          // Update HTML title and meta description
+          document.title = i18next.t('hero.title') + ' | Web3FuzzForge';
+          $('meta[name="description"]').attr('content', i18next.t('hero.subtitle'));
+        }
+      });
+    </script>
+
+    <!-- Download Tracking Script -->
+    <script>
+      $(document).ready(function () {
+        // Initialize tracking system
+        let downloadStats = localStorage.getItem('download_stats')
+          ? JSON.parse(localStorage.getItem('download_stats'))
+          : {
+              main_download: 0,
+              cli_download: 0,
+              vscode_download: 0,
+              newsletter_signup: 0,
+              last_download: null,
+              user_id: generateUUID(),
+              sessions: 1,
+            };
+
+        // Track page view
+        trackPageView();
+
+        // Track downloads
+        $('.download-btn').click(function (e) {
+          const trackingId = $(this).data('tracking');
+          if (trackingId) {
+            trackDownload(trackingId);
+
+            // If it's not a direct file download (like main download),
+            // prevent default action for tracking popup
+            if (trackingId !== 'main_download') {
+              e.preventDefault();
+
+              // Show tracking popup
+              setTimeout(function () {
+                alert(
+                  'Download tracking: In production, this would redirect to the download page or start the download automatically.'
+                );
+
+                // Redirect or open download in new tab
+                // window.open('YOUR_DOWNLOAD_URL', '_blank');
+              }, 300);
+            }
+          }
+        });
+
+        // Function to track downloads
+        window.trackDownload = function (trackingId) {
+          // Update local stats
+          downloadStats[trackingId] = (downloadStats[trackingId] || 0) + 1;
+          downloadStats.last_download = new Date().toISOString();
+          localStorage.setItem('download_stats', JSON.stringify(downloadStats));
+
+          // In production, send to analytics server
+          console.log('Download tracked:', trackingId);
+
+          /*
+                // Production code would look like this:
+                fetch('https://analytics.yoursite.com/track', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        event: 'download',
+                        trackingId: trackingId,
+                        userId: downloadStats.user_id,
+                        timestamp: new Date().toISOString(),
+                        referrer: document.referrer,
+                        language: navigator.language,
+                        platform: navigator.platform
+                    })
+                });
+                */
+
+          // Update UI counter if exists
+          const counterElement = document.getElementById('download-counter');
+          if (counterElement) {
+            let currentCount = parseInt(counterElement.innerText);
+            counterElement.innerText = (currentCount + 1).toLocaleString();
+          }
+
+          return true;
+        };
+
+        // Function to track page views
+        function trackPageView() {
+          // Increment session count if this is a new session
+          const lastSession = localStorage.getItem('last_session_time');
+          const currentTime = new Date().getTime();
+
+          if (!lastSession || currentTime - parseInt(lastSession) > 30 * 60 * 1000) {
+            // 30 minutes session timeout
+            downloadStats.sessions++;
+          }
+
+          localStorage.setItem('last_session_time', currentTime);
+          localStorage.setItem('download_stats', JSON.stringify(downloadStats));
+
+          // In production, send pageview to analytics
+          console.log('Pageview tracked');
+        }
+
+        // Generate UUID for anonymous tracking
+        function generateUUID() {
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = (Math.random() * 16) | 0;
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          });
+        }
+      });
+    </script>
+
+    <!-- Newsletter Subscription Handling -->
+    <script>
+      $(document).ready(function () {
+        // Newsletter form submission
+        $('#newsletter-form').submit(function (e) {
+          e.preventDefault();
+
+          const email = $('#email').val();
+          const consent = $('#consent').is(':checked');
+
+          if (!email || !consent) {
+            showError('Please complete all required fields.');
+            return;
+          }
+
+          // Show loading state
+          const submitButton = $(this).find('button[type="submit"]');
+          const originalText = submitButton.text();
+          submitButton.html('<i class="fas fa-spinner fa-spin"></i> Subscribing...');
+          submitButton.prop('disabled', true);
+
+          // Track conversion
+          if (typeof trackDownload === 'function') {
+            trackDownload('newsletter_signup');
+          }
+
+          // Simulate API call (replace with actual API endpoint)
+          setTimeout(function () {
+            // For demo, we'll simulate a successful subscription
+            // In production, replace with actual API call
+
+            /*
+                    $.ajax({
+                        url: 'https://api.yourservice.com/subscribe',
+                        method: 'POST',
+                        data: {
+                            email: email,
+                            consent: consent
+                        },
+                        success: function(response) {
+                            showSuccess();
+                        },
+                        error: function(xhr) {
+                            showError(xhr.responseJSON?.message || 'Subscription failed. Please try again.');
+                        },
+                        complete: function() {
+                            submitButton.html(originalText);
+                            submitButton.prop('disabled', false);
+                        }
+                    });
+                    */
+
+            // Demo success (remove in production)
+            showSuccess();
+            submitButton.html(originalText);
+            submitButton.prop('disabled', false);
+
+            // Store in local storage for demo purposes
+            localStorage.setItem('newsletter_email', email);
+            localStorage.setItem('newsletter_subscribed', 'true');
+            localStorage.setItem('newsletter_date', new Date().toISOString());
+          }, 1500);
+        });
+
+        function showSuccess() {
+          $('.form-feedback').show();
+          $('.error-message').hide();
+          $('.success-message').show();
+
+          // Hide form fields
+          $('.form-group, .gdpr-consent').hide();
+
+          // Log for analytics (replace with actual analytics call)
+          console.log('Newsletter subscription successful');
+        }
+
+        function showError(message) {
+          $('.form-feedback').show();
+          $('.success-message').hide();
+          $('.error-message').show();
+          $('.error-message p').text(message);
+
+          // Log for analytics (replace with actual analytics call)
+          console.log('Newsletter subscription error: ' + message);
+        }
+
+        // Check if already subscribed (demo only - remove in production)
+        if (localStorage.getItem('newsletter_subscribed') === 'true') {
+          $('#email').val(localStorage.getItem('newsletter_email'));
+          showSuccess();
+        }
+      });
+    </script>
+
+    <!-- Interactive Demo Script -->
+    <script>
+      $(document).ready(function () {
+        // Demo step navigation
+        $('.demo-step').click(function () {
+          const step = $(this).data('step');
+          $('.demo-step').removeClass('active');
+          $(this).addClass('active');
+
+          $('.demo-content').removeClass('active');
+          $(`.demo-content[data-step="${step}"]`).addClass('active');
+
+          // Track step view for analytics
+          console.log('Demo step viewed:', step);
+        });
+
+        // Demo step 1: Wallet selection
+        $('.wallet-option').click(function () {
+          $('.wallet-option').removeClass('active');
+          $(this).addClass('active');
+        });
+
+        // Demo step 2: Test type selection
+        $('.test-type').click(function () {
+          $('.test-type').removeClass('active');
+          $(this).addClass('active');
+        });
+
+        // Demo step 2: Continue button
+        $('.continue-btn').click(function () {
+          // Simulate moving to next step
+          $('.demo-step[data-step="2"]').click();
+        });
+
+        // Demo step 2: Generate button
+        $('.generate-btn').click(function () {
+          // Simulate moving to next step
+          $('.demo-step[data-step="3"]').click();
+
+          // Start the test execution animation
+          simulateTestExecution();
+        });
+
+        // Demo step 3: Pause button
+        $('.pause-btn').click(function () {
+          $(this).toggleClass('paused');
+          if ($(this).hasClass('paused')) {
+            $(this).html('<i class="fas fa-play"></i> Resume');
+          } else {
+            $(this).html('<i class="fas fa-pause"></i> Pause');
+          }
+        });
+
+        // Demo step 3: Stop button
+        $('.stop-btn').click(function () {
+          $('.demo-step[data-step="4"]').click();
+        });
+
+        // Function to simulate test execution progress
+        function simulateTestExecution() {
+          // Reset progress
+          let progress = 42; // Starting progress as shown in the UI
+
+          // Update progress every 2 seconds
+          const progressInterval = setInterval(function () {
+            progress += Math.floor(Math.random() * 10) + 5;
+            if (progress >= 100) {
+              progress = 100;
+              clearInterval(progressInterval);
+
+              // Move to results after completion
+              setTimeout(function () {
+                $('.demo-step[data-step="4"]').click();
+              }, 1000);
+            }
+
+            $('.progress').css('width', progress + '%');
+            $('.progress').text(progress + '%');
+
+            // Add a new test result
+            if (progress < 90) {
+              const testNum = Math.floor(progress / 10) + 5;
+
+              let resultType = 'success';
+              if (progress > 80) {
+                resultType = 'error';
+              } else if (progress > 60) {
+                resultType = Math.random() > 0.5 ? 'warning' : 'success';
+              }
+
+              const testStatus =
+                resultType === 'success' ? '✓' : resultType === 'warning' ? '⚠' : '✗';
+
+              const testText =
+                resultType === 'success'
+                  ? `${testStatus} Test ${testNum}/12: Account signature verification`
+                  : resultType === 'warning'
+                    ? `${testStatus} Test ${testNum}/12: Wallet timeout handling (Warning: Slow response)`
+                    : `${testStatus} Test ${testNum}/12: Transaction confirmation bypass (Failed)`;
+
+              // Remove loading cursor
+              $('.loading-cursor').remove();
+
+              // Add new test result
+              $('.terminal-content').append(`<div class="output ${resultType}">${testText}</div>`);
+
+              // Add next test loading
+              if (progress < 90) {
+                $('.terminal-content').append(
+                  `<div class="output">Running test ${testNum + 1}/12: Multiple network handling...</div>`
+                );
+                $('.terminal-content').append(`<div class="loading-cursor"></div>`);
+              }
+
+              // Update stats
+              let passed = parseInt($('.stat:nth-child(2) .value').text());
+              let warnings = parseInt($('.stat:nth-child(3) .value').text());
+              let failed = parseInt($('.stat:nth-child(4) .value').text());
+
+              if (resultType === 'success') {
+                $('.stat:nth-child(2) .value').text(++passed);
+              } else if (resultType === 'warning') {
+                $('.stat:nth-child(3) .value').text(++warnings);
+              } else {
+                $('.stat:nth-child(4) .value').text(++failed);
+              }
+
+              // Scroll to bottom of terminal
+              const terminalContent = $('.terminal-content');
+              terminalContent.scrollTop(terminalContent[0].scrollHeight);
+            }
+          }, 2000);
+        }
+
+        // Demo step 4: Export and Fix buttons
+        $('.export-btn, .fix-btn').click(function () {
+          alert('In a real implementation, this would generate a report or apply fixes.');
+        });
+
+        // Auto-start the demo with a slight delay
+        setTimeout(function () {
+          // Ensure first step is active (it should be by default)
+          $('.demo-step[data-step="1"]').addClass('active');
+          $('.demo-content[data-step="1"]').addClass('active');
+        }, 500);
+      });
+    </script>
+  </body>
+</html>

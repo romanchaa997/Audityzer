@@ -1,0 +1,34 @@
+# GitHub Project Configuration for Web3 Security Test Kit
+
+project_automations:
+  # Status field automations
+  status_field: 'Status'
+  status_automations:
+    - trigger: issue_closed
+      set_to: 'Done'
+    - trigger: pull_request_merged
+      set_to: 'Done'
+    - trigger: issue_reopened
+      set_to: 'In Progress'
+    - trigger: new_item
+      set_to: 'To Do'
+
+  # Priority automations based on labels
+  priority_field: 'Priority'
+  priority_mappings:
+    - label: 'priority:high'
+      set_to: '🔥 High'
+    - label: 'priority:medium'
+      set_to: '⚠️ Medium'
+    - label: 'priority:low'
+      set_to: '🔽 Low'
+
+  # Type automations based on labels
+  type_field: 'Type'
+  type_mappings:
+    - label: 'type:bug'
+      set_to: '🐛 Bug'
+    - label: 'type:feature'
+      set_to: '✨ Feature'
+    - label: 'type:security'
+      set_to: '🔒 Security'

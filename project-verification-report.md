@@ -19,8 +19,8 @@ mockProcess = spawn('npm', ['start'], {
   cwd: path.join(process.cwd(), 'mocked-sample-app'),
   shell: true, // Add this to ensure npm command works on Windows
   detached: process.platform !== 'win32',
-  stdio: ['ignore', 'pipe', 'pipe']
-})
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
 ```
 
 ### 2. Wallet Snapshot Tests Failing
@@ -29,7 +29,9 @@ mockProcess = spawn('npm', ['start'], {
 The wallet-snapshot.test.js tests were failing due to issues with the UI elements not being properly visible or updated. The tests were expecting certain UI elements to be visible, but they weren't updating correctly.
 
 **Fixes:**
+
 1. Created an improved version of wallet state management functions:
+
    - Enhanced `saveWalletState` to capture all necessary state
    - Updated `restoreWalletState` to properly update UI elements
    - Added a direct wallet setup function that doesn't depend on UI interactions
@@ -46,6 +48,7 @@ When running tests directly with Playwright, the tests were failing because the 
 
 **Solution:**
 Updated instructions to show how to run tests with the required environment variables:
+
 ```bash
 $env:MOCK_MODE="true"; npx playwright test tests/wallet-snapshot-fixed.test.js --headed
 ```
@@ -62,14 +65,17 @@ $env:MOCK_MODE="true"; npx playwright test tests/wallet-snapshot-fixed.test.js -
 ## Recommendations
 
 1. **Fix The Complex Wallet State Tests**:
+
    - Consider refactoring the wallet-snapshot.test.js file using the approach in wallet-snapshot-fixed.test.js
    - Ensure UI elements are properly initialized and accessible before testing
 
 2. **Improve Error Handling**:
+
    - Add more robust error handling in the mock dApp server startup
    - Implement better fallback mechanisms for when UI elements aren't found
 
 3. **Documentation Update**:
+
    - Update documentation to clarify required environment variables
    - Add more examples showing the proper way to run tests
 
@@ -79,4 +85,4 @@ $env:MOCK_MODE="true"; npx playwright test tests/wallet-snapshot-fixed.test.js -
 
 ## Conclusion
 
-The Web3 Security Test Kit is a powerful tool for testing web3 applications, but some improvements to error handling and test stability are needed. Most tests are working correctly, but the more complex wallet state management tests require further refinement. 
+The Web3 Security Test Kit is a powerful tool for testing web3 applications, but some improvements to error handling and test stability are needed. Most tests are working correctly, but the more complex wallet state management tests require further refinement.

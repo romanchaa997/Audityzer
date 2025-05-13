@@ -1,0 +1,157 @@
+{
+  "app": {
+    "name": "Web3FuzzForge",
+    "tagline": "Umfassendes Web3-Sicherheits-Testtoolkit",
+    "description": "Automatisierte Tests für Web3-Anwendungen mit Unterstützung für Wallet-Interaktionen, Transaktions-Fuzzing und Sicherheitsvalidierung."
+  },
+  "nav": {
+    "home": "Startseite",
+    "documentation": "Dokumentation",
+    "dashboard": "Dashboard",
+    "tools": "Werkzeuge",
+    "reports": "Berichte",
+    "settings": "Einstellungen"
+  },
+  "dashboard": {
+    "title": "Test-Dashboard",
+    "summary": "Testzusammenfassung",
+    "recent": "Neueste Tests",
+    "status": "Status",
+    "passRate": "Erfolgsquote",
+    "testCount": "Testanzahl",
+    "critical": "Kritische Probleme",
+    "runTests": "Tests ausführen",
+    "viewReport": "Bericht anzeigen"
+  },
+  "wallets": {
+    "connect": "Wallet verbinden",
+    "disconnect": "Trennen",
+    "connecting": "Verbinde...",
+    "selectWallet": "Wallet auswählen",
+    "connected": "Verbunden",
+    "accountConnected": "Konto verbunden",
+    "switchNetwork": "Netzwerk wechseln",
+    "connectedToNetwork": "Verbunden mit {{network}}",
+    "types": {
+      "metamask": "MetaMask",
+      "coinbase": "Coinbase Wallet",
+      "phantom": "Phantom",
+      "rabby": "Rabby",
+      "walletconnect": "WalletConnect"
+    }
+  },
+  "tests": {
+    "connection": "Wallet-Verbindung",
+    "transaction": "Transaktionsablauf",
+    "signing": "Nachricht signieren",
+    "network": "Netzwerkwechsel",
+    "status": {
+      "pass": "Bestanden",
+      "fail": "Fehlgeschlagen",
+      "warning": "Warnung",
+      "running": "Läuft",
+      "pending": "Ausstehend"
+    },
+    "results": {
+      "passed": "Bestanden",
+      "failed": "Fehlgeschlagen",
+      "warnings": "Warnungen"
+    },
+    "run": {
+      "start": "Test starten",
+      "stop": "Test stoppen",
+      "configure": "Test konfigurieren",
+      "saveConfig": "Konfiguration speichern"
+    },
+    "fuzzing": {
+      "title": "Fuzzing-Konfiguration",
+      "level": "Fuzzing-Stufe",
+      "levels": {
+        "none": "Keine",
+        "basic": "Einfach",
+        "advanced": "Erweitert",
+        "chaos": "Chaos-Modus"
+      },
+      "description": "Konfigurieren Sie, wie aggressiv Tests nach Randfällen suchen sollen."
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "theme": "Thema",
+    "themes": {
+      "light": "Hell",
+      "dark": "Dunkel",
+      "system": "Systemstandard"
+    },
+    "reporting": {
+      "title": "Berichterstattung",
+      "autoGenerate": "Berichte automatisch erstellen",
+      "detailLevel": "Detailgrad",
+      "levels": {
+        "basic": "Einfach",
+        "detailed": "Detailliert",
+        "comprehensive": "Umfassend"
+      }
+    },
+    "testing": {
+      "title": "Testkonfiguration",
+      "timeout": "Test-Timeout (Sekunden)",
+      "retries": "Wiederholungen",
+      "parallel": "Tests parallel ausführen"
+    },
+    "advanced": {
+      "title": "Erweiterte Einstellungen",
+      "debugMode": "Debug-Modus",
+      "verbose": "Ausführliche Protokollierung",
+      "reset": "Alle Einstellungen zurücksetzen"
+    }
+  },
+  "reports": {
+    "title": "Sicherheitsberichte",
+    "generated": "Erstellt am {{date}}",
+    "summary": "Zusammenfassung",
+    "details": "Detaillierte Ergebnisse",
+    "vulnerability": {
+      "title": "Erkannte Schwachstellen",
+      "critical": "Kritisch",
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig",
+      "none": "Keine Schwachstellen erkannt"
+    },
+    "download": {
+      "title": "Bericht herunterladen",
+      "pdf": "PDF herunterladen",
+      "json": "JSON herunterladen",
+      "html": "HTML herunterladen"
+    }
+  },
+  "errors": {
+    "general": "Ein Fehler ist aufgetreten",
+    "connection": "Verbindung fehlgeschlagen",
+    "transaction": "Transaktion fehlgeschlagen",
+    "signing": "Signierung fehlgeschlagen",
+    "network": "Netzwerkwechsel fehlgeschlagen",
+    "timeout": "Zeitüberschreitung bei der Operation",
+    "retry": "Wiederholen",
+    "cancel": "Abbrechen"
+  },
+  "common": {
+    "loading": "Lädt...",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view": "Ansehen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "sort": "Sortieren",
+    "refresh": "Aktualisieren",
+    "help": "Hilfe",
+    "more": "Mehr"
+  }
+}

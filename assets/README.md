@@ -59,13 +59,15 @@ For the landing page to display correctly, please add the following files:
 ## How to Generate Assets
 
 1. For the demo GIF, run:
+
    ```bash
    ./create-quickstart-gif.sh
    ```
 
 2. For optimizing images before uploading:
+
    - Use tools like TinyPNG (https://tinypng.com/) for PNG files
    - Use tools like SVGOMG (https://jakearchibald.github.io/svgomg/) for SVG files
 
 3. For favicon generation:
-   - Use tools like Favicon.io (https://favicon.io/) or RealFaviconGenerator (https://realfavicongenerator.net/) 
+   - Use tools like Favicon.io (https://favicon.io/) or RealFaviconGenerator (https://realfavicongenerator.net/)

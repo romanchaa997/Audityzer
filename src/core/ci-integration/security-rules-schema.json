@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Web3FuzzForge Security Rules Configuration Schema",
+  "description": "Schema for defining security rules for Web3 applications in CI/CD pipelines",
+  "type": "object",
+  "required": ["version", "rules"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Version of the security rules schema"
+    },
+    "projectId": {
+      "type": "string",
+      "description": "Optional identifier for the project"
+    },
+    "rules": {
+      "type": "array",
+      "description": "List of security rules to enforce",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "severity", "category", "pattern"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the rule"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name of the security rule"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the security rule"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low", "info"],
+            "description": "Severity level of the security rule"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "wallet-security",
+              "transaction-safety",
+              "smart-contract",
+              "authentication",
+              "authorization",
+              "input-validation",
+              "gas-optimization",
+              "cross-chain",
+              "configuration",
+              "general"
+            ],
+            "description": "Category of the security rule"
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Pattern or identifier to match in test results"
+          },
+          "remediation": {
+            "type": "string",
+            "description": "Suggested remediation steps"
+          },
+          "references": {
+            "type": "array",
+            "description": "External references for more information",
+            "items": {
+              "type": "object",
+              "required": ["url", "title"],
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "URL to external reference"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Title of the reference"
+                }
+              }
+            }
+          },
+          "ciConfig": {
+            "type": "object",
+            "description": "Configuration specific to CI pipeline behavior",
+            "properties": {
+              "blockBuild": {
+                "type": "boolean",
+                "description": "Whether this rule should block the build pipeline when violated",
+                "default": false
+              },
+              "notifyChannel": {
+                "type": "string",
+                "description": "Notification channel for this rule (e.g., 'slack', 'email')"
+              },
+              "autoCreateIssue": {
+                "type": "boolean",
+                "description": "Whether to automatically create an issue when this rule is violated",
+                "default": false
+              }
+            }
+          },
+          "platforms": {
+            "type": "array",
+            "description": "Platforms where this rule applies",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ethereum",
+                "solana",
+                "polygon",
+                "avalanche",
+                "binance",
+                "optimism",
+                "arbitrum",
+                "all"
+              ]
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether this rule is enabled",
+            "default": true
+          }
+        }
+      }
+    },
+    "rulesets": {
+      "type": "object",
+      "description": "Predefined sets of rules for different environments",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "environments": {
+      "type": "object",
+      "description": "Environment-specific configurations",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "activeRulesets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "disabledRules": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

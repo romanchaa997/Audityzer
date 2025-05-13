@@ -1,0 +1,127 @@
+{
+  "version": "1.0.0",
+  "projectId": "web3fuzzforge-demo",
+  "rules": [
+    {
+      "id": "WALLET-SEC-001",
+      "name": "Insecure wallet connection",
+      "description": "Tests for insecure wallet connection methods",
+      "severity": "high",
+      "category": "wallet-security",
+      "pattern": "insecure wallet connection",
+      "remediation": "Use secure connection methods with proper error handling",
+      "references": [
+        {
+          "url": "https://docs.metamask.io/guide/ethereum-provider.html",
+          "title": "MetaMask Provider API"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true,
+        "autoCreateIssue": true
+      },
+      "platforms": ["ethereum", "polygon"],
+      "enabled": true
+    },
+    {
+      "id": "TX-SEC-001",
+      "name": "Unsigned transaction detection",
+      "description": "Detects when transactions are not properly signed",
+      "severity": "critical",
+      "category": "transaction-safety",
+      "pattern": "unsigned transaction",
+      "remediation": "Ensure all transactions are properly signed before submission",
+      "references": [
+        {
+          "url": "https://docs.ethers.org/v5/api/signer/",
+          "title": "Ethers.js Signing API"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true
+      },
+      "platforms": ["all"],
+      "enabled": true
+    },
+    {
+      "id": "XSS-001",
+      "name": "Cross-site scripting in dApp UI",
+      "description": "Detects potential XSS vulnerabilities in dApp UI",
+      "severity": "high",
+      "category": "input-validation",
+      "pattern": "xss vulnerability detected",
+      "remediation": "Implement proper input sanitization and use safe rendering methods",
+      "references": [
+        {
+          "url": "https://owasp.org/www-community/attacks/xss/",
+          "title": "OWASP XSS Prevention"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true
+      },
+      "platforms": ["all"],
+      "enabled": true
+    },
+    {
+      "id": "GAS-OPT-001",
+      "name": "Gas optimization issues",
+      "description": "Identifies potential gas optimization issues in transactions",
+      "severity": "medium",
+      "category": "gas-optimization",
+      "pattern": "gas optimization issue",
+      "remediation": "Review transaction flow for unnecessary gas consumption",
+      "references": [
+        {
+          "url": "https://ethereum.org/en/developers/docs/gas/",
+          "title": "Ethereum Gas Optimization"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": false,
+        "autoCreateIssue": true
+      },
+      "platforms": ["ethereum", "polygon", "optimism", "arbitrum"],
+      "enabled": true
+    },
+    {
+      "id": "PHISH-001",
+      "name": "Phishing signature request",
+      "description": "Detects potential phishing attempts in signature requests",
+      "severity": "critical",
+      "category": "wallet-security",
+      "pattern": "phishing signature detected",
+      "remediation": "Implement clear signature request descriptions and verify message content",
+      "references": [
+        {
+          "url": "https://consensys.github.io/smart-contract-best-practices/",
+          "title": "Smart Contract Security Best Practices"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true
+      },
+      "platforms": ["all"],
+      "enabled": true
+    }
+  ],
+  "rulesets": {
+    "default": ["WALLET-SEC-001", "TX-SEC-001", "XSS-001", "PHISH-001"],
+    "production": ["WALLET-SEC-001", "TX-SEC-001", "XSS-001", "GAS-OPT-001", "PHISH-001"],
+    "development": ["WALLET-SEC-001", "TX-SEC-001"]
+  },
+  "environments": {
+    "development": {
+      "activeRulesets": ["development"],
+      "disabledRules": []
+    },
+    "staging": {
+      "activeRulesets": ["default"],
+      "disabledRules": []
+    },
+    "production": {
+      "activeRulesets": ["production"],
+      "disabledRules": []
+    }
+  }
+}

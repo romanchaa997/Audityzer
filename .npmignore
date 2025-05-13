@@ -1,0 +1,85 @@
+# Source control
+.git
+.github
+.gitignore
+.gitattributes
+
+# Development 
+.vscode
+.idea
+*.log
+*.tsbuildinfo
+tsconfig.json
+.eslintrc*
+.prettierrc*
+.editorconfig
+.nyc_output
+
+# Testing
+test/
+tests/
+__tests__/
+coverage/
+playwright-report/
+test-results/
+test-output/
+reports/
+
+# Project specific
+darkforest-v0.6/
+automation/
+assets/
+autotests/
+Airdrop/
+checklists/
+docs/
+docs-site/
+examples/
+extensions/
+landing-v2/
+media/
+metamask-dtk-defai/
+mocked-sample-app/
+my-vue-app/
+plugins/
+SolidStartApp/
+uniswap-dapp-starter/
+Web3FuzzForge/
+web3fuzzforge-community-tests/
+
+# Environment and configuration
+.env*
+.cursor/
+.npmrc
+.travis.yml
+*.tgz
+.DS_Store
+
+# Large directories that don't need to be published
+node_modules/
+dist/
+tmp/
+temp/
+
+# Debug
+*.heapsnapshot
+*.cpuprofile
+
+# Source files (only include compiled outputs)
+src/
+test-user-data-dir/
+scripts/
+
+# Misc
+README-IMPLEMENTATION-STATUS.md
+.gitlab-ci.yml
+screencast-script.md
+implementation-guide.md
+productization-strategy.md
+docusaurus-setup.md
+influencer-dm-template.md
+new-landing.html
+simple-landing.html
+index.html
+project-verification-report.md
+layerzero-discord-pitch.txt 

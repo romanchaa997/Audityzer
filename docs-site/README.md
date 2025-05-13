@@ -71,4 +71,4 @@ The documentation is organized into the following sections:
 - Include code examples where appropriate
 - Add cross-references to related documentation
 - Use proper Markdown formatting
-- Include images and diagrams when helpful 
+- Include images and diagrams when helpful

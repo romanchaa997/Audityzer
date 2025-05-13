@@ -1,0 +1,7 @@
+Contact: mailto:security@audityzer.com
+Expires: 2025-12-31T23:59:59.000Z
+Encryption: https://audityzer.com/pgp-key.txt
+Acknowledgments: https://audityzer.com/hall-of-fame
+Policy: https://audityzer.com/security-policy
+Hiring: https://audityzer.com/careers
+Preferred-Languages: en 

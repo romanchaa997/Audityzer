@@ -1,0 +1,60 @@
+name: Codecov Coverage
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Download Codecov CLI
+        run: |
+          curl https://keybase.io/codecovsecurity/pgp_keys.asc | gpg --no-default-keyring --keyring trustedkeys.gpg --import || true
+          curl -Os https://cli.codecov.io/latest/linux/codecov
+          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM
+          curl -Os https://cli.codecov.io/latest/linux/codecov.SHA256SUM.sig
+          gpg --verify codecov.SHA256SUM.sig codecov.SHA256SUM || true
+          shasum -a 256 -c codecov.SHA256SUM
+          chmod +x codecov
+
+      - name: Upload coverage to Codecov
+        run: ./codecov upload-process -r romanchaa997/Web3FuzzForge
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Build Web3FuzzForge with coverage
+        continue-on-error: true
+        working-directory: Web3FuzzForge
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build SolidStart App with coverage
+        continue-on-error: true
+        working-directory: SolidStartApp
+        run: |
+          npm ci
+          npm run build
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

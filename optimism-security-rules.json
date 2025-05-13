@@ -1,0 +1,80 @@
+{
+  "version": "1.0.0",
+  "projectId": "optimism-security-test-kit",
+  "rules": [
+    {
+      "id": "OPTIMISM-GAS-001",
+      "name": "optimism gas optimization check",
+      "description": "Validates gas usage patterns on optimism",
+      "severity": "high",
+      "category": "gas-optimization",
+      "pattern": "gas optimization",
+      "remediation": "Follow optimism-specific gas optimization patterns",
+      "references": [
+        {
+          "url": "https://docs.optimism.io/gas",
+          "title": "optimism Gas Model Documentation"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": false
+      },
+      "platforms": ["optimism"],
+      "enabled": true
+    },
+    {
+      "id": "OPTIMISM-TX-001",
+      "name": "optimism transaction validation",
+      "description": "Validates transaction behavior on optimism",
+      "severity": "critical",
+      "category": "transaction-safety",
+      "pattern": "transaction validation",
+      "remediation": "Follow optimism-specific transaction guidelines",
+      "references": [
+        {
+          "url": "https://docs.optimism.io/transactions",
+          "title": "optimism Transaction Documentation"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true
+      },
+      "platforms": ["optimism"],
+      "enabled": true
+    },
+    {
+      "id": "OPTIMISM-DEPOSIT-001",
+      "name": "L1 to L2 deposit validation",
+      "description": "Validates L1 to L2 deposit transactions on Optimism",
+      "severity": "critical",
+      "category": "cross-chain",
+      "pattern": "l1 to l2 deposit",
+      "remediation": "Ensure proper L1 to L2 deposit validation",
+      "references": [
+        {
+          "url": "https://docs.optimism.io/builders/app-developers/bridging/standard-bridge",
+          "title": "Optimism Standard Bridge Documentation"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true
+      },
+      "platforms": ["optimism"],
+      "enabled": true
+    }
+  ],
+  "rulesets": {
+    "default": ["OPTIMISM-GAS-001", "OPTIMISM-TX-001", "OPTIMISM-DEPOSIT-001"],
+    "production": ["OPTIMISM-GAS-001", "OPTIMISM-TX-001", "OPTIMISM-DEPOSIT-001"]
+  },
+  "environments": {
+    "development": {
+      "activeRulesets": ["default"],
+      "disabledRules": []
+    },
+    "production": {
+      "activeRulesets": ["production"],
+      "disabledRules": []
+    }
+  }
+}

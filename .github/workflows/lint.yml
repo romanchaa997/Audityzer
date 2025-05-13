@@ -25,4 +25,4 @@ jobs:
         run: npm run lint:ci
 
       - name: Run Prettier (check mode)
-        run: npx prettier --check "**/*.{js,ts,jsx,tsx,json,md}" 
+        run: npx prettier --check "**/*.{js,ts,jsx,tsx,json,md}"

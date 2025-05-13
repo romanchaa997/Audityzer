@@ -1,49 +1,102 @@
-# MetaMask Test Scaffold for dApps
+# Web3FuzzForge Test Templates
 
-This directory contains Playwright test scaffolds for Web3 dApp testing with mocked MetaMask wallet.
+This directory contains comprehensive test templates for Web3 wallet interactions and cross-chain bridge transfers, focusing on the most widely used providers.
 
-## MetaMask Connection Test (`metamask-connection.spec.ts`)
+## Wallet Interaction Tests
 
-This test scaffold demonstrates how to test MetaMask wallet connection flows in your dApp without requiring the actual MetaMask extension.
+The `wallet-interaction.test.ts` file provides a complete suite of tests for the most widely used wallets:
 
-### Features
+- MetaMask
+- WalletConnect
+- Coinbase Wallet
 
-- Mocks the `window.ethereum` provider that MetaMask injects
-- Tests basic wallet connection flow
-- Tests network switching
-- Tests wallet disconnection
-- Includes proper TypeScript typing
+### Key Test Scenarios
 
-### How to Use
+1. **Wallet Connection**: Tests connecting each wallet type to a dApp
+2. **Wallet Switching**: Tests switching between different wallet providers
+3. **Network Switching**: Tests changing networks within a connected wallet
+4. **Transaction Tests**: Tests sending transactions through different wallets
 
-1. **Configure the test for your dApp**:
+### Example Usage
 
-   - Update `DAPP_URL` to point to your dApp's URL
-   - Replace the selectors (e.g., `button:has-text("Connect Wallet")`) with your dApp's actual selectors
-   - Customize assertions based on your UI
+```typescript
+// Basic wallet connection test
+test('Connect MetaMask wallet', async ({ page }) => {
+  await connectWallet(page, { provider: 'metamask' });
+  const state = await getWalletState(page);
+  expect(state.connected).toBe(true);
+});
+```
 
-2. **Run the test**:
+## Bridge Transfer Tests
 
-   ```bash
-   npx playwright test tests/metamask-connection.spec.ts
-   ```
+The `bridge-transfer.test.ts` file demonstrates how to test cross-chain bridge transfers, focusing on:
 
-3. **View results**:
-   - Test screenshots will be saved in the `test-results` directory
-   - View HTML report with `npx playwright show-report`
+- LayerZero
+- Wormhole
 
-### Customizing the Tests
+### Key Test Scenarios
 
-- **Mock different chain IDs**: Modify the initial `chainId` and `networkVersion` values
-- **Add more RPC methods**: Extend the `request` method switch case to handle additional MetaMask methods
-- **Add more test cases**: Create more specific tests for your dApp's wallet integration features
+1. **Basic Transfers**: Tests moving assets from one chain to another
+2. **Multi-Chain Transfers**: Tests moving assets across multiple chains
+3. **Error Handling**: Tests failure scenarios and error states
+4. **Performance**: Tests gas optimization scenarios
 
-### Troubleshooting
+### Example Usage
 
-- If your dApp uses a different pattern to detect MetaMask, you may need to extend the mock
-- Check browser console logs for any errors related to the MetaMask provider
-- Ensure your selectors match the actual elements in your dApp
+```typescript
+// Basic bridge transfer test
+test('Bridge USDC from Ethereum to Arbitrum', async ({ page }) => {
+  await connectWallet(page, { provider: 'metamask' });
+  await setupBridgeProviders(page);
 
-## License
+  const result = await simulateBridgeTransfer(page, {
+    bridge: 'layerzero',
+    fromChain: 'Ethereum',
+    toChain: 'Arbitrum',
+    token: 'USDC',
+    amount: 100,
+  });
 
-This test scaffold is part of the Web3 Security Test Kit and is licensed under MIT.
+  expect(result.success).toBe(true);
+});
+```
+
+## Mock Utilities
+
+The tests are powered by two key mock utility files:
+
+### Wallet Mock (`walletMock.ts`)
+
+Functions for simulating wallet behavior:
+
+- `connectWallet`: Connect a specified wallet to the dApp
+- `getWalletState`: Get current wallet connection state
+- `switchWallet`: Switch between different wallet providers
+- `switchNetwork`: Change the connected network
+- `disconnectWallet`: Disconnect the currently connected wallet
+- `sendTransaction`: Simulate sending a transaction
+
+### Bridge Mock (`bridgeMock.ts`)
+
+Functions for simulating bridge operations:
+
+- `setupBridgeProviders`: Initialize bridge provider mocks
+- `simulateBridgeTransfer`: Simulate a cross-chain transfer
+- `getBridgeHistory`: Get the history of bridge transfers
+- `clearBridgeHistory`: Clear the bridge history
+- `getBridgeProviderInfo`: Get information about a bridge provider
+
+## Type Support
+
+The `types.d.ts` file adds TypeScript type support for the custom window objects used by the mocks.
+
+## Usage in Your Tests
+
+1. Copy these files to your project
+2. Import the required utilities
+3. Use the templates as a starting point for your tests
+
+## Examples
+
+See `wallet-interaction.test.ts` and `bridge-transfer.test.ts` for complete examples of how to use these utilities to create comprehensive test suites for Web3 applications.

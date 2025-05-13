@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0",
+  "projectId": "l2-performance-test-kit",
+  "tests": [
+    {
+      "id": "FINALITY-001",
+      "name": "Finality measurement across chains",
+      "description": "Measures and compares finality times across different L2 chains",
+      "chains": [
+        {
+          "name": "optimism",
+          "rpcUrl": "https://mainnet.optimism.io",
+          "blockTime": 2,
+          "finalityBlocks": 1
+        },
+        {
+          "name": "arbitrum",
+          "rpcUrl": "https://arb1.arbitrum.io/rpc",
+          "blockTime": 0.25,
+          "finalityBlocks": 0
+        },
+        {
+          "name": "zksync",
+          "rpcUrl": "https://mainnet.era.zksync.io",
+          "blockTime": 2,
+          "finalityBlocks": 0
+        }
+      ],
+      "thresholds": {
+        "maxFinalityTimeSeconds": 300
+      }
+    },
+    {
+      "id": "TX-CONFIRM-001",
+      "name": "Transaction confirmation timing tests",
+      "description": "Tests transaction confirmation timing across different L2 chains",
+      "transactions": [
+        {
+          "id": "tx-optimism-1",
+          "chain": "optimism",
+          "type": "transfer",
+          "gasLimit": 21000
+        },
+        {
+          "id": "tx-arbitrum-1",
+          "chain": "arbitrum",
+          "type": "transfer",
+          "gasLimit": 21000
+        },
+        {
+          "id": "tx-zksync-1",
+          "chain": "zksync",
+          "type": "transfer",
+          "gasLimit": 21000
+        }
+      ],
+      "thresholds": {
+        "maxConfirmationTimeSeconds": 60
+      }
+    },
+    {
+      "id": "REORG-001",
+      "name": "Reorg simulation and recovery testing",
+      "description": "Simulates chain reorganizations and tests recovery mechanisms",
+      "scenarios": [
+        {
+          "id": "reorg-optimism-1",
+          "chain": "optimism",
+          "depth": 2,
+          "affectedTransactions": 5
+        },
+        {
+          "id": "reorg-arbitrum-1",
+          "chain": "arbitrum",
+          "depth": 3,
+          "affectedTransactions": 10
+        },
+        {
+          "id": "reorg-zksync-1",
+          "chain": "zksync",
+          "depth": 1,
+          "affectedTransactions": 3
+        }
+      ],
+      "thresholds": {
+        "maxRecoveryTimeSeconds": 120,
+        "minConsistencyPercentage": 99.9
+      }
+    }
+  ],
+  "testsets": {
+    "default": ["FINALITY-001", "TX-CONFIRM-001", "REORG-001"],
+    "quick": ["FINALITY-001", "TX-CONFIRM-001"]
+  },
+  "environments": {
+    "development": {
+      "activeTestsets": ["quick"],
+      "disabledTests": []
+    },
+    "production": {
+      "activeTestsets": ["default"],
+      "disabledTests": []
+    }
+  }
+}

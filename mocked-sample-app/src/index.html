@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mock dApp for MetaMask Testing</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+
+      #status {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 4px;
+      }
+
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+      }
+
+      pre {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Mock dApp for MetaMask Testing</h1>
+
+    <div class="card">
+      <h2>Wallet Connection</h2>
+      <button id="connect">Connect MetaMask</button>
+      <div id="wallet-status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Transaction Functions</h2>
+      <button id="send-eth" disabled>Send 0.001 ETH</button>
+      <button id="sign-message" disabled>Sign Message</button>
+      <button id="switch-network" disabled>Switch Network</button>
+      <button id="add-token" disabled>Add Token</button>
+    </div>
+
+    <div id="status" class="info">Ready to connect...</div>
+    <pre id="response"></pre>
+
+    <script>
+      // Check if MetaMask is installed
+      if (typeof window.ethereum === 'undefined') {
+        document.getElementById('status').className = 'error';
+        document.getElementById('status').textContent =
+          'MetaMask not detected. Please install MetaMask extension.';
+      }
+
+      // DOM Elements
+      const connectBtn = document.getElementById('connect');
+      const sendEthBtn = document.getElementById('send-eth');
+      const signMessageBtn = document.getElementById('sign-message');
+      const switchNetworkBtn = document.getElementById('switch-network');
+      const addTokenBtn = document.getElementById('add-token');
+      const walletStatus = document.getElementById('wallet-status');
+      const statusEl = document.getElementById('status');
+      const responseEl = document.getElementById('response');
+
+      // Current account
+      let currentAccount = null;
+
+      // Connect MetaMask wallet
+      connectBtn.addEventListener('click', async () => {
+        try {
+          statusEl.className = 'info';
+          statusEl.textContent = 'Connecting to MetaMask...';
+
+          // Request accounts
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          handleAccountsChanged(accounts);
+
+          // Listen for account changes
+          window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+          // Listen for chain changes
+          window.ethereum.on('chainChanged', handleChainChanged);
+
+          statusEl.className = 'success';
+          statusEl.textContent = 'Connected to MetaMask!';
+        } catch (error) {
+          console.error(error);
+          statusEl.className = 'error';
+          statusEl.textContent = `Error connecting: ${error.message}`;
+        }
+      });
+
+      // Send ETH transaction
+      sendEthBtn.addEventListener('click', async () => {
+        try {
+          statusEl.className = 'info';
+          statusEl.textContent = 'Sending transaction...';
+
+          const transactionParameters = {
+            to: '0x0000000000000000000000000000000000000000', // Zero address for testing
+            from: currentAccount,
+            value: '0x38D7EA4C68000', // 0.001 ETH in hex
+          };
+
+          const txHash = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
+          });
+
+          responseEl.textContent = JSON.stringify({ transactionHash: txHash }, null, 2);
+          statusEl.className = 'success';
+          statusEl.textContent = 'Transaction sent!';
+        } catch (error) {
+          console.error(error);
+          statusEl.className = 'error';
+          statusEl.textContent = `Error sending transaction: ${error.message}`;
+        }
+      });
+
+      // Sign a message
+      signMessageBtn.addEventListener('click', async () => {
+        try {
+          statusEl.className = 'info';
+          statusEl.textContent = 'Signing message...';
+
+          const message = 'Hello from the test dApp! ' + new Date().toISOString();
+          const msgParams = ethers.utils.toUtf8Bytes(message);
+          const signature = await window.ethereum.request({
+            method: 'personal_sign',
+            params: [ethers.utils.hexlify(msgParams), currentAccount],
+          });
+
+          responseEl.textContent = JSON.stringify(
+            {
+              message: message,
+              signature: signature,
+            },
+            null,
+            2
+          );
+
+          statusEl.className = 'success';
+          statusEl.textContent = 'Message signed!';
+        } catch (error) {
+          console.error(error);
+          statusEl.className = 'error';
+          statusEl.textContent = `Error signing message: ${error.message}`;
+        }
+      });
+
+      // Switch network
+      switchNetworkBtn.addEventListener('click', async () => {
+        try {
+          statusEl.className = 'info';
+          statusEl.textContent = 'Switching network...';
+
+          // Polygon testnet chainId
+          const chainId = '0x13881'; // Mumbai testnet
+
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: chainId }],
+          });
+
+          statusEl.className = 'success';
+          statusEl.textContent = 'Network switched!';
+        } catch (error) {
+          // This error code means the chain has not been added to MetaMask
+          if (error.code === 4902) {
+            try {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [
+                  {
+                    chainId: '0x13881',
+                    chainName: 'Mumbai Testnet',
+                    nativeCurrency: {
+                      name: 'MATIC',
+                      symbol: 'MATIC',
+                      decimals: 18,
+                    },
+                    rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
+                    blockExplorerUrls: ['https://mumbai.polygonscan.com/'],
+                  },
+                ],
+              });
+              statusEl.className = 'success';
+              statusEl.textContent = 'Network added and switched!';
+            } catch (addError) {
+              console.error(addError);
+              statusEl.className = 'error';
+              statusEl.textContent = `Error adding network: ${addError.message}`;
+            }
+          } else {
+            console.error(error);
+            statusEl.className = 'error';
+            statusEl.textContent = `Error switching network: ${error.message}`;
+          }
+        }
+      });
+
+      // Add token
+      addTokenBtn.addEventListener('click', async () => {
+        try {
+          statusEl.className = 'info';
+          statusEl.textContent = 'Adding token...';
+
+          const tokenAddress = '0x07865c6e87b9f70255377e024ace6630c1eaa37f'; // USDC on Goerli
+          const tokenSymbol = 'USDC';
+          const tokenDecimals = 6;
+          const tokenImage = 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png';
+
+          await window.ethereum.request({
+            method: 'wallet_watchAsset',
+            params: {
+              type: 'ERC20',
+              options: {
+                address: tokenAddress,
+                symbol: tokenSymbol,
+                decimals: tokenDecimals,
+                image: tokenImage,
+              },
+            },
+          });
+
+          statusEl.className = 'success';
+          statusEl.textContent = 'Token added!';
+        } catch (error) {
+          console.error(error);
+          statusEl.className = 'error';
+          statusEl.textContent = `Error adding token: ${error.message}`;
+        }
+      });
+
+      // Handle accounts changed
+      function handleAccountsChanged(accounts) {
+        if (accounts.length === 0) {
+          walletStatus.textContent = 'No accounts connected. Please connect to MetaMask.';
+          disableButtons();
+        } else {
+          currentAccount = accounts[0];
+          walletStatus.textContent = `Connected: ${currentAccount}`;
+          enableButtons();
+        }
+      }
+
+      // Handle chain changed
+      function handleChainChanged(chainId) {
+        statusEl.className = 'info';
+        statusEl.textContent = `Network changed to chainId: ${chainId}`;
+
+        // Reload the page to refresh state
+        // window.location.reload();
+      }
+
+      // Enable transaction buttons
+      function enableButtons() {
+        sendEthBtn.disabled = false;
+        signMessageBtn.disabled = false;
+        switchNetworkBtn.disabled = false;
+        addTokenBtn.disabled = false;
+      }
+
+      // Disable transaction buttons
+      function disableButtons() {
+        sendEthBtn.disabled = true;
+        signMessageBtn.disabled = true;
+        switchNetworkBtn.disabled = true;
+        addTokenBtn.disabled = true;
+      }
+
+      // Load ethers.js (required for signing)
+      const script = document.createElement('script');
+      script.src = 'https://cdn.ethers.io/lib/ethers-5.2.umd.min.js';
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "web3-security-playwright-tests",
+  "version": "1.0.0",
+  "description": "Playwright tests for Web3 Security Test Kit",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:single": "playwright test examples/security-bug-tests/eth-sign-phishing.test.ts",
+    "report": "playwright show-report"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.40.0",
+    "ethers": "^5.7.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1"
+  }
+} 

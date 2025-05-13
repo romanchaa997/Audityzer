@@ -1,13 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Shield -->
   <defs>
-    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#3a86ff" />
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B2B" />
       <stop offset="100%" stop-color="#13C3FF" />
     </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
   </defs>
-  <circle cx="50" cy="50" r="45" fill="#121212" stroke="url(#gradient)" stroke-width="3" />
-  <path d="M20 40 L35 25 L65 25 L80 40 L65 55 L35 55 Z" fill="none" stroke="url(#gradient)" stroke-width="3" />
-  <path d="M35 55 L35 75 L65 75 L65 55" fill="none" stroke="url(#gradient)" stroke-width="3" />
-  <path d="M42 35 L42 45 M50 35 L50 45 M58 35 L58 45" fill="none" stroke="url(#gradient)" stroke-width="3" stroke-linecap="round" />
-  <path d="M42 65 L58 65" fill="none" stroke="url(#gradient)" stroke-width="3" stroke-linecap="round" />
+  
+  <!-- Shield Background -->
+  <path d="M60 10 L100 30 L100 70 C100 85 80 100 60 110 C40 100 20 85 20 70 L20 30 Z" 
+        fill="#1A1A1A" stroke="url(#logoGradient)" stroke-width="2" />
+  
+  <!-- Web3 Symbol -->
+  <g filter="url(#glow)">
+    <path d="M40 40 L50 65 L60 40 L70 65 L80 40" 
+          fill="none" stroke="#FF6B2B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+  
+  <!-- Security Lock Symbol -->
+  <g transform="translate(60, 75) scale(0.8)">
+    <rect x="-15" y="-5" width="30" height="20" rx="5" ry="5" 
+          fill="#13C3FF" />
+    <path d="M-5 -5 L-5 -15 C-5 -20 5 -20 5 -15 L5 -5" 
+          fill="none" stroke="#13C3FF" stroke-width="3" stroke-linecap="round" />
+  </g>
+  
+  <!-- Bug/Testing Symbol -->
+  <g transform="translate(60, 55)">
+    <circle cx="0" cy="0" r="8" fill="none" stroke="#FF6B2B" stroke-width="1.5" stroke-dasharray="3,2" />
+    <circle cx="-3" cy="-2" r="1" fill="#FF6B2B" />
+    <circle cx="3" cy="-2" r="1" fill="#FF6B2B" />
+    <path d="M-3 2 C-1 4 1 4 3 2" fill="none" stroke="#FF6B2B" stroke-width="1.5" stroke-linecap="round" />
+  </g>
 </svg> 

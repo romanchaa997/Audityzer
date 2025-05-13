@@ -1,0 +1,109 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Web3FuzzForge Security Validator",
+          "informationUri": "https://github.com/yourusername/web3fuzzforge",
+          "version": "1.0.0",
+          "rules": [
+            {
+              "id": "WALLET-SEC-001",
+              "name": "Insecure wallet connection",
+              "shortDescription": {
+                "text": "Insecure wallet connection"
+              },
+              "fullDescription": {
+                "text": "Tests for insecure wallet connection methods"
+              },
+              "helpUri": "https://docs.metamask.io/guide/ethereum-provider.html",
+              "properties": {
+                "severity": "high",
+                "category": "wallet-security",
+                "tags": [
+                  "ethereum",
+                  "polygon"
+                ]
+              }
+            },
+            {
+              "id": "TX-SEC-001",
+              "name": "Unsigned transaction detection",
+              "shortDescription": {
+                "text": "Unsigned transaction detection"
+              },
+              "fullDescription": {
+                "text": "Detects when transactions are not properly signed"
+              },
+              "helpUri": "https://docs.ethers.org/v5/api/signer/",
+              "properties": {
+                "severity": "critical",
+                "category": "transaction-safety",
+                "tags": [
+                  "all"
+                ]
+              }
+            },
+            {
+              "id": "AUTH-SEC-001",
+              "name": "Weak authentication mechanisms",
+              "shortDescription": {
+                "text": "Weak authentication mechanisms"
+              },
+              "fullDescription": {
+                "text": "Detects weak or insecure authentication mechanisms"
+              },
+              "helpUri": "https://web3.patternresearch.org/authentication",
+              "properties": {
+                "severity": "critical",
+                "category": "authentication",
+                "tags": [
+                  "all"
+                ]
+              }
+            },
+            {
+              "id": "DATA-SEC-001",
+              "name": "Personal data protection",
+              "shortDescription": {
+                "text": "Personal data protection"
+              },
+              "fullDescription": {
+                "text": "Checks for proper handling of PII data"
+              },
+              "helpUri": "https://gdpr-info.eu/",
+              "properties": {
+                "severity": "high",
+                "category": "configuration",
+                "tags": [
+                  "all"
+                ]
+              }
+            },
+            {
+              "id": "WALLET-SEC-001",
+              "name": "Duplicate rule ID",
+              "shortDescription": {
+                "text": "Duplicate rule ID"
+              },
+              "fullDescription": {
+                "text": "This is a duplicate rule ID"
+              },
+              "helpUri": "",
+              "properties": {
+                "severity": "medium",
+                "category": "wallet-security",
+                "tags": [
+                  "ethereum"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "results": []
+    }
+  ]
+}

@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web3FuzzForge Wallet Matrix</title>
+    <style>
+      body {
+        font-family:
+          'Segoe UI',
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background-color: #121212;
+        color: #f1f1f1;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #ff6b2b;
+      }
+
+      .matrix-container {
+        background-color: #1a1a1a;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        overflow: auto;
+      }
+
+      .wallet-matrix {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      .wallet-matrix th,
+      .wallet-matrix td {
+        padding: 15px;
+        text-align: center;
+        border: 1px solid #333;
+      }
+
+      .wallet-matrix th {
+        background-color: #2a2a2a;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .wallet-matrix tr:hover {
+        background-color: #202020;
+      }
+
+      .wallet-logo {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+
+      .wallet-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .wallet-cell {
+        font-weight: bold;
+      }
+
+      .status-icon {
+        font-size: 20px;
+      }
+
+      .success {
+        color: #27c93f;
+      }
+      .partial {
+        color: #ffbd2e;
+      }
+      .failed {
+        color: #ff5f56;
+      }
+
+      .feature-group {
+        text-align: left;
+        background-color: #2a2a2a;
+        font-weight: bold;
+      }
+
+      .legend {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .toggle-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+        gap: 10px;
+      }
+
+      .toggle-button {
+        background-color: #2a2a2a;
+        border: none;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .toggle-button:hover {
+        background-color: #3a3a3a;
+      }
+
+      .toggle-button.active {
+        background-color: #ff6b2b;
+      }
+
+      /* Theme toggle */
+      .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Light theme */
+      body.light-theme {
+        background-color: #f5f5f5;
+        color: #333;
+      }
+
+      body.light-theme .matrix-container {
+        background-color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      body.light-theme .wallet-matrix th {
+        background-color: #f0f0f0;
+      }
+
+      body.light-theme .wallet-matrix th,
+      body.light-theme .wallet-matrix td {
+        border: 1px solid #ddd;
+      }
+
+      body.light-theme .wallet-matrix tr:hover {
+        background-color: #f9f9f9;
+      }
+
+      body.light-theme .feature-group {
+        background-color: #f0f0f0;
+      }
+
+      body.light-theme .toggle-button {
+        background-color: #e0e0e0;
+        color: #333;
+      }
+
+      body.light-theme .toggle-button:hover {
+        background-color: #d0d0d0;
+      }
+
+      body.light-theme .toggle-button.active {
+        background-color: #ff6b2b;
+        color: white;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .wallet-matrix th,
+        .wallet-matrix td {
+          padding: 10px 5px;
+          font-size: 12px;
+        }
+
+        .wallet-logo {
+          width: 20px;
+          height: 20px;
+          margin-right: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="theme-toggle" id="theme-toggle">
+      <span id="theme-icon">☀️</span>
+      <span>Toggle Theme</span>
+    </button>
+
+    <div class="container">
+      <h1>Web3FuzzForge Wallet Compatibility Matrix</h1>
+
+      <div class="toggle-container">
+        <button class="toggle-button active" data-view="compatibility">Compatibility</button>
+        <button class="toggle-button" data-view="feature">Feature Support</button>
+        <button class="toggle-button" data-view="security">Security Testing</button>
+      </div>
+
+      <div class="matrix-container">
+        <!-- Compatibility Matrix View -->
+        <table class="wallet-matrix" id="compatibility-matrix">
+          <thead>
+            <tr>
+              <th>Feature / Wallet</th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/metamask.png" alt="MetaMask" class="wallet-logo" />
+                  MetaMask
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/coinbase.png" alt="Coinbase" class="wallet-logo" />
+                  Coinbase
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/phantom.png" alt="Phantom" class="wallet-logo" />
+                  Phantom
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/rabby.png" alt="Rabby" class="wallet-logo" />
+                  Rabby
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img
+                    src="../img/wallets/walletconnect.png"
+                    alt="WalletConnect"
+                    class="wallet-logo"
+                  />
+                  WalletConnect
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="feature-group">Connection Testing</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+            </tr>
+            <tr>
+              <td>Basic Connection</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+            </tr>
+            <tr>
+              <td>Error Handling</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Account Change</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td class="feature-group">Transaction Testing</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Send Transaction</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+            </tr>
+            <tr>
+              <td>Transaction Rejection</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Transaction Errors</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td class="feature-group">Message Signing</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Basic Signing</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+            </tr>
+            <tr>
+              <td>Typed Data (EIP-712)</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Sign Rejection</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td class="feature-group">Network Operations</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Network Switching</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Custom Networks</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Feature Support Matrix View (Hidden by default) -->
+        <table class="wallet-matrix" id="feature-matrix" style="display: none">
+          <thead>
+            <tr>
+              <th>Advanced Feature / Wallet</th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/metamask.png" alt="MetaMask" class="wallet-logo" />
+                  MetaMask
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/coinbase.png" alt="Coinbase" class="wallet-logo" />
+                  Coinbase
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/phantom.png" alt="Phantom" class="wallet-logo" />
+                  Phantom
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/rabby.png" alt="Rabby" class="wallet-logo" />
+                  Rabby
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img
+                    src="../img/wallets/walletconnect.png"
+                    alt="WalletConnect"
+                    class="wallet-logo"
+                  />
+                  WalletConnect
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="feature-group">Token Standards</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>ERC-20</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+            </tr>
+            <tr>
+              <td>ERC-721</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+            </tr>
+            <tr>
+              <td>ERC-1155</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td class="feature-group">Contract Interaction</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Method Calls</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+            </tr>
+            <tr>
+              <td>ABI Parsing</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td>Batch Transactions</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td class="feature-group">Chain Support</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Ethereum</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+            </tr>
+            <tr>
+              <td>L2 Networks</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+            <tr>
+              <td>Non-EVM Chains</td>
+              <td><span class="status-icon failed">✗</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Security Testing Matrix View (Hidden by default) -->
+        <table class="wallet-matrix" id="security-matrix" style="display: none">
+          <thead>
+            <tr>
+              <th>Security Test / Wallet</th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/metamask.png" alt="MetaMask" class="wallet-logo" />
+                  MetaMask
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/coinbase.png" alt="Coinbase" class="wallet-logo" />
+                  Coinbase
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/phantom.png" alt="Phantom" class="wallet-logo" />
+                  Phantom
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img src="../img/wallets/rabby.png" alt="Rabby" class="wallet-logo" />
+                  Rabby
+                </div>
+              </th>
+              <th>
+                <div class="wallet-header">
+                  <img
+                    src="../img/wallets/walletconnect.png"
+                    alt="WalletConnect"
+                    class="wallet-logo"
+                  />
+                  WalletConnect
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="feature-group">Phishing Protection</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td>Signature Request Analysis</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td>Transaction Simulation</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td>Malicious Site Detection</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td class="feature-group">Attack Vectors</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td>Blind Signing</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td>Token Approvals</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td>Signature Replay</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td class="feature-group">Advanced Security</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td>Hardware Wallet Support</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon success">✓</span></td>
+            </tr>
+            <tr>
+              <td>Custom Spend Limits</td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+            <tr>
+              <td>Contract Verification</td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon partial">⚠</span></td>
+              <td><span class="status-icon success">✓</span></td>
+              <td><span class="status-icon failed">✗</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <span class="status-icon success">✓</span>
+          <span>Fully Supported</span>
+        </div>
+        <div class="legend-item">
+          <span class="status-icon partial">⚠</span>
+          <span>Partial Support</span>
+        </div>
+        <div class="legend-item">
+          <span class="status-icon failed">✗</span>
+          <span>Not Supported</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        themeToggle.addEventListener('click', function () {
+          document.body.classList.toggle('light-theme');
+          themeIcon.textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀️';
+        });
+
+        // Matrix view toggle
+        const toggleButtons = document.querySelectorAll('.toggle-button');
+        const matrices = {
+          compatibility: document.getElementById('compatibility-matrix'),
+          feature: document.getElementById('feature-matrix'),
+          security: document.getElementById('security-matrix'),
+        };
+
+        toggleButtons.forEach(button => {
+          button.addEventListener('click', function () {
+            const view = this.getAttribute('data-view');
+
+            // Hide all matrices
+            Object.values(matrices).forEach(matrix => {
+              matrix.style.display = 'none';
+            });
+
+            // Show selected matrix
+            matrices[view].style.display = 'table';
+
+            // Update active button
+            toggleButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,146 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Front-running Detection Plugin Configuration",
+  "description": "Configuration schema for the front-running detection plugin",
+  "type": "object",
+  "properties": {
+    "targetUrl": {
+      "type": "string",
+      "description": "Target DApp URL to test",
+      "format": "uri",
+      "default": "https://app.uniswap.org"
+    },
+    "wallet": {
+      "type": "string",
+      "description": "Wallet provider to use for testing",
+      "enum": ["metamask", "coinbase", "phantom", "rabby", "walletconnect"],
+      "default": "metamask"
+    },
+    "slippageTolerance": {
+      "type": "number",
+      "description": "Default slippage tolerance percentage to use for tests",
+      "minimum": 0.01,
+      "maximum": 50,
+      "default": 0.5
+    },
+    "gasMultiplier": {
+      "type": "number",
+      "description": "Multiplier for gas price when testing front-running protection",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 1.1
+    },
+    "simulationCount": {
+      "type": "integer",
+      "description": "Number of swap simulations to perform",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 3
+    },
+    "simulateAttacks": {
+      "type": "boolean",
+      "description": "Whether to simulate front-running attacks",
+      "default": true
+    },
+    "testProtections": {
+      "type": "boolean",
+      "description": "Whether to test protection mechanisms",
+      "default": true
+    },
+    "protectionTypes": {
+      "type": "array",
+      "description": "List of protection types to test",
+      "items": {
+        "type": "string",
+        "enum": ["flashbots", "highGas", "timelock"]
+      },
+      "default": ["flashbots", "highGas", "timelock"]
+    },
+    "saveResultsToFile": {
+      "type": "boolean",
+      "description": "Whether to save test results to a file",
+      "default": true
+    },
+    "outputDir": {
+      "type": "string",
+      "description": "Directory to save test results",
+      "default": "reports"
+    },
+    "headless": {
+      "type": "boolean",
+      "description": "Whether to run tests in headless mode",
+      "default": false
+    },
+    "waitTimeAfterAction": {
+      "type": "integer",
+      "description": "Time to wait after each action in milliseconds",
+      "minimum": 500,
+      "maximum": 10000,
+      "default": 2000
+    },
+    "advanced": {
+      "type": "object",
+      "description": "Advanced configuration options",
+      "properties": {
+        "customSwapSelectors": {
+          "type": "object",
+          "description": "Custom CSS selectors for swap UI elements",
+          "properties": {
+            "swapButton": {
+              "type": "string",
+              "description": "CSS selector for swap button",
+              "default": "button:has-text('Swap')"
+            },
+            "inputField": {
+              "type": "string",
+              "description": "CSS selector for token amount input field",
+              "default": "input[data-testid='token-amount-input']"
+            },
+            "settingsButton": {
+              "type": "string",
+              "description": "CSS selector for settings button",
+              "default": "button:has-text('Settings')"
+            },
+            "slippageField": {
+              "type": "string",
+              "description": "CSS selector for slippage input field",
+              "default": "input[name='slippageTolerance']"
+            },
+            "confirmButton": {
+              "type": "string",
+              "description": "CSS selector for confirm swap button",
+              "default": "button:has-text('Confirm swap')"
+            },
+            "closeSettingsButton": {
+              "type": "string",
+              "description": "CSS selector for close settings button",
+              "default": "button:has-text('Close')"
+            }
+          }
+        },
+        "mempool": {
+          "type": "object",
+          "description": "Mempool simulation settings",
+          "properties": {
+            "blockTime": {
+              "type": "integer",
+              "description": "Simulated block time in milliseconds",
+              "minimum": 100,
+              "maximum": 15000,
+              "default": 2000
+            },
+            "maxPendingTxs": {
+              "type": "integer",
+              "description": "Maximum number of pending transactions to track",
+              "minimum": 10,
+              "maximum": 1000,
+              "default": 100
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["targetUrl", "wallet"],
+  "additionalProperties": false
+}

@@ -1,9 +1,9 @@
 // Wallet State Snapshot Simple Test
 const { test, expect } = require('@playwright/test');
-const { 
-  saveWalletState, 
-  restoreWalletState, 
-  setupMockEthereum 
+const {
+  saveWalletState,
+  restoreWalletState,
+  setupMockEthereum,
 } = require('./utils/wallet-snapshot');
 
 test.describe('Wallet State Snapshot Simple Tests', () => {
@@ -12,10 +12,10 @@ test.describe('Wallet State Snapshot Simple Tests', () => {
   test.beforeEach(async ({ browser }) => {
     // Create a new page
     page = await browser.newPage();
-    
+
     // Just create a blank page - we don't need HTML
     await page.setContent('<html><body><div id="app"></div></body></html>');
-    
+
     // Setup mock ethereum provider
     await setupMockEthereum(page);
   });
@@ -24,7 +24,7 @@ test.describe('Wallet State Snapshot Simple Tests', () => {
     // Get initial wallet state
     const initialAddress = await page.evaluate(() => window.ethereum.selectedAddress);
     const initialChainId = await page.evaluate(() => window.ethereum.chainId);
-    
+
     // Verify initial state
     expect(initialAddress).toBe('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
     expect(initialChainId).toBe('0x1');
@@ -39,7 +39,9 @@ test.describe('Wallet State Snapshot Simple Tests', () => {
     // Verify saved state matches
     expect(walletState.selectedAddress).toBe('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
     expect(walletState.chainId).toBe('0x1');
-    expect(walletState.customData.testData).toBe('This is custom data that can be stored with the snapshot');
+    expect(walletState.customData.testData).toBe(
+      'This is custom data that can be stored with the snapshot'
+    );
 
     // Disconnect wallet / change state
     await page.evaluate(() => {
@@ -78,14 +80,15 @@ test.describe('Wallet State Snapshot Simple Tests', () => {
     await page.evaluate(async () => {
       if (window.ethereum && window.ethereum.request) {
         await window.ethereum.request({
-          method: 'wallet_switchEthereumChain', params: [{ chainId: '0x5' }], // Goerli
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x5' }], // Goerli
         });
       }
     });
-    
+
     // Save the Goerli state
     const goerliState = await saveWalletState(page);
-    
+
     // Verify we're on Goerli
     const chainId = await page.evaluate(() => {
       return window.ethereum?.chainId || null;
@@ -96,7 +99,8 @@ test.describe('Wallet State Snapshot Simple Tests', () => {
     await page.evaluate(async () => {
       if (window.ethereum && window.ethereum.request) {
         await window.ethereum.request({
-          method: 'wallet_switchEthereumChain', params: [{ chainId: '0x89' }], // Polygon
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x89' }], // Polygon
         });
       }
     });
@@ -121,33 +125,37 @@ test.describe('Wallet State Snapshot Simple Tests', () => {
       if (window.ethereum && window.ethereum.request) {
         return await window.ethereum.request({
           method: 'eth_sendTransaction',
-          params: [{
-            from: window.ethereum.selectedAddress,
-            to: '0x1234567890123456789012345678901234567890',
-            value: '0x38D7EA4C68000', // 0.001 ETH in hex
-          }]
+          params: [
+            {
+              from: window.ethereum.selectedAddress,
+              to: '0x1234567890123456789012345678901234567890',
+              value: '0x38D7EA4C68000', // 0.001 ETH in hex
+            },
+          ],
         });
       }
       return null;
     });
-    
+
     // Verify transaction hash
     expect(txHash).toBe('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef');
-    
+
     // Save the post-transaction state with transaction data
     const postTxState = await saveWalletState(page, {
-      txHash: txHash,
+      txHash,
       txComplete: true,
       amount: '0.001',
       recipient: '0x1234567890123456789012345678901234567890',
       testScenario: 'after withdrawal',
     });
-    
+
     // Verify custom data was preserved
-    expect(postTxState.customData.txHash).toBe('0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef');
+    expect(postTxState.customData.txHash).toBe(
+      '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+    );
     expect(postTxState.customData.txComplete).toBe(true);
     expect(postTxState.customData.testScenario).toBe('after withdrawal');
-    
+
     // Restore post-transaction state to a different state
     await page.evaluate(() => {
       if (window.ethereum) {
@@ -155,16 +163,16 @@ test.describe('Wallet State Snapshot Simple Tests', () => {
         window.ethereum.chainId = '0x89'; // Polygon
       }
     });
-    
+
     // Verify state changed
     const changedAddress = await page.evaluate(() => window.ethereum.selectedAddress);
     expect(changedAddress).toBe('0x0000000000000000000000000000000000000000');
-    
+
     // Restore back to post-transaction state
     await restoreWalletState(page, postTxState);
-    
+
     // Verify state is restored
     const finalAddress = await page.evaluate(() => window.ethereum.selectedAddress);
     expect(finalAddress).toBe('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
   });
-}); 
+});

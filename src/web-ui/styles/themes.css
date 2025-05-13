@@ -1,0 +1,233 @@
+/**
+ * themes.css - Theme definitions for light and dark modes
+ * 
+ * This file defines CSS variables for light and dark themes.
+ * The variables are applied based on the theme class on the root element.
+ */
+
+:root {
+  /* Default theme variables (light) */
+  --primary-color: #ff6b2b;
+  --primary-hover: #ff8c5a;
+  --primary-active: #e45a1a;
+
+  --background-color: #f8f9fa;
+  --surface-color: #ffffff;
+  --surface-hover: #f0f0f0;
+
+  --text-color: #333333;
+  --text-secondary: #666666;
+  --text-muted: #888888;
+
+  --border-color: #e0e0e0;
+  --divider-color: #eeeeee;
+
+  --success-color: #27c93f;
+  --warning-color: #ffbd2e;
+  --error-color: #ff5f56;
+  --info-color: #0099ff;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* Animation durations */
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --transition-slow: 350ms;
+}
+
+/* Dark theme variables */
+.dark-theme {
+  --primary-color: #ff6b2b;
+  --primary-hover: #ff8c5a;
+  --primary-active: #e45a1a;
+
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --surface-hover: #2a2a2a;
+
+  --text-color: #f1f1f1;
+  --text-secondary: #bbbbbb;
+  --text-muted: #999999;
+
+  --border-color: #333333;
+  --divider-color: #2a2a2a;
+
+  --success-color: #27c93f;
+  --warning-color: #ffbd2e;
+  --error-color: #ff5f56;
+  --info-color: #0099ff;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Light theme (explicitly defined for cases where we need to override) */
+.light-theme {
+  --primary-color: #ff6b2b;
+  --primary-hover: #ff8c5a;
+  --primary-active: #e45a1a;
+
+  --background-color: #f8f9fa;
+  --surface-color: #ffffff;
+  --surface-hover: #f0f0f0;
+
+  --text-color: #333333;
+  --text-secondary: #666666;
+  --text-muted: #888888;
+
+  --border-color: #e0e0e0;
+  --divider-color: #eeeeee;
+
+  --success-color: #27c93f;
+  --warning-color: #ffbd2e;
+  --error-color: #ff5f56;
+  --info-color: #0099ff;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Apply theme variables to common elements */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition:
+    background-color var(--transition-normal),
+    color var(--transition-normal);
+}
+
+/* Common UI elements with theme support */
+.card {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.button-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.button-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.button-primary:active {
+  background-color: var(--primary-active);
+}
+
+.button-secondary {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.button-secondary:hover {
+  background-color: var(--surface-hover);
+}
+
+/* Form elements */
+input,
+select,
+textarea {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* Status colors */
+.text-success {
+  color: var(--success-color);
+}
+.text-warning {
+  color: var(--warning-color);
+}
+.text-error {
+  color: var(--error-color);
+}
+.text-info {
+  color: var(--info-color);
+}
+
+.bg-success {
+  background-color: var(--success-color);
+}
+.bg-warning {
+  background-color: var(--warning-color);
+}
+.bg-error {
+  background-color: var(--error-color);
+}
+.bg-info {
+  background-color: var(--info-color);
+}
+
+/* Special components */
+.code-block {
+  background-color: var(--surface-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+/* Terminal styles with theme support */
+.terminal-container {
+  background-color: #1a1a1a;
+  color: #f1f1f1;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+}
+
+.light-theme .terminal-container {
+  box-shadow: var(--shadow-md);
+}
+
+.dark-theme .terminal-container {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+/* Tooltip */
+.tooltip {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+/* Data visualization */
+.chart-container {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* Tables */
+table {
+  background-color: var(--surface-color);
+  color: var(--text-color);
+}
+
+table th {
+  background-color: var(--surface-hover);
+}
+
+table td {
+  border-color: var(--border-color);
+}
+
+table tr:hover {
+  background-color: var(--surface-hover);
+}

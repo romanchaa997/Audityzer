@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "projectId": "bridge-security-test-kit",
+  "rules": [
+    {
+      "id": "BRIDGE-TX-001",
+      "name": "Bridge transaction security validation",
+      "description": "Validates security of bridge transactions",
+      "severity": "critical",
+      "category": "cross-chain",
+      "pattern": "bridge transaction",
+      "remediation": "Ensure proper validation of bridge transactions",
+      "references": [
+        {
+          "url": "https://ethereum.org/en/developers/docs/bridges/",
+          "title": "Ethereum Bridge Documentation"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true,
+        "notifyChannel": "slack"
+      },
+      "platforms": ["all"],
+      "enabled": true
+    }
+  ],
+  "rulesets": {
+    "default": ["BRIDGE-TX-001"],
+    "production": ["BRIDGE-TX-001"]
+  },
+  "environments": {
+    "development": {
+      "activeRulesets": ["default"],
+      "disabledRules": []
+    },
+    "production": {
+      "activeRulesets": ["production"],
+      "disabledRules": []
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "enabled": true,
+  "channels": {
+    "email": {
+      "enabled": false,
+      "smtpConfig": {
+        "host": "smtp.example.com",
+        "port": 587,
+        "secure": false,
+        "auth": {
+          "user": "username@example.com",
+          "pass": "password"
+        }
+      },
+      "from": "web3fuzzforge@example.com",
+      "to": ["security@example.com"],
+      "subject": "Web3FuzzForge Security Alert"
+    },
+    "slack": {
+      "enabled": false,
+      "webhookUrl": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+      "channel": "#security-alerts",
+      "username": "Web3FuzzForge Security"
+    },
+    "webhook": {
+      "enabled": false,
+      "url": "https://example.com/webhook",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  },
+  "alertThreshold": {
+    "severity": "high",
+    "count": 1
+  }
+}

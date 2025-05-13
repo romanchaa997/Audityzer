@@ -27,26 +27,30 @@ npx playwright test tests/wallet-snapshot.test.js
 ### `saveWalletState(page, customData = {})`
 
 Captures the current state of a wallet, including:
+
 - Selected address
 - Chain ID
 - Any custom data you wish to associate with this state
 
 Example:
+
 ```javascript
 const walletState = await saveWalletState(page, {
   txHash: '0x1234...',
   testScenario: 'after withdrawal',
-  amount: '0.5 ETH'
+  amount: '0.5 ETH',
 });
 ```
 
 ### `restoreWalletState(page, state)`
 
 Restores a previously saved wallet state, including:
+
 - Selected address
 - Chain ID
 
 Example:
+
 ```javascript
 // Restore to previously saved state
 await restoreWalletState(page, walletState);
@@ -93,7 +97,7 @@ const state = await saveWalletState(page, {
   lastAction: 'withdrawal',
   amount: '0.1 ETH',
   timestamp: Date.now(),
-  recipient: '0x1234...'
+  recipient: '0x1234...',
 });
 
 // Later, you can use this metadata
@@ -113,4 +117,4 @@ The wallet snapshot utilities work by:
 
 - If tests fail with `Cannot read properties of undefined (reading 'selectedAddress')`, ensure window.ethereum is properly initialized
 - For UI-related tests, make sure to update both the ethereum object AND the UI elements
-- Use optional chaining (`?.`) when accessing ethereum properties to avoid errors 
+- Use optional chaining (`?.`) when accessing ethereum properties to avoid errors

@@ -1,0 +1,54 @@
+name: Web3FuzzForge Security Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    - cron: '0 0 * * 1' # Run weekly on Mondays
+
+jobs:
+  security-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # For SARIF upload
+      issues: write # For creating issues
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate security rules configuration
+        run: npx web3fuzzforge security-validate ./security-rules.json
+
+      - name: Run Web3FuzzForge security tests
+        run: npx web3fuzzforge ci-run --reporter=github,html,json --notify=true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-test-results
+          path: test-results/
+
+      # Optional - Upload SARIF report if exists
+      - name: Upload SARIF report to GitHub Security
+        if: always() && hashFiles('test-results/security-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: test-results/security-results.sarif
+          category: web3fuzzforge

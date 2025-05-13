@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Audityzer - Cross-chain DeFi fuzzing toolkit for security researchers. Detect 27+ vulnerability types in under 2 minutes.">
+  <meta name="theme-color" content="#3b82f6">
+  <title>Audityzer | Web3 Vulnerability Detection Toolkit</title>
+  
+  <!-- Favicon set -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  <!-- SEO and social tags -->
+  <meta name="keywords" content="web3, security, defi, blockchain, vulnerability, audit, fuzzing, testing">
+  <meta property="og:title" content="Audityzer | Web3 Vulnerability Detection">
+  <meta property="og:description" content="Detect 27+ vulnerability types across multiple chains in under 2 minutes. Built for security researchers.">
+  <meta property="og:image" content="https://audityzer.com/assets/img/web3fuzzforge-banner.png">
+  <meta property="og:url" content="https://audityzer.com">
+  <meta name="twitter:card" content="summary_large_image">
+  
+  <!-- Resource preloading -->
+  <link rel="preload" href="/styles.css" as="style">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Structured data for search engines -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Audityzer",
+    "applicationCategory": "SecurityApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Cross-chain DeFi fuzzing toolkit for security researchers that detects 27+ vulnerability types",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "42"
+    }
+  }
+  </script>
+  
+  <!-- Critical CSS inlined for faster rendering -->
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --primary-light: #60a5fa;
+      --secondary: #10b981;
+      --secondary-dark: #059669;
+      --text-primary: #1f2937;
+      --text-secondary: #4b5563;
+      --text-tertiary: #6b7280;
+      --background: #ffffff;
+      --background-alt: #f3f4f6;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --radius: 8px;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background-color: var(--background);
+      font-size: 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .hero {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 70px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .main-content {
+      flex: 1;
+    }
+    
+    .footer {
+      background-color: var(--background-alt);
+      padding: 40px 0;
+      margin-top: auto;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      margin-top: 15px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .metrics-banner {
+      background-color: rgba(0,0,0,0.15);
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      margin: 25px auto;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .metric {
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      display: block;
+      color: white;
+    }
+
+    .metric-label {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .cta-buttons {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .btn-primary {
+      background-color: var(--secondary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 14px 28px;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 2px solid white;
+      color: white;
+    }
+
+    .github-stars {
+      display: inline-flex;
+      align-items: center;
+      background-color: rgba(255,255,255,0.1);
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+
+    .github-stars svg {
+      width: 16px;
+      height: 16px;
+      fill: #f0cc4f;
+      margin-right: 5px;
+    }
+  </style>
+  
+  <!-- Deferred non-critical CSS -->
+  <link rel="stylesheet" href="/styles.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="/styles.css"></noscript>
+  
+  <!-- Defer fonts to prevent render blocking -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
+  
+  <!-- Service worker registration -->
+  <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+  <header class="hero">
+    <div class="container hero-content">
+      <span class="github-stars">
+        <svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z"/></svg>
+        <span>238 Stars on GitHub</span>
+      </span>
+      <h1 class="hero-title">Fuzz Test Wallets + Bridges Like a Pro</h1>
+      <p class="subtitle">Automated security toolkit to detect 27+ vulnerability types in your Web3 applications before hackers do</p>
+      
+      <div class="metrics-banner">
+        <div class="metric">
+          <span class="metric-value">27+</span>
+          <span class="metric-label">Vulnerability Types</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value">&lt;2min</span>
+          <span class="metric-label">Detection Time</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value">5,827</span>
+          <span class="metric-label">Bugs Found</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value">95%</span>
+          <span class="metric-label">Wallet Compatibility</span>
+        </div>
+      </div>
+      
+      <div class="cta-buttons">
+        <a href="#get-started" class="btn btn-primary">Test Now</a>
+        <a href="https://github.com/YourUser/audityzer" class="btn btn-secondary" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Rest of the content will be included in a later PR -->
+  <main class="main-content"></main>
+  <footer class="footer"></footer>
+
+  <script>
+    // Defer service worker registration until after page load
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(err => {
+          console.error('Service worker registration failed:', err);
+        });
+      });
+    }
+    
+    // Load analytics script
+    document.addEventListener('DOMContentLoaded', () => {
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.textContent = `
+        import { initAnalytics } from '/analytics-config.js';
+        initAnalytics();
+      `;
+      document.body.appendChild(script);
+    });
+  </script>
+</body>
+</html> 

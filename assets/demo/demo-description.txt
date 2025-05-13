@@ -1,1 +1,50 @@
-This is a text-based representation of what the demo GIF would show.`n`nThe actual GIF would demonstrate:`n1. ZK-SNARK security testing`n2. Debug mode with cross-chain message visualization`n3. Security reporting with vulnerability classification
+# Web3FuzzForge Demo Animation
+
+## Overview
+This animation demonstrates the core workflow of Web3FuzzForge, showing how it can test wallet interactions and transactions with automated fuzzing.
+
+## Key Sequence (18-20 seconds total)
+
+### Step 1: Installation (3s)
+```
+npm install web3fuzzforge -g
+```
+
+### Step 2: Project Initialization (3s)
+```
+web3fuzzforge init my-dapp-tests
+cd my-dapp-tests
+```
+
+### Step 3: Test Generation (4s)
+```
+web3fuzzforge generate wallet-connection --wallet=metamask
+```
+- Show files being created
+- Highlight test structure
+
+### Step 4: Fuzzing Configuration (3s)
+```
+web3fuzzforge fuzz transaction-flow --mode=aggressive
+```
+- Show fuzzing parameters being set
+
+### Step 5: Test Execution (5s)
+```
+npx playwright test
+```
+- Show MetaMask popup appearing
+- Show tests running with passing/failing status
+- Highlight security issues found
+
+### Step 6: Report Generation (2s)
+```
+web3fuzzforge report
+```
+- Show summary of security findings
+
+## Technical Notes
+- Recording should be 1280x720 resolution
+- Use dark terminal with light text
+- Highlight important commands and output
+- Add caption overlay explaining what's happening

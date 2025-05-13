@@ -1,0 +1,78 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1
+  playwright: playwright-community/playwright@1.0.0
+
+jobs:
+  web3-security-test:
+    docker:
+      - image: cimg/node:18.16-browsers
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          version: 20.10.14
+
+      # Restore cached dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+
+      # Install dependencies
+      - run:
+          name: Install Dependencies
+          command: npm ci
+
+      # Install Playwright browsers
+      - run:
+          name: Install Playwright Browsers
+          command: npx playwright install chromium
+
+      # Save cache
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      # Run security checks
+      - run:
+          name: Run Security Checks
+          command: npx web3fuzzforge analyze --config ./security-rules.json
+
+      # Run tests
+      - run:
+          name: Run Web3 Security Tests
+          command: npx web3fuzzforge test
+
+      # Validate L2 protocol security rules
+      - run:
+          name: Validate zkSync Era Security Rules
+          command: npx web3fuzzforge validate-l2-protocol zksync --config ./security-rules.json
+
+      # Validate contract deployments
+      - run:
+          name: Validate Contract Deployments
+          command: npx web3fuzzforge deploy-validate --format md --check-security true
+
+      # Generate security reports
+      - run:
+          name: Generate Security Reports
+          command: npx web3fuzzforge report --format html --include-screenshots --output test-results/security-report.html
+
+      # Store test results
+      - store_test_results:
+          path: ./test-results
+
+      # Store artifacts
+      - store_artifacts:
+          path: ./test-results
+          destination: test-results
+
+workflows:
+  version: 2
+  security-test:
+    jobs:
+      - web3-security-test

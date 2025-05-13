@@ -1,0 +1,101 @@
+{
+  "version": "1.0.0",
+  "projectId": "bridge-security-test-kit",
+  "rules": [
+    {
+      "id": "BRIDGE-TX-001",
+      "name": "Bridge transaction security validation",
+      "description": "Validates security of bridge transactions",
+      "severity": "critical",
+      "category": "cross-chain",
+      "pattern": "bridge transaction",
+      "remediation": "Ensure proper validation of bridge transactions",
+      "references": [
+        {
+          "url": "https://ethereum.org/en/developers/docs/bridges/",
+          "title": "Ethereum Bridge Documentation"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true,
+        "notifyChannel": "slack"
+      },
+      "platforms": ["all"],
+      "enabled": true
+    },
+    {
+      "id": "BRIDGE-MSG-001",
+      "name": "Cross-chain message verification",
+      "description": "Validates cross-chain message verification",
+      "severity": "critical",
+      "category": "cross-chain",
+      "pattern": "cross-chain message",
+      "remediation": "Ensure proper verification of cross-chain messages",
+      "references": [
+        {
+          "url": "https://ethereum.org/en/developers/docs/bridges/",
+          "title": "Ethereum Bridge Documentation"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": true
+      },
+      "platforms": ["all"],
+      "enabled": true
+    },
+    {
+      "id": "BRIDGE-POOL-001",
+      "name": "Liquidity pool security validation",
+      "description": "Validates security of bridge liquidity pools",
+      "severity": "high",
+      "category": "cross-chain",
+      "pattern": "liquidity pool",
+      "remediation": "Ensure proper validation of bridge liquidity pools",
+      "references": [
+        {
+          "url": "https://ethereum.org/en/developers/docs/bridges/",
+          "title": "Ethereum Bridge Documentation"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": false
+      },
+      "platforms": ["all"],
+      "enabled": true
+    },
+    {
+      "id": "BRIDGE-DELAY-001",
+      "name": "Transaction delay and verification",
+      "description": "Validates transaction delay and verification in bridges",
+      "severity": "medium",
+      "category": "cross-chain",
+      "pattern": "transaction delay",
+      "remediation": "Ensure proper transaction delay and verification in bridges",
+      "references": [
+        {
+          "url": "https://ethereum.org/en/developers/docs/bridges/",
+          "title": "Ethereum Bridge Documentation"
+        }
+      ],
+      "ciConfig": {
+        "blockBuild": false
+      },
+      "platforms": ["all"],
+      "enabled": true
+    }
+  ],
+  "rulesets": {
+    "default": ["BRIDGE-TX-001", "BRIDGE-MSG-001", "BRIDGE-POOL-001", "BRIDGE-DELAY-001"],
+    "production": ["BRIDGE-TX-001", "BRIDGE-MSG-001", "BRIDGE-POOL-001", "BRIDGE-DELAY-001"]
+  },
+  "environments": {
+    "development": {
+      "activeRulesets": ["default"],
+      "disabledRules": []
+    },
+    "production": {
+      "activeRulesets": ["production"],
+      "disabledRules": []
+    }
+  }
+}

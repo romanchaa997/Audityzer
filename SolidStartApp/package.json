@@ -1,0 +1,26 @@
+{
+  "name": "solidstart-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "solid-start dev",
+    "build": "solid-start build",
+    "start": "solid-start start"
+  },
+  "dependencies": {
+    "@solidjs/meta": "^0.29.3",
+    "@solidjs/router": "^0.12.3",
+    "@solidjs/start": "^0.4.10",
+    "solid-js": "^1.8.15"
+  },
+  "devDependencies": {
+    "@codecov/solidstart-plugin": "^1.0.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11",
+    "vite-plugin-solid": "^2.9.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

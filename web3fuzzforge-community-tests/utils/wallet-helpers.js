@@ -10,16 +10,16 @@
  * @returns {Promise<string>} Connected wallet address
  */
 async function connectWallet(page, walletType = 'metamask') {
-  console.log(`Connecting ${walletType} wallet...`)
+  console.log(`Connecting ${walletType} wallet...`);
 
   // Handle different wallet types
   switch (walletType.toLowerCase()) {
     case 'metamask':
-      return await connectMetaMask(page)
+      return await connectMetaMask(page);
     case 'walletconnect':
-      return await connectWalletConnect(page)
+      return await connectWalletConnect(page);
     default:
-      throw new Error(`Unsupported wallet type: ${walletType}`)
+      throw new Error(`Unsupported wallet type: ${walletType}`);
   }
 }
 
@@ -41,28 +41,28 @@ async function connectMetaMask(page) {
         chainId: '0x1',
         request: async ({ method, params }) => {
           if (method === 'eth_requestAccounts' || method === 'eth_accounts') {
-            window.ethereum.selectedAddress = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-            return ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266']
+            window.ethereum.selectedAddress = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
+            return ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'];
           }
           if (method === 'eth_chainId') {
-            return window.ethereum.chainId
+            return window.ethereum.chainId;
           }
-          console.log(`MetaMask mock: Method ${method} not implemented`)
-          return null
+          console.log(`MetaMask mock: Method ${method} not implemented`);
+          return null;
         },
         on: (eventName, callback) => {
-          console.log(`Registered event listener for ${eventName}`)
+          console.log(`Registered event listener for ${eventName}`);
         },
-      }
+      };
 
       // Dispatch ethereum#initialized event
-      const event = new Event('ethereum#initialized')
-      window.dispatchEvent(event)
+      const event = new Event('ethereum#initialized');
+      window.dispatchEvent(event);
     }
-  })
+  });
 
   // Return the mock address
-  return '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+  return '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
 }
 
 /**
@@ -82,21 +82,21 @@ async function connectWalletConnect(page) {
         chainId: '0x1',
         request: async ({ method, params }) => {
           if (method === 'eth_requestAccounts' || method === 'eth_accounts') {
-            window.ethereum.selectedAddress = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
-            return ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F']
+            window.ethereum.selectedAddress = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
+            return ['0x71C7656EC7ab88b098defB751B7401B5f6d8976F'];
           }
           if (method === 'eth_chainId') {
-            return window.ethereum.chainId
+            return window.ethereum.chainId;
           }
-          console.log(`WalletConnect mock: Method ${method} not implemented`)
-          return null
+          console.log(`WalletConnect mock: Method ${method} not implemented`);
+          return null;
         },
-      }
+      };
     }
-  })
+  });
 
   // Return the mock address
-  return '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
+  return '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
 }
 
 /**
@@ -111,9 +111,9 @@ async function setupWalletState(page, options = {}) {
     networkName: 'Ethereum Mainnet',
     locked: false,
     accounts: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
-  }
+  };
 
-  const config = { ...defaultOptions, ...options }
+  const config = { ...defaultOptions, ...options };
 
   // Setup the wallet state in the page
   await page.evaluate(config => {
@@ -125,53 +125,53 @@ async function setupWalletState(page, options = {}) {
         networkVersion: parseInt(config.chainId, 16).toString(),
         request: async ({ method, params }) => {
           if (config.locked && (method === 'eth_requestAccounts' || method === 'eth_accounts')) {
-            throw new Error('MetaMask is locked')
+            throw new Error('MetaMask is locked');
           }
 
           if (method === 'eth_requestAccounts' || method === 'eth_accounts') {
-            window.ethereum.selectedAddress = config.accounts[0]
-            return config.accounts
+            window.ethereum.selectedAddress = config.accounts[0];
+            return config.accounts;
           }
 
           if (method === 'eth_chainId') {
-            return config.chainId
+            return config.chainId;
           }
 
           if (method === 'wallet_switchEthereumChain') {
-            window.ethereum.chainId = params[0].chainId
-            window.ethereum.networkVersion = parseInt(params[0].chainId, 16).toString()
-            return null
+            window.ethereum.chainId = params[0].chainId;
+            window.ethereum.networkVersion = parseInt(params[0].chainId, 16).toString();
+            return null;
           }
 
-          console.log(`Method ${method} not implemented in mock`)
-          return null
+          console.log(`Method ${method} not implemented in mock`);
+          return null;
         },
         on: (eventName, callback) => {
-          console.log(`Registered event listener for ${eventName}`)
+          console.log(`Registered event listener for ${eventName}`);
         },
         _eventsLog: [],
-      }
+      };
 
       // Track connection attempts
-      window._connectionAttempts = 0
+      window._connectionAttempts = 0;
 
       // Override request to track connection attempts
-      const originalRequest = window.ethereum.request
+      const originalRequest = window.ethereum.request;
       window.ethereum.request = async args => {
         if (args.method === 'eth_requestAccounts') {
-          window._connectionAttempts++
+          window._connectionAttempts++;
         }
         window.ethereum._eventsLog.push({
           timestamp: new Date().toISOString(),
           method: args.method,
           params: args.params,
-        })
-        return originalRequest.call(window.ethereum, args)
-      }
+        });
+        return originalRequest.call(window.ethereum, args);
+      };
     }
-  }, config)
+  }, config);
 
-  return config
+  return config;
 }
 
 /**
@@ -183,7 +183,7 @@ async function setupWalletState(page, options = {}) {
 async function saveWalletState(page, customData = {}) {
   const state = await page.evaluate(() => {
     if (!window.ethereum) {
-      return null
+      return null;
     }
 
     return {
@@ -192,10 +192,10 @@ async function saveWalletState(page, customData = {}) {
       networkVersion: window.ethereum.networkVersion,
       eventsLog: window.ethereum._eventsLog || [],
       connectionAttempts: window._connectionAttempts || 0,
-    }
-  })
+    };
+  });
 
-  return { ...state, ...customData }
+  return { ...state, ...customData };
 }
 
 /**
@@ -206,29 +206,29 @@ async function saveWalletState(page, customData = {}) {
  */
 async function restoreWalletState(page, state) {
   if (!state) {
-    throw new Error('Invalid wallet state provided')
+    throw new Error('Invalid wallet state provided');
   }
 
   await page.evaluate(state => {
     if (!window.ethereum) {
-      console.error('Cannot restore state: window.ethereum not found')
-      return
+      console.error('Cannot restore state: window.ethereum not found');
+      return;
     }
 
-    window.ethereum.selectedAddress = state.selectedAddress
-    window.ethereum.chainId = state.chainId
-    window.ethereum.networkVersion = state.networkVersion
-    window.ethereum._eventsLog = state.eventsLog || []
-    window._connectionAttempts = state.connectionAttempts || 0
+    window.ethereum.selectedAddress = state.selectedAddress;
+    window.ethereum.chainId = state.chainId;
+    window.ethereum.networkVersion = state.networkVersion;
+    window.ethereum._eventsLog = state.eventsLog || [];
+    window._connectionAttempts = state.connectionAttempts || 0;
 
     // Dispatch events for state change
     if (window.ethereum.emit) {
       if (state.selectedAddress) {
-        window.ethereum.emit('accountsChanged', [state.selectedAddress])
+        window.ethereum.emit('accountsChanged', [state.selectedAddress]);
       }
-      window.ethereum.emit('chainChanged', state.chainId)
+      window.ethereum.emit('chainChanged', state.chainId);
     }
-  }, state)
+  }, state);
 }
 
 module.exports = {
@@ -238,4 +238,4 @@ module.exports = {
   setupWalletState,
   saveWalletState,
   restoreWalletState,
-}
+};

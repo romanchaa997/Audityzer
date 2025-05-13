@@ -1,0 +1,16 @@
+{
+  "name": "Web3 Security Test Kit",
+  "short_name": "Web3 Security",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "description": "Comprehensive security tools for Web3 applications and smart contracts",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+} 

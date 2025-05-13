@@ -1,14 +1,14 @@
 // MetaMask connection test with TypeScript
-import { test, expect, type Page, type Browser } from '@playwright/test'
-import { EthereumProvider } from '../utils/types'
+import { test, expect, type Page, type Browser } from '@playwright/test';
+import { EthereumProvider } from '../utils/types';
 
 // Test configuration
 // eslint-disable-next-line no-unused-vars
-const WALLET_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678'
+const WALLET_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
 // eslint-disable-next-line no-unused-vars
-const WALLET_NAME = 'Test Wallet'
+const WALLET_NAME = 'Test Wallet';
 // eslint-disable-next-line no-unused-vars
-const NETWORK_NAME = 'Ethereum'
+const NETWORK_NAME = 'Ethereum';
 
 // Extend window with ethereum type
 declare global {
@@ -23,11 +23,11 @@ declare global {
 }
 
 test.describe('MetaMask Connection Test', () => {
-  let page: Page
+  let page: Page;
 
   test.beforeEach(async ({ browser }: { browser: Browser }) => {
     // Create a new page
-    page = await browser.newPage()
+    page = await browser.newPage();
 
     // Mock the ethereum provider before navigating to the page
     await page.addInitScript(() => {
@@ -35,47 +35,47 @@ test.describe('MetaMask Connection Test', () => {
         isMetaMask: true,
         selectedAddress: null,
         request: async ({ method }) => {
-          console.log(`MetaMask mock: ${method} called`)
+          console.log(`MetaMask mock: ${method} called`);
           if (method === 'eth_requestAccounts') {
-            window.ethereum.selectedAddress = '0x1234567890abcdef1234567890abcdef12345678'
+            window.ethereum.selectedAddress = '0x1234567890abcdef1234567890abcdef12345678';
             // Dispatch connection event
-            window.dispatchEvent(new Event('ethereum#initialized'))
-            return ['0x1234567890abcdef1234567890abcdef12345678']
+            window.dispatchEvent(new Event('ethereum#initialized'));
+            return ['0x1234567890abcdef1234567890abcdef12345678'];
           }
-          return null
+          return null;
         },
         on: (eventName, callback) => {
-          console.log(`MetaMask mock: registered event listener for ${eventName}`)
+          console.log(`MetaMask mock: registered event listener for ${eventName}`);
           window.addEventListener('ethereum#initialized', () => {
             if (eventName === 'accountsChanged') {
-              callback(['0x1234567890abcdef1234567890abcdef12345678'])
+              callback(['0x1234567890abcdef1234567890abcdef12345678']);
             }
-          })
+          });
         },
-      }
-    })
+      };
+    });
 
     // Navigate to the test page or use a blank page
-    await page.goto('https://app.uniswap.org')
-  })
+    await page.goto('https://app.uniswap.org');
+  });
 
   test('connects MetaMask wallet to dApp', async () => {
     // Find and click the "Connect Wallet" button
-    const connectWalletButton = await page.locator('.connect-wallet-button')
-    await expect(connectWalletButton).toBeVisible()
-    await connectWalletButton.click()
+    const connectWalletButton = await page.locator('.connect-wallet-button');
+    await expect(connectWalletButton).toBeVisible();
+    await connectWalletButton.click();
 
     // Wait for wallet info to be displayed
-    const walletInfo = await page.locator('#wallet-info')
-    await expect(walletInfo).toBeVisible()
+    const walletInfo = await page.locator('#wallet-info');
+    await expect(walletInfo).toBeVisible();
 
     // Check if wallet address is displayed correctly
-    const walletAddressElement = await page.locator('.wallet-address')
-    await expect(walletAddressElement).toContainText(WALLET_ADDRESS.substring(0, 10))
+    const walletAddressElement = await page.locator('.wallet-address');
+    await expect(walletAddressElement).toContainText(WALLET_ADDRESS.substring(0, 10));
 
     // Take a screenshot for documentation
-    await page.screenshot({ path: 'media/metamask-connection-test.png' })
+    await page.screenshot({ path: 'media/metamask-connection-test.png' });
 
-    console.log('MetaMask connection test completed successfully!')
-  })
-})
+    console.log('MetaMask connection test completed successfully!');
+  });
+});

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lighthouse Audit Summary</title>
+  <style>
+    :root {
+      --primary: #3498db;
+      --success: #2ecc71;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: var(--light);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    h1, h2, h3 {
+      color: var(--dark);
+    }
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .score-comparison {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .score-column {
+      flex: 1;
+      min-width: 200px;
+    }
+    .score-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .score-label {
+      font-weight: bold;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .performance {
+      color: var(--primary);
+    }
+    .accessibility {
+      color: var(--success);
+    }
+    .best-practices {
+      color: var(--success);
+    }
+    .seo {
+      color: var(--success);
+    }
+    .improvements-list {
+      padding-left: 20px;
+    }
+    .improvements-list li {
+      margin-bottom: 8px;
+    }
+    .arrow {
+      margin: 0 10px;
+      color: var(--success);
+    }
+    .recommendations {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Web3 Security Test Kit</h1>
+    <h2>Lighthouse Audit Summary Report</h2>
+  </header>
+
+  <div class="card">
+    <h3>Score Comparison</h3>
+    <div class="score-comparison">
+      <div class="score-column">
+        <h4>Initial Scores</h4>
+        <div class="score-item">
+          <span class="score-label">Performance:</span>
+          <span class="score-value performance">71%</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">Accessibility:</span>
+          <span class="score-value accessibility">91%</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">Best Practices:</span>
+          <span class="score-value best-practices">100%</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">SEO:</span>
+          <span class="score-value seo">100%</span>
+        </div>
+      </div>
+      <div class="score-column">
+        <h4>Final Scores</h4>
+        <div class="score-item">
+          <span class="score-label">Performance:</span>
+          <span class="score-value performance">86%</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">Accessibility:</span>
+          <span class="score-value accessibility">91%</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">Best Practices:</span>
+          <span class="score-value best-practices">100%</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">SEO:</span>
+          <span class="score-value seo">100%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Improvements Implemented</h3>
+    <ul class="improvements-list">
+      <li><strong>Performance: +15%</strong> (71% <span class="arrow">→</span> 86%)</li>
+      <li>Inlined critical CSS for faster rendering</li>
+      <li>Added preconnect for Google Fonts resources</li>
+      <li>Fixed responsive design with proper viewport meta tags</li>
+      <li>Added width and height attributes to images to prevent layout shifts</li>
+      <li>Deferred non-critical JavaScript and CSS loading</li>
+      <li>Added proper lazy loading for images below the fold</li>
+      <li>Moved JS scripts to bottom of the page to reduce render blocking</li>
+      <li>Minified CSS and JavaScript</li>
+      <li>Optimized resources loading order</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Further Optimization Recommendations</h3>
+    <ul class="improvements-list">
+      <li>Convert images to WebP format for better compression</li>
+      <li>Implement server-side compression (Gzip/Brotli)</li>
+      <li>Add service worker for offline capabilities and caching</li>
+      <li>Further optimize JavaScript execution time</li>
+      <li>Use resource hints like preload for critical assets</li>
+    </ul>
+  </div>
+
+  <footer>
+    <p>Report generated on May 20, 2024</p>
+    <p>Web3 Security Test Kit Performance Assessment</p>
+  </footer>
+</body>
+</html> 

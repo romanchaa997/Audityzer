@@ -1,190 +1,201 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Web3 Test Page</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        button {
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        #wallet-info {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            display: none;
-        }
-        #tx-confirmation {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            background-color: #f8f8f8;
-            border-radius: 4px;
-            display: none;
-        }
-        .success {
-            color: #4CAF50;
-        }
-        .error {
-            color: #f44336;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      button {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      #wallet-info {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        display: none;
+      }
+      #tx-confirmation {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        background-color: #f8f8f8;
+        border-radius: 4px;
+        display: none;
+      }
+      .success {
+        color: #4caf50;
+      }
+      .error {
+        color: #f44336;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Web3 Test Page</h1>
-    
+
     <div id="connect-section">
-        <button id="connect-button">Connect Wallet</button>
+      <button id="connect-button">Connect Wallet</button>
     </div>
-    
+
     <div id="wallet-info">
-        <h2>Wallet Connected</h2>
-        <p>Address: <span class="wallet-address">Not connected</span></p>
-        <p>Network: <span id="network-name">Unknown</span></p>
+      <h2>Wallet Connected</h2>
+      <p>Address: <span class="wallet-address">Not connected</span></p>
+      <p>Network: <span id="network-name">Unknown</span></p>
     </div>
-    
+
     <div id="transaction-form">
-        <h2>Send Transaction</h2>
-        <div>
-            <label for="recipient">Recipient Address:</label>
-            <input type="text" id="recipient" placeholder="0x..." value="0x1234567890123456789012345678901234567890" style="width: 100%; margin-bottom: 10px;">
-        </div>
-        <div>
-            <label for="amount">Amount (ETH):</label>
-            <input type="text" id="amount" placeholder="0.1" value="0.1" style="width: 100%; margin-bottom: 10px;">
-        </div>
-        <button id="send-button">Send</button>
+      <h2>Send Transaction</h2>
+      <div>
+        <label for="recipient">Recipient Address:</label>
+        <input
+          type="text"
+          id="recipient"
+          placeholder="0x..."
+          value="0x1234567890123456789012345678901234567890"
+          style="width: 100%; margin-bottom: 10px"
+        />
+      </div>
+      <div>
+        <label for="amount">Amount (ETH):</label>
+        <input
+          type="text"
+          id="amount"
+          placeholder="0.1"
+          value="0.1"
+          style="width: 100%; margin-bottom: 10px"
+        />
+      </div>
+      <button id="send-button">Send</button>
     </div>
-    
+
     <div id="tx-confirmation">
-        <h2>Transaction Sent!</h2>
-        <p>Transaction Hash: <span id="tx-hash">N/A</span></p>
+      <h2>Transaction Sent!</h2>
+      <p>Transaction Hash: <span id="tx-hash">N/A</span></p>
     </div>
-    
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const connectButton = document.getElementById('connect-button');
-            const walletInfo = document.getElementById('wallet-info');
-            const walletAddress = document.querySelector('.wallet-address');
-            const networkName = document.getElementById('network-name');
-            const sendButton = document.getElementById('send-button');
-            const txConfirmation = document.getElementById('tx-confirmation');
-            const txHash = document.getElementById('tx-hash');
-            
-            connectButton.addEventListener('click', async () => {
-                if (window.ethereum) {
-                    try {
-                        const accounts = await window.ethereum.request({
-                            method: 'eth_requestAccounts'
-                        });
-                        
-                        if (accounts.length > 0) {
-                            walletAddress.textContent = accounts[0];
-                            walletInfo.style.display = 'block';
-                            
-                            // Update network info if available
-                            if (window.ethereum.chainId) {
-                                const chainId = window.ethereum.chainId;
-                                const networks = {
-                                    '0x1': 'Ethereum Mainnet',
-                                    '0x5': 'Goerli Testnet',
-                                    '0x89': 'Polygon Mainnet',
-                                };
-                                networkName.textContent = networks[chainId] || `Chain ID: ${chainId}`;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Connection error:', error);
-                        alert(`Connection failed: ${error.message}`);
-                    }
-                } else {
-                    alert('No Ethereum wallet found. Please install MetaMask or another provider.');
-                }
-            });
-            
-            sendButton.addEventListener('click', async () => {
-                try {
-                    const recipient = document.getElementById('recipient').value;
-                    const amount = document.getElementById('amount').value;
-                    
-                    if (!recipient || !amount) {
-                        alert('Please enter recipient address and amount');
-                        return;
-                    }
-                    
-                    // Convert ETH to Wei
-                    const valueInWei = '0x' + (parseFloat(amount) * 1e18).toString(16);
-                    
-                    const txParams = {
-                        from: window.ethereum.selectedAddress,
-                        to: recipient,
-                        value: valueInWei,
-                        gas: '0x5208', // 21000 gas
-                    };
-                    
-                    const txHash = await window.ethereum.request({
-                        method: 'eth_sendTransaction',
-                        params: [txParams],
-                    });
-                    
-                    document.getElementById('tx-hash').textContent = txHash;
-                    txConfirmation.style.display = 'block';
-                    
-                } catch (error) {
-                    console.error('Error sending transaction:', error);
-                    alert('Failed to send transaction: ' + error.message);
-                }
-            });
-            
-            // Helper function to get network name from chain ID
-            function getNetworkName(chainId) {
-                const networks = {
+      document.addEventListener('DOMContentLoaded', () => {
+        const connectButton = document.getElementById('connect-button');
+        const walletInfo = document.getElementById('wallet-info');
+        const walletAddress = document.querySelector('.wallet-address');
+        const networkName = document.getElementById('network-name');
+        const sendButton = document.getElementById('send-button');
+        const txConfirmation = document.getElementById('tx-confirmation');
+        const txHash = document.getElementById('tx-hash');
+
+        connectButton.addEventListener('click', async () => {
+          if (window.ethereum) {
+            try {
+              const accounts = await window.ethereum.request({
+                method: 'eth_requestAccounts',
+              });
+
+              if (accounts.length > 0) {
+                walletAddress.textContent = accounts[0];
+                walletInfo.style.display = 'block';
+
+                // Update network info if available
+                if (window.ethereum.chainId) {
+                  const chainId = window.ethereum.chainId;
+                  const networks = {
                     '0x1': 'Ethereum Mainnet',
-                    '0x3': 'Ropsten Testnet',
-                    '0x4': 'Rinkeby Testnet',
                     '0x5': 'Goerli Testnet',
-                    '0x2a': 'Kovan Testnet',
                     '0x89': 'Polygon Mainnet',
-                    '0x13881': 'Polygon Mumbai',
-                };
-                return networks[chainId] || `Chain ID: ${chainId}`;
+                  };
+                  networkName.textContent = networks[chainId] || `Chain ID: ${chainId}`;
+                }
+              }
+            } catch (error) {
+              console.error('Connection error:', error);
+              alert(`Connection failed: ${error.message}`);
             }
-            
-            // Listen for chain changes
-            if (window.ethereum) {
-                window.ethereum.on('chainChanged', (chainId) => {
-                    networkName.textContent = getNetworkName(chainId);
-                    console.log('Network changed to:', getNetworkName(chainId));
-                });
-                
-                window.ethereum.on('accountsChanged', (accounts) => {
-                    if (accounts.length === 0) {
-                        walletInfo.style.display = 'none';
-                        txConfirmation.style.display = 'none';
-                    } else {
-                        walletAddress.textContent = accounts[0];
-                        walletInfo.style.display = 'block';
-                    }
-                });
-            }
+          } else {
+            alert('No Ethereum wallet found. Please install MetaMask or another provider.');
+          }
         });
+
+        sendButton.addEventListener('click', async () => {
+          try {
+            const recipient = document.getElementById('recipient').value;
+            const amount = document.getElementById('amount').value;
+
+            if (!recipient || !amount) {
+              alert('Please enter recipient address and amount');
+              return;
+            }
+
+            // Convert ETH to Wei
+            const valueInWei = '0x' + (parseFloat(amount) * 1e18).toString(16);
+
+            const txParams = {
+              from: window.ethereum.selectedAddress,
+              to: recipient,
+              value: valueInWei,
+              gas: '0x5208', // 21000 gas
+            };
+
+            const txHash = await window.ethereum.request({
+              method: 'eth_sendTransaction',
+              params: [txParams],
+            });
+
+            document.getElementById('tx-hash').textContent = txHash;
+            txConfirmation.style.display = 'block';
+          } catch (error) {
+            console.error('Error sending transaction:', error);
+            alert('Failed to send transaction: ' + error.message);
+          }
+        });
+
+        // Helper function to get network name from chain ID
+        function getNetworkName(chainId) {
+          const networks = {
+            '0x1': 'Ethereum Mainnet',
+            '0x3': 'Ropsten Testnet',
+            '0x4': 'Rinkeby Testnet',
+            '0x5': 'Goerli Testnet',
+            '0x2a': 'Kovan Testnet',
+            '0x89': 'Polygon Mainnet',
+            '0x13881': 'Polygon Mumbai',
+          };
+          return networks[chainId] || `Chain ID: ${chainId}`;
+        }
+
+        // Listen for chain changes
+        if (window.ethereum) {
+          window.ethereum.on('chainChanged', chainId => {
+            networkName.textContent = getNetworkName(chainId);
+            console.log('Network changed to:', getNetworkName(chainId));
+          });
+
+          window.ethereum.on('accountsChanged', accounts => {
+            if (accounts.length === 0) {
+              walletInfo.style.display = 'none';
+              txConfirmation.style.display = 'none';
+            } else {
+              walletAddress.textContent = accounts[0];
+              walletInfo.style.display = 'block';
+            }
+          });
+        }
+      });
     </script>
-</body>
-</html> 
+  </body>
+</html>

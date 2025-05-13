@@ -6,3 +6,53 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
+.firebase-config.json
+
+# Coverage reports
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+junit.xml
+codecov
+codecov.SHA256SUM*
+.coverage
+coverage.json
+coverage.lcov
+
+# Build outputs
+dist/
+build/
+.cache/
+
+# IDE and OS specific files
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+*.swp
+*.swo
+*~
+*.log
+
+# Additional exclusions for size reduction
+reports/
+test-output/
+test-user-data-dir/
+*.tgz
+Web3FuzzForge-*.tgz
+playwright-report/
+test-results/
+debug-logs/
+test-user-data-dir/
+extensions/metamask/
+darkforest-v0.6/
+trace/
+
+# Package outputs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*

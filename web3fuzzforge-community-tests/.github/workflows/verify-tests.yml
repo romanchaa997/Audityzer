@@ -2,16 +2,16 @@ name: Verify Test Cases
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
@@ -26,9 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
@@ -45,21 +45,50 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
       - name: Update Contributors
-        uses: all-contributors/all-contributors-cli@v6
-        with:
+        run: |
+          npm install --no-save all-contributors-cli
+          npx all-contributors generate
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          commit-message: "docs: update contributors list"
-          title: "docs: update contributors list"
-          body: "Updated contributors list based on merged PRs"
-          branch: "bot/update-contributors"
-          base: "main" 
+          commit-message: 'docs: update contributors list'
+          title: 'docs: update contributors list'
+          body: 'Updated contributors list based on merged PRs'
+          branch: 'bot/update-contributors'
+          base: 'main'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: contributors-list
+          path: .all-contributorsrc
+
+  upload-artifact:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Validate test structure
+        run: node utils/validate-tests.js
+      - name: Run tests in headless mode
+        run: npm test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/

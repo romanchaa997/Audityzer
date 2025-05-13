@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web3FuzzForge Interactive Demo</title>
+    <style>
+      body {
+        background-color: #121212;
+        margin: 0;
+        font-family:
+          'Segoe UI',
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        color: #f1f1f1;
+        padding: 20px;
+      }
+
+      .demo-container {
+        display: flex;
+        flex-direction: column;
+        max-width: 1200px;
+        margin: 0 auto;
+        gap: 20px;
+      }
+
+      .controls {
+        background-color: #1e1e1e;
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 200px;
+        flex: 1;
+      }
+
+      .control-group h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #ff6b2b;
+      }
+
+      select,
+      button {
+        background-color: #2d2d2d;
+        color: #fff;
+        border: 1px solid #444;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      button {
+        background-color: #ff6b2b;
+        border: none;
+        font-weight: bold;
+        transition: background-color 0.2s;
+      }
+
+      button:hover {
+        background-color: #ff8c5a;
+      }
+
+      .terminal {
+        width: 100%;
+        height: 500px;
+        background-color: #1a1a1a;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .terminal-header {
+        display: flex;
+        align-items: center;
+        background-color: #333;
+        padding: 10px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+      }
+
+      .terminal-buttons {
+        display: flex;
+        margin-right: 15px;
+      }
+
+      .terminal-button {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .terminal-button.red {
+        background-color: #ff5f56;
+      }
+      .terminal-button.yellow {
+        background-color: #ffbd2e;
+      }
+      .terminal-button.green {
+        background-color: #27c93f;
+      }
+
+      .terminal-title {
+        color: #ddd;
+        font-size: 14px;
+        flex-grow: 1;
+        text-align: center;
+      }
+
+      .terminal-content {
+        height: calc(100% - 32px);
+        overflow-y: auto;
+        padding: 15px;
+        color: #f1f1f1;
+        font-size: 14px;
+        line-height: 1.5;
+        font-family: 'Courier New', monospace;
+      }
+
+      .line {
+        white-space: pre-wrap;
+        margin-bottom: 8px;
+        opacity: 0;
+        transform: translateY(10px);
+        transition:
+          opacity 0.3s ease,
+          transform 0.3s ease;
+      }
+
+      .line.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .prompt {
+        color: #27c93f;
+        font-weight: bold;
+      }
+
+      .directory {
+        color: #3a96dd;
+        font-weight: bold;
+      }
+
+      .command {
+        color: #fff;
+      }
+
+      .output {
+        color: #bbb;
+        margin-top: 5px;
+        margin-bottom: 15px;
+      }
+
+      .highlight {
+        color: #ff6b2b;
+        font-weight: bold;
+      }
+
+      .success {
+        color: #27c93f;
+      }
+
+      .warning {
+        color: #ffbd2e;
+      }
+
+      .error {
+        color: #ff5f56;
+      }
+
+      .typing {
+        position: relative;
+      }
+
+      .typing::after {
+        content: '|';
+        position: absolute;
+        animation: blink 1s infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+
+      .wallet-preview {
+        background-color: #1e1e1e;
+        border-radius: 8px;
+        padding: 20px;
+        display: none;
+      }
+
+      .wallet-preview.active {
+        display: block;
+      }
+
+      .wallet-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        background: #2a2a2a;
+        border-radius: 8px;
+        width: 350px;
+        margin: 0 auto;
+      }
+
+      .wallet-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        width: 100%;
+      }
+
+      .wallet-logo {
+        width: 40px;
+        height: 40px;
+        margin-right: 15px;
+        object-fit: contain;
+      }
+
+      .wallet-name {
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .wallet-action {
+        background-color: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 15px;
+        width: 100%;
+      }
+
+      .metamask-action {
+        background-color: #f6851b;
+      }
+      .coinbase-action {
+        background-color: #0052ff;
+      }
+      .phantom-action {
+        background-color: #6a6bf9;
+      }
+
+      .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+      }
+
+      .theme-icon {
+        font-size: 18px;
+      }
+
+      /* Dark/Light theme switch */
+      body.light-theme {
+        background-color: #f5f5f5;
+        color: #333;
+      }
+
+      body.light-theme .controls,
+      body.light-theme .wallet-preview,
+      body.light-theme .wallet-container {
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      body.light-theme .terminal {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      body.light-theme select {
+        background-color: #f0f0f0;
+        color: #333;
+        border-color: #ddd;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .controls {
+          flex-direction: column;
+        }
+
+        .wallet-container {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="theme-toggle" id="theme-toggle">
+      <span class="theme-icon">☀️</span>
+      <span>Toggle Theme</span>
+    </button>
+
+    <div class="demo-container">
+      <h1>Web3FuzzForge Interactive Demo</h1>
+
+      <div class="controls">
+        <div class="control-group">
+          <h3>Wallet Selection</h3>
+          <select id="wallet-select">
+            <option value="metamask">MetaMask</option>
+            <option value="coinbase">Coinbase Wallet</option>
+            <option value="phantom">Phantom</option>
+            <option value="rabby">Rabby</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <h3>Test Type</h3>
+          <select id="test-select">
+            <option value="connection">Wallet Connection</option>
+            <option value="transaction">Transaction Flow</option>
+            <option value="signing">Message Signing</option>
+            <option value="network">Network Switching</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <h3>Fuzzing Level</h3>
+          <select id="fuzz-select">
+            <option value="none">None</option>
+            <option value="basic">Basic</option>
+            <option value="advanced">Advanced</option>
+            <option value="chaos">Chaos Mode</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <h3>Actions</h3>
+          <button id="run-test">Run Test</button>
+        </div>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-header">
+          <div class="terminal-buttons">
+            <div class="terminal-button red"></div>
+            <div class="terminal-button yellow"></div>
+            <div class="terminal-button green"></div>
+          </div>
+          <div class="terminal-title">web3fuzzforge@user: ~/project</div>
+        </div>
+        <div class="terminal-content" id="terminal-content">
+          <div class="line visible">
+            <span class="prompt">$</span> <span class="command">web3fuzzforge --version</span>
+          </div>
+          <div class="line visible output">
+            <span class="highlight">Web3FuzzForge v1.1.0</span>
+          </div>
+          <div class="line visible">
+            <span class="prompt">$</span> <span class="command">web3fuzzforge help</span>
+          </div>
+          <div class="line visible output">
+            Web3FuzzForge - Comprehensive Web3 Security Testing Toolkit
+
+            <span class="highlight">Commands:</span>
+            init Initialize a new test project generate Generate test files run Run test suite fuzz
+            Configure fuzzing parameters security-validate Run security validation report Generate
+            test reports
+          </div>
+          <div class="line visible typing">
+            <span class="prompt">$</span> <span class="command"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="wallet-preview" id="wallet-preview">
+        <h2>Wallet Preview</h2>
+        <div class="wallet-container" id="metamask-preview">
+          <div class="wallet-header">
+            <img src="../img/wallets/metamask.png" alt="MetaMask Logo" class="wallet-logo" />
+            <div class="wallet-name">MetaMask</div>
+          </div>
+          <p>Web3FuzzForge would like to connect to your wallet</p>
+          <button class="wallet-action metamask-action">Connect</button>
+        </div>
+
+        <div class="wallet-container" id="coinbase-preview" style="display: none">
+          <div class="wallet-header">
+            <img src="../img/wallets/coinbase.png" alt="Coinbase Wallet Logo" class="wallet-logo" />
+            <div class="wallet-name">Coinbase Wallet</div>
+          </div>
+          <p>Web3FuzzForge would like to connect to your wallet</p>
+          <button class="wallet-action coinbase-action">Connect</button>
+        </div>
+
+        <div class="wallet-container" id="phantom-preview" style="display: none">
+          <div class="wallet-header">
+            <img src="../img/wallets/phantom.png" alt="Phantom Logo" class="wallet-logo" />
+            <div class="wallet-name">Phantom</div>
+          </div>
+          <p>Web3FuzzForge would like to connect to your wallet</p>
+          <button class="wallet-action phantom-action">Connect</button>
+        </div>
+
+        <div class="wallet-container" id="rabby-preview" style="display: none">
+          <div class="wallet-header">
+            <img src="../img/wallets/rabby.png" alt="Rabby Logo" class="wallet-logo" />
+            <div class="wallet-name">Rabby</div>
+          </div>
+          <p>Web3FuzzForge would like to connect to your wallet</p>
+          <button class="wallet-action">Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const terminalContent = document.getElementById('terminal-content');
+        const walletSelect = document.getElementById('wallet-select');
+        const testSelect = document.getElementById('test-select');
+        const fuzzSelect = document.getElementById('fuzz-select');
+        const runTestButton = document.getElementById('run-test');
+        const walletPreview = document.getElementById('wallet-preview');
+        const themeToggle = document.getElementById('theme-toggle');
+
+        // Theme toggling
+        themeToggle.addEventListener('click', function () {
+          document.body.classList.toggle('light-theme');
+          const icon = document.querySelector('.theme-icon');
+          icon.textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀️';
+        });
+
+        // Add a line to the terminal
+        function addTerminalLine(text, className = 'line', isOutput = false) {
+          const line = document.createElement('div');
+          line.className = className;
+          line.innerHTML = text;
+
+          if (isOutput) {
+            line.classList.add('output');
+          }
+
+          // Remove the typing cursor line
+          const typingLine = document.querySelector('.typing');
+          if (typingLine) {
+            terminalContent.removeChild(typingLine);
+          }
+
+          terminalContent.appendChild(line);
+
+          // Add back the typing cursor
+          const newTypingLine = document.createElement('div');
+          newTypingLine.className = 'line typing';
+          newTypingLine.innerHTML = '<span class="prompt">$</span> <span class="command"></span>';
+          terminalContent.appendChild(newTypingLine);
+
+          // Make line visible with animation
+          setTimeout(() => line.classList.add('visible'), 50);
+
+          // Scroll to bottom
+          terminalContent.scrollTop = terminalContent.scrollHeight;
+        }
+
+        // Handle wallet selection change
+        walletSelect.addEventListener('change', function () {
+          const walletType = this.value;
+
+          // Hide all wallet previews
+          document.querySelectorAll('.wallet-container').forEach(container => {
+            container.style.display = 'none';
+          });
+
+          // Show selected wallet preview
+          const selectedPreview = document.getElementById(`${walletType}-preview`);
+          if (selectedPreview) {
+            selectedPreview.style.display = 'flex';
+          }
+        });
+
+        // Run test button click handler
+        runTestButton.addEventListener('click', function () {
+          const wallet = walletSelect.value;
+          const testType = testSelect.value;
+          const fuzzLevel = fuzzSelect.value;
+
+          // Show the wallet preview
+          walletPreview.classList.add('active');
+
+          // Add command to terminal
+          const command = `web3fuzzforge generate ${testType} --wallet=${wallet}${fuzzLevel !== 'none' ? ` --fuzz=${fuzzLevel}` : ''}`;
+          addTerminalLine(`<span class="prompt">$</span> <span class="command">${command}</span>`);
+
+          // Simulate command output
+          setTimeout(() => {
+            addTerminalLine(
+              `<span class="highlight">Web3FuzzForge v1.1.0</span>
+Generating ${testType} test for ${wallet.charAt(0).toUpperCase() + wallet.slice(1)}...
+
+<span class="success">✓</span> Created tests/${wallet}-${testType}.test.js
+<span class="success">✓</span> Added test to test suite
+<span class="success">✓</span> Generated ${wallet} ${testType} template
+${fuzzLevel !== 'none' ? `<span class="success">✓</span> Configured ${fuzzLevel} fuzzing parameters` : ''}
+
+<span class="highlight">Test scaffolding complete!</span> 
+The following test scenarios were created:
+- Basic ${testType} test
+- Error handling
+${testType === 'connection' ? '- Account detection\n- Disconnect flow testing' : ''}
+${testType === 'transaction' ? '- Transaction confirmation\n- Receipt validation\n- Error recovery' : ''}
+${testType === 'signing' ? '- Message signing\n- Signature verification\n- Multiple request handling' : ''}
+${testType === 'network' ? '- Network detection\n- Chain switching\n- Fallback handling' : ''}`,
+              'line',
+              true
+            );
+
+            // Add run command
+            setTimeout(() => {
+              addTerminalLine(
+                `<span class="prompt">$</span> <span class="command">web3fuzzforge run</span>`
+              );
+
+              // Show run output
+              setTimeout(() => {
+                const hasError = fuzzLevel === 'chaos' || Math.random() > 0.7;
+                const hasWarning = fuzzLevel !== 'none' || Math.random() > 0.5;
+
+                addTerminalLine(
+                  `<span class="highlight">Web3FuzzForge v1.1.0</span>
+Running test suite...
+
+<span class="success">▶</span> Starting ${wallet.charAt(0).toUpperCase() + wallet.slice(1)} ${testType.charAt(0).toUpperCase() + testType.slice(1)} Tests
+<span class="success">✓</span> Basic flow successful
+<span class="success">✓</span> Error handling works correctly
+${
+  hasWarning
+    ? `<span class="warning">⚠</span> <span class="warning">${
+        testType === 'connection'
+          ? 'User feedback during connection needs improvement'
+          : testType === 'transaction'
+            ? 'High gas price handling needs improvement'
+            : testType === 'signing'
+              ? 'Multiple signing requests not properly queued'
+              : 'Network fallback configuration incomplete'
+      }</span>`
+    : `<span class="success">✓</span> ${
+        testType === 'connection'
+          ? 'User feedback during connection'
+          : testType === 'transaction'
+            ? 'Gas price handling'
+            : testType === 'signing'
+              ? 'Multiple signing requests'
+              : 'Network fallback configuration'
+      } works correctly`
+}
+${
+  hasError
+    ? `<span class="error">✗</span> <span class="error">Failed: ${
+        testType === 'connection'
+          ? 'Disconnect event not properly handled'
+          : testType === 'transaction'
+            ? 'Transaction cancellation not handled properly'
+            : testType === 'signing'
+              ? 'Signature verification fails on specific message formats'
+              : 'Chain ID validation incomplete'
+      }</span>`
+    : `<span class="success">✓</span> ${
+        testType === 'connection'
+          ? 'Disconnect event handled properly'
+          : testType === 'transaction'
+            ? 'Transaction cancellation handled properly'
+            : testType === 'signing'
+              ? 'Signature verification works on all message formats'
+              : 'Chain ID validation complete'
+      }`
+}
+<span class="success">✓</span> ${
+                    testType === 'connection'
+                      ? 'Account change detection works'
+                      : testType === 'transaction'
+                        ? 'Transaction receipt validation'
+                        : testType === 'signing'
+                          ? 'Message format validation'
+                          : 'Network switch UI updates correctly'
+                  }
+
+<span class="highlight">Test Summary:</span> ${hasError ? '3' : '4'} passed, ${hasWarning ? '1' : '0'} warning, ${hasError ? '1' : '0'} failed
+
+${
+  hasError || hasWarning
+    ? `<span class="highlight">Vulnerabilities detected:</span>
+${
+  hasError
+    ? `- <span class="error">CRITICAL:</span> Unhandled ${
+        testType === 'connection'
+          ? 'disconnect event'
+          : testType === 'transaction'
+            ? 'transaction cancellation'
+            : testType === 'signing'
+              ? 'signature verification'
+              : 'chain ID validation'
+      } could lead to UI inconsistency`
+    : ''
+}
+${
+  hasWarning
+    ? `- <span class="warning">MEDIUM:</span> ${
+        testType === 'connection'
+          ? 'Connection feedback'
+          : testType === 'transaction'
+            ? 'High gas price warning'
+            : testType === 'signing'
+              ? 'Multiple signing request queue'
+              : 'Network fallback configuration'
+      } needs improvement`
+    : ''
+}`
+    : ''
+}
+
+<span class="highlight">Generating detailed report...</span>
+<span class="success">✓</span> Report saved to web3fuzzforge-report.html`,
+                  'line',
+                  true
+                );
+              }, 1500);
+            }, 2000);
+          }, 1000);
+        });
+      });
+    </script>
+  </body>
+</html>

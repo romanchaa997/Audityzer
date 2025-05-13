@@ -1,0 +1,1 @@
+🔍 Found critical vulnerabilities with our LayerZero fuzzing suite? It detects replay attacks, gas manipulation exploits, and cross-chain message tampering - key issues in latest @LayerZero bounties. Check it out: https://github.com/your-org/web3-security-test-kit/blob/main/tests/layerzero-crosschain-fuzz.js 

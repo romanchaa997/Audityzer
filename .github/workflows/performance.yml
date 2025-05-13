@@ -2,7 +2,7 @@ name: Performance Benchmarking
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   schedule:
     - cron: '0 0 * * 1' # Run weekly on Mondays
   workflow_dispatch:
@@ -12,76 +12,76 @@ jobs:
     name: 'Performance Tests'
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps chromium
-    
-    - name: Run benchmark tests
-      run: |
-        mkdir -p benchmark-results
-        npx playwright test --grep-invert @slow --project=chromium --reporter=json,html
-        node utils/analyze-performance.js
-      env:
-        BENCHMARK_MODE: true
-        PLAYWRIGHT_JSON_OUTPUT_NAME: benchmark-results/results.json
-    
-    - name: Upload benchmark results
-      uses: actions/upload-artifact@v4
-      with:
-        name: benchmark-results
-        path: benchmark-results/
-        retention-days: 90
-    
-    - name: Compare with previous results
-      if: github.event_name != 'workflow_dispatch'
-      run: |
-        if [ -f benchmark-results/previous.json ]; then
-          node utils/compare-benchmarks.js --current benchmark-results/results.json --previous benchmark-results/previous.json --output benchmark-results/comparison.md
-        else
-          echo "No previous results found for comparison"
-        fi
-    
-    - name: Comment on PR with performance results
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const fs = require('fs');
-          const path = require('path');
-          
-          try {
-            const comparisonPath = path.join(process.env.GITHUB_WORKSPACE, 'benchmark-results/comparison.md');
-            if (fs.existsSync(comparisonPath)) {
-              const comparison = fs.readFileSync(comparisonPath, 'utf8');
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: '## Performance Benchmark Results\n\n' + comparison
-              });
-            } else {
-              const results = fs.readFileSync(path.join(process.env.GITHUB_WORKSPACE, 'benchmark-results/results.json'), 'utf8');
-              const data = JSON.parse(results);
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: '## Performance Benchmark Results\n\nFirst run - baseline established.'
-              });
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run benchmark tests
+        run: |
+          mkdir -p benchmark-results
+          npx playwright test --grep-invert @slow --project=chromium --reporter=json,html
+          node utils/analyze-performance.js
+        env:
+          BENCHMARK_MODE: true
+          PLAYWRIGHT_JSON_OUTPUT_NAME: benchmark-results/results.json
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark-results/
+          retention-days: 90
+
+      - name: Compare with previous results
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          if [ -f benchmark-results/previous.json ]; then
+            node utils/compare-benchmarks.js --current benchmark-results/results.json --previous benchmark-results/previous.json --output benchmark-results/comparison.md
+          else
+            echo "No previous results found for comparison"
+          fi
+
+      - name: Comment on PR with performance results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            try {
+              const comparisonPath = path.join(process.env.GITHUB_WORKSPACE, 'benchmark-results/comparison.md');
+              if (fs.existsSync(comparisonPath)) {
+                const comparison = fs.readFileSync(comparisonPath, 'utf8');
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: '## Performance Benchmark Results\n\n' + comparison
+                });
+              } else {
+                const results = fs.readFileSync(path.join(process.env.GITHUB_WORKSPACE, 'benchmark-results/results.json'), 'utf8');
+                const data = JSON.parse(results);
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: '## Performance Benchmark Results\n\nFirst run - baseline established.'
+                });
+              }
+            } catch (error) {
+              console.error('Error posting benchmark results:', error);
             }
-          } catch (error) {
-            console.error('Error posting benchmark results:', error);
-          } 

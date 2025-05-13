@@ -1,0 +1,91 @@
+pipeline {
+    agent {
+        docker {
+            image 'node:18'
+            args '-v /tmp:/tmp'
+        }
+    }
+    
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+    
+    triggers {
+        // Run weekly on Monday
+        cron('0 0 * * 1')
+    }
+    
+    environment {
+        HOME = '.'
+        NODE_OPTIONS = '--max-old-space-size=4096'
+    }
+    
+    stages {
+        stage('Setup') {
+            steps {
+                sh 'npm ci'
+                sh 'npx playwright install --with-deps chromium'
+            }
+        }
+        
+        stage('Validate Security Rules') {
+            steps {
+                sh 'npx web3fuzzforge security-validate ./security-rules.json'
+            }
+        }
+        
+        stage('Security Tests') {
+            steps {
+                sh 'mkdir -p test-results'
+                sh 'npx web3fuzzforge ci-run --reporter=jenkins,html,json,junit --notify=true'
+            }
+            post {
+                always {
+                    junit 'test-results/junit-report.xml'
+                }
+            }
+        }
+        
+        stage('Static Analysis') {
+            when {
+                expression { fileExists('contracts') }
+            }
+            steps {
+                sh 'mkdir -p test-results/static-analysis'
+                sh 'npm install -g solhint'
+                sh 'npx web3fuzzforge ci-run --static-analysis=true --contracts-dir=./contracts'
+            }
+        }
+        
+        stage('Security Report') {
+            steps {
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'test-results',
+                    reportFiles: 'report.html',
+                    reportName: 'Security Test Report',
+                    reportTitles: 'Web3FuzzForge Security Report'
+                ])
+            }
+        }
+    }
+    
+    post {
+        always {
+            archiveArtifacts artifacts: 'test-results/**', fingerprint: true
+        }
+        success {
+            echo 'Security tests completed successfully!'
+        }
+        failure {
+            echo 'Security tests failed! Check the report for details.'
+        }
+        cleanup {
+            cleanWs()
+        }
+    }
+} 
