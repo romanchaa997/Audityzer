@@ -6,6 +6,8 @@
 [![Cross-Platform Tests](https://github.com/username/devforge/actions/workflows/cross-platform-tests.yml/badge.svg)](https://github.com/username/devforge/actions/workflows/cross-platform-tests.yml)
 [![Lighthouse Regression](https://github.com/username/devforge/actions/workflows/website-regression.yml/badge.svg)](https://github.com/username/devforge/actions/workflows/website-regression.yml)
 
+**Jump to:** [CI/CD](#ci-cd-integration) • [Docs](#comprehensive-documentation) • [Deployment](#smart-contract-deployment-validation) • [Security Scan](#security-testing)
+
 DevForge is an intelligent development server with automatic port management, specifically designed for Web3 security testing environments. It eliminates port conflicts, provides health monitoring endpoints, and delivers robust process management across all platforms.
 
 <p align="center">
@@ -179,6 +181,66 @@ audityzer run --target-url http://your-dapp-url
 audityzer run --generate-report
 ```
 
+### Account Abstraction (ERC-4337) Testing
+
+Test ERC-4337 compliant smart accounts, paymasters, and bundlers:
+
+```bash
+# Generate AA test templates 
+audityzer init -t aa
+
+# Run AA security tests
+audityzer run mycounterwallet.xyz --aa
+
+# Use Pimlico-compatible mode
+audityzer run myapp --aa --pimlico
+
+# Generate HTML report and dashboard
+audityzer run myapp --aa --report --dashboard
+```
+
+#### Specialized AA Addons
+
+Test specific Account Abstraction features with specialized addons:
+
+```bash
+# Test social recovery implementations
+audityzer run myapp --aa --addon social-recovery
+
+# Test counterfactual wallet deployments
+audityzer run myapp --aa --addon counterfactual
+
+# Test session key implementations
+audityzer run myapp --aa --addon session-keys
+
+# Test token-gated operations
+audityzer run myapp --aa --addon token-gating
+```
+
+#### Pimlico API Integration
+
+Connect to Pimlico API for live gas fee suggestions and EntryPoint metadata:
+
+```bash
+# Connect to Pimlico API
+audityzer run myapp --aa --pimlico-connect --pimlico-api-key YOUR_API_KEY
+
+# Generate a Pimlico metrics report
+audityzer aa --pimlico-connect --pimlico-api-key YOUR_API_KEY
+```
+
+#### CI/CD Integration
+
+Generate standardized JSON reports for CI/CD pipelines:
+
+```bash
+# Generate CI-friendly JSON report
+audityzer run myapp --aa --ci
+
+# Generate SARIF format for GitHub Code Scanning
+audityzer run myapp --aa --ci --format sarif
+```
+
 ### Initialize Configuration
 
 ```bash
@@ -342,6 +404,39 @@ The vLLM project currently ships binary wheels **for Linux only**.  On Windows y
 1. Close and reopen your terminal (PowerShell / Git Bash) – this reloads the PATH.  
 2. Run `where ffmpeg` (PowerShell) or `which ffmpeg` (Git Bash) – it should print the full path.  
 3. If it still fails, verify `%PROGRAMFILES%\ffmpeg\bin` (or `C:\ffmpeg\bin`) is present in your PATH.
+
+### Node.js not found in Git Bash on Windows
+
+If Git Bash prints `/usr/bin/env: node: No such file or directory` (or similar) when running scripts like `terminalizer` it usually means **Node is installed only for PowerShell / CMD** but its directory isn't on the POSIX-style PATH Git Bash uses.
+
+Fixes:
+
+1. Add the Windows Node directory to your Git Bash profile:
+   ```bash
+   echo 'export PATH="/c/Program\ Files/nodejs:$PATH"' >> ~/.bashrc
+   source ~/.bashrc
+   ```
+   (Adjust the path if you installed Node to a custom location.)
+
+2. Or re-install Node via **nvm-windows** *and* check the option "Add to PATH for all users".  After reinstalling, open a new Git Bash window and verify `node -v`.
+
+3. As a quick workaround you can run the demo-video script directly from PowerShell:
+   ```powershell
+   npm run create:demo-video
+   ```
+
+### Docker command not found on Windows
+
+The `docker` executable becomes available **only after** installing Docker Desktop and completing its first-run setup.
+
+1. Download Docker Desktop from <https://www.docker.com/products/docker-desktop/> and install.
+2. Enable the "WSL 2 backend" during installation (required for GPU pass-through).
+3. After installation, open Docker Desktop once so it finalises the WSL integration.  Then open a **new** PowerShell / Git Bash window and run:
+   ```powershell
+   docker --version
+   ```
+   You should see something like `Docker version 26.1.0, build 12345`.
+4. To enable GPU support install the **NVIDIA Container Toolkit** (<https://github.com/NVIDIA/nvidia-docker>) and check Docker Desktop → Settings → Resources → GPU.
 
 ## Contributing
 
@@ -515,6 +610,110 @@ npm run deploy-validate -- --check-security --format=md
 npm run gas-report -- --deployments=./deployments
 ```
 
+## Account Abstraction (AA) Testing
+
+Audityzer provides comprehensive testing capabilities for ERC-4337 (Account Abstraction) implementations, including smart contract accounts, bundlers, and paymasters.
+
+### Quick Start with AA Testing
+
+```bash
+# Initialize AA test templates
+audityzer init -t aa
+
+# Run basic AA tests with Pimlico bundler
+audityzer run your-aa-project --aa --pimlico --report
+
+# Run with a different bundler
+audityzer run your-aa-project --aa --bundler stackup
+
+# Generate interactive dashboard for results
+audityzer run your-aa-project --aa --bundler pimlico --dashboard
+```
+
+### AA Test Templates
+
+We provide several test templates for different AA testing scenarios:
+
+1. **UserOperation Validation**: Tests for malformed UserOperation inputs (`aa-userop-basic.test.js`)
+2. **Paymaster Security**: Tests for paymaster gas sponsorship abuse (`aa-paymaster-gas.test.js`)
+3. **Bundler Attack Simulation**: Tests for bundler queue poisoning attacks (`aa-bundler-attack.test.js`)
+4. **Multi-Bundler Tests**: Tests compatibility across different bundler implementations (`aa-multi-bundler.test.js`)
+
+### Visual Flow Diagrams
+
+Generate visual diagrams of UserOperation execution flow:
+
+```bash
+# Create a UserOperation JSON file (example-userop.json)
+# Then generate a flow diagram
+audityzer aa --flow example-userop.json --output ./reports
+```
+
+This generates interactive HTML diagrams showing:
+
+- Step-by-step execution flow of UserOperations
+- Gas consumption at each stage
+- Potential failure points
+- Timing of execution steps
+
+### Implementation Benchmarks
+
+Compare performance metrics across different AA implementations:
+
+```bash
+# Run benchmark comparison between different AA implementations
+audityzer benchmark --aa
+
+# Specify custom output directory
+audityzer benchmark --aa --results-dir ./my-benchmarks
+```
+
+The benchmark compares:
+
+- Gas efficiency across different operations
+- Security validation robustness
+- Account creation costs
+- Bundler compatibility
+- Signature verification overhead
+
+### Interactive Dashboard
+
+Generate an interactive dashboard for AA test results:
+
+```bash
+# Generate dashboard from test results
+audityzer aa --dashboard ./results.json --output ./reports
+
+# Use dark theme
+audityzer aa --dashboard ./results.json --theme dark
+```
+
+The dashboard includes:
+
+- Visual representation of test results
+- Security vulnerability breakdown
+- Gas usage analytics
+- Bundler compatibility matrix
+- Detailed test reports with filtering options
+
+### Multi-Bundler Integration
+
+Test AA implementations against multiple bundlers including:
+
+- Pimlico
+- Stackup
+- Alchemy
+- Etherspot
+- Local bundlers
+
+```bash
+# Test with specific bundler
+audityzer run your-aa-project --aa --bundler alchemy
+
+# Compare multiple bundlers (use the template directly)
+npx playwright test templates/aa-tests/aa-multi-bundler.test.js
+```
+
 ## Cross-Chain Bridge Testing
 
 Test the security of cross-chain bridges:
@@ -577,3 +776,59 @@ npm run install:openai
 ```
 
 These scripts handle compatibility conflicts and use the correct version and flags for installation.
+
+## Interactive Visualizations
+
+Audityzer now provides enhanced visualization capabilities for test results, especially for Account Abstraction testing:
+
+```bash
+# Generate a dashboard visualization from test results
+audityzer visualize results.json --type dashboard --output ./reports/dashboards
+
+# Generate a dashboard with custom theme
+audityzer visualize results.json --theme dark --title "My AA Test Results"
+
+# Generate dashboard directly during testing
+audityzer run myapp --aa --addon social-recovery --dashboard --theme dark
+```
+
+### Visualization Features
+
+- **Interactive Dashboards**: Generate HTML dashboards with detailed test results
+- **Gas Usage Charts**: Visualize gas consumption across different operations
+- **Vulnerability Breakdown**: Visual representation of detected vulnerabilities by severity
+- **Test Result Summaries**: Clear visualization of test pass/fail rates
+- **Addon-Specific Visualizations**: Specialized visualizations for different AA features
+
+### Integration with CI/CD
+
+Visualization outputs can be saved as artifacts in your CI pipeline:
+
+```yaml
+# GitHub workflow example
+- name: Run AA tests with visualization
+  run: audityzer run myapp --aa --dashboard --ci
+
+- name: Upload dashboard artifacts
+  uses: actions/upload-artifact@v2
+  with:
+    name: test-dashboards
+    path: reports/dashboards/
+```
+
+### Customization
+
+You can customize visualizations by editing the theme settings:
+
+```javascript
+// Custom theme configuration
+const dashboardGenerator = new AADashboardGenerator({
+  theme: 'dark',
+  branding: {
+    primaryColor: '#3498db',
+    secondaryColor: '#2ecc71',
+    textColor: '#ffffff',
+    backgroundColor: '#2c3e50'
+  }
+});
+```

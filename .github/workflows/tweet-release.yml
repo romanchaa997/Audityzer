@@ -1,8 +1,18 @@
-name: Tweet on Release
+name: Tweet on Release (Disabled)
 
 on:
-  release:
-    types: [published]
+  # Workflow disabled - uncomment triggers below if needed
+  # release:
+  #   types: [published]
+  # schedule:
+  #   # Staggered posts at 00:00, 06:00, 12:00, 18:00 UTC daily
+  #   - cron: '0 0 * * *'
+  #   - cron: '0 6 * * *'
+  #   - cron: '0 12 * * *'
+  #   - cron: '0 18 * * *'
+  
+  # Empty workflow_dispatch allows manual triggering if needed
+  workflow_dispatch:
 
 jobs:
   tweet:
@@ -28,12 +38,13 @@ jobs:
           THREAD=$(cat dist/social/twitter-thread.txt | sed -z 's/\n/\\n/g')
           echo "thread=$THREAD" >> $GITHUB_OUTPUT
 
-      - name: Post tweets
-        uses: Eomm/gh-twitter-action@v1
-        with:
-          msg: ${{ steps.thread.outputs.thread }}
-        env:
-          TWITTER_APP_KEY: ${{ secrets.TWITTER_APP_KEY }}
-          TWITTER_APP_SECRET: ${{ secrets.TWITTER_APP_SECRET }}
-          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }} 
+      # Twitter posting disabled
+      # - name: Post tweets
+      #   uses: Eomm/why-don-t-you-tweet@v2
+      #   with:
+      #     tweet-message: ${{ steps.thread.outputs.thread }}
+      #   env:
+      #     TWITTER_CONSUMER_API_KEY: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
+      #     TWITTER_CONSUMER_API_SECRET: ${{ secrets.TWITTER_CONSUMER_API_SECRET }}
+      #     TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+      #     TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }} 

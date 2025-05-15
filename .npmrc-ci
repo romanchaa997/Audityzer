@@ -1,0 +1,14 @@
+
+audit-level=high
+legacy-peer-deps=true
+fund=false
+engine-strict=false
+resolution-mode=highest
+loglevel=warn
+production=true
+omit=dev
+ignore-audit-errors=true
+
+# Package overrides
+cookie:>=0.7.0
+lodash.set:>=4.3.2

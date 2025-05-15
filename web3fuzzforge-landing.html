@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3FuzzForge - ERC-4337 Security Testing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3B48DF;
+            --primary-dark: #2A37CE;
+            --secondary: #3CDDBF;
+            --dark: #0F172A;
+            --light: #F8FAFC;
+            --gray: #64748B;
+            --code-bg: #1E293B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        header {
+            padding: 2rem 0;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(60, 221, 191, 0.1) 0%, rgba(60, 221, 191, 0) 70%);
+            z-index: 0;
+            animation: pulse 15s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+        }
+        
+        .gradient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--primary);
+            top: -250px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+        
+        .blob-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--secondary);
+            bottom: -300px;
+            right: -200px;
+            animation-delay: -5s;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translate(0px, 0px);
+            }
+            25% {
+                transform: translate(20px, -20px);
+            }
+            50% {
+                transform: translate(0px, 0px);
+            }
+            75% {
+                transform: translate(-20px, 20px);
+            }
+            100% {
+                transform: translate(0px, 0px);
+            }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+            background: linear-gradient(90deg, #fff, var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 8s infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        h1 span {
+            color: var(--secondary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1 span:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            background: rgba(60, 221, 191, 0.2);
+            bottom: 5px;
+            left: 0;
+            z-index: -1;
+            transform: skewX(-15deg);
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--gray);
+            max-width: 650px;
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            animation: cardFadeIn 0.8s backwards;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+        
+        .feature-card:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .feature-card:nth-child(3) {
+            animation-delay: 0.5s;
+        }
+        
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feature-card:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary), transparent);
+            bottom: 0;
+            left: 0;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-card:hover:after {
+            transform: scaleX(1);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .card-icon:before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(60, 221, 191, 0.1);
+            border-radius: 50%;
+            z-index: -1;
+            left: -5px;
+            top: -5px;
+            animation: pulsate 2s infinite;
+        }
+        
+        @keyframes pulsate {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.2;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+        }
+        
+        .code-block {
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .code-block:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(60, 221, 191, 0.1) 0%, rgba(60, 221, 191, 0) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+        
+        .code-block:hover:before {
+            transform: translateX(0);
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .code-line {
+            display: block;
+            line-height: 1.8;
+        }
+        
+        .prompt {
+            color: var(--gray);
+        }
+        
+        .command {
+            color: var(--secondary);
+        }
+        
+        .typing-animation {
+            display: inline-block;
+            width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 2s steps(40, end) forwards;
+            animation-delay: 0.5s;
+        }
+        
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+        
+        .cta-container {
+            display: flex;
+            gap: 1rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+        
+        .cta-btn {
+            padding: 0.8rem 1.6rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-btn svg {
+            transition: transform 0.3s ease;
+        }
+        
+        .cta-btn:hover svg {
+            transform: scale(1.2);
+        }
+        
+        .cta-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .cta-primary:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .cta-primary:hover:after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .cta-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .cta-secondary {
+            background-color: transparent;
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .cta-secondary:hover {
+            background-color: rgba(60, 221, 191, 0.1);
+            box-shadow: 0 0 15px rgba(60, 221, 191, 0.3);
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .section-title:before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 4px;
+            background: var(--secondary);
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .roadmap {
+            margin: 6rem 0;
+            position: relative;
+        }
+        
+        .roadmap:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: calc(50% - 1px);
+            width: 2px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .roadmap-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .roadmap-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+        
+        .roadmap-content {
+            width: 45%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .roadmap-content:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .roadmap-content:after {
+            content: '';
+            position: absolute;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            z-index: 1;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .roadmap-content:hover:after {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(60, 221, 191, 0.5);
+        }
+        
+        .roadmap-item:nth-child(odd) .roadmap-content:after {
+            left: calc(100% + 20px);
+        }
+        
+        .roadmap-item:nth-child(even) .roadmap-content:after {
+            right: calc(100% + 20px);
+        }
+        
+        .roadmap-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--secondary);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 4rem 0 2rem;
+            color: var(--gray);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        
+        .footer-link:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--secondary);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--light);
+        }
+        
+        .footer-link:hover:after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .roadmap:before {
+                left: 20px;
+            }
+            
+            .roadmap-item,
+            .roadmap-item:nth-child(odd) {
+                flex-direction: row;
+            }
+            
+            .roadmap-content {
+                width: 85%;
+                margin-left: auto;
+            }
+            
+            .roadmap-item .roadmap-content:after,
+            .roadmap-item:nth-child(odd) .roadmap-content:after,
+            .roadmap-item:nth-child(even) .roadmap-content:after {
+                left: -30px;
+                right: auto;
+            }
+            
+            .cta-container {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-blob blob-1"></div>
+    <div class="gradient-blob blob-2"></div>
+    
+    <header>
+        <div class="container">
+            <div class="logo"><span class="logo-icon">🔐</span> Web3FuzzForge</div>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Fuzz ERC-4337 Like a Pro — <span>Auto-Generated</span> Smart Account Security Tests</h1>
+                <p class="subtitle">Zero-config security tests for UserOperations, Paymasters, Bundlers, and everything Account Abstraction. One CLI flag. Instant fuzz. Open source.</p>
+                
+                <div class="cta-container">
+                    <a href="https://github.com/username/web3fuzzforge" class="cta-btn cta-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                        GitHub
+                    </a>
+                    <a href="#try-cli" class="cta-btn cta-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"></polyline><path d="M20 4v7a4 4 0 0 1-4 4H4"></path></svg>
+                        Try CLI
+                    </a>
+                    <a href="https://github.com/sponsors/username" class="cta-btn cta-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                        Sponsor
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="container">
+        <div class="features">
+            <div class="feature-card">
+                <div class="card-icon">🔍</div>
+                <h3>Test UserOperations</h3>
+                <p>Automatically test UserOperation validation, signature verification, and nonce handling with extensive fuzzing templates.</p>
+            </div>
+            <div class="feature-card">
+                <div class="card-icon">💰</div>
+                <h3>Paymaster Security</h3>
+                <p>Find vulnerabilities in paymasters including validation flaws, gas griefing attacks, and sponsorship abuse.</p>
+            </div>
+            <div class="feature-card">
+                <div class="card-icon">🧩</div>
+                <h3>Bundler Resilience</h3>
+                <p>Test bundler implementations against queue poisoning, priority manipulation, and spamming attacks.</p>
+            </div>
+        </div>
+        
+        <div id="try-cli">
+            <h2 class="section-title">How It Works</h2>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode()">Copy</button>
+                <span class="code-line">
+                    <span class="prompt">$</span> 
+                    <span class="command typing-animation">npx web3fuzzforge --aa --report</span>
+                </span>
+            </div>
+            <p style="text-align: center; margin-bottom: 3rem;">Just one command. That's it. We handle the rest.</p>
+        </div>
+    </section>
+    
+    <section class="container roadmap">
+        <h2 class="section-title">Coming Soon</h2>
+        
+        <div class="roadmap-item">
+            <div class="roadmap-content">
+                <div class="roadmap-title">Social Recovery</div>
+                <p>Generate tests for social recovery implementations with <code>--aa --addon social-recovery</code></p>
+            </div>
+        </div>
+        
+        <div class="roadmap-item">
+            <div class="roadmap-content">
+                <div class="roadmap-title">Counterfactual Wallets</div>
+                <p>Test create2-based deployments with <code>--aa --addon counterfactual</code></p>
+            </div>
+        </div>
+        
+        <div class="roadmap-item">
+            <div class="roadmap-content">
+                <div class="roadmap-title">Session Keys</div>
+                <p>Secure session key implementations with <code>--aa --addon session-keys</code></p>
+            </div>
+        </div>
+        
+        <div class="roadmap-item">
+            <div class="roadmap-content">
+                <div class="roadmap-title">Token Gating</div>
+                <p>Verify token-gated operations with <code>--aa --addon token-gating</code></p>
+            </div>
+        </div>
+        
+        <div class="roadmap-item">
+            <div class="roadmap-content">
+                <div class="roadmap-title">CI Pipeline Integration</div>
+                <p>Add <code>--ci</code> flag to output JSON verdicts for easy integration with CI/CD systems</p>
+            </div>
+        </div>
+        
+        <div class="roadmap-item">
+            <div class="roadmap-content">
+                <div class="roadmap-title">Pimlico API Integration</div>
+                <p>Use <code>--pimlico-connect</code> to fetch live gas fee suggestions and EntryPoint metadata</p>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#" class="footer-link">Documentation</a>
+                <a href="#" class="footer-link">GitHub</a>
+                <a href="#" class="footer-link">Twitter</a>
+                <a href="#" class="footer-link">Discord</a>
+            </div>
+            <p>© 2023 Web3FuzzForge. Open-source security testing for ERC-4337.</p>
+        </div>
+    </footer>
+    
+    <script>
+        function copyCode() {
+            const code = "npx web3fuzzforge --aa --report";
+            navigator.clipboard.writeText(code)
+                .then(() => {
+                    const copyBtn = document.querySelector('.copy-btn');
+                    copyBtn.textContent = "Copied!";
+                    setTimeout(() => {
+                        copyBtn.textContent = "Copy";
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        }
+        
+        // Roadmap animation with Intersection Observer
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const roadmapItems = document.querySelectorAll('.roadmap-item');
+            roadmapItems.forEach(item => {
+                observer.observe(item);
+            });
+        });
+    </script>
+</body>
+</html> 

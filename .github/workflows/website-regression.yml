@@ -32,3 +32,27 @@ jobs:
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run website:test
+
+      - name: Create GitHub issue on Lighthouse regression
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = `🚨 Lighthouse regression detected in ${context.sha}`;
+            const body = `Automatic website-regression workflow failed due to Lighthouse scores below the required thresholds (95/90).\n\nRefer to the failed workflow run for trace artifacts.`;
+            const { owner, repo } = context.repo;
+            const search = await github.search.issuesAndPullRequests({
+              q: `repo:${owner}/${repo} in:title "${title}"`
+            });
+            if (search.data.total_count === 0) {
+              await github.issues.create({
+                owner,
+                repo,
+                title,
+                body,
+                labels: ['lighthouse', 'blocking']
+              });
+            } else {
+              console.log('Lighthouse regression issue already exists');
+            }

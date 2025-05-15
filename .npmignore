@@ -82,4 +82,48 @@ new-landing.html
 simple-landing.html
 index.html
 project-verification-report.md
-layerzero-discord-pitch.txt 
+layerzero-discord-pitch.txt
+
+# Development files
+.github/
+.vscode/
+.cursor/
+automation/
+autotests/
+checklists/
+darkforest-v0.6/
+docs/
+examples/
+landing-v2/
+playwright-report/
+playwright-tests/
+reports/
+test-results/
+test-output/
+test-user-data-dir/
+tests/
+Web3FuzzForge/
+
+# Config files not needed in the final package
+.eslintrc.cjs
+.eslintrc.json
+.prettierrc
+.lighthouserc.json
+.gitlab-ci.yml
+
+# Test and dev artifacts
+*.log
+*.tgz
+*.zip
+*.gz
+
+# Build directories
+dist/
+coverage/
+node_modules/
+
+# Ignore test files
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts 

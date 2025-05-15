@@ -1,309 +1,211 @@
 /**
- * Web3FuzzForge Visualization Demo
- *
- * This script demonstrates the visualization capabilities of Web3FuzzForge.
- * It generates:
- * 1. Test results dashboard
- * 2. Transaction flow visualization
- * 3. Interactive debugging view
+ * Simple Visualization Demo Script
+ * 
+ * This script demonstrates how to generate a simple visualization dashboard
+ * for Account Abstraction test results.
  */
 
-const { test } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
-// Import visualization components
-const {
-  DashboardRenderer,
-  TransactionFlowVisualizer,
-  DebugTools,
-  generateDashboard,
-  visualizeTransactionFlow,
-} = require('../src/core/visualization');
+// Create output directory if it doesn't exist
+const outputDir = path.resolve(__dirname, '../reports/dashboards');
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
 
-// Sample test results data
-const sampleTestResults = {
-  summary: {
-    totalTests: 42,
-    passed: 37,
-    failed: 5,
-    duration: '2m 15s',
+// Sample test results
+const results = {
+  success: true,
+  timestamp: new Date().toISOString(),
+  chain: 'ethereum',
+  target: 'example-dapp',
+  addon: 'social-recovery',
+  tests: {
+    'social-recovery': {
+      success: true,
+      tests: {
+        'setup': { success: true, notes: 'Successfully set up guardians' },
+        'recovery': { success: true, notes: 'Successfully executed recovery flow' },
+        'thresholdChange': { success: false, notes: 'Failed to change threshold', error: 'Insufficient permissions' },
+        'guardianManagement': { success: true, notes: 'Successfully managed guardians' }
+      },
+      summary: { pass: 3, total: 4, passRate: '75%' }
+    }
   },
   vulnerabilities: [
-    {
-      id: 'VULN-001',
-      title: 'Unprotected Wallet Connection',
-      description:
-        'The wallet connection function does not properly validate the origin, which could lead to phishing attacks.',
-      severity: 'High',
-      location: 'src/wallet-connector.js:45',
-    },
-    {
-      id: 'VULN-002',
-      title: 'Unchecked Transaction Parameters',
-      description:
-        'Transaction parameters are not properly validated before sending to the wallet.',
-      severity: 'Critical',
-      location: 'src/transaction-handler.js:78',
-    },
-    {
-      id: 'VULN-003',
-      title: 'Insufficient Error Handling',
-      description: 'Error cases from wallet connection are not properly handled.',
-      severity: 'Medium',
-      location: 'src/error-handler.js:23',
-    },
+    { type: 'RECOVERY_BYPASS', severity: 'high', description: 'Recovery function does not use a timelock' },
+    { type: 'THRESHOLD_VERIFICATION', severity: 'medium', description: 'Threshold verification has an off-by-one error' },
+    { type: 'GUARDIAN_REMOVAL', severity: 'low', description: 'Removed guardians can still approve recovery' }
   ],
   recommendations: [
-    {
-      title: 'Implement Origin Validation',
-      description: 'Add proper origin validation to prevent phishing attacks.',
-      priority: 'High',
-      code: `// Add this to wallet-connector.js
-function validateOrigin(origin) {
-  const allowedOrigins = ['https://yourdapp.com', 'https://app.yourdapp.com'];
-  return allowedOrigins.includes(origin);
-}`,
-    },
-    {
-      title: 'Add Transaction Parameter Validation',
-      description: 'Implement thorough validation for all transaction parameters.',
-      priority: 'Critical',
-      code: `// Add validation to transaction-handler.js
-function validateTransactionParams(params) {
-  if (!params.to || !ethers.utils.isAddress(params.to)) {
-    throw new Error('Invalid recipient address');
-  }
-  
-  if (params.value && !ethers.BigNumber.from(params.value).gte(0)) {
-    throw new Error('Invalid transaction value');
-  }
-  
-  // Additional validation...
-}`,
-    },
-  ],
-  coverage: {
-    wallets: 85,
-    transactions: 72,
-    networks: 90,
-    errorHandlers: 65,
-  },
-  timeline: [
-    { timestamp: Date.now() - 135000, event: 'Test Suite Started' },
-    { timestamp: Date.now() - 120000, event: 'Wallet Connection Tests Started' },
-    { timestamp: Date.now() - 90000, event: 'Transaction Tests Started' },
-    { timestamp: Date.now() - 60000, event: 'Error Handling Tests Started' },
-    { timestamp: Date.now() - 30000, event: 'Network Switching Tests Started' },
-    { timestamp: Date.now() - 5000, event: 'Test Suite Completed' },
-  ],
+    'Implement a timelock for recovery operations',
+    'Fix threshold verification logic',
+    'Add a delay period before guardian removals take effect'
+  ]
 };
 
-// Sample transaction flow data
-const sampleTransactionFlow = {
-  title: 'Token Transfer Flow',
-  description: 'Flow of a token transfer transaction from initiation to confirmation',
-  steps: [
-    {
-      name: 'Connect Wallet',
-      description: 'User connects MetaMask wallet to the dApp',
-      status: 'success',
-    },
-    {
-      name: 'Approve Token',
-      description: 'User approves the token for transfer',
-      status: 'success',
-    },
-    {
-      name: 'Initiate Transfer',
-      description: 'User initiates token transfer',
-      status: 'success',
-    },
-    {
-      name: 'Sign Transaction',
-      description: 'User signs the transaction in MetaMask',
-      status: 'success',
-    },
-    {
-      name: 'Submit Transaction',
-      description: 'Transaction submitted to network',
-      status: 'warning',
-      warning: 'High gas price detected',
-    },
-    {
-      name: 'Confirm Transaction',
-      description: 'Transaction confirmed on the blockchain',
-      status: 'error',
-      error: 'Confirmation took longer than expected (30+ seconds)',
-    },
-  ],
-  duration: '45.2s',
-  gasUsed: '85,420',
-  networkInfo: {
-    name: 'Ethereum Mainnet',
-    chainId: 1,
-    blockNumber: 19250348,
-  },
-};
+// Available themes
+const themes = ['light', 'dark'];
 
-// Test: Generate test results dashboard
-test('Generate test results dashboard', async () => {
-  // Create output directory if it doesn't exist
-  const outputDir = path.join(__dirname, '../reports/dashboards');
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
+// Generate dashboards
+console.log('Generating visualizations...');
 
-  // Create dashboard renderer
-  const dashboardRenderer = new DashboardRenderer({
-    outputDir,
-    darkMode: true,
-    exportFormats: ['html', 'svg', 'png'],
-  });
+for (const theme of themes) {
+  console.log(`Creating ${theme} theme dashboard...`);
+  
+  // Color settings based on theme
+  const colors = theme === 'dark' 
+    ? { bg: '#1a1a1a', text: '#ffffff', primary: '#3498db', success: '#2ecc71', danger: '#e74c3c' }
+    : { bg: '#ffffff', text: '#333333', primary: '#2980b9', success: '#27ae60', danger: '#c0392b' };
+  
+  // Generate simple HTML dashboard
+  const html = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <title>Account Abstraction Test Dashboard (${theme})</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: ${colors.bg};
+        color: ${colors.text};
+      }
+      
+      h1, h2, h3 {
+        color: ${colors.primary};
+      }
+      
+      .card {
+        background-color: ${theme === 'dark' ? '#2c2c2c' : '#f8f9fa'};
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      
+      .success { color: ${colors.success}; }
+      .failure { color: ${colors.danger}; }
+      
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      
+      table th,
+      table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid ${theme === 'dark' ? '#444' : '#ddd'};
+      }
+      
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        color: white;
+        font-size: 12px;
+      }
+      
+      .badge-high { background-color: #e74c3c; }
+      .badge-medium { background-color: #f39c12; }
+      .badge-low { background-color: #3498db; }
+      
+      footer {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid ${theme === 'dark' ? '#444' : '#ddd'};
+        text-align: center;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Account Abstraction Test Dashboard</h1>
+    <p>Generated on: ${new Date().toLocaleString()}</p>
+    
+    <div class="card">
+      <h2>Test Summary</h2>
+      <p><strong>Target:</strong> ${results.target}</p>
+      <p><strong>Chain:</strong> ${results.chain}</p>
+      <p><strong>Status:</strong> <span class="${results.success ? 'success' : 'failure'}">${results.success ? 'Passed' : 'Failed'}</span></p>
+      <p><strong>Addon:</strong> ${results.addon}</p>
+    </div>
+    
+    <div class="card">
+      <h2>Test Results</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Object.entries(results.tests['social-recovery'].tests).map(([test, data]) => `
+            <tr>
+              <td>${test}</td>
+              <td><span class="${data.success ? 'success' : 'failure'}">${data.success ? '✓ Pass' : '✗ Fail'}</span></td>
+              <td>${data.notes}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="card">
+      <h2>Vulnerabilities</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Severity</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${results.vulnerabilities.map(vuln => `
+            <tr>
+              <td>${vuln.type}</td>
+              <td><span class="badge badge-${vuln.severity}">${vuln.severity}</span></td>
+              <td>${vuln.description}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="card">
+      <h2>Recommendations</h2>
+      <ul>
+        ${results.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+      </ul>
+    </div>
+    
+    <footer>
+      Generated by Audityzer Dashboard Demo | ${new Date().getFullYear()}
+    </footer>
+  </body>
+  </html>
+  `;
+  
+  // Write the HTML file
+  const htmlPath = path.join(outputDir, `dashboard-${theme}.html`);
+  fs.writeFileSync(htmlPath, html);
+  
+  console.log(`Dashboard created: ${htmlPath}`);
+}
 
-  // Generate dashboard
-  const dashboardPath = await dashboardRenderer.generateTestResultsDashboard(
-    sampleTestResults,
-    'visualization-demo-dashboard'
-  );
+// Save the results as JSON
+const jsonPath = path.join(outputDir, 'test-results.json');
+fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2));
+console.log(`Results JSON saved: ${jsonPath}`);
 
-  console.log(`Dashboard generated at: ${dashboardPath}`);
-
-  // Also demonstrate the simplified function
-  const simpleDashboardPath = await generateDashboard(sampleTestResults, {
-    outputDir,
-    outputFilename: 'simple-visualization-demo-dashboard',
-    darkMode: false,
-  });
-
-  console.log(`Simple dashboard generated at: ${simpleDashboardPath}`);
-});
-
-// Test: Generate transaction flow visualization
-test('Generate transaction flow visualization', async () => {
-  // Create output directory if it doesn't exist
-  const outputDir = path.join(__dirname, '../reports/dashboards');
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-
-  // Create flow visualizer
-  const flowVisualizer = new TransactionFlowVisualizer({
-    outputDir,
-    darkMode: true,
-  });
-
-  // Generate flow visualization
-  const flowPath = await flowVisualizer.visualizeFlow(
-    sampleTransactionFlow,
-    'visualization-demo-flow'
-  );
-
-  console.log(`Flow visualization generated at: ${flowPath}`);
-
-  // Also demonstrate the simplified function
-  const simpleFlowPath = await visualizeTransactionFlow(sampleTransactionFlow, {
-    outputDir,
-    outputFilename: 'simple-visualization-demo-flow',
-    darkMode: false,
-  });
-
-  console.log(`Simple flow visualization generated at: ${simpleFlowPath}`);
-});
-
-// Test: Generate debug visualization
-test('Generate debug visualization', async () => {
-  // Create debug tools instance
-  const debugTools = new DebugTools({
-    outputDir: path.join(__dirname, '../reports/debugger'),
-    captureScreenshots: true,
-    logLevel: 'verbose',
-  });
-
-  // Start debug session
-  await debugTools.startSession('debug-demo-session');
-
-  // Log some debug events
-  await debugTools.logEvent('Wallet Connection', 'Started wallet connection process');
-  await debugTools.logEvent('Wallet Connection', 'MetaMask detected', 'info');
-  await debugTools.logEvent('Wallet Connection', 'Connection successful', 'success');
-
-  await debugTools.logEvent('Transaction', 'Started transaction preparation');
-  await debugTools.logEvent('Transaction', 'Gas estimation successful', 'info');
-
-  // Log an error with stack trace
-  try {
-    throw new Error('Transaction parameter validation failed');
-  } catch (error) {
-    await debugTools.logError('Transaction', error);
-  }
-
-  // Add custom data
-  await debugTools.addData('Transaction Parameters', {
-    from: '0x1234...5678',
-    to: '0xabcd...ef01',
-    value: '0.1 ETH',
-    gasLimit: 21000,
-    chainId: 1,
-  });
-
-  // End debug session and generate report
-  const reportPath = await debugTools.endSession();
-  console.log(`Debug report generated at: ${reportPath}`);
-});
-
-// This test demonstrates how to use the visualization tools during actual test runs
-test('Integrated visualization example with wallet testing', async ({ page }) => {
-  // Create debug tools for this test
-  const debugTools = new DebugTools({
-    outputDir: path.join(__dirname, '../reports/debugger'),
-    captureScreenshots: true,
-    logLevel: 'verbose',
-  });
-
-  // Start debug session
-  await debugTools.startSession('wallet-test-debug');
-
-  try {
-    // Your actual test code would go here...
-    await debugTools.logEvent('Test', 'Navigating to test dApp');
-    // await page.goto('https://example.com');
-
-    await debugTools.logEvent('Test', 'Clicking connect wallet button');
-    // await page.click('#connect-wallet');
-
-    await debugTools.logEvent('Test', 'Wallet popup detected', 'info');
-    // Handle wallet popup...
-
-    // Simulate some test activity
-    await debugTools.logEvent('Test', 'Connected to wallet', 'success');
-    await debugTools.addData('Wallet Info', {
-      address: '0x1234...5678',
-      chainId: 1,
-      balance: '1.5 ETH',
-    });
-
-    // At the end of your test, you would have real transaction flow data to visualize
-    const flowData = {
-      /* This would be real data from your test */
-      title: 'Token Transfer Flow (from test)',
-      steps: [
-        { name: 'Connect Wallet', status: 'success' },
-        { name: 'Approve Token', status: 'success' },
-        { name: 'Transfer Token', status: 'success' },
-      ],
-    };
-
-    // Generate flow visualization
-    const flowVisualizer = new TransactionFlowVisualizer();
-    await flowVisualizer.visualizeFlow(flowData, 'test-flow-visualization');
-  } catch (error) {
-    // Log any errors
-    await debugTools.logError('Test', error);
-    throw error;
-  } finally {
-    // Always end the debug session
-    const reportPath = await debugTools.endSession();
-    console.log(`Debug report generated at: ${reportPath}`);
-  }
-});
+console.log('\nVisualization demo completed successfully!');
+console.log(`You can view the dashboards in: ${outputDir}`);
+console.log('Light theme: ' + path.join(outputDir, 'dashboard-light.html'));
+console.log('Dark theme: ' + path.join(outputDir, 'dashboard-dark.html'));

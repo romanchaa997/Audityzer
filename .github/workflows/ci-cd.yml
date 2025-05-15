@@ -21,6 +21,11 @@ on:
         required: false
         default: true
         type: boolean
+      release_dry_run:
+        description: 'Dry run (skip publish & npm release job)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   lint:
@@ -221,7 +226,7 @@ jobs:
     name: Publish Release
     runs-on: ubuntu-latest
     needs: [build, docker_build]
-    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && (github.event.inputs.release_dry_run != 'true')
     
     steps:
       - name: Checkout Repository

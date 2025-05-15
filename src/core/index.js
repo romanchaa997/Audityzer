@@ -34,6 +34,15 @@ async function run(options = {}) {
   if (!options.tests || !options.tests.length) {
     options.tests = ['wallet', 'bridge', 'transaction'];
   }
+
+  // Handle Account Abstraction mode
+  if (options.aa || options.pimlico) {
+    console.log('Running in Account Abstraction mode...');
+    // If AA mode is specified, include AA tests
+    if (!options.tests.includes('aa')) {
+      options.tests.push('aa');
+    }
+  }
   
   // Run tests in order
   const results = {
@@ -68,6 +77,11 @@ async function run(options = {}) {
         break;
       case 'ai':
         testResult = await ai.runTests(options);
+        break;
+      case 'aa':
+        // Load the AA testing module dynamically
+        const aa = require('./account-abstraction');
+        testResult = await aa.runTests(options);
         break;
       default:
         console.warn(`Unknown test type: ${testType}`);

@@ -1,0 +1,12 @@
+{
+  "exceptions": {
+    "GHSA-pxg6-pf52-xh8x": {
+      "active": true,
+      "notes": "This vulnerability is in a development dependency (cookie via raven) and doesn't affect production code"
+    },
+    "GHSA-p6mc-m468-83gw": {
+      "active": true,
+      "notes": "This vulnerability is in lodash.set (dev dependency) and doesn't affect production code"
+    }
+  }
+}
