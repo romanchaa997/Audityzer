@@ -11,7 +11,7 @@
 DevForge is an intelligent development server with automatic port management, specifically designed for Web3 security testing environments. It eliminates port conflicts, provides health monitoring endpoints, and delivers robust process management across all platforms.
 
 <p align="center">
-  <img src="https://github.com/username/devforge/raw/main/assets/img/devforge-logo.svg" width="250" alt="DevForge Logo">
+  <img src="https://github.com/romanchaa997/devforge/raw/main/assets/img/devforge-logo.svg" width="250" alt="DevForge Logo">
 </p>
 
 ## Installation
