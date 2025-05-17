@@ -260,7 +260,7 @@ jobs:
       # Upload coverage report
       - name: Upload Coverage Report
         if: ${{ github.event.inputs.test_coverage != 'false' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: coverage-report
           path: coverage
@@ -304,7 +304,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Upload Bridge Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: bridge-security-report
           path: bridge-security.json
@@ -338,7 +338,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Upload DeFi Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: defi-security-report
           path: defi-security.json
