@@ -32,12 +32,8 @@ module.exports = {
     [
       'jest-junit',
       {
-        outputDirectory: './reports',
+        outputDirectory: './test-results',
         outputName: 'junit.xml',
-        classNameTemplate: '{classname}',
-        titleTemplate: '{title}',
-        ancestorSeparator: ' › ',
-        suiteNameTemplate: '{filepath}',
       },
     ],
   ],

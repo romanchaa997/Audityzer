@@ -1,33 +1,30 @@
-codecov:
-  require_ci_to_pass: yes
-  repository: romanchaa997/Web3FuzzForge
+name: CI
 
-coverage:
-  precision: 2
-  round: down
-  range: '70...100'
+on: [push, pull_request]
 
-  status:
-    project:
-      default:
-        target: auto
-        threshold: 5%
-    patch:
-      default:
-        target: auto
-        threshold: 10%
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-parsers:
-  javascript:
-    enable_partials: yes
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
-comment:
-  layout: 'reach, diff, flags, files'
-  behavior: default
-  require_changes: false
+      - name: Install dependencies
+        run: npm install
 
-ignore:
-  - 'examples/**/*'
-  - 'docs/**/*'
-  - 'docs-site/**/*'
-  - 'media/**/*'
+      - name: Run tests and generate coverage report
+        run: npx jest --coverage
+
+      - name: Install Codecov CLI
+        run: |
+          curl -Os https://cli.codecov.io/latest/windows/codecov.exe
+          chmod +x codecov.exe
+          mv codecov.exe /usr/local/bin/codecov
+
+      - name: Upload coverage to Codecov
+        run: ./codecov -t ${{ secrets.7eb6aaf4-9247-480d-9286-c1ff12a83dd6 }} -f coverage/lcov.info
