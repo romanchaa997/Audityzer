@@ -42,7 +42,7 @@ reports/
 test-output/
 test-user-data-dir/
 *.tgz
-Web3FuzzForge-*.tgz
+Audityzer-*.tgz
 playwright-report/
 test-results/
 debug-logs/

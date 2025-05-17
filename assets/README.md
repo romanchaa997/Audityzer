@@ -1,10 +1,10 @@
-# Web3FuzzForge Assets
+# Audityzer Assets
 
-This directory contains visual assets for the Web3FuzzForge project.
+This directory contains visual assets for the Audityzer project.
 
 ## Important Notice
 
-The current images and assets in this directory are placeholders. You should replace them with actual screenshots, diagrams, and visualizations of your Web3FuzzForge implementation.
+The current images and assets in this directory are placeholders. You should replace them with actual screenshots, diagrams, and visualizations of your Audityzer implementation.
 
 ## Directories
 
@@ -14,7 +14,7 @@ The current images and assets in this directory are placeholders. You should rep
 
 ## How to Replace Placeholder Images
 
-1. Create actual screenshots of your Web3FuzzForge implementation
+1. Create actual screenshots of your Audityzer implementation
 2. Create diagrams showing your security testing workflows
 3. Replace the placeholder files with your actual images while keeping the same filenames
 4. Ensure images are web-optimized (compressed JPG/PNG files, optimized GIFs)
@@ -35,7 +35,7 @@ create-demo-gif.bat
 
 At minimum, you should replace:
 
-1. `img/web3fuzzforge-banner.png` - Project banner/logo
+1. `img/Audityzer-banner.png` - Project banner/logo
 2. `demo/demo.gif` - Main demo animation
 3. `img/test-interface-example.png` - Screenshot of the testing interface
 4. Key visualization diagrams:
@@ -52,7 +52,7 @@ At minimum, you should replace:
 
 For the landing page to display correctly, please add the following files:
 
-1. `img/web3fuzzforge-banner.png` - Banner image for OpenGraph and Twitter previews
+1. `img/Audityzer-banner.png` - Banner image for OpenGraph and Twitter previews
 2. `favicon.png` - Favicon for browser tabs
 3. `demo/demo.gif` - Demo animation (can be generated using the create-quickstart-gif.sh script)
 

@@ -1,10 +1,10 @@
 # CI/CD Integration Guide
 
-This guide explains how to integrate Web3FuzzForge with popular CI/CD platforms for automated security testing of web3 applications.
+This guide explains how to integrate Audityzer with popular CI/CD platforms for automated security testing of web3 applications.
 
 ## Supported CI/CD Platforms
 
-Web3FuzzForge supports the following CI/CD platforms:
+Audityzer supports the following CI/CD platforms:
 
 - GitHub Actions
 - GitLab CI
@@ -16,7 +16,7 @@ Web3FuzzForge supports the following CI/CD platforms:
 You can automatically generate CI configuration files using the `generate-ci-config` command:
 
 ```bash
-npx web3fuzzforge generate-ci-config <platform> [options]
+npx Audityzer generate-ci-config <platform> [options]
 ```
 
 Where `<platform>` is one of: `github`, `gitlab`, or `circle`.
@@ -37,17 +37,17 @@ Where `<platform>` is one of: `github`, `gitlab`, or `circle`.
 To integrate with GitHub Actions, run:
 
 ```bash
-npx web3fuzzforge generate-ci-config github
+npx Audityzer generate-ci-config github
 ```
 
-This will create a `.github/workflows/web3fuzzforge.yml` file with the configuration.
+This will create a `.github/workflows/Audityzer.yml` file with the configuration.
 
 ## GitLab CI Integration
 
 To integrate with GitLab CI, run:
 
 ```bash
-npx web3fuzzforge generate-ci-config gitlab
+npx Audityzer generate-ci-config gitlab
 ```
 
 This will create a `.gitlab-ci.yml` file with the configuration.
@@ -57,7 +57,7 @@ This will create a `.gitlab-ci.yml` file with the configuration.
 To integrate with CircleCI, run:
 
 ```bash
-npx web3fuzzforge generate-ci-config circle
+npx Audityzer generate-ci-config circle
 ```
 
 This will create a `.circleci/config.yml` file with the configuration.
@@ -84,12 +84,12 @@ jobs:
       # Run security checks
       - run:
           name: Run Security Checks
-          command: npx web3fuzzforge analyze --config ./security-rules.json
+          command: npx Audityzer analyze --config ./security-rules.json
 
       # Validate contract deployments
       - run:
           name: Validate Contract Deployments
-          command: npx web3fuzzforge deploy-validate --format md --check-security true
+          command: npx Audityzer deploy-validate --format md --check-security true
 
       # ... more steps ...
 
@@ -105,7 +105,7 @@ workflows:
 The `deploy-validate` command validates contract deployments and checks their verification status on block explorers.
 
 ```bash
-npx web3fuzzforge deploy-validate [options]
+npx Audityzer deploy-validate [options]
 ```
 
 ### Options:
@@ -137,7 +137,7 @@ The deployment validator supports the following networks:
 
 ## L2 Network Support
 
-Web3FuzzForge now includes support for L2 networks including:
+Audityzer now includes support for L2 networks including:
 
 - zkSync Era
 - Linea
@@ -149,19 +149,19 @@ Web3FuzzForge now includes support for L2 networks including:
 You can validate L2 protocol security rules with:
 
 ```bash
-npx web3fuzzforge validate-l2-protocol <protocol> --config ./security-rules.json
+npx Audityzer validate-l2-protocol <protocol> --config ./security-rules.json
 ```
 
 Where `<protocol>` is one of: `zksync`, `linea`, `polygon`, `base`, `optimism`, or `arbitrum`.
 
 ## Bug Bounty Platform Integration
 
-Web3FuzzForge integrates with bug bounty platforms like Immunefi, Code4rena, and Sherlock.
+Audityzer integrates with bug bounty platforms like Immunefi, Code4rena, and Sherlock.
 
 Generate vulnerability reports with:
 
 ```bash
-npx web3fuzzforge bounty <platform> [options]
+npx Audityzer bounty <platform> [options]
 ```
 
 Where `<platform>` is one of: `immunefi`, `code4rena`, or `sherlock`.
@@ -169,14 +169,14 @@ Where `<platform>` is one of: `immunefi`, `code4rena`, or `sherlock`.
 For Sherlock audit reports with L2 support:
 
 ```bash
-npx web3fuzzforge bounty sherlock --contest-name your-audit-name
+npx Audityzer bounty sherlock --contest-name your-audit-name
 ```
 
 ## Enterprise Security Features
 
 ### Headless Wallet Testing in CI
 
-Web3FuzzForge supports headless wallet testing in CI environments where browser UI interactions are not possible. This allows you to:
+Audityzer supports headless wallet testing in CI environments where browser UI interactions are not possible. This allows you to:
 
 - Simulate wallet connections in CI pipelines
 - Test transaction flows without UI interaction
@@ -185,12 +185,12 @@ Web3FuzzForge supports headless wallet testing in CI environments where browser 
 Example:
 
 ```bash
-npx web3fuzzforge ci-run --headless=true
+npx Audityzer ci-run --headless=true
 ```
 
 ### Static Analysis Integration
 
-For smart contract projects, Web3FuzzForge can integrate with static analysis tools:
+For smart contract projects, Audityzer can integrate with static analysis tools:
 
 - Slither - for vulnerability detection
 - Mythril - for symbolic execution analysis
@@ -199,12 +199,12 @@ For smart contract projects, Web3FuzzForge can integrate with static analysis to
 To enable static analysis:
 
 ```bash
-npx web3fuzzforge ci-run --static-analysis=true --contracts-dir=./contracts
+npx Audityzer ci-run --static-analysis=true --contracts-dir=./contracts
 ```
 
 ### Enterprise Reporting with SARIF
 
-Web3FuzzForge supports the SARIF (Static Analysis Results Interchange Format) for security reporting, allowing integration with:
+Audityzer supports the SARIF (Static Analysis Results Interchange Format) for security reporting, allowing integration with:
 
 - GitHub Security Analysis
 - Azure DevOps Security
@@ -214,14 +214,14 @@ This will be automatically generated when running in GitHub Actions or Azure Dev
 
 ### Notification System
 
-Web3FuzzForge includes an enterprise notification system for security alerts:
+Audityzer includes an enterprise notification system for security alerts:
 
 ```bash
 # Generate notification config template
-npx web3fuzzforge generate-notification-config
+npx Audityzer generate-notification-config
 
 # Enable notifications in CI run
-npx web3fuzzforge ci-run --notify=true --notification-config=./notification-config.json
+npx Audityzer ci-run --notify=true --notification-config=./notification-config.json
 ```
 
 Supported notification channels:
@@ -234,7 +234,7 @@ Supported notification channels:
 
 ### GitHub Actions
 
-Web3FuzzForge integrates with GitHub Actions providing:
+Audityzer integrates with GitHub Actions providing:
 
 - GitHub Security Analysis integration with SARIF
 - GitHub check annotations
@@ -243,7 +243,7 @@ Web3FuzzForge integrates with GitHub Actions providing:
 Example workflow:
 
 ```yaml
-name: Web3FuzzForge Security Tests
+name: Audityzer Security Tests
 
 on:
   push:
@@ -269,8 +269,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Web3FuzzForge security tests
-        run: npx web3fuzzforge ci-run --reporter=github
+      - name: Run Audityzer security tests
+        run: npx Audityzer ci-run --reporter=github
 
       - name: Upload SARIF report
         uses: github/codeql-action/upload-sarif@v2
@@ -280,7 +280,7 @@ jobs:
 
 ### GitLab CI
 
-Web3FuzzForge integrates with GitLab CI providing:
+Audityzer integrates with GitLab CI providing:
 
 - GitLab Security Dashboard integration
 - Pipeline visualization
@@ -289,12 +289,12 @@ Web3FuzzForge integrates with GitLab CI providing:
 Example .gitlab-ci.yml:
 
 ```yaml
-web3fuzzforge-security:
+Audityzer-security:
   image: node:18
   stage: test
   script:
     - npm ci
-    - npx web3fuzzforge ci-run --reporter=gitlab
+    - npx Audityzer ci-run --reporter=gitlab
   artifacts:
     paths:
       - test-results/
@@ -306,7 +306,7 @@ web3fuzzforge-security:
 
 ### Jenkins
 
-Web3FuzzForge integrates with Jenkins pipelines providing:
+Audityzer integrates with Jenkins pipelines providing:
 
 - JUnit test reporting
 - HTML report publishing
@@ -323,7 +323,7 @@ pipeline {
         stage('Security Tests') {
             steps {
                 sh 'npm ci'
-                sh 'npx web3fuzzforge ci-run --reporter=jenkins'
+                sh 'npx Audityzer ci-run --reporter=jenkins'
             }
         }
     }
@@ -343,7 +343,7 @@ pipeline {
 
 ### Azure DevOps
 
-Web3FuzzForge integrates with Azure DevOps providing:
+Audityzer integrates with Azure DevOps providing:
 
 - Azure security reporting
 - Test results integration
@@ -367,14 +367,14 @@ steps:
   - script: npm ci
     displayName: 'Install dependencies'
 
-  - script: npx web3fuzzforge ci-run --reporter=azure
-    displayName: 'Run Web3FuzzForge security tests'
+  - script: npx Audityzer ci-run --reporter=azure
+    displayName: 'Run Audityzer security tests'
 
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'JUnit'
       testResultsFiles: 'test-results/junit-report.xml'
-      testRunTitle: 'Web3FuzzForge Security Tests'
+      testRunTitle: 'Audityzer Security Tests'
     displayName: 'Publish test results'
 ```
 
@@ -383,7 +383,7 @@ steps:
 The CI integration module provides a programmatic API for custom integrations:
 
 ```javascript
-const { createIntegration } = require('web3fuzzforge/core/ci-integration');
+const { createIntegration } = require('Audityzer/core/ci-integration');
 
 // Create integration with all components
 const integration = createIntegration({

@@ -1,5 +1,5 @@
 {
-  "name": "web3fuzzforge-community-tests",
+  "name": "Audityzer-community-tests",
   "version": "1.0.0",
   "description": "Community-contributed fuzz test cases for Web3 applications",
   "main": "index.js",
@@ -25,13 +25,13 @@
     "fuzzing",
     "community"
   ],
-  "author": "Web3FuzzForge Community",
+  "author": "Audityzer Community",
   "license": "MIT",
   "dependencies": {
     "@chainsafe/dappeteer": "^5.2.1",
     "@playwright/test": "^1.52.0",
     "chalk": "^4.1.2",
-    "Web3FuzzForge": "^1.1.0"
+    "Audityzer": "^1.1.0"
   },
   "devDependencies": {
     "eslint": "^8.57.0",

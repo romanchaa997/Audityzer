@@ -19,8 +19,8 @@ PORT="5001"
 TARGET_URL="http://localhost:${PORT}"
 PLAYWRIGHT_SPEC="tests/demo-flow.spec.ts"
 OUTPUT_DIR="media"
-GIF_NAME="web3fuzzforge-quickstart.gif"
-MP4_NAME="web3fuzzforge-quickstart.mp4"
+GIF_NAME="Audityzer-quickstart.gif"
+MP4_NAME="Audityzer-quickstart.mp4"
 # ------------------------
 
 # Ensure deps

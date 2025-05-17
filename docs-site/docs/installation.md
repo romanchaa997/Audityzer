@@ -4,35 +4,35 @@ sidebar_position: 2
 
 # Installation
 
-Getting started with Web3FuzzForge is straightforward. The tool is distributed via npm and can be installed globally or used with npx.
+Getting started with Audityzer is straightforward. The tool is distributed via npm and can be installed globally or used with npx.
 
 ## Global Installation
 
-For the best experience, install Web3FuzzForge globally:
+For the best experience, install Audityzer globally:
 
 ```bash
-npm install -g web3fuzzforge
+npm install -g Audityzer
 ```
 
-This makes the `web3fuzzforge` command available anywhere in your terminal.
+This makes the `Audityzer` command available anywhere in your terminal.
 
 ## Project-Specific Installation
 
 If you prefer to install it as a development dependency in your project:
 
 ```bash
-npm install --save-dev web3fuzzforge
+npm install --save-dev Audityzer
 ```
 
 Then you can use it in your npm scripts or with npx:
 
 ```bash
-npx web3fuzzforge <command>
+npx Audityzer <command>
 ```
 
 ## Prerequisites
 
-Web3FuzzForge requires:
+Audityzer requires:
 
 - Node.js 16 or later
 - npm 7 or later
@@ -56,10 +56,10 @@ OPENAI_API_KEY=your_openai_api_key_here
 After installation, verify that everything is working correctly:
 
 ```bash
-web3fuzzforge --version
+Audityzer --version
 ```
 
-This should display the current version of Web3FuzzForge.
+This should display the current version of Audityzer.
 
 ## Next Steps
 

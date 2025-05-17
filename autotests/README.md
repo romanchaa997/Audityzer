@@ -21,7 +21,7 @@ A curated set of QA assets for Web3 developers, bounty hunters, and security tes
 3. Run autotests in `autotests/sample-tests/`
 4. Customize, expand, and contribute
 
-# Web3FuzzForge 🚀
+# Audityzer 🚀
 
 CLI-first test template generator built for _real_ dApp security.
 
@@ -43,7 +43,7 @@ Forget the fluff. This tool generates fuzzable Playwright test scaffolding that 
 ## 🚀 Quick Start
 
 ```bash
-npx web3fuzzforge init my-test
+npx Audityzer init my-test
 cd my-test
 npm install
 npx playwright test

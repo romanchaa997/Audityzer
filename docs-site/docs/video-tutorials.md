@@ -1,17 +1,17 @@
 # Video Tutorials and Walkthroughs
 
-Welcome to our collection of video tutorials, demonstrations, and walkthroughs for Web3FuzzForge. These videos provide step-by-step guidance on using our tools effectively.
+Welcome to our collection of video tutorials, demonstrations, and walkthroughs for Audityzer. These videos provide step-by-step guidance on using our tools effectively.
 
 ## Getting Started Series
 
-### Introduction to Web3FuzzForge (5 min)
+### Introduction to Audityzer (5 min)
 
 - Overview of the toolkit
 - Security testing concepts
 - Key features walkthrough
 - Use cases and applications
 
-[![Introduction to Web3FuzzForge](https://img.youtube.com/vi/example1/0.jpg)](https://www.youtube.com/watch?v=example1)
+[![Introduction to Audityzer](https://img.youtube.com/vi/example1/0.jpg)](https://www.youtube.com/watch?v=example1)
 
 ### Installation and Setup (8 min)
 
@@ -209,16 +209,16 @@ Welcome to our collection of video tutorials, demonstrations, and walkthroughs f
 
 Don't see a tutorial on a topic you're interested in? Request new tutorial topics by:
 
-1. Joining our [Discord community](https://discord.gg/web3fuzzforge)
-2. Opening an issue on our [GitHub repository](https://github.com/web3fuzzforge/web3-security-test-kit)
-3. Emailing us at tutorials@web3fuzzforge.dev
+1. Joining our [Discord community](https://discord.gg/Audityzer)
+2. Opening an issue on our [GitHub repository](https://github.com/Audityzer/web3-security-test-kit)
+3. Emailing us at tutorials@Audityzer.dev
 
 ## Contribute Your Own
 
 We welcome community contributions to our tutorial library. If you'd like to create a tutorial:
 
-1. Review our [contribution guidelines](https://web3fuzzforge.dev/contribute)
-2. Join our [Discord #tutorials channel](https://discord.gg/web3fuzzforge)
+1. Review our [contribution guidelines](https://Audityzer.dev/contribute)
+2. Join our [Discord #tutorials channel](https://discord.gg/Audityzer)
 3. Submit your tutorial idea for review
 
 ## Upcoming Tutorials

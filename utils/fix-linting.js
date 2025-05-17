@@ -11,7 +11,7 @@ const { execSync } = require('child_process');
 const chalk = require('chalk');
 
 // Directories to process
-const DIRECTORIES = ['tests', 'utils', 'src', 'web3fuzzforge-community-tests', 'autotests'];
+const DIRECTORIES = ['tests', 'utils', 'src', 'Audityzer-community-tests', 'autotests'];
 
 // Get all JavaScript and TypeScript files
 function getFiles(dir) {

@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Test Result Reporting
 
-Web3FuzzForge provides a structured reporting system to help you analyze test results, particularly security vulnerabilities found during testing.
+Audityzer provides a structured reporting system to help you analyze test results, particularly security vulnerabilities found during testing.
 
 ## Current Reporting System
 

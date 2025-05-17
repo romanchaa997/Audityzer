@@ -225,7 +225,7 @@ function generateSarifReport(testResults, options = {}) {
       {
         tool: {
           driver: {
-            name: 'Web3FuzzForge Security Scanner',
+            name: 'Audityzer Security Scanner',
             version: '1.0.0',
             informationUri: 'https://github.com/yourusername/web3-security-test-kit',
             rules: [],

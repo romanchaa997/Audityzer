@@ -1,10 +1,10 @@
-# Creating Visual Assets for Web3FuzzForge
+# Creating Visual Assets for Audityzer
 
-This guide provides instructions for creating high-quality visual assets for your Web3FuzzForge documentation and interface.
+This guide provides instructions for creating high-quality visual assets for your Audityzer documentation and interface.
 
 ## Required Visual Assets
 
-For a complete Web3FuzzForge implementation, you should create the following visual assets:
+For a complete Audityzer implementation, you should create the following visual assets:
 
 1. **Project Banner** - A branded banner image for the top of your README
 2. **Demo GIF** - An animated demonstration of your tool in action
@@ -128,4 +128,4 @@ test('Capture wallet connection interface', async ({ page }) => {
 });
 ```
 
-Remember, high-quality visual assets significantly improve the user experience and adoption of your Web3FuzzForge implementation!
+Remember, high-quality visual assets significantly improve the user experience and adoption of your Audityzer implementation!

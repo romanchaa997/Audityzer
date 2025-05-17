@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     version: () => {
-      return '<div class="output-line"><span class="highlight">Web3FuzzForge v1.1.0</span></div>';
+      return '<div class="output-line"><span class="highlight">Audityzer v1.1.0</span></div>';
     },
 
     create: async args => {

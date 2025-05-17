@@ -1,7 +1,7 @@
 /**
- * @fileoverview Platform-agnostic CI/CD integration layer for Web3FuzzForge
+ * @fileoverview Platform-agnostic CI/CD integration layer for Audityzer
  *
- * This module provides a standardized interface for integrating Web3FuzzForge
+ * This module provides a standardized interface for integrating Audityzer
  * with various CI/CD platforms.
  */
 

@@ -274,7 +274,7 @@ program
   .option('--limit <number>', 'Number of reports to fetch', '10')
   .action(async options => {
     try {
-      const outputDir = options.output || './web3fuzzforge-community-tests/dapp-tests';
+      const outputDir = options.output || './Audityzer-community-tests/dapp-tests';
       console.log(chalk.blue('Generating bridge vulnerability reports...'));
 
       const adapter = new BridgeBountyAdapter(outputDir);

@@ -19,10 +19,10 @@ build/
 
 # Third-party code
 vendor/
-Web3FuzzForge-*.tgz
+Audityzer-*.tgz
 
 # Frontend apps
-Web3FuzzForge/**
+Audityzer/**
 my-vue-app/**
 docs-site/
 
@@ -105,7 +105,7 @@ test-provider-plugin.js
 test-templates.js
 tests/
 utils/
-web3fuzzforge-community-tests/
+Audityzer-community-tests/
 
 # Exclude all files in extensions/metamask/scripts/ from linting
 extensions/metamask/scripts/

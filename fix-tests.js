@@ -1,5 +1,5 @@
 /**
- * Web3FuzzForge Test Fix Utility
+ * Audityzer Test Fix Utility
  *
  * This script:
  * 1. Installs the local package
@@ -23,13 +23,13 @@ const colors = {
 
 // Print a header
 console.log(`${colors.cyan}==================================================${colors.reset}`);
-console.log(`${colors.cyan}       Web3FuzzForge Test Fix Utility             ${colors.reset}`);
+console.log(`${colors.cyan}       Audityzer Test Fix Utility             ${colors.reset}`);
 console.log(`${colors.cyan}==================================================${colors.reset}`);
 
 // Check if we're running in the correct directory
-if (!fs.existsSync(path.join(process.cwd(), 'Web3FuzzForge-1.1.0.tgz'))) {
+if (!fs.existsSync(path.join(process.cwd(), 'Audityzer-1.1.0.tgz'))) {
   console.error(
-    `${colors.red}Error: Web3FuzzForge-1.1.0.tgz not found in the current directory.${colors.reset}`
+    `${colors.red}Error: Audityzer-1.1.0.tgz not found in the current directory.${colors.reset}`
   );
   console.error(
     `${colors.yellow}Make sure you're running this script from the project root.${colors.reset}`
@@ -59,12 +59,12 @@ async function main() {
   if (!runCommand('npm run local-install', 'Installing package locally')) {
     console.log(`${colors.yellow}Trying alternative installation method...${colors.reset}`);
     if (
-      !runCommand('npm install ./Web3FuzzForge-1.1.0.tgz', 'Installing package with direct path')
+      !runCommand('npm install ./Audityzer-1.1.0.tgz', 'Installing package with direct path')
     ) {
       console.error(
         `${colors.red}Failed to install the package. Please try manually:${colors.reset}`
       );
-      console.error(`${colors.yellow}npm install ./Web3FuzzForge-1.1.0.tgz${colors.reset}`);
+      console.error(`${colors.yellow}npm install ./Audityzer-1.1.0.tgz${colors.reset}`);
       process.exit(1);
     }
   }
@@ -74,7 +74,7 @@ async function main() {
 
   console.log(`\n${colors.green}==================================================${colors.reset}`);
   console.log(
-    `${colors.green} All steps completed! The web3fuzzforge package has been${colors.reset}`
+    `${colors.green} All steps completed! The audityzer package has been${colors.reset}`
   );
   console.log(`${colors.green} installed locally and tests have been fixed.${colors.reset}`);
   console.log(`${colors.green}==================================================${colors.reset}`);
@@ -83,7 +83,7 @@ async function main() {
     `1. Run tests with ${colors.yellow}npm run forge:run -- --mock-mode --headed${colors.reset}`
   );
   console.log(
-    `2. Generate new tests with ${colors.yellow}npm run forge:gen connect -- --wallet metamask --out ./tests/new-test.js${colors.reset}`
+  `2. Generate new tests with ${colors.yellow}npm run forge:gen connect -- --wallet metamask --out ./tests/new-test.js${colors.reset}`
   );
   console.log('3. See README.md for more detailed instructions');
 }

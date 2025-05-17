@@ -50,7 +50,7 @@ const sampleTestResults = {
     protocol: 'ExampleDApp',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
-    tester: 'Web3FuzzForge',
+    tester: 'Audityzer',
   },
 };
 

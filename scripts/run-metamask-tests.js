@@ -15,7 +15,7 @@ const readline = require('readline');
 // Configuration
 const config = {
   testTimeout: 120000, // 2 minutes per test
-  testsDir: path.join(__dirname, '..', 'web3fuzzforge-community-tests', 'dapp-tests'),
+  testsDir: path.join(__dirname, '..', 'Audityzer-community-tests', 'dapp-tests'),
   outputDir: path.join(__dirname, '..', 'reports', 'metamask-security'),
   extensionPath:
     process.env.METAMASK_EXTENSION_PATH || path.join(__dirname, '..', 'extensions', 'metamask'),
@@ -144,12 +144,12 @@ function runFuzzingTests() {
 
   try {
     // First ensure the fuzzing server is built
-    execSync('cd Web3FuzzForge && npm install', { stdio: 'pipe' });
+    execSync('cd Audityzer && npm install', { stdio: 'pipe' });
 
     // Run the fuzzer in a child process
     const fuzzerProcess = require('child_process').spawn(
       'node',
-      ['./Web3FuzzForge/server.js', '--route=metamask-fuzzer'],
+      ['./Audityzer/server.js', '--route=metamask-fuzzer'],
       { stdio: config.verbose ? 'inherit' : 'pipe' }
     );
 

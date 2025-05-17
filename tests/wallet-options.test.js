@@ -2,7 +2,7 @@
 const { test, expect } = require('@playwright/test');
 
 // Test wallet options
-test.describe('Web3FuzzForge wallet options', () => {
+test.describe('Audityzer wallet options', () => {
   let page;
 
   test.beforeEach(async ({ browser }) => {

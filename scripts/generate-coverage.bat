@@ -33,6 +33,6 @@ if "%CODECOV_TOKEN%" == "" (
 )
 
 REM Upload to Codecov
-codecov.exe upload-process -t %CODECOV_TOKEN% -r romanchaa997/Web3FuzzForge
+codecov.exe upload-process -t %CODECOV_TOKEN% -r romanchaa997/Audityzer
 
 echo Coverage upload complete! 

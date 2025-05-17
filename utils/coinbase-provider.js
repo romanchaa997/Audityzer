@@ -12,7 +12,7 @@ class CoinbaseWalletProvider extends EventEmitter {
   constructor(options = {}) {
     super();
     this.options = {
-      appName: options.appName || 'Web3FuzzForge Test App',
+      appName: options.appName || 'Audityzer Test App',
       appLogoUrl: options.appLogoUrl || 'https://www.coinbase.com/assets/favicon-32x32.png',
       darkMode: options.darkMode || false,
       overrideIsMetaMask: options.overrideIsMetaMask || false,

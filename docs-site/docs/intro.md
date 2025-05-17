@@ -2,13 +2,13 @@
 sidebar_position: 1
 ---
 
-# Introduction to Web3FuzzForge
+# Introduction to Audityzer
 
-Welcome to Web3FuzzForge, your comprehensive toolkit for testing, securing, and validating Web3 applications. This documentation will help you get started with our powerful security testing tools.
+Welcome to Audityzer, your comprehensive toolkit for testing, securing, and validating Web3 applications. This documentation will help you get started with our powerful security testing tools.
 
-## What is Web3FuzzForge?
+## What is Audityzer?
 
-Web3FuzzForge is an end-to-end security testing platform for Web3 applications that provides:
+Audityzer is an end-to-end security testing platform for Web3 applications that provides:
 
 - **Automated Security Testing**: Generate and run security tests for web3 applications
 - **Protocol-Specific Testing**: Specialized testing for different blockchain protocols
@@ -45,7 +45,7 @@ Web3FuzzForge is an end-to-end security testing platform for Web3 applications t
 
 ## Getting Started
 
-New to Web3FuzzForge? Start with these guides:
+New to Audityzer? Start with these guides:
 
 1. [Quick Start Guide](./quickstart.md): Get up and running in minutes
 2. [Installation Guide](./installation.md): Detailed installation instructions
@@ -54,7 +54,7 @@ New to Web3FuzzForge? Start with these guides:
 
 ## Use Cases
 
-Web3FuzzForge serves various user needs:
+Audityzer serves various user needs:
 
 - **Smart Contract Developers**: Validate contract security before deployment
 - **Web3 App Developers**: Test dApp interactions with wallets and contracts
@@ -66,21 +66,21 @@ Web3FuzzForge serves various user needs:
 
 Try our interactive learning resources:
 
-- [Video Tutorials](https://web3fuzzforge.dev/tutorials): Watch step-by-step tutorial videos
+- [Video Tutorials](https://Audityzer.dev/tutorials): Watch step-by-step tutorial videos
 - [Example Projects](./community-test-examples.md): Explore community-contributed examples
-- [Live Demos](https://web3fuzzforge.dev/demo): Try Web3FuzzForge without installation
+- [Live Demos](https://Audityzer.dev/demo): Try Audityzer without installation
 
 ## Community and Support
 
 Join our community:
 
-- [GitHub Repository](https://github.com/web3fuzzforge/web3-security-test-kit)
-- [Discord Community](https://discord.gg/web3fuzzforge)
-- [Monthly Security Calls](https://web3fuzzforge.dev/events)
+- [GitHub Repository](https://github.com/Audityzer/web3-security-test-kit)
+- [Discord Community](https://discord.gg/Audityzer)
+- [Monthly Security Calls](https://Audityzer.dev/events)
 
 ## Enterprise Features
 
-Web3FuzzForge offers enterprise-grade features:
+Audityzer offers enterprise-grade features:
 
 - **Custom Plugin Development**: Custom security plugins for your specific needs
 - **Integration Services**: Professional integration with your systems

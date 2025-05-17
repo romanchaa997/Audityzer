@@ -40,6 +40,6 @@ if [ -z "$CODECOV_TOKEN" ]; then
   CODECOV_TOKEN="7eb6aaf4-9247-480d-9286-c1ff12a83dd6"
 fi
 
-./codecov upload-process -t "$CODECOV_TOKEN" -r romanchaa997/Web3FuzzForge
+./codecov upload-process -t "$CODECOV_TOKEN" -r romanchaa997/Audityzer
 
 echo "Coverage upload complete!" 

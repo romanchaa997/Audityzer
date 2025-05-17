@@ -1,6 +1,6 @@
 {
-  "projectName": "web3fuzzforge-community-tests",
-  "projectOwner": "Web3FuzzForge",
+  "projectName": "Audityzer-community-tests",
+  "projectOwner": "Audityzer",
   "repoType": "github",
   "repoHost": "https://github.com",
   "files": ["README.md"],
@@ -11,7 +11,7 @@
   "contributorsPerLine": 7,
   "skipCi": false,
   "contributorsSortAlphabetically": false,
-  "badgeTemplate": "[![All Contributors](https://img.shields.io/github/all-contributors/Web3FuzzForge/web3fuzzforge-community-tests?color=ee8449&style=flat-square)](#contributors)",
+  "badgeTemplate": "[![All Contributors](https://img.shields.io/github/all-contributors/Audityzer/Audityzer-community-tests?color=ee8449&style=flat-square)](#contributors)",
   "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"<%= contributor.name %>\"/><br /><sub><b><%= contributor.name %></b></sub></a>",
   "types": {
     "custom": {

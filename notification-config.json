@@ -12,15 +12,15 @@
           "pass": "password"
         }
       },
-      "from": "web3fuzzforge@example.com",
+      "from": "Audityzer@example.com",
       "to": ["security@example.com"],
-      "subject": "Web3FuzzForge Security Alert"
+      "subject": "Audityzer Security Alert"
     },
     "slack": {
       "enabled": false,
       "webhookUrl": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
       "channel": "#security-alerts",
-      "username": "Web3FuzzForge Security"
+      "username": "Audityzer Security"
     },
     "webhook": {
       "enabled": false,

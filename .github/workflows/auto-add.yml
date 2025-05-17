@@ -23,7 +23,7 @@ jobs:
       - uses: actions/add-to-project@v0.5.0
         with:
           # Replace with your actual project URL
-          project-url: https://github.com/users/YOUR_USERNAME/projects/YOUR_PROJECT_NUMBER
+          project-url: https://github.com/users/romanchaa997/projects/YOUR_PROJECT_NUMBER
           # Option 1: Use a dedicated PAT with project permissions (preferred for org projects)
           # github-token: ${{ secrets.PROJECT_TOKEN }}
           # Option 2: Use the default token (works for personal projects, has limitations)

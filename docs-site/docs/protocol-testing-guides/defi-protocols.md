@@ -2,7 +2,7 @@
 
 **Last Updated:** June 15, 2023
 
-This guide provides comprehensive testing strategies and tools for evaluating the security of decentralized finance (DeFi) protocols using Web3FuzzForge.
+This guide provides comprehensive testing strategies and tools for evaluating the security of decentralized finance (DeFi) protocols using Audityzer.
 
 ## Protocol Overview
 
@@ -38,7 +38,7 @@ Analyze the security configuration of the DeFi protocol:
 
 ```bash
 # Generate a security configuration report
-npx web3fuzzforge analyze defi --protocol-type=lending --configuration-report
+npx Audityzer analyze defi --protocol-type=lending --configuration-report
 ```
 
 ### 2. Framework-Specific Testing
@@ -47,10 +47,10 @@ For major DeFi frameworks, use targeted testing:
 
 ```bash
 # Test an Aave-like lending protocol
-npx web3fuzzforge test defi --framework=aave --scenarios=all
+npx Audityzer test defi --framework=aave --scenarios=all
 
 # Test a Uniswap V3-like AMM
-npx web3fuzzforge test defi --framework=uniswap-v3 --scenarios=all
+npx Audityzer test defi --framework=uniswap-v3 --scenarios=all
 ```
 
 ### 3. Economic Security Testing
@@ -59,7 +59,7 @@ Test economic security through simulations:
 
 ```bash
 # Simulate economic attacks on a protocol
-npx web3fuzzforge simulate economic-attacks --protocol=lending --assets=WETH,USDC
+npx Audityzer simulate economic-attacks --protocol=lending --assets=WETH,USDC
 ```
 
 ### 4. Protocol Integration Testing
@@ -68,7 +68,7 @@ Test interactions with other protocols:
 
 ```bash
 # Test interaction with external protocols
-npx web3fuzzforge test protocol-integrations --primary=uniswap --secondary=aave
+npx Audityzer test protocol-integrations --primary=uniswap --secondary=aave
 ```
 
 ## Test Scenarios
@@ -78,18 +78,18 @@ npx web3fuzzforge test protocol-integrations --primary=uniswap --secondary=aave
 1. **Interest Rate Manipulation**
 
    ```bash
-   npx web3fuzzforge test defi --scenario=interest-rate-manipulation
+   npx Audityzer test defi --scenario=interest-rate-manipulation
    ```
 
 2. **Collateral Liquidation Attack**
 
    ```bash
-   npx web3fuzzforge test defi --scenario=collateral-liquidation
+   npx Audityzer test defi --scenario=collateral-liquidation
    ```
 
 3. **Oracle Failure**
    ```bash
-   npx web3fuzzforge test defi --scenario=oracle-failure
+   npx Audityzer test defi --scenario=oracle-failure
    ```
 
 ### DEX Test Scenarios
@@ -97,18 +97,18 @@ npx web3fuzzforge test protocol-integrations --primary=uniswap --secondary=aave
 1. **Slippage Exploitation**
 
    ```bash
-   npx web3fuzzforge test defi --scenario=slippage-exploitation
+   npx Audityzer test defi --scenario=slippage-exploitation
    ```
 
 2. **Sandwich Attack Simulation**
 
    ```bash
-   npx web3fuzzforge test defi --scenario=sandwich-attack
+   npx Audityzer test defi --scenario=sandwich-attack
    ```
 
 3. **Liquidity Fragmentation**
    ```bash
-   npx web3fuzzforge test defi --scenario=liquidity-fragmentation
+   npx Audityzer test defi --scenario=liquidity-fragmentation
    ```
 
 ## Code Examples
@@ -118,7 +118,7 @@ npx web3fuzzforge test protocol-integrations --primary=uniswap --secondary=aave
 ```javascript
 // test-flash-loan-attack.js
 const { test, expect } = require('@playwright/test');
-const { DeFiProtocolSecurity } = require('web3fuzzforge/defi-testing');
+const { DeFiProtocolSecurity } = require('Audityzer/defi-testing');
 
 test('should prevent flash loan attack', async ({ page }) => {
   const defiSecurity = new DeFiProtocolSecurity({
@@ -145,7 +145,7 @@ test('should prevent flash loan attack', async ({ page }) => {
 ```javascript
 // test-lp-security.js
 const { test, expect } = require('@playwright/test');
-const { LiquidityPoolSecurity } = require('web3fuzzforge/defi-testing');
+const { LiquidityPoolSecurity } = require('Audityzer/defi-testing');
 
 test('should have secure price impact protection', async ({ page }) => {
   const lpSecurity = new LiquidityPoolSecurity({
@@ -241,14 +241,14 @@ Use this checklist when auditing DeFi protocols:
 
 ## Tools and Resources
 
-### Web3FuzzForge DeFi Security Tools
+### Audityzer DeFi Security Tools
 
 ```bash
 # Install DeFi-specific testing package
-npm install @web3fuzzforge/defi-security-tools
+npm install @Audityzer/defi-security-tools
 
 # Generate a comprehensive DeFi security report
-npx web3fuzzforge audit defi --protocol=your-protocol --output-format=html
+npx Audityzer audit defi --protocol=your-protocol --output-format=html
 ```
 
 ### External Resources
@@ -264,7 +264,7 @@ Use our interactive visualizer to understand attack vectors:
 
 ```bash
 # Start interactive DeFi attack visualizer
-npx web3fuzzforge visualize defi-attacks --protocol=lending
+npx Audityzer visualize defi-attacks --protocol=lending
 ```
 
 This will launch a browser-based visualization tool that demonstrates potential attack flows and vulnerable components in lending protocols.
@@ -273,6 +273,6 @@ This will launch a browser-based visualization tool that demonstrates potential 
 
 Join our DeFi security focused channels:
 
-- [Discord #defi-security](https://discord.gg/web3fuzzforge)
-- [GitHub Discussions](https://github.com/web3fuzzforge/web3-security-test-kit/discussions)
-- [Monthly DeFi Security Calls](https://web3fuzzforge.dev/events)
+- [Discord #defi-security](https://discord.gg/Audityzer)
+- [GitHub Discussions](https://github.com/Audityzer/web3-security-test-kit/discussions)
+- [Monthly DeFi Security Calls](https://Audityzer.dev/events)

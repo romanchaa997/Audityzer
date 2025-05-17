@@ -1,10 +1,10 @@
-// Test script for Web3FuzzForge templates
+// Test script for Audityzer templates
 const path = require('path');
 const fs = require('fs');
 
 // Test the structure of the templates
 try {
-  console.log('Checking Web3FuzzForge template files...');
+  console.log('Checking Audityzer template files...');
 
   // Define the template files to check
   const templates = {

@@ -1,4 +1,4 @@
-# Web3FuzzForge Test Templates
+# Audityzer Test Templates
 
 This directory contains comprehensive test templates for Web3 wallet interactions and cross-chain bridge transfers, focusing on the most widely used providers.
 

@@ -6,8 +6,8 @@ export default function Home() {
 
   return (
     <main class="container mx-auto p-4">
-      <Title>Web3FuzzForge - SolidStart App</Title>
-      <h1 class="text-3xl font-bold mb-6">Web3FuzzForge SolidStart Integration</h1>
+      <Title>Audityzer - SolidStart App</Title>
+      <h1 class="text-3xl font-bold mb-6">Audityzer SolidStart Integration</h1>
 
       <div class="bg-gray-100 p-6 rounded-lg shadow-md">
         <p class="mb-4">

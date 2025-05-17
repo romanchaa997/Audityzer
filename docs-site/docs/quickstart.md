@@ -4,9 +4,9 @@ sidebar_position: 3
 
 # Quickstart
 
-This guide will help you quickly get up and running with Web3FuzzForge by generating your first test templates.
+This guide will help you quickly get up and running with Audityzer by generating your first test templates.
 
-![Web3FuzzForge Quickstart](../static/img/web3fuzzforge-quickstart.gif)
+![Audityzer Quickstart](../static/img/Audityzer-quickstart.gif)
 
 ## Generate Your First Test
 
@@ -15,7 +15,7 @@ This guide will help you quickly get up and running with Web3FuzzForge by genera
 Generate a test for connecting to a MetaMask wallet:
 
 ```bash
-web3fuzzforge generate connect --wallet metamask --out ./tests/connection.test.js
+Audityzer generate connect --wallet metamask --out ./tests/connection.test.js
 ```
 
 ### Transaction Test
@@ -23,7 +23,7 @@ web3fuzzforge generate connect --wallet metamask --out ./tests/connection.test.j
 Generate a test for sending a transaction through MetaMask:
 
 ```bash
-web3fuzzforge generate tx --wallet metamask --out ./tests/transaction.test.js
+Audityzer generate tx --wallet metamask --out ./tests/transaction.test.js
 ```
 
 ### Signature Test
@@ -31,7 +31,7 @@ web3fuzzforge generate tx --wallet metamask --out ./tests/transaction.test.js
 Generate a test for signing a message with MetaMask:
 
 ```bash
-web3fuzzforge generate sign --wallet metamask --out ./tests/sign.test.js
+Audityzer generate sign --wallet metamask --out ./tests/sign.test.js
 ```
 
 ## Using TypeScript
@@ -39,7 +39,7 @@ web3fuzzforge generate sign --wallet metamask --out ./tests/sign.test.js
 All commands support TypeScript with the `--typescript` flag:
 
 ```bash
-web3fuzzforge generate connect --wallet metamask --out ./tests/connection.test.ts --typescript
+Audityzer generate connect --wallet metamask --out ./tests/connection.test.ts --typescript
 ```
 
 ## Using Preset Configurations
@@ -48,18 +48,18 @@ For common application types, use the `--preset` flag:
 
 ```bash
 # For ERC20/721 token applications
-web3fuzzforge generate connect --preset erc --out ./tests/nft-connect-test.js
+Audityzer generate connect --preset erc --out ./tests/nft-connect-test.js
 
 # For DeFi applications
-web3fuzzforge generate tx --preset defi --out ./tests/defi-swap-test.js
+Audityzer generate tx --preset defi --out ./tests/defi-swap-test.js
 
 # For DAO applications
-web3fuzzforge generate sign --preset dao --out ./tests/dao-voting-test.js
+Audityzer generate sign --preset dao --out ./tests/dao-voting-test.js
 ```
 
 ## Running Tests
 
-Web3FuzzForge generates tests for Playwright. Run them with:
+Audityzer generates tests for Playwright. Run them with:
 
 ```bash
 # In headless mode
@@ -74,10 +74,10 @@ npx playwright test tests/connection.test.js --headed
 For more intuitive configuration, use the `ask` command:
 
 ```bash
-web3fuzzforge ask "generate a MetaMask connection test for a DeFi app"
+Audityzer ask "generate a MetaMask connection test for a DeFi app"
 ```
 
-This will create a `.web3fuzzforge.json` configuration file you can use for subsequent test generation.
+This will create a `.Audityzer.json` configuration file you can use for subsequent test generation.
 
 ## Next Steps
 

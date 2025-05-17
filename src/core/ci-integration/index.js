@@ -1,5 +1,5 @@
 /**
- * @fileoverview Core CI/CD Integration Module for Web3FuzzForge
+ * @fileoverview Core CI/CD Integration Module for Audityzer
  *
  * This module exports all components of the CI/CD integration layer.
  */
@@ -227,7 +227,7 @@ function generateCIConfig(platform, outputPath) {
     if (!outputPath) {
       switch (platform) {
         case 'github':
-          outputPath = './.github/workflows/web3fuzzforge-security.yml';
+          outputPath = './.github/workflows/Audityzer-security.yml';
           break;
         case 'gitlab':
           outputPath = './.gitlab-ci.yml';
@@ -312,15 +312,15 @@ function generateNotificationConfig(outputPath = './notification-config.json') {
               pass: 'password',
             },
           },
-          from: 'web3fuzzforge@example.com',
+          from: 'Audityzer@example.com',
           to: ['security@example.com'],
-          subject: 'Web3FuzzForge Security Alert',
+          subject: 'Audityzer Security Alert',
         },
         slack: {
           enabled: false,
           webhookUrl: 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL',
           channel: '#security-alerts',
-          username: 'Web3FuzzForge Security',
+          username: 'Audityzer Security',
         },
         webhook: {
           enabled: false,
@@ -766,7 +766,7 @@ function summarizeVulnerabilities(options = {}) {
     const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
 
     // Create summary markdown
-    let summary = '# Web3FuzzForge Security Test Summary\n\n';
+    let summary = '# Audityzer Security Test Summary\n\n';
 
     // Add test summary
     if (report.summary) {

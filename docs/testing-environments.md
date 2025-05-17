@@ -29,7 +29,7 @@ Mock mode starts a local web server with a simple dApp that provides wallet conn
 npx playwright test --mock-mode
 
 # Using the CLI tool
-web3fuzzforge run --mock-mode
+Audityzer run --mock-mode
 ```
 
 The mock server automatically starts before tests run and shuts down when tests complete.
@@ -45,7 +45,7 @@ For testing against real dApps, use the `--target-url` flag.
 npx playwright test --target-url=https://your-dapp-url.com
 
 # Using the CLI tool
-web3fuzzforge run --target-url=https://your-dapp-url.com
+Audityzer run --target-url=https://your-dapp-url.com
 ```
 
 ### Considerations for Real dApp Testing
@@ -65,7 +65,7 @@ You can run tests against a dockerized version of your dApp:
 docker run -p 3000:3000 your-dapp-image
 
 # Run tests against it
-web3fuzzforge run --target-url=http://localhost:3000
+Audityzer run --target-url=http://localhost:3000
 ```
 
 ## Running Tests with Local Node.js Server
@@ -79,7 +79,7 @@ npm start
 
 # In another terminal, run tests
 cd web3-security-test-kit
-web3fuzzforge run --target-url=http://localhost:3000
+Audityzer run --target-url=http://localhost:3000
 ```
 
 ## Additional Options
@@ -88,16 +88,16 @@ Combine testing mode flags with other options:
 
 ```bash
 # Run in headed mode to see the browser
-web3fuzzforge run --mock-mode --headed
+Audityzer run --mock-mode --headed
 
 # Run in debug mode
-web3fuzzforge run --target-url=http://localhost:3000 --debug
+Audityzer run --target-url=http://localhost:3000 --debug
 
 # Generate and open HTML report
-web3fuzzforge run --mock-mode --report
+Audityzer run --mock-mode --report
 
 # Run only tests matching a pattern
-web3fuzzforge run --mock-mode --grep="MetaMask"
+Audityzer run --mock-mode --grep="MetaMask"
 ```
 
 ## Troubleshooting

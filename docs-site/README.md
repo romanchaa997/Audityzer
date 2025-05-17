@@ -1,6 +1,6 @@
-# Web3FuzzForge Documentation Site
+# Audityzer Documentation Site
 
-This directory contains the Docusaurus-powered documentation site for Web3FuzzForge.
+This directory contains the Docusaurus-powered documentation site for Audityzer.
 
 ## Getting Started
 

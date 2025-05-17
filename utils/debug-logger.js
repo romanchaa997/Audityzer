@@ -1,5 +1,5 @@
 /**
- * Debug Logger for Web3FuzzForge
+ * Debug Logger for Audityzer
  *
  * This utility provides detailed logging and visualization for test failures,
  * cross-chain message flows, and transaction traces.

@@ -1,6 +1,6 @@
 # Security Testing Best Practices
 
-This guide provides comprehensive best practices for security testing of Web3 applications and smart contracts using Web3FuzzForge.
+This guide provides comprehensive best practices for security testing of Web3 applications and smart contracts using Audityzer.
 
 ## Core Security Testing Principles
 
@@ -42,21 +42,21 @@ Apply multiple testing techniques:
 
 ```bash
 # Test access control for all roles
-npx web3fuzzforge test access-control --roles=owner,admin,user,none
+npx Audityzer test access-control --roles=owner,admin,user,none
 ```
 
 ✅ **Verify function modifiers work correctly**
 
 ```bash
 # Test all function modifiers
-npx web3fuzzforge test modifiers --contract=YourContract
+npx Audityzer test modifiers --contract=YourContract
 ```
 
 ✅ **Check initial ownership setup**
 
 ```bash
 # Verify ownership initialization
-npx web3fuzzforge test ownership --check-initialization
+npx Audityzer test ownership --check-initialization
 ```
 
 ### Arithmetic and Logic Testing
@@ -65,21 +65,21 @@ npx web3fuzzforge test ownership --check-initialization
 
 ```bash
 # Test arithmetic operations
-npx web3fuzzforge test arithmetic --contract=YourContract
+npx Audityzer test arithmetic --contract=YourContract
 ```
 
 ✅ **Test boundary conditions**
 
 ```bash
 # Test boundary conditions
-npx web3fuzzforge test boundary-conditions --contract=YourContract
+npx Audityzer test boundary-conditions --contract=YourContract
 ```
 
 ✅ **Validate mathematical formulas and algorithms**
 
 ```bash
 # Validate mathematical correctness
-npx web3fuzzforge test math-validation --contract=YourContract
+npx Audityzer test math-validation --contract=YourContract
 ```
 
 ### State Transition Testing
@@ -88,21 +88,21 @@ npx web3fuzzforge test math-validation --contract=YourContract
 
 ```bash
 # Test state transitions
-npx web3fuzzforge test state-transitions --contract=YourContract
+npx Audityzer test state-transitions --contract=YourContract
 ```
 
 ✅ **Test for race conditions**
 
 ```bash
 # Test for race conditions
-npx web3fuzzforge test race-conditions --contract=YourContract
+npx Audityzer test race-conditions --contract=YourContract
 ```
 
 ✅ **Validate reentrancy protection**
 
 ```bash
 # Test reentrancy protection
-npx web3fuzzforge test reentrancy --contract=YourContract
+npx Audityzer test reentrancy --contract=YourContract
 ```
 
 ## DApp Frontend Testing Best Practices
@@ -113,21 +113,21 @@ npx web3fuzzforge test reentrancy --contract=YourContract
 
 ```bash
 # Test wallet connections
-npx web3fuzzforge test wallet-connection --wallet=metamask,walletconnect,coinbase
+npx Audityzer test wallet-connection --wallet=metamask,walletconnect,coinbase
 ```
 
 ✅ **Verify transaction signing and confirmation**
 
 ```bash
 # Test transaction signing
-npx web3fuzzforge test transaction-signing --scenarios=approve,transfer,stake
+npx Audityzer test transaction-signing --scenarios=approve,transfer,stake
 ```
 
 ✅ **Test signature verification**
 
 ```bash
 # Test signature verification
-npx web3fuzzforge test signature-verification --methods=eip712,personal-sign
+npx Audityzer test signature-verification --methods=eip712,personal-sign
 ```
 
 ### User Input Testing
@@ -136,21 +136,21 @@ npx web3fuzzforge test signature-verification --methods=eip712,personal-sign
 
 ```bash
 # Test input validation
-npx web3fuzzforge test input-validation --fields=address,amount,data
+npx Audityzer test input-validation --fields=address,amount,data
 ```
 
 ✅ **Verify protection against injection attacks**
 
 ```bash
 # Test against injection attacks
-npx web3fuzzforge test injection --targets=input-fields,url-parameters
+npx Audityzer test injection --targets=input-fields,url-parameters
 ```
 
 ✅ **Test error handling and user feedback**
 
 ```bash
 # Test error handling
-npx web3fuzzforge test error-handling --scenarios=network-failure,rejection,gas-error
+npx Audityzer test error-handling --scenarios=network-failure,rejection,gas-error
 ```
 
 ## Protocol-Specific Testing
@@ -161,21 +161,21 @@ npx web3fuzzforge test error-handling --scenarios=network-failure,rejection,gas-
 
 ```bash
 # Test economic attack scenarios
-npx web3fuzzforge test defi economic-security --protocol=lending
+npx Audityzer test defi economic-security --protocol=lending
 ```
 
 ✅ **Verify oracle security**
 
 ```bash
 # Test oracle integration
-npx web3fuzzforge test oracles --scenarios=price-manipulation,stale-data
+npx Audityzer test oracles --scenarios=price-manipulation,stale-data
 ```
 
 ✅ **Test liquidation mechanisms**
 
 ```bash
 # Test liquidation mechanisms
-npx web3fuzzforge test liquidation --scenarios=normal,edge-cases,extreme-volatility
+npx Audityzer test liquidation --scenarios=normal,edge-cases,extreme-volatility
 ```
 
 ### NFT Protocol Testing
@@ -184,21 +184,21 @@ npx web3fuzzforge test liquidation --scenarios=normal,edge-cases,extreme-volatil
 
 ```bash
 # Test minting functions
-npx web3fuzzforge test nft minting --scenarios=bulk-mint,pre-sale,public-sale
+npx Audityzer test nft minting --scenarios=bulk-mint,pre-sale,public-sale
 ```
 
 ✅ **Verify royalty mechanisms**
 
 ```bash
 # Test royalty mechanisms
-npx web3fuzzforge test nft royalties --scenarios=primary-sale,secondary-market
+npx Audityzer test nft royalties --scenarios=primary-sale,secondary-market
 ```
 
 ✅ **Test metadata security**
 
 ```bash
 # Test metadata security
-npx web3fuzzforge test nft metadata --scenarios=ipfs,centralized,on-chain
+npx Audityzer test nft metadata --scenarios=ipfs,centralized,on-chain
 ```
 
 ## Cross-Chain Testing
@@ -207,21 +207,21 @@ npx web3fuzzforge test nft metadata --scenarios=ipfs,centralized,on-chain
 
 ```bash
 # Test bridge operations
-npx web3fuzzforge test bridge --source=ethereum --destination=polygon
+npx Audityzer test bridge --source=ethereum --destination=polygon
 ```
 
 ✅ **Verify cross-chain message passing**
 
 ```bash
 # Test cross-chain messages
-npx web3fuzzforge test cross-chain-messaging --source=ethereum --destination=optimism
+npx Audityzer test cross-chain-messaging --source=ethereum --destination=optimism
 ```
 
 ✅ **Test L2-specific mechanisms**
 
 ```bash
 # Test L2 specific features
-npx web3fuzzforge test l2-features --chain=zksync-era
+npx Audityzer test l2-features --chain=zksync-era
 ```
 
 ## Security Testing Workflow
@@ -239,7 +239,7 @@ Run an initial automated scan:
 
 ```bash
 # Run a comprehensive security scan
-npx web3fuzzforge scan --target=./contracts --output=initial-scan.json
+npx Audityzer scan --target=./contracts --output=initial-scan.json
 ```
 
 ### 3. Focused Testing
@@ -248,7 +248,7 @@ Address findings from the initial scan:
 
 ```bash
 # Focus on critical findings
-npx web3fuzzforge test --focus-on=high-severity --from=initial-scan.json
+npx Audityzer test --focus-on=high-severity --from=initial-scan.json
 ```
 
 ### 4. Advanced Testing
@@ -257,10 +257,10 @@ Apply more sophisticated testing techniques:
 
 ```bash
 # Run fuzzing campaign
-npx web3fuzzforge fuzz --target=./contracts --duration=24h
+npx Audityzer fuzz --target=./contracts --duration=24h
 
 # Run economic simulation
-npx web3fuzzforge simulate --model=economic --scenarios=extreme-market
+npx Audityzer simulate --model=economic --scenarios=extreme-market
 ```
 
 ### 5. Reporting & Remediation
@@ -269,7 +269,7 @@ Generate comprehensive reports:
 
 ```bash
 # Generate security report
-npx web3fuzzforge report --format=html,pdf --input=all-results.json
+npx Audityzer report --format=html,pdf --input=all-results.json
 ```
 
 ### 6. Verification Testing
@@ -278,7 +278,7 @@ Verify that fixes address the issues:
 
 ```bash
 # Verify fixes
-npx web3fuzzforge verify --issues=issue-1,issue-2 --fixes=fix-branch
+npx Audityzer verify --issues=issue-1,issue-2 --fixes=fix-branch
 ```
 
 ## Setting Up Continuous Security Testing
@@ -309,7 +309,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run security tests
-        run: npx web3fuzzforge ci-run
+        run: npx Audityzer ci-run
       - name: Upload results
         uses: actions/upload-artifact@v3
         with:
@@ -335,7 +335,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run deep security scan
-        run: npx web3fuzzforge scan --deep --duration=8h
+        run: npx Audityzer scan --deep --duration=8h
 ```
 
 ## Best Practices by Project Phase
@@ -366,9 +366,9 @@ jobs:
 | Testing Approach    | Tools                  | Best For                           |
 | ------------------- | ---------------------- | ---------------------------------- |
 | Static Analysis     | Slither, MythX         | Finding known vulnerabilities      |
-| Dynamic Testing     | Web3FuzzForge          | Testing realistic attack scenarios |
+| Dynamic Testing     | Audityzer          | Testing realistic attack scenarios |
 | Formal Verification | Certora, SMTChecker    | Mathematical correctness proofs    |
-| Economic Simulation | Echidna, Web3FuzzForge | Testing economic security          |
+| Economic Simulation | Echidna, Audityzer | Testing economic security          |
 | Manual Review       | Expert auditors        | Finding logical/design flaws       |
 
 ## Real-World Testing Scenarios
@@ -379,7 +379,7 @@ Test protection against flash loan attacks:
 
 ```bash
 # Simulate flash loan attack
-npx web3fuzzforge simulate flash-loan-attack --protocol=lending --target=price-oracle
+npx Audityzer simulate flash-loan-attack --protocol=lending --target=price-oracle
 ```
 
 ### Governance Attack Testing
@@ -388,7 +388,7 @@ Test governance security:
 
 ```bash
 # Simulate governance attack
-npx web3fuzzforge simulate governance-attack --scenario=proposal-takeover
+npx Audityzer simulate governance-attack --scenario=proposal-takeover
 ```
 
 ### Front-Running Protection Testing
@@ -397,7 +397,7 @@ Test protection against front-running:
 
 ```bash
 # Test front-running protection
-npx web3fuzzforge test front-running --methods=commit-reveal,flashbots
+npx Audityzer test front-running --methods=commit-reveal,flashbots
 ```
 
 ## Additional Resources
@@ -406,12 +406,12 @@ npx web3fuzzforge test front-running --methods=commit-reveal,flashbots
 - [Trail of Bits Smart Contract Security Checklist](https://blog.trailofbits.com/2018/04/06/smart-contract-security-checklist/)
 - [Consensys Smart Contract Best Practices](https://consensys.github.io/smart-contract-best-practices/)
 - [Rekt News](https://rekt.news/) - Learn from past exploits
-- [Web3FuzzForge Security Newsletter](https://web3fuzzforge.dev/newsletter) - Stay updated on the latest security best practices
+- [Audityzer Security Newsletter](https://Audityzer.dev/newsletter) - Stay updated on the latest security best practices
 
 ## Community Security Resources
 
 Join our security-focused community channels:
 
-- [Discord #security-testing](https://discord.gg/web3fuzzforge)
-- [Monthly Security Office Hours](https://web3fuzzforge.dev/events)
-- [Security Testing Competition](https://web3fuzzforge.dev/competition)
+- [Discord #security-testing](https://discord.gg/Audityzer)
+- [Monthly Security Office Hours](https://Audityzer.dev/events)
+- [Security Testing Competition](https://Audityzer.dev/competition)

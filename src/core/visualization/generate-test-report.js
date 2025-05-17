@@ -1,5 +1,5 @@
 /**
- * Web3FuzzForge - Enhanced Test Report Generator
+ * Audityzer - Enhanced Test Report Generator
  * 
  * This module generates interactive visual reports for security testing results.
  * It shows vulnerabilities, test coverage, and provides recommendations.

@@ -2,7 +2,7 @@
  * Immunefi Submission Generator
  *
  * This module generates submission templates for the Immunefi bug bounty platform
- * based on vulnerabilities detected by the Web3FuzzForge toolkit.
+ * based on vulnerabilities detected by the Audityzer toolkit.
  */
 
 import axios from 'axios';

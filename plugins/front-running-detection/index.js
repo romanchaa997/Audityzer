@@ -1,5 +1,5 @@
 /**
- * Front-running Detection Plugin for Web3FuzzForge
+ * Front-running Detection Plugin for Audityzer
  * Detects and prevents front-running vulnerabilities in DeFi contracts
  */
 

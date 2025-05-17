@@ -1,5 +1,5 @@
 /**
- * Web3FuzzForge - Immunefi Bounty Submission Automation
+ * Audityzer - Immunefi Bounty Submission Automation
  * 
  * This module automates the submission of vulnerabilities to the Immunefi bug bounty platform.
  * It processes test results, formats them according to Immunefi requirements, and submits 
@@ -143,7 +143,7 @@ ${vuln.recommendation || 'No specific recommendation provided.'}
 During the security assessment conducted on ${new Date().toISOString().split('T')[0]}, the following vulnerabilities were identified:
 ${vulnSummary}
 
-These findings were discovered through automated security testing using the Web3FuzzForge security testing framework.
+These findings were discovered through automated security testing using the Audityzer security testing framework.
 
 ## Vulnerability Details
 ${vulnSections}
@@ -159,7 +159,7 @@ The security assessment was performed using automated testing tools focusing on 
 The tests were executed in a controlled environment against the target application.
 
 ## Additional Information
-This report was generated automatically by the Web3FuzzForge security testing kit. All findings have been validated to ensure they represent actual security issues.
+This report was generated automatically by the Audityzer security testing kit. All findings have been validated to ensure they represent actual security issues.
 `;
 
   // Format the submission data according to Immunefi's requirements
@@ -171,7 +171,7 @@ This report was generated automatically by the Web3FuzzForge security testing ki
     vulnerabilityType: determineVulnerabilityType(vulnerabilities),
     metadata: {
       test_date: new Date().toISOString(),
-      test_framework: 'Web3FuzzForge',
+      test_framework: 'Audityzer',
       vulnerability_count: vulnerabilities.length,
       critical_count: criticalVulns.length,
       high_count: highVulns.length,

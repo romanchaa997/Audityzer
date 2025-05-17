@@ -1,4 +1,4 @@
-# Web3FuzzForge Implementation Guide
+# Audityzer Implementation Guide
 
 Here's a step-by-step guide to implement all the requested tasks:
 
@@ -10,16 +10,16 @@ Here's a step-by-step guide to implement all the requested tasks:
 
    ```bash
    # Show basic command
-   web3fuzzforge generate connect --provider metamask --out ./tests/connection.test.js
+   Audityzer generate connect --provider metamask --out ./tests/connection.test.js
 
    # Show TypeScript support
-   web3fuzzforge generate tx --provider metamask --out ./tests/transaction.test.ts --typescript
+   Audityzer generate tx --provider metamask --out ./tests/transaction.test.ts --typescript
 
    # Show preset configuration
-   web3fuzzforge generate tx --preset defi --out ./tests/defi-swap-test.js
+   Audityzer generate tx --preset defi --out ./tests/defi-swap-test.js
    ```
 
-4. Show the `.web3fuzzforge.json` configuration file
+4. Show the `.Audityzer.json` configuration file
 5. Demonstrate how mocks work by:
    - Highlighting the wallet-snapshot.test.js file
    - Running a test with `npm run test:headed`
@@ -34,7 +34,7 @@ Here's a step-by-step guide to implement all the requested tasks:
 2. The script will:
 
    - Create a terminal recording with terminalizer
-   - Generate and optimize the GIF at `media/web3fuzzforge-quickstart.gif`
+   - Generate and optimize the GIF at `media/Audityzer-quickstart.gif`
 
 3. Verify that the GIF has been updated in the README.md file
 
@@ -80,8 +80,8 @@ Defer less common wallet implementations like Phantom and Rabby unless specifica
    cd docs-site
 
    # Initialize a new Docusaurus site
-   npx @docusaurus/init@latest init web3fuzzforge-docs classic
-   cd web3fuzzforge-docs
+   npx @docusaurus/init@latest init Audityzer-docs classic
+   cd Audityzer-docs
    ```
 
 2. Structure your documentation as described, creating separate files for:
@@ -112,8 +112,8 @@ If you prefer SvelteKit:
 1. Create a new SvelteKit project:
 
    ```bash
-   npm create svelte@latest web3fuzzforge-docs
-   cd web3fuzzforge-docs
+   npm create svelte@latest Audityzer-docs
+   cd Audityzer-docs
    npm install
    npm install -D mdsvex
    ```
@@ -221,7 +221,7 @@ const generator = createBountySubmissionGenerator('code4rena', {
 
 ### Integration with Test Results
 
-The module seamlessly integrates with Web3FuzzForge's security test results:
+The module seamlessly integrates with Audityzer's security test results:
 
 1. Run security tests with `npm run security-test`
 2. Use the generated report as input for bounty submissions

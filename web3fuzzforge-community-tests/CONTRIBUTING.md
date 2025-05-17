@@ -1,6 +1,6 @@
-# Contributing to Web3FuzzForge Community Tests
+# Contributing to Audityzer Community Tests
 
-Thank you for your interest in contributing to the Web3FuzzForge Community Tests repository! This guide will help you understand how to contribute effectively.
+Thank you for your interest in contributing to the Audityzer Community Tests repository! This guide will help you understand how to contribute effectively.
 
 ## Code of Conduct
 
@@ -12,7 +12,7 @@ By participating in this project, you agree to abide by our code of conduct. Ple
 
 1. Fork the repository
 2. Clone your fork locally
-3. Add the upstream repository: `git remote add upstream https://github.com/Web3FuzzForge/web3fuzzforge-community-tests.git`
+3. Add the upstream repository: `git remote add upstream https://github.com/Audityzer/Audityzer-community-tests.git`
 
 ### Step 2: Create a Branch
 

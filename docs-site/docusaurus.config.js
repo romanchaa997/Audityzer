@@ -6,19 +6,19 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Web3FuzzForge Documentation',
+  title: 'Audityzer Documentation',
   tagline: 'Comprehensive Web3 Security Testing Toolkit',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://web3fuzzforge.dev',
+  url: 'https://Audityzer.dev',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'web3fuzzforge', // Usually your GitHub org/user name.
+  organizationName: 'Audityzer', // Usually your GitHub org/user name.
   projectName: 'web3-security-test-kit', // Usually your repo name.
 
   onBrokenLinks: 'throw',
@@ -58,13 +58,13 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/web3fuzzforge/web3-security-test-kit/tree/main/docs-site/',
+          editUrl: 'https://github.com/Audityzer/web3-security-test-kit/tree/main/docs-site/',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/web3fuzzforge/web3-security-test-kit/tree/main/docs-site/',
+          editUrl: 'https://github.com/Audityzer/web3-security-test-kit/tree/main/docs-site/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -77,11 +77,11 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/web3fuzzforge-social-card.jpg',
+      image: 'img/Audityzer-social-card.jpg',
       navbar: {
-        title: 'Web3FuzzForge',
+        title: 'Audityzer',
         logo: {
-          alt: 'Web3FuzzForge Logo',
+          alt: 'Audityzer Logo',
           src: 'img/logo.svg',
         },
         items: [
@@ -120,7 +120,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://github.com/web3fuzzforge/web3-security-test-kit',
+            href: 'https://github.com/Audityzer/web3-security-test-kit',
             label: 'GitHub',
             position: 'right',
           },
@@ -151,15 +151,15 @@ const config = {
             items: [
               {
                 label: 'Discord',
-                href: 'https://discord.gg/web3fuzzforge',
+                href: 'https://discord.gg/Audityzer',
               },
               {
                 label: 'Twitter',
-                href: 'https://twitter.com/web3fuzzforge',
+                href: 'https://twitter.com/Audityzer',
               },
               {
                 label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/web3fuzzforge',
+                href: 'https://stackoverflow.com/questions/tagged/Audityzer',
               },
             ],
           },
@@ -172,7 +172,7 @@ const config = {
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/web3fuzzforge/web3-security-test-kit',
+                href: 'https://github.com/Audityzer/web3-security-test-kit',
               },
               {
                 label: 'Interactive Demo',
@@ -181,7 +181,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Web3FuzzForge. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Audityzer. Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
@@ -198,14 +198,14 @@ const config = {
         appId: 'YOUR_APP_ID',
         // Public API key: it is safe to commit it
         apiKey: 'YOUR_SEARCH_API_KEY',
-        indexName: 'web3fuzzforge',
+        indexName: 'Audityzer',
         // Optional: see doc section below
         contextualSearch: true,
       },
       announcementBar: {
         id: 'support_us',
         content:
-          '⭐️ If you find Web3FuzzForge helpful, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/web3fuzzforge/web3-security-test-kit">GitHub</a> ⭐️',
+          '⭐️ If you find Audityzer helpful, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/Audityzer/web3-security-test-kit">GitHub</a> ⭐️',
         backgroundColor: '#FF6B2B',
         textColor: '#fff',
         isCloseable: true,

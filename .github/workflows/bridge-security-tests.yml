@@ -106,7 +106,7 @@ jobs:
     name: Send Notifications
     needs: [test, visualize]
     runs-on: ubuntu-latest
-    if: always() && (github.repository == 'yourusername/Web3FuzzForge' || github.repository == 'yourusername/web3-security-test-kit')
+    if: always() && (github.repository == 'yourusername/Audityzer' || github.repository == 'yourusername/web3-security-test-kit')
 
     steps:
       - name: Checkout code

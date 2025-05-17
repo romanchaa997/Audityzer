@@ -1,5 +1,5 @@
 /**
- * i18n.js - Internationalization setup for Web3FuzzForge
+ * i18n.js - Internationalization setup for Audityzer
  *
  * This module sets up internationalization for the entire application
  * using i18next library to support multiple languages.

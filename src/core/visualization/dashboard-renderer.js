@@ -1,5 +1,5 @@
 /**
- * Dashboard Renderer Module for Web3FuzzForge
+ * Dashboard Renderer Module for Audityzer
  * Generates interactive dashboards for security test results visualization
  */
 
@@ -55,7 +55,7 @@ class DashboardRenderer {
 
       // Replace placeholders in template
       template = template
-        .replace('{{TITLE}}', 'Web3FuzzForge Security Test Results')
+        .replace('{{TITLE}}', 'Audityzer Security Test Results')
         .replace('{{CONTENT}}', content)
         .replace('{{VULNERABILITY_CHART}}', vulnerabilityChart)
         .replace('{{COVERAGE_CHART}}', coverageChart)
@@ -104,7 +104,7 @@ class DashboardRenderer {
 
       // Replace placeholders in template
       template = template
-        .replace('{{TITLE}}', 'Web3FuzzForge Transaction Flow Analysis')
+        .replace('{{TITLE}}', 'Audityzer Transaction Flow Analysis')
         .replace('{{FLOW_DIAGRAM}}', flowDiagram)
         .replace('{{STATS}}', stats)
         .replace('{{DARK_MODE}}', this.options.darkMode ? 'dark-theme' : '');
@@ -807,7 +807,7 @@ class DashboardRenderer {
 <body class="{{DARK_MODE}}">
   <div class="container">
     <header>
-      <h1>Web3FuzzForge Security Dashboard</h1>
+      <h1>Audityzer Security Dashboard</h1>
     </header>
     
     <div class="chart-container">

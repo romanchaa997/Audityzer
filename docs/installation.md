@@ -1,10 +1,10 @@
-# Web3FuzzForge Installation Guide
+# Audityzer Installation Guide
 
-This guide will help you install and set up Web3FuzzForge on your system.
+This guide will help you install and set up Audityzer on your system.
 
 ## System Requirements
 
-Before installing Web3FuzzForge, ensure your system meets the following requirements:
+Before installing Audityzer, ensure your system meets the following requirements:
 
 ### Operating Systems
 
@@ -28,16 +28,16 @@ Before installing Web3FuzzForge, ensure your system meets the following requirem
 
 ### Method 1: NPM Global Installation (Recommended)
 
-The easiest way to install Web3FuzzForge is via npm:
+The easiest way to install Audityzer is via npm:
 
 ```bash
-npm install -g web3fuzzforge
+npm install -g Audityzer
 ```
 
 Verify the installation:
 
 ```bash
-web3fuzzforge --version
+Audityzer --version
 ```
 
 ### Method 2: Yarn Global Installation
@@ -45,13 +45,13 @@ web3fuzzforge --version
 If you prefer yarn:
 
 ```bash
-yarn global add web3fuzzforge
+yarn global add Audityzer
 ```
 
 Verify the installation:
 
 ```bash
-web3fuzzforge --version
+Audityzer --version
 ```
 
 ### Method 3: Docker (For CI/CD Environments)
@@ -59,8 +59,8 @@ web3fuzzforge --version
 We provide a Docker image for CI/CD environments:
 
 ```bash
-docker pull web3fuzzforge/web3fuzzforge:latest
-docker run -it web3fuzzforge/web3fuzzforge --version
+docker pull Audityzer/Audityzer:latest
+docker run -it Audityzer/Audityzer --version
 ```
 
 ## Platform-Specific Instructions
@@ -71,7 +71,7 @@ docker run -it web3fuzzforge/web3fuzzforge --version
 2. Open PowerShell as Administrator
 3. Run the installation command:
    ```powershell
-   npm install -g web3fuzzforge
+   npm install -g Audityzer
    ```
 4. If you encounter permission errors, you may need to adjust your execution policy:
    ```powershell
@@ -84,13 +84,13 @@ docker run -it web3fuzzforge/web3fuzzforge --version
    ```bash
    brew install node
    ```
-2. Install Web3FuzzForge:
+2. Install Audityzer:
    ```bash
-   npm install -g web3fuzzforge
+   npm install -g Audityzer
    ```
 3. If you encounter permission errors:
    ```bash
-   sudo npm install -g web3fuzzforge --unsafe-perm=true
+   sudo npm install -g Audityzer --unsafe-perm=true
    ```
 
 ### Linux Setup
@@ -106,9 +106,9 @@ docker run -it web3fuzzforge/web3fuzzforge --version
    sudo yum install nodejs npm
    ```
 
-2. Install Web3FuzzForge:
+2. Install Audityzer:
    ```bash
-   sudo npm install -g web3fuzzforge
+   sudo npm install -g Audityzer
    ```
 
 ## Troubleshooting Common Issues
@@ -128,22 +128,22 @@ source ~/.profile
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 nvm install node
 nvm use node
-npm install -g web3fuzzforge
+npm install -g Audityzer
 ```
 
 ### Browser Detection Issues
 
-If Web3FuzzForge cannot find a browser:
+If Audityzer cannot find a browser:
 
 1. Ensure you have at least one Chromium-based browser installed
 2. Set the browser path explicitly:
    ```bash
-   web3fuzzforge config set browser.path=/path/to/browser
+   Audityzer config set browser.path=/path/to/browser
    ```
 
 ### Playwright Dependency Issues
 
-Web3FuzzForge uses Playwright for browser automation. If it fails to install:
+Audityzer uses Playwright for browser automation. If it fails to install:
 
 ```bash
 npx playwright install
@@ -152,10 +152,10 @@ npx playwright install-deps
 
 ## Dependencies Installation
 
-When you first run Web3FuzzForge, it will automatically install required dependencies. To manually install them:
+When you first run Audityzer, it will automatically install required dependencies. To manually install them:
 
 ```bash
-web3fuzzforge setup
+Audityzer setup
 ```
 
 ## Configuration
@@ -163,13 +163,13 @@ web3fuzzforge setup
 After installation, configure your environment:
 
 ```bash
-web3fuzzforge config init
+Audityzer config init
 ```
 
-This creates a configuration file at `~/.web3fuzzforge/config.json` which you can edit manually or using:
+This creates a configuration file at `~/.Audityzer/config.json` which you can edit manually or using:
 
 ```bash
-web3fuzzforge config set key.path value
+Audityzer config set key.path value
 ```
 
 ## Next Steps
@@ -186,6 +186,6 @@ After installation, check out these guides:
 If you encounter any issues during installation:
 
 - Check our [FAQ](./faq.md)
-- Join our [Discord community](https://discord.gg/web3fuzzforge)
-- Open an issue on our [GitHub repository](https://github.com/web3fuzzforge/web3fuzzforge)
-- Email support at support@web3fuzzforge.io
+- Join our [Discord community](https://discord.gg/Audityzer)
+- Open an issue on our [GitHub repository](https://github.com/Audityzer/Audityzer)
+- Email support at support@Audityzer.io

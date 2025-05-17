@@ -40,27 +40,27 @@ jobs:
       # Run security checks
       - run:
           name: Run Security Checks
-          command: npx web3fuzzforge analyze --config ./security-rules.json
+          command: npx Audityzer analyze --config ./security-rules.json
 
       # Run tests
       - run:
           name: Run Web3 Security Tests
-          command: npx web3fuzzforge test
+          command: npx Audityzer test
 
       # Validate L2 protocol security rules
       - run:
           name: Validate zkSync Era Security Rules
-          command: npx web3fuzzforge validate-l2-protocol zksync --config ./security-rules.json
+          command: npx Audityzer validate-l2-protocol zksync --config ./security-rules.json
 
       # Validate contract deployments
       - run:
           name: Validate Contract Deployments
-          command: npx web3fuzzforge deploy-validate --format md --check-security true
+          command: npx Audityzer deploy-validate --format md --check-security true
 
       # Generate security reports
       - run:
           name: Generate Security Reports
-          command: npx web3fuzzforge report --format html --include-screenshots --output test-results/security-report.html
+          command: npx Audityzer report --format html --include-screenshots --output test-results/security-report.html
 
       # Store test results
       - store_test_results:

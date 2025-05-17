@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Web3FuzzForge Interactive Demo</title>
+    <title>Audityzer Interactive Demo</title>
     <style>
       body {
         background-color: #121212;
@@ -321,7 +321,7 @@
     </button>
 
     <div class="demo-container">
-      <h1>Web3FuzzForge Interactive Demo</h1>
+      <h1>Audityzer Interactive Demo</h1>
 
       <div class="controls">
         <div class="control-group">
@@ -367,20 +367,20 @@
             <div class="terminal-button yellow"></div>
             <div class="terminal-button green"></div>
           </div>
-          <div class="terminal-title">web3fuzzforge@user: ~/project</div>
+          <div class="terminal-title">Audityzer@user: ~/project</div>
         </div>
         <div class="terminal-content" id="terminal-content">
           <div class="line visible">
-            <span class="prompt">$</span> <span class="command">web3fuzzforge --version</span>
+            <span class="prompt">$</span> <span class="command">Audityzer --version</span>
           </div>
           <div class="line visible output">
-            <span class="highlight">Web3FuzzForge v1.1.0</span>
+            <span class="highlight">Audityzer v1.1.0</span>
           </div>
           <div class="line visible">
-            <span class="prompt">$</span> <span class="command">web3fuzzforge help</span>
+            <span class="prompt">$</span> <span class="command">Audityzer help</span>
           </div>
           <div class="line visible output">
-            Web3FuzzForge - Comprehensive Web3 Security Testing Toolkit
+            Audityzer - Comprehensive Web3 Security Testing Toolkit
 
             <span class="highlight">Commands:</span>
             init Initialize a new test project generate Generate test files run Run test suite fuzz
@@ -400,7 +400,7 @@
             <img src="../img/wallets/metamask.png" alt="MetaMask Logo" class="wallet-logo" />
             <div class="wallet-name">MetaMask</div>
           </div>
-          <p>Web3FuzzForge would like to connect to your wallet</p>
+          <p>Audityzer would like to connect to your wallet</p>
           <button class="wallet-action metamask-action">Connect</button>
         </div>
 
@@ -409,7 +409,7 @@
             <img src="../img/wallets/coinbase.png" alt="Coinbase Wallet Logo" class="wallet-logo" />
             <div class="wallet-name">Coinbase Wallet</div>
           </div>
-          <p>Web3FuzzForge would like to connect to your wallet</p>
+          <p>Audityzer would like to connect to your wallet</p>
           <button class="wallet-action coinbase-action">Connect</button>
         </div>
 
@@ -418,7 +418,7 @@
             <img src="../img/wallets/phantom.png" alt="Phantom Logo" class="wallet-logo" />
             <div class="wallet-name">Phantom</div>
           </div>
-          <p>Web3FuzzForge would like to connect to your wallet</p>
+          <p>Audityzer would like to connect to your wallet</p>
           <button class="wallet-action phantom-action">Connect</button>
         </div>
 
@@ -427,7 +427,7 @@
             <img src="../img/wallets/rabby.png" alt="Rabby Logo" class="wallet-logo" />
             <div class="wallet-name">Rabby</div>
           </div>
-          <p>Web3FuzzForge would like to connect to your wallet</p>
+          <p>Audityzer would like to connect to your wallet</p>
           <button class="wallet-action">Connect</button>
         </div>
       </div>
@@ -507,13 +507,13 @@
           walletPreview.classList.add('active');
 
           // Add command to terminal
-          const command = `web3fuzzforge generate ${testType} --wallet=${wallet}${fuzzLevel !== 'none' ? ` --fuzz=${fuzzLevel}` : ''}`;
+          const command = `Audityzer generate ${testType} --wallet=${wallet}${fuzzLevel !== 'none' ? ` --fuzz=${fuzzLevel}` : ''}`;
           addTerminalLine(`<span class="prompt">$</span> <span class="command">${command}</span>`);
 
           // Simulate command output
           setTimeout(() => {
             addTerminalLine(
-              `<span class="highlight">Web3FuzzForge v1.1.0</span>
+              `<span class="highlight">Audityzer v1.1.0</span>
 Generating ${testType} test for ${wallet.charAt(0).toUpperCase() + wallet.slice(1)}...
 
 <span class="success">✓</span> Created tests/${wallet}-${testType}.test.js
@@ -536,7 +536,7 @@ ${testType === 'network' ? '- Network detection\n- Chain switching\n- Fallback h
             // Add run command
             setTimeout(() => {
               addTerminalLine(
-                `<span class="prompt">$</span> <span class="command">web3fuzzforge run</span>`
+                `<span class="prompt">$</span> <span class="command">Audityzer run</span>`
               );
 
               // Show run output
@@ -545,7 +545,7 @@ ${testType === 'network' ? '- Network detection\n- Chain switching\n- Fallback h
                 const hasWarning = fuzzLevel !== 'none' || Math.random() > 0.5;
 
                 addTerminalLine(
-                  `<span class="highlight">Web3FuzzForge v1.1.0</span>
+                  `<span class="highlight">Audityzer v1.1.0</span>
 Running test suite...
 
 <span class="success">▶</span> Starting ${wallet.charAt(0).toUpperCase() + wallet.slice(1)} ${testType.charAt(0).toUpperCase() + testType.slice(1)} Tests
@@ -638,7 +638,7 @@ ${
 }
 
 <span class="highlight">Generating detailed report...</span>
-<span class="success">✓</span> Report saved to web3fuzzforge-report.html`,
+<span class="success">✓</span> Report saved to Audityzer-report.html`,
                   'line',
                   true
                 );

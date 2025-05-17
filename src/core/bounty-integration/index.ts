@@ -1,7 +1,7 @@
 /**
  * Bounty Integration Modules
  *
- * This module exports all bounty platform integrations for the Web3FuzzForge toolkit.
+ * This module exports all bounty platform integrations for the Audityzer toolkit.
  */
 
 // Import all bounty integration classes

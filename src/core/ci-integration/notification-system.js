@@ -18,15 +18,15 @@ class NotificationSystem {
         email: {
           enabled: config.channels?.email?.enabled || false,
           smtpConfig: config.channels?.email?.smtpConfig || {},
-          from: config.channels?.email?.from || 'web3fuzzforge@example.com',
+          from: config.channels?.email?.from || 'Audityzer@example.com',
           to: config.channels?.email?.to || [],
-          subject: config.channels?.email?.subject || 'Web3FuzzForge Security Alert',
+          subject: config.channels?.email?.subject || 'Audityzer Security Alert',
         },
         slack: {
           enabled: config.channels?.slack?.enabled || false,
           webhookUrl: config.channels?.slack?.webhookUrl || '',
           channel: config.channels?.slack?.channel || '#security-alerts',
-          username: config.channels?.slack?.username || 'Web3FuzzForge Security',
+          username: config.channels?.slack?.username || 'Audityzer Security',
         },
         webhook: {
           enabled: config.channels?.webhook?.enabled || false,
@@ -216,7 +216,7 @@ class NotificationSystem {
 
     // Prepare content for all notification types
     return {
-      title: title || 'Web3FuzzForge Security Alert',
+      title: title || 'Audityzer Security Alert',
       summary: `${totalIssues} security issues detected (${severityCounts.critical} critical, ${severityCounts.high} high, ${severityCounts.medium} medium)`,
       timestamp: new Date().toISOString(),
       project: options.project || process.env.PROJECT_NAME || 'Web3 Project',
@@ -405,7 +405,7 @@ class NotificationSystem {
     }
 
     htmlContent += `
-      <p>This is an automated security alert from Web3FuzzForge Security Testing.</p>
+      <p>This is an automated security alert from Audityzer Security Testing.</p>
       <p>For more details, please check the full reports in your CI/CD pipeline results.</p>
     `;
 
@@ -426,7 +426,7 @@ Security Issues Summary:
 - Medium: ${severityCounts.medium || 0}
 - Low: ${severityCounts.low || 0}
 
-This is an automated security alert from Web3FuzzForge Security Testing.
+This is an automated security alert from Audityzer Security Testing.
 For more details, please check the full reports in your CI/CD pipeline results.
     `;
 
@@ -586,7 +586,7 @@ For more details, please check the full reports in your CI/CD pipeline results.
       elements: [
         {
           type: 'mrkdwn',
-          text: 'This is an automated security alert from Web3FuzzForge Security Testing.',
+          text: 'This is an automated security alert from Audityzer Security Testing.',
         },
       ],
     });

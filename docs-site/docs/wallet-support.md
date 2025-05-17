@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Wallet Support
 
-Web3FuzzForge provides comprehensive support for testing various cryptocurrency wallets, focusing on the most widely used options first to maximize testing value.
+Audityzer provides comprehensive support for testing various cryptocurrency wallets, focusing on the most widely used options first to maximize testing value.
 
 ## Currently Supported Wallets
 

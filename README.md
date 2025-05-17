@@ -1,10 +1,10 @@
 # DevForge
 
-[![npm version](https://img.shields.io/npm/v/devforge.svg)](https://www.npmjs.com/package/devforge)
+[![npm version](https://img.shields.io/npm/v/devforge.svg)](https://www.npmjs.com/package/Audityzer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI/CD Pipeline](https://github.com/username/devforge/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/username/devforge/actions/workflows/ci-cd.yml)
-[![Cross-Platform Tests](https://github.com/username/devforge/actions/workflows/cross-platform-tests.yml/badge.svg)](https://github.com/username/devforge/actions/workflows/cross-platform-tests.yml)
-[![Lighthouse Regression](https://github.com/username/devforge/actions/workflows/website-regression.yml/badge.svg)](https://github.com/username/devforge/actions/workflows/website-regression.yml)
+[![CI/CD Pipeline](https://github.com/romanchaa997/Audityzer/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/romanchaa997/Audityzer/actions/workflows/ci-cd.yml)
+[![Cross-Platform Tests](https://github.com/romanchaa997/Audityzer/actions/workflows/cross-platform-tests.yml/badge.svg)](https://github.com/romanchaa997/Audityzer/actions/workflows/cross-platform-tests.yml)
+[![Lighthouse Regression](https://github.com/romanchaa997/Audityzer/actions/workflows/website-regression.yml/badge.svg)](https://github.com/romanchaa997/Audityzer/actions/workflows/website-regression.yml)
 
 **Jump to:** [CI/CD](#ci-cd-integration) • [Docs](#comprehensive-documentation) • [Deployment](#smart-contract-deployment-validation) • [Security Scan](#security-testing)
 
@@ -18,7 +18,7 @@ DevForge is an intelligent development server with automatic port management, sp
 
 ```bash
 # Global installation
-npm install -g devforge
+
 
 # Project installation
 npm install --save-dev devforge
@@ -759,7 +759,7 @@ Once set up, the security analysis will run automatically on:
 - Push to main/master/develop branches
 - Pull requests to these branches
 
-You can also manually trigger scans from the Actions tab by selecting the "Web3FuzzForge Security Analysis" workflow and clicking "Run workflow".
+You can also manually trigger scans from the Actions tab by selecting the "Audityzer Security Analysis" workflow and clicking "Run workflow".
 
 ### Dependencies Installation
 

@@ -1,10 +1,10 @@
-# Web3FuzzForge Community Tests
+# Audityzer Community Tests
 
-A collection of community-contributed security tests for Web3 applications. This repository is part of the Web3FuzzForge initiative to improve security testing across Web3 applications.
+A collection of community-contributed security tests for Web3 applications. This repository is part of the Audityzer initiative to improve security testing across Web3 applications.
 
 ## 🔍 About
 
-Web3FuzzForge Community Tests is a repository for sharing, collaborating on, and discovering security tests for Web3 applications. Our focus is on detecting edge cases, race conditions, and other potential vulnerabilities in dApps and wallet integrations.
+Audityzer Community Tests is a repository for sharing, collaborating on, and discovering security tests for Web3 applications. Our focus is on detecting edge cases, race conditions, and other potential vulnerabilities in dApps and wallet integrations.
 
 ## 🏆 Hall of Fame
 
@@ -27,8 +27,8 @@ Check out our [Hall of Fame](./HALL_OF_FAME.md) to see contributors who have sub
 ### Installation
 
 ```bash
-git clone https://github.com/your-org/web3fuzzforge-community-tests.git
-cd web3fuzzforge-community-tests
+git clone https://github.com/your-org/Audityzer-community-tests.git
+cd Audityzer-community-tests
 npm install
 ```
 
@@ -47,7 +47,7 @@ npm run test:transaction-flow
 
 We welcome contributions from the community! Here's how you can contribute:
 
-1. **Submit a Test Idea**: [Open an issue](https://github.com/your-org/web3fuzzforge-community-tests/issues/new?template=fuzz-idea.md) with the "Fuzz Idea" template
+1. **Submit a Test Idea**: [Open an issue](https://github.com/your-org/Audityzer-community-tests/issues/new?template=fuzz-idea.md) with the "Fuzz Idea" template
 2. **Contribute a Test**: Fork the repo, add your test case, and submit a PR
 3. **Improve Existing Tests**: Enhance test coverage or improve existing test cases
 

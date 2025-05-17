@@ -1,4 +1,4 @@
-name: Web3FuzzForge Security Tests
+name: Audityzer Security Tests
 
 on:
   push:
@@ -33,10 +33,10 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Validate security rules configuration
-        run: npx web3fuzzforge security-validate ./security-rules.json
+        run: npx Audityzer security-validate ./security-rules.json
 
-      - name: Run Web3FuzzForge security tests
-        run: npx web3fuzzforge ci-run --reporter=github,html,json --notify=true
+      - name: Run Audityzer security tests
+        run: npx Audityzer ci-run --reporter=github,html,json --notify=true
 
       - name: Upload test results
         if: always()
@@ -51,4 +51,4 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: test-results/security-results.sarif
-          category: web3fuzzforge
+          category: Audityzer

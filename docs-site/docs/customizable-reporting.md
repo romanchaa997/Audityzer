@@ -1,6 +1,6 @@
 # Customizable Reporting Views
 
-Web3FuzzForge provides highly customizable security reporting options, allowing you to generate tailored reports for different stakeholders and purposes.
+Audityzer provides highly customizable security reporting options, allowing you to generate tailored reports for different stakeholders and purposes.
 
 ## Overview
 
@@ -28,7 +28,7 @@ Comprehensive security audit reports that include:
 
 ```bash
 # Generate a complete security audit report
-npx web3fuzzforge report audit --format=pdf --output=./reports/security-audit.pdf
+npx Audityzer report audit --format=pdf --output=./reports/security-audit.pdf
 ```
 
 ### Compliance Reports
@@ -42,7 +42,7 @@ Reports focused on compliance with industry standards:
 
 ```bash
 # Generate a compliance-focused report
-npx web3fuzzforge report compliance --standard=soc2 --format=html
+npx Audityzer report compliance --standard=soc2 --format=html
 ```
 
 ### Executive Summaries
@@ -56,7 +56,7 @@ Concise overviews of security status for management:
 
 ```bash
 # Generate an executive summary
-npx web3fuzzforge report executive-summary --format=pdf --include-charts
+npx Audityzer report executive-summary --format=pdf --include-charts
 ```
 
 ### Developer Reports
@@ -70,7 +70,7 @@ Detailed technical reports for development teams:
 
 ```bash
 # Generate a developer-focused report
-npx web3fuzzforge report developer --format=html --include-code-snippets
+npx Audityzer report developer --format=html --include-code-snippets
 ```
 
 ## Customizing Reports
@@ -81,7 +81,7 @@ The interactive report builder allows you to customize every aspect of your repo
 
 ```bash
 # Launch the interactive report builder
-npx web3fuzzforge report-builder
+npx Audityzer report-builder
 ```
 
 This opens an interactive web interface where you can:
@@ -157,7 +157,7 @@ Create a report configuration file for reproducible reports:
 Use this configuration to generate a report:
 
 ```bash
-npx web3fuzzforge report --config=./report-config.json --output=./security-audit.pdf
+npx Audityzer report --config=./report-config.json --output=./security-audit.pdf
 ```
 
 ## Interactive Report Elements
@@ -168,7 +168,7 @@ Add interactive elements to HTML reports:
 
 ```bash
 # Generate a report with interactive vulnerability visualization
-npx web3fuzzforge report --include-visualizations --format=html
+npx Audityzer report --include-visualizations --format=html
 ```
 
 This creates an HTML report with interactive elements:
@@ -182,7 +182,7 @@ This creates an HTML report with interactive elements:
 
 ```bash
 # Include test coverage maps in your report
-npx web3fuzzforge report --include-coverage-maps --format=html
+npx Audityzer report --include-coverage-maps --format=html
 ```
 
 ## Report Templates
@@ -191,10 +191,10 @@ Save and reuse report templates for consistency:
 
 ```bash
 # Save current report configuration as a template
-npx web3fuzzforge report-template save --name="audit-report" --config=./report-config.json
+npx Audityzer report-template save --name="audit-report" --config=./report-config.json
 
 # Use a saved template
-npx web3fuzzforge report --template="audit-report" --output=./security-audit.pdf
+npx Audityzer report --template="audit-report" --output=./security-audit.pdf
 ```
 
 ## Exporting to Third-Party Platforms
@@ -203,13 +203,13 @@ Export reports directly to security platforms:
 
 ```bash
 # Export to Immunefi
-npx web3fuzzforge report --export=immunefi --format=html
+npx Audityzer report --export=immunefi --format=html
 
 # Export to Code4rena
-npx web3fuzzforge report --export=code4rena --format=md
+npx Audityzer report --export=code4rena --format=md
 
 # Export to Sherlock
-npx web3fuzzforge report --export=sherlock --format=md
+npx Audityzer report --export=sherlock --format=md
 ```
 
 ## Custom Reporting API
@@ -217,7 +217,7 @@ npx web3fuzzforge report --export=sherlock --format=md
 For programmatic report generation, use our API:
 
 ```javascript
-const { ReportGenerator } = require('web3fuzzforge/reporting');
+const { ReportGenerator } = require('Audityzer/reporting');
 
 // Create a custom report programmatically
 async function generateCustomReport() {
@@ -265,10 +265,10 @@ We provide a library of ready-to-use report templates:
 
 ```bash
 # List available report templates
-npx web3fuzzforge report-templates list
+npx Audityzer report-templates list
 
 # Generate a report using a template
-npx web3fuzzforge report --template=audit-report --output=./audit-report.pdf
+npx Audityzer report --template=audit-report --output=./audit-report.pdf
 ```
 
 ## Upcoming Features

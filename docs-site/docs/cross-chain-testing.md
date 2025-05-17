@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Cross-Chain Testing
 
-As multi-chain dApps become increasingly common, comprehensive testing across different blockchain networks is critical. Web3FuzzForge provides tools and patterns for testing cross-chain functionality.
+As multi-chain dApps become increasingly common, comprehensive testing across different blockchain networks is critical. Audityzer provides tools and patterns for testing cross-chain functionality.
 
 ## Cross-Chain Testing Overview
 
@@ -18,7 +18,7 @@ Cross-chain testing involves verifying that your application functions correctly
 
 ## Supported Blockchain Networks
 
-Web3FuzzForge test templates can be configured for multiple networks:
+Audityzer test templates can be configured for multiple networks:
 
 | Network   | Chain ID | Test Networks                    |
 | --------- | -------- | -------------------------------- |
@@ -243,4 +243,4 @@ We welcome community contributions of cross-chain test examples, particularly fo
 3. Non-EVM chains (Solana, Cosmos, Polkadot)
 4. Cross-chain bridges
 
-Submit your examples to the `web3fuzzforge-community-tests/cross-chain/` directory with proper documentation.
+Submit your examples to the `Audityzer-community-tests/cross-chain/` directory with proper documentation.

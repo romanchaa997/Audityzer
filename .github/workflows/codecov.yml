@@ -39,20 +39,20 @@ jobs:
           chmod +x codecov
 
       - name: Upload coverage to Codecov
-        run: ./codecov upload-process -r romanchaa997/Web3FuzzForge
+        run: ./codecov upload-process -r romanchaa997/Audityzer
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Build Web3FuzzForge with coverage
+      - name: Build Audityzer with coverage
         continue-on-error: true
-        working-directory: Web3FuzzForge
+        working-directory: Audityzer
         run: |
           npm ci
           npm run build
 
       - name: Build SolidStart App with coverage
         continue-on-error: true
-        working-directory: SolidStartApp
+        working-directory: Audityzer
         run: |
           npm ci
           npm run build

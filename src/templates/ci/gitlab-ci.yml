@@ -32,7 +32,7 @@ validate_security_rules:
   needs:
     - setup
   script:
-    - npx web3fuzzforge security-validate ./security-rules.json
+    - npx Audityzer security-validate ./security-rules.json
   artifacts:
     paths:
       - security-rules.json
@@ -44,7 +44,7 @@ web3_security_tests:
     - validate_security_rules
   script:
     - mkdir -p test-results
-    - npx web3fuzzforge ci-run --reporter=gitlab,html,json,junit --notify=true
+    - npx Audityzer ci-run --reporter=gitlab,html,json,junit --notify=true
   artifacts:
     paths:
       - test-results/
@@ -75,7 +75,7 @@ static_analysis:
   script:
     - mkdir -p test-results/static-analysis
     - npm install -g solhint
-    - npx web3fuzzforge ci-run --reporter=gitlab,html,json --static-analysis=true --contracts-dir=./contracts
+    - npx Audityzer ci-run --reporter=gitlab,html,json --static-analysis=true --contracts-dir=./contracts
   artifacts:
     paths:
       - test-results/static-analysis/

@@ -1,13 +1,13 @@
-# Web3FuzzForge CLI Reference
+# Audityzer CLI Reference
 
-This document provides a comprehensive reference for all Web3FuzzForge CLI commands, options, and usage examples.
+This document provides a comprehensive reference for all Audityzer CLI commands, options, and usage examples.
 
 ## Command Structure
 
-All Web3FuzzForge commands follow this structure:
+All Audityzer commands follow this structure:
 
 ```
-web3fuzzforge [command] [subcommand] [options]
+Audityzer [command] [subcommand] [options]
 ```
 
 ## Global Options
@@ -27,10 +27,10 @@ These options can be used with any command:
 
 ### `init`
 
-Initialize a new Web3FuzzForge project.
+Initialize a new Audityzer project.
 
 ```bash
-web3fuzzforge init [project-name] [options]
+Audityzer init [project-name] [options]
 ```
 
 **Options:**
@@ -45,13 +45,13 @@ web3fuzzforge init [project-name] [options]
 
 ```bash
 # Create a new project
-web3fuzzforge init my-dapp-tests
+Audityzer init my-dapp-tests
 
 # Create a project with the advanced template
-web3fuzzforge init my-dapp-tests --template advanced
+Audityzer init my-dapp-tests --template advanced
 
 # Create in current directory
-web3fuzzforge init . --force
+Audityzer init . --force
 ```
 
 ### `generate`
@@ -59,7 +59,7 @@ web3fuzzforge init . --force
 Generate test scaffolds for specific components.
 
 ```bash
-web3fuzzforge generate [component] [options]
+Audityzer generate [component] [options]
 ```
 
 **Components:**
@@ -82,13 +82,13 @@ web3fuzzforge generate [component] [options]
 
 ```bash
 # Generate MetaMask connection tests
-web3fuzzforge generate wallet-connection --wallet=metamask
+Audityzer generate wallet-connection --wallet=metamask
 
 # Generate transaction flow tests for Polygon
-web3fuzzforge generate transaction-flow --chain=137
+Audityzer generate transaction-flow --chain=137
 
 # Generate custom signing tests
-web3fuzzforge generate signing --wallet=walletconnect --output=./custom-tests
+Audityzer generate signing --wallet=walletconnect --output=./custom-tests
 ```
 
 ### `fuzz`
@@ -96,7 +96,7 @@ web3fuzzforge generate signing --wallet=walletconnect --output=./custom-tests
 Configure and run fuzzing tests.
 
 ```bash
-web3fuzzforge fuzz [component] [options]
+Audityzer fuzz [component] [options]
 ```
 
 **Options:**
@@ -113,13 +113,13 @@ web3fuzzforge fuzz [component] [options]
 
 ```bash
 # Fuzz wallet-connection with aggressive mode
-web3fuzzforge fuzz wallet-connection --mode=aggressive
+Audityzer fuzz wallet-connection --mode=aggressive
 
 # Run time-limited transaction fuzz tests
-web3fuzzforge fuzz transaction-flow --duration=30
+Audityzer fuzz transaction-flow --duration=30
 
 # Fuzz with a specific seed
-web3fuzzforge fuzz network-switch --seed=12345
+Audityzer fuzz network-switch --seed=12345
 ```
 
 ### `test`
@@ -127,7 +127,7 @@ web3fuzzforge fuzz network-switch --seed=12345
 Run tests without fuzzing.
 
 ```bash
-web3fuzzforge test [patterns] [options]
+Audityzer test [patterns] [options]
 ```
 
 **Options:**
@@ -144,16 +144,16 @@ web3fuzzforge test [patterns] [options]
 
 ```bash
 # Run all tests
-web3fuzzforge test
+Audityzer test
 
 # Run specific test file
-web3fuzzforge test tests/metamask-connection.spec.js
+Audityzer test tests/metamask-connection.spec.js
 
 # Run with specific browser in headed mode
-web3fuzzforge test --browser=chromium --headless=false
+Audityzer test --browser=chromium --headless=false
 
 # Run with HTML report
-web3fuzzforge test --reporter=html
+Audityzer test --reporter=html
 ```
 
 ### `report`
@@ -161,7 +161,7 @@ web3fuzzforge test --reporter=html
 Generate reports from test results.
 
 ```bash
-web3fuzzforge report [options]
+Audityzer report [options]
 ```
 
 **Options:**
@@ -177,21 +177,21 @@ web3fuzzforge report [options]
 
 ```bash
 # Generate HTML report
-web3fuzzforge report --format=html
+Audityzer report --format=html
 
 # Generate PDF report with screenshots
-web3fuzzforge report --format=pdf --include-screenshots --output=security-report.pdf
+Audityzer report --format=pdf --include-screenshots --output=security-report.pdf
 
 # Generate JSON report
-web3fuzzforge report --format=json --output=report.json
+Audityzer report --format=json --output=report.json
 ```
 
 ### `config`
 
-Manage Web3FuzzForge configuration.
+Manage Audityzer configuration.
 
 ```bash
-web3fuzzforge config [action] [key] [value]
+Audityzer config [action] [key] [value]
 ```
 
 **Actions:**
@@ -205,16 +205,16 @@ web3fuzzforge config [action] [key] [value]
 
 ```bash
 # Initialize config
-web3fuzzforge config init
+Audityzer config init
 
 # Set browser path
-web3fuzzforge config set browser.path /usr/bin/chromium
+Audityzer config set browser.path /usr/bin/chromium
 
 # Get configuration
-web3fuzzforge config get browser.path
+Audityzer config get browser.path
 
 # List all configuration
-web3fuzzforge config list
+Audityzer config list
 ```
 
 ## Advanced Commands
@@ -224,7 +224,7 @@ web3fuzzforge config list
 Create and manage wallet mocks.
 
 ```bash
-web3fuzzforge mock [action] [options]
+Audityzer mock [action] [options]
 ```
 
 **Actions:**
@@ -238,10 +238,10 @@ web3fuzzforge mock [action] [options]
 
 ```bash
 # Create a MetaMask mock
-web3fuzzforge mock create --wallet=metamask
+Audityzer mock create --wallet=metamask
 
 # Start the mock server
-web3fuzzforge mock start --port=8545
+Audityzer mock start --port=8545
 ```
 
 ### `ci`
@@ -249,7 +249,7 @@ web3fuzzforge mock start --port=8545
 Generate CI/CD pipeline configurations.
 
 ```bash
-web3fuzzforge ci [platform] [options]
+Audityzer ci [platform] [options]
 ```
 
 **Platforms:**
@@ -263,10 +263,10 @@ web3fuzzforge ci [platform] [options]
 
 ```bash
 # Generate GitHub Actions workflow
-web3fuzzforge ci github --output=.github/workflows/test.yml
+Audityzer ci github --output=.github/workflows/test.yml
 
 # Generate GitLab CI config
-web3fuzzforge ci gitlab
+Audityzer ci gitlab
 ```
 
 ### `analyze`
@@ -274,7 +274,7 @@ web3fuzzforge ci gitlab
 Analyze your dApp for potential security issues.
 
 ```bash
-web3fuzzforge analyze [target] [options]
+Audityzer analyze [target] [options]
 ```
 
 **Options:**
@@ -289,10 +289,10 @@ web3fuzzforge analyze [target] [options]
 
 ```bash
 # Analyze a local dApp
-web3fuzzforge analyze ./my-dapp
+Audityzer analyze ./my-dapp
 
 # Analyze a deployed dApp
-web3fuzzforge analyze --url=https://example.com --depth=3
+Audityzer analyze --url=https://example.com --depth=3
 ```
 
 ### `bounty`
@@ -300,7 +300,7 @@ web3fuzzforge analyze --url=https://example.com --depth=3
 Generate vulnerability reports and submissions for bug bounty platforms.
 
 ```bash
-web3fuzzforge bounty [platform] [options]
+Audityzer bounty [platform] [options]
 ```
 
 **Platforms:**
@@ -327,45 +327,45 @@ web3fuzzforge bounty [platform] [options]
 
 ```bash
 # Generate Immunefi submissions
-web3fuzzforge bounty immunefi --input ./test-results/security/report.json
+Audityzer bounty immunefi --input ./test-results/security/report.json
 
 # Generate Code4rena contest submissions
-web3fuzzforge bounty code4rena --contest-id your-contest-id
+Audityzer bounty code4rena --contest-id your-contest-id
 
 # Generate Sherlock audit report
-web3fuzzforge bounty sherlock --contest-name your-audit-name --judging
+Audityzer bounty sherlock --contest-name your-audit-name --judging
 
 # Generate bridge vulnerability reports
-web3fuzzforge bounty bridge --fetch-code4rena --fetch-sherlock --limit 10
+Audityzer bounty bridge --fetch-code4rena --fetch-sherlock --limit 10
 ```
 
 You can also use the direct commands:
 
 ```bash
 # Submit to Immunefi
-web3fuzzforge submit-to-immunefi --input ./test-results/security/report.json
+Audityzer submit-to-immunefi --input ./test-results/security/report.json
 
 # Submit to Code4rena
-web3fuzzforge submit-to-code4rena --contest-id your-contest-id
+Audityzer submit-to-code4rena --contest-id your-contest-id
 
 # Generate Sherlock report
-web3fuzzforge generate-sherlock-report --contest-name your-audit-name
+Audityzer generate-sherlock-report --contest-name your-audit-name
 
 # Generate bridge reports
-web3fuzzforge generate-bridge-reports --fetch-code4rena --fetch-sherlock
+Audityzer generate-bridge-reports --fetch-code4rena --fetch-sherlock
 ```
 
 ## Environment Variables
 
-Web3FuzzForge respects the following environment variables:
+Audityzer respects the following environment variables:
 
 | Variable                    | Description                          |
 | --------------------------- | ------------------------------------ |
-| `WEB3FUZZFORGE_CONFIG_PATH` | Custom config file path              |
-| `WEB3FUZZFORGE_LOG_LEVEL`   | Log level (debug, info, warn, error) |
-| `WEB3FUZZFORGE_BROWSER`     | Default browser to use               |
-| `WEB3FUZZFORGE_HEADLESS`    | Run in headless mode (true/false)    |
-| `WEB3FUZZFORGE_WORKERS`     | Number of parallel workers           |
+| `Audityzer_CONFIG_PATH` | Custom config file path              |
+| `Audityzer_LOG_LEVEL`   | Log level (debug, info, warn, error) |
+| `Audityzer_BROWSER`     | Default browser to use               |
+| `Audityzer_HEADLESS`    | Run in headless mode (true/false)    |
+| `Audityzer_WORKERS`     | Number of parallel workers           |
 
 ## Exit Codes
 
@@ -381,7 +381,7 @@ Web3FuzzForge respects the following environment variables:
 
 ## Configuration File Reference
 
-The default configuration file (`.web3fuzzforge.json`) supports the following options:
+The default configuration file (`.Audityzer.json`) supports the following options:
 
 ```json
 {

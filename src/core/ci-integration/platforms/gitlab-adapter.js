@@ -1,5 +1,5 @@
 /**
- * @fileoverview GitLab CI/CD platform adapter for Web3FuzzForge
+ * @fileoverview GitLab CI/CD platform adapter for Audityzer
  *
  * This module provides GitLab-specific integration functionality including
  * GitLab CI pipeline integration, Security Dashboard reporting,
@@ -72,7 +72,7 @@ class GitLabAdapter {
 
       // Create JUnit XML content
       let junitContent = `<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Web3FuzzForge Security Tests" tests="${results.tests.length}" failures="${results.failed || 0}" errors="0" time="${(results.duration || 0) / 1000}">
+<testsuites name="Audityzer Security Tests" tests="${results.tests.length}" failures="${results.failed || 0}" errors="0" time="${(results.duration || 0) / 1000}">
   <testsuite name="Security Tests" tests="${results.tests.length}" failures="${results.failed || 0}" errors="0" time="${(results.duration || 0) / 1000}">
 `;
 
@@ -96,7 +96,7 @@ class GitLabAdapter {
 
         if (test.status === 'failed') {
           const errorMessage = test.error || 'Test failed';
-          junitContent += `    <testcase name="${testName}" classname="Web3FuzzForge.SecurityTests" time="${testDuration}">
+          junitContent += `    <testcase name="${testName}" classname="Audityzer.SecurityTests" time="${testDuration}">
       <failure message="${errorMessage.replace(/[<>&'"]/g, c => {
         switch (c) {
           case '<':
@@ -127,12 +127,12 @@ class GitLabAdapter {
     </testcase>
 `;
         } else if (test.status === 'skipped') {
-          junitContent += `    <testcase name="${testName}" classname="Web3FuzzForge.SecurityTests" time="0">
+          junitContent += `    <testcase name="${testName}" classname="Audityzer.SecurityTests" time="0">
       <skipped/>
     </testcase>
 `;
         } else {
-          junitContent += `    <testcase name="${testName}" classname="Web3FuzzForge.SecurityTests" time="${testDuration}"/>
+          junitContent += `    <testcase name="${testName}" classname="Audityzer.SecurityTests" time="${testDuration}"/>
 `;
         }
       });
@@ -178,11 +178,11 @@ class GitLabAdapter {
         vulnerabilities: [],
         scan: {
           scanner: {
-            id: 'web3fuzzforge',
-            name: 'Web3FuzzForge',
+            id: 'Audityzer',
+            name: 'Audityzer',
             version: '1.1.0',
             vendor: {
-              name: 'Web3FuzzForge',
+              name: 'Audityzer',
             },
           },
           type: 'dast',
@@ -195,20 +195,20 @@ class GitLabAdapter {
       // Add vulnerabilities for each security issue
       securityIssues.forEach(issue => {
         securityReport.vulnerabilities.push({
-          id: issue.ruleId || `web3fuzzforge-${Math.floor(Math.random() * 10000)}`,
+          id: issue.ruleId || `Audityzer-${Math.floor(Math.random() * 10000)}`,
           category: 'dast',
           name: issue.title || 'Security Issue',
-          description: issue.description || 'Security issue detected by Web3FuzzForge',
+          description: issue.description || 'Security issue detected by Audityzer',
           severity: this.mapSeverityToGitLabSeverity(issue.severity),
           confidence: 'high',
           solution: issue.remediation || 'No remediation provided',
           scanner: {
-            id: 'web3fuzzforge',
-            name: 'Web3FuzzForge',
+            id: 'Audityzer',
+            name: 'Audityzer',
           },
           identifiers: [
             {
-              type: 'web3fuzzforge_rule_id',
+              type: 'Audityzer_rule_id',
               name: issue.ruleId || 'Unknown Rule',
               value: issue.ruleId || 'unknown',
             },
@@ -250,8 +250,8 @@ class GitLabAdapter {
   }
 
   /**
-   * Map Web3FuzzForge severity levels to GitLab severity levels
-   * @param {string} severity - Web3FuzzForge severity level
+   * Map Audityzer severity levels to GitLab severity levels
+   * @param {string} severity - Audityzer severity level
    * @returns {string} GitLab severity level
    */
   mapSeverityToGitLabSeverity(severity) {

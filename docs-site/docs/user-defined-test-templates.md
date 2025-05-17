@@ -1,6 +1,6 @@
 # User-Defined Test Templates
 
-Web3FuzzForge allows you to create, customize, and share your own test templates for specific vulnerabilities, protocols, or testing scenarios.
+Audityzer allows you to create, customize, and share your own test templates for specific vulnerabilities, protocols, or testing scenarios.
 
 ## Overview
 
@@ -20,10 +20,10 @@ Create new test templates using the CLI:
 
 ```bash
 # Create a basic template
-npx web3fuzzforge template create --name="my-custom-test" --type=security
+npx Audityzer template create --name="my-custom-test" --type=security
 
 # Create from an existing test
-npx web3fuzzforge template create --from=./tests/existing-test.js --name="enhanced-version"
+npx Audityzer template create --from=./tests/existing-test.js --name="enhanced-version"
 ```
 
 ### Template Builder UI
@@ -32,7 +32,7 @@ Use the visual template builder for a guided experience:
 
 ```bash
 # Launch the template builder UI
-npx web3fuzzforge template-builder
+npx Audityzer template-builder
 ```
 
 This opens a browser-based interface where you can:
@@ -58,7 +58,7 @@ Templates follow a consistent structure:
  */
 
 const { test, expect } = require('@playwright/test');
-const { Web3FuzzForge } = require('web3fuzzforge');
+const { Audityzer } = require('Audityzer');
 
 // Template parameters with defaults
 const PARAMETERS = {
@@ -105,7 +105,7 @@ const TEMPLATE_METADATA = {
 
 // The actual test implementation
 test('should prevent the security vulnerability', async ({ page }) => {
-  const forge = new Web3FuzzForge(page);
+  const forge = new Audityzer(page);
 
   // Setup test environment
   await forge.setup({
@@ -133,10 +133,10 @@ Generate tests from your templates:
 
 ```bash
 # Generate a test from your template
-npx web3fuzzforge generate --template=my-custom-test --out=./tests/new-test.js
+npx Audityzer generate --template=my-custom-test --out=./tests/new-test.js
 
 # Generate with specific parameters
-npx web3fuzzforge generate --template=my-custom-test --params=target_contract:0x1234,expected_outcome:success
+npx Audityzer generate --template=my-custom-test --params=target_contract:0x1234,expected_outcome:success
 ```
 
 ### Interactive Template Selection
@@ -145,10 +145,10 @@ Browse and select templates interactively:
 
 ```bash
 # Browse available templates
-npx web3fuzzforge templates browse
+npx Audityzer templates browse
 
 # Use interactive template generator
-npx web3fuzzforge generate --interactive
+npx Audityzer generate --interactive
 ```
 
 ### Specifying Parameters
@@ -157,13 +157,13 @@ Parameters can be provided in several ways:
 
 ```bash
 # Via command line arguments
-npx web3fuzzforge generate --template=my-custom-test --param target_contract=0x1234
+npx Audityzer generate --template=my-custom-test --param target_contract=0x1234
 
 # Via JSON file
-npx web3fuzzforge generate --template=my-custom-test --params-file=./params.json
+npx Audityzer generate --template=my-custom-test --params-file=./params.json
 
 # Via interactive prompts
-npx web3fuzzforge generate --template=my-custom-test --interactive
+npx Audityzer generate --template=my-custom-test --interactive
 ```
 
 ## Sharing Templates
@@ -174,10 +174,10 @@ Package your templates for sharing:
 
 ```bash
 # Package a single template
-npx web3fuzzforge template package --template=my-custom-test --output=./my-template.json
+npx Audityzer template package --template=my-custom-test --output=./my-template.json
 
 # Package multiple templates as a collection
-npx web3fuzzforge template package --templates=template1,template2 --collection="My Test Collection"
+npx Audityzer template package --templates=template1,template2 --collection="My Test Collection"
 ```
 
 ### Publishing Templates
@@ -185,11 +185,11 @@ npx web3fuzzforge template package --templates=template1,template2 --collection=
 Share templates with the community:
 
 ```bash
-# Publish to the Web3FuzzForge template registry
-npx web3fuzzforge template publish --template=my-custom-test
+# Publish to the Audityzer template registry
+npx Audityzer template publish --template=my-custom-test
 
 # Publish a collection
-npx web3fuzzforge template publish --collection=./my-collection.json
+npx Audityzer template publish --collection=./my-collection.json
 ```
 
 ### Importing Templates
@@ -198,13 +198,13 @@ Import templates from various sources:
 
 ```bash
 # Import from a file
-npx web3fuzzforge template import --file=./received-template.json
+npx Audityzer template import --file=./received-template.json
 
 # Import from the registry
-npx web3fuzzforge template import --id=template-registry-id
+npx Audityzer template import --id=template-registry-id
 
 # Import from a GitHub repository
-npx web3fuzzforge template import --repo=username/repo --path=templates/my-template.js
+npx Audityzer template import --repo=username/repo --path=templates/my-template.js
 ```
 
 ## Template Categories
@@ -246,11 +246,11 @@ Create and combine reusable test components:
 
 ```javascript
 // Import test components
-const { ReentrancyCheck, AccessControlCheck } = require('web3fuzzforge/components');
+const { ReentrancyCheck, AccessControlCheck } = require('Audityzer/components');
 
 // Use in your template
 test('combined security test', async ({ page }) => {
-  const forge = new Web3FuzzForge(page);
+  const forge = new Audityzer(page);
 
   // Run reentrancy check
   await ReentrancyCheck.run(forge, {
@@ -272,7 +272,7 @@ Generate tests dynamically based on contract analysis:
 
 ```javascript
 // Dynamic test generation based on contract analysis
-const { ContractAnalyzer } = require('web3fuzzforge/analysis');
+const { ContractAnalyzer } = require('Audityzer/analysis');
 
 module.exports = async function generateTests(contractPath) {
   // Analyze the contract
@@ -301,7 +301,7 @@ Create templates with conditional test logic:
 ```javascript
 // Conditional test logic
 test('adaptive security test', async ({ page }) => {
-  const forge = new Web3FuzzForge(page);
+  const forge = new Audityzer(page);
 
   // Deploy contract for testing
   const contract = await forge.deployContract(PARAMETERS.CONTRACT_SOURCE);
@@ -325,13 +325,13 @@ Browse the public template registry:
 
 ```bash
 # Search the template registry
-npx web3fuzzforge templates search "defi reentrancy"
+npx Audityzer templates search "defi reentrancy"
 
 # List templates by category
-npx web3fuzzforge templates list --category=flash-loan
+npx Audityzer templates list --category=flash-loan
 
 # List templates by author
-npx web3fuzzforge templates list --author="secure-dev"
+npx Audityzer templates list --author="secure-dev"
 ```
 
 ## Best Practices
@@ -354,7 +354,7 @@ Create templates for specialized protocols:
 
 ```bash
 # Generate a test for a specific lending protocol pattern
-npx web3fuzzforge generate --template=lending-liquidation-check --params=protocol:compound
+npx Audityzer generate --template=lending-liquidation-check --params=protocol:compound
 ```
 
 ### Team Standardization
@@ -363,10 +363,10 @@ Standardize testing across development teams:
 
 ```bash
 # Create a company-specific template collection
-npx web3fuzzforge template collection create --name="CompanyStandards"
+npx Audityzer template collection create --name="CompanyStandards"
 
 # Add required security tests to the collection
-npx web3fuzzforge template collection add --collection="CompanyStandards" --templates=access-control,reentrancy
+npx Audityzer template collection add --collection="CompanyStandards" --templates=access-control,reentrancy
 ```
 
 ### Audit Process Integration
@@ -375,7 +375,7 @@ Integrate templates into your audit process:
 
 ```bash
 # Run all audit templates against a project
-npx web3fuzzforge audit --template-collection=audit-templates --project=./contracts
+npx Audityzer audit --template-collection=audit-templates --project=./contracts
 ```
 
 ## Community Templates

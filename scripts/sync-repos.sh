@@ -8,7 +8,7 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}Web3FuzzForge Repository Synchronization Tool${NC}"
+echo -e "${YELLOW}Audityzer Repository Synchronization Tool${NC}"
 echo "==========================================="
 
 # Check if git is installed
@@ -37,8 +37,8 @@ fi
 # Configure GitHub remote
 echo -e "\n${YELLOW}Setting up GitHub remote...${NC}"
 read -p "Enter GitHub username: " GITHUB_USERNAME
-read -p "Enter GitHub repository name [Web3FuzzForge]: " GITHUB_REPO
-GITHUB_REPO=${GITHUB_REPO:-Web3FuzzForge}
+read -p "Enter GitHub repository name [Audityzer]: " GITHUB_REPO
+GITHUB_REPO=${GITHUB_REPO:-Audityzer}
 
 if remote_exists "github"; then
     echo -e "GitHub remote already exists. Updating URL..."

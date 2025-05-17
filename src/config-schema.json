@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Web3FuzzForge Configuration",
-  "description": "Configuration schema for Web3FuzzForge testing framework",
+  "title": "Audityzer Configuration",
+  "description": "Configuration schema for Audityzer testing framework",
   "type": "object",
   "properties": {
     "wallet": {

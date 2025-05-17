@@ -1,5 +1,5 @@
 /**
- * Web3FuzzForge Plugin Manager
+ * Audityzer Plugin Manager
  * Handles plugin discovery, loading, and lifecycle management
  */
 
@@ -44,18 +44,18 @@ class PluginManager {
       for (const entry of entries) {
         if (!entry.isDirectory()) continue;
 
-        // Check if this is a Web3FuzzForge plugin (has plugin.json)
+        // Check if this is a Audityzer plugin (has plugin.json)
         const pluginJsonPath = path.join(dir, entry.name, 'plugin.json');
         if (!fs.existsSync(pluginJsonPath)) {
-          // Check if it might be in node_modules with web3fuzzforge-plugin prefix
-          if (entry.name.startsWith('web3fuzzforge-plugin-')) {
+          // Check if it might be in node_modules with Audityzer-plugin prefix
+          if (entry.name.startsWith('Audityzer-plugin-')) {
             const packageJsonPath = path.join(dir, entry.name, 'package.json');
             if (fs.existsSync(packageJsonPath)) {
               const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-              if (packageJson.web3fuzzforgePlugin) {
+              if (packageJson.AudityzerPlugin) {
                 discoveredPlugins.push({
                   name: entry.name,
-                  manifest: packageJson.web3fuzzforgePlugin,
+                  manifest: packageJson.AudityzerPlugin,
                   path: path.join(dir, entry.name),
                 });
               }

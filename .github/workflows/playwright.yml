@@ -1,4 +1,4 @@
-name: Web3FuzzForge Tests
+name: Audityzer Tests
 
 on:
   push:
@@ -159,7 +159,7 @@ jobs:
           sleep 5
 
       - name: Run security checks
-        run: npx web3fuzzforge run --grep "security" --project chromium --report
+        run: npx Audityzer run --grep "security" --project chromium --report
         env:
           CI: true
           MOCK_MODE: true

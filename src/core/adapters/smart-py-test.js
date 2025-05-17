@@ -1,6 +1,6 @@
 /**
  * SmartPyTest - Python-based framework for comprehensive smart contract testing
- * Provides Python bindings for testing smart contracts with integration to Web3FuzzForge
+ * Provides Python bindings for testing smart contracts with integration to Audityzer
  */
 
 const { spawn } = require('child_process');

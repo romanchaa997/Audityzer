@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve Web3FuzzForge
+about: Create a report to help us improve Audityzer
 title: '[BUG] '
 labels: bug
 assignees: ''
@@ -37,7 +37,7 @@ If applicable, add screenshots to help explain your problem.
 - Browser: [e.g. Chrome 105, Firefox 104, Safari 15.6]
 - Node.js version: [e.g. 16.17.0]
 - NPM version: [e.g. 8.15.0]
-- Web3FuzzForge version: [e.g. 1.1.0]
+- Audityzer version: [e.g. 1.1.0]
 
 ## Target Blockchain Environment
 

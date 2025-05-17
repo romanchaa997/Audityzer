@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Real Wallet Integration
 
-While Web3FuzzForge primarily uses mocked wallet behavior for testing, there are scenarios where testing with real wallets provides additional coverage and security verification. This guide focuses on the highest-leverage wallets first.
+While Audityzer primarily uses mocked wallet behavior for testing, there are scenarios where testing with real wallets provides additional coverage and security verification. This guide focuses on the highest-leverage wallets first.
 
 ## Why Test with Real Wallets
 
@@ -172,4 +172,4 @@ We're focusing on the following improvements for real wallet testing, in order o
 
 ## Community Examples
 
-Check out our [community-test-examples](community-test-examples) section for contributed examples of real wallet testing setups from the Web3FuzzForge community, with emphasis on our core supported wallets.
+Check out our [community-test-examples](community-test-examples) section for contributed examples of real wallet testing setups from the Audityzer community, with emphasis on our core supported wallets.

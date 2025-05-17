@@ -23,7 +23,7 @@ class SandboxExecutionEnvironment {
       // Storage paths
       artifactsDir: config.artifactsDir || path.join(process.cwd(), 'sandbox', 'artifacts'),
       templatesDir: config.templatesDir || path.join(process.cwd(), 'sandbox', 'templates'),
-      workingDir: config.workingDir || path.join(os.tmpdir(), 'web3fuzzforge-sandbox'),
+      workingDir: config.workingDir || path.join(os.tmpdir(), 'Audityzer-sandbox'),
 
       // Ganache options for local mode
       ganacheOptions: config.ganacheOptions || {
@@ -426,7 +426,7 @@ class SandboxExecutionEnvironment {
 
     const container = await this.docker.createContainer({
       Image: this.config.dockerOptions.image,
-      name: `web3fuzzforge-${environment.id}`,
+      name: `Audityzer-${environment.id}`,
       Cmd: [
         '--chain.chainId',
         '1337',

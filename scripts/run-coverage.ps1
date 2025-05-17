@@ -1,7 +1,7 @@
-# Script to generate and upload code coverage for Web3FuzzForge
+# Script to generate and upload code coverage for Audityzer
 # Must be run with administrator privileges to verify and download Codecov CLI
 
-Write-Host "Generating code coverage report for Web3FuzzForge..."
+Write-Host "Generating code coverage report for Audityzer..."
 
 # Run tests with coverage
 npm run test:coverage

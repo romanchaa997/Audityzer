@@ -6,10 +6,10 @@
   "entryPoint": "index.js",
   "configSchema": "config/schema.json",
   "dependencies": {
-    "web3fuzzforge": "^1.0.0",
+    "Audityzer": "^1.0.0",
     "playwright": "^1.30.0"
   },
-  "author": "Web3FuzzForge Team",
+  "author": "Audityzer Team",
   "license": "MIT",
   "tags": ["defi", "front-running", "security", "transaction", "mempool"],
   "documentation": {
@@ -19,6 +19,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/web3fuzzforge/plugin-front-running-detection"
+    "url": "https://github.com/Audityzer/plugin-front-running-detection"
   }
 }

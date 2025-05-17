@@ -1,12 +1,12 @@
-# Web3FuzzForge Sherlock + Code4rena Integration
+# Audityzer Sherlock + Code4rena Integration
 
 ## Executive Summary
 
-Web3FuzzForge provides integrated, automated testing for cross-chain bridge vulnerabilities directly compatible with Sherlock and Code4rena audit scopes. Our testing framework simulates complex exploit scenarios on LayerZero bridges and other cross-chain protocols, identifying vulnerabilities before they can be exploited in production.
+Audityzer provides integrated, automated testing for cross-chain bridge vulnerabilities directly compatible with Sherlock and Code4rena audit scopes. Our testing framework simulates complex exploit scenarios on LayerZero bridges and other cross-chain protocols, identifying vulnerabilities before they can be exploited in production.
 
 ## Sherlock Layer 2 Bridge Integration
 
-Web3FuzzForge seamlessly integrates with Sherlock's L2 bounty scope by providing:
+Audityzer seamlessly integrates with Sherlock's L2 bounty scope by providing:
 
 1. **Automated LayerZero Bridge Simulation Tests**: Detects insecure relayer configurations, message replay risks, and liquidity synchronization bugs across chains.
 
@@ -19,7 +19,7 @@ Web3FuzzForge seamlessly integrates with Sherlock's L2 bounty scope by providing
 ### 1. Relayer Configuration Testing
 
 ```javascript
-// Sample from Web3FuzzForge LayerZero tests
+// Sample from Audityzer LayerZero tests
 test('should detect insecure relayer configurations', async ({ page }) => {
   for (const chainPair of CHAIN_PAIRS) {
     // Check relayer security settings on both chains
@@ -87,7 +87,7 @@ test('should maintain proper liquidity sync between chains', async ({ page }) =>
 
 ## Code4rena Contest Integration
 
-Web3FuzzForge enhances Code4rena contests by providing:
+Audityzer enhances Code4rena contests by providing:
 
 1. **Repeatable Verification**: Automated tests that auditors can run to verify fixes are properly implemented
 
@@ -97,7 +97,7 @@ Web3FuzzForge enhances Code4rena contests by providing:
 
 ## Real-World Protocol Integration
 
-Web3FuzzForge has built-in support for testing these popular LayerZero integrations:
+Audityzer has built-in support for testing these popular LayerZero integrations:
 
 - **Stargate Finance**: Cross-chain liquidity transfer protocol
 - **Radiant Capital**: Multi-chain lending protocol
@@ -107,8 +107,8 @@ Web3FuzzForge has built-in support for testing these popular LayerZero integrati
 ## Getting Started
 
 ```bash
-# Install Web3FuzzForge
-npm install web3fuzzforge
+# Install Audityzer
+npm install Audityzer
 
 # Generate LayerZero cross-chain tests
 yarn forge:gen bridge --provider layerzero --fuzz --out ./tests/layerzero-crosschain-fuzz.js
@@ -135,6 +135,6 @@ npx playwright test tests/layerzero-crosschain-fuzz.js
 
 For integration assistance or custom test development:
 
-- Email: support@web3fuzzforge.io
-- Documentation: https://docs.web3fuzzforge.io
-- GitHub: https://github.com/web3fuzzforge/web3fuzzforge
+- Email: support@Audityzer.io
+- Documentation: https://docs.Audityzer.io
+- GitHub: https://github.com/Audityzer/Audityzer

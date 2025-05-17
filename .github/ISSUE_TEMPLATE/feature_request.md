@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for Web3FuzzForge
+about: Suggest an idea for Audityzer
 title: '[FEATURE] '
 labels: enhancement
 assignees: ''
@@ -36,7 +36,7 @@ Who would benefit most from this feature? (e.g., developers, testers, security r
 
 ## Impact
 
-How would this feature improve Web3FuzzForge? What's the expected impact on the testing process?
+How would this feature improve Audityzer? What's the expected impact on the testing process?
 
 ## Implementation Suggestions
 

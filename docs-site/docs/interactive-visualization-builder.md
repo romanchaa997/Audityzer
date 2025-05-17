@@ -1,6 +1,6 @@
 # Interactive Visualization Builder
 
-The Web3FuzzForge Interactive Visualization Builder allows you to create dynamic, customizable visualizations of security data, attack vectors, and test results to better understand and communicate Web3 security concepts.
+The Audityzer Interactive Visualization Builder allows you to create dynamic, customizable visualizations of security data, attack vectors, and test results to better understand and communicate Web3 security concepts.
 
 ## Overview
 
@@ -19,10 +19,10 @@ Access the Visualization Builder through the command line:
 
 ```bash
 # Launch the visualization builder with a web interface
-npx web3fuzzforge visualize
+npx Audityzer visualize
 
 # Generate a specific visualization from test results
-npx web3fuzzforge visualize --source=./test-results/defi-tests.json --type=attack-flow
+npx Audityzer visualize --source=./test-results/defi-tests.json --type=attack-flow
 ```
 
 ## Available Visualization Types
@@ -33,7 +33,7 @@ Visualize the steps and components involved in an attack scenario:
 
 ```bash
 # Generate an attack flow diagram
-npx web3fuzzforge visualize attack-flow --vulnerability=flash-loan-attack
+npx Audityzer visualize attack-flow --vulnerability=flash-loan-attack
 ```
 
 This creates an interactive diagram showing:
@@ -50,7 +50,7 @@ Visualize how different contracts and protocols interact:
 
 ```bash
 # Generate a protocol interaction graph
-npx web3fuzzforge visualize protocol-graph --project=./contracts
+npx Audityzer visualize protocol-graph --project=./contracts
 ```
 
 This shows:
@@ -67,7 +67,7 @@ Create heatmaps showing concentration of vulnerabilities:
 
 ```bash
 # Generate a vulnerability heatmap
-npx web3fuzzforge visualize heatmap --source=./security-scan-results.json
+npx Audityzer visualize heatmap --source=./security-scan-results.json
 ```
 
 This highlights:
@@ -83,7 +83,7 @@ Visualize security events over time:
 
 ```bash
 # Generate a security timeline
-npx web3fuzzforge visualize timeline --project=my-defi-protocol
+npx Audityzer visualize timeline --project=my-defi-protocol
 ```
 
 This shows:
@@ -103,7 +103,7 @@ The visual builder provides a drag-and-drop interface for creating custom visual
 1. Launch the builder:
 
    ```bash
-   npx web3fuzzforge visualize --builder
+   npx Audityzer visualize --builder
    ```
 
 2. In the web interface:
@@ -118,10 +118,10 @@ The visual builder provides a drag-and-drop interface for creating custom visual
 
    ```bash
    # Save current visualization
-   npx web3fuzzforge visualize save --name="flash-loan-analysis"
+   npx Audityzer visualize save --name="flash-loan-analysis"
 
    # Export as standalone HTML
-   npx web3fuzzforge visualize export --name="flash-loan-analysis" --format=html
+   npx Audityzer visualize export --name="flash-loan-analysis" --format=html
    ```
 
 ### Programmatic Visualization Creation
@@ -129,7 +129,7 @@ The visual builder provides a drag-and-drop interface for creating custom visual
 Create visualizations programmatically:
 
 ```javascript
-const { VisualizationBuilder } = require('web3fuzzforge/visualization');
+const { VisualizationBuilder } = require('Audityzer/visualization');
 
 async function createCustomVisualization() {
   const builder = new VisualizationBuilder({
@@ -167,10 +167,10 @@ Customize the appearance of your visualizations:
 
 ```bash
 # Apply a custom theme
-npx web3fuzzforge visualize --source=./results.json --theme=dark
+npx Audityzer visualize --source=./results.json --theme=dark
 
 # Use custom color palette
-npx web3fuzzforge visualize --colors=vulnerability:#FF0000,safe:#00FF00
+npx Audityzer visualize --colors=vulnerability:#FF0000,safe:#00FF00
 ```
 
 ### Interactive Elements
@@ -179,10 +179,10 @@ Add interactive elements to your visualizations:
 
 ```bash
 # Add filters and controls
-npx web3fuzzforge visualize --interactive --filters=severity,component
+npx Audityzer visualize --interactive --filters=severity,component
 
 # Add tooltips with additional information
-npx web3fuzzforge visualize --tooltips=detailed
+npx Audityzer visualize --tooltips=detailed
 ```
 
 ### Animation and Transitions
@@ -191,7 +191,7 @@ Add animations to better illustrate attack sequences:
 
 ```bash
 # Create animated attack sequence
-npx web3fuzzforge visualize attack-flow --animate-sequence
+npx Audityzer visualize attack-flow --animate-sequence
 ```
 
 ## Integration Options
@@ -202,10 +202,10 @@ Generate visualizations for embedding in reports or websites:
 
 ```bash
 # Generate embeddable HTML
-npx web3fuzzforge visualize --embed --output=embed.html
+npx Audityzer visualize --embed --output=embed.html
 
 # Generate iframe-ready visualization
-npx web3fuzzforge visualize --iframe --width=800 --height=600
+npx Audityzer visualize --iframe --width=800 --height=600
 ```
 
 ### Real-time Updates
@@ -214,7 +214,7 @@ Create visualizations that update with new security data:
 
 ```bash
 # Generate real-time dashboard
-npx web3fuzzforge visualize dashboard --real-time --update-interval=60s
+npx Audityzer visualize dashboard --real-time --update-interval=60s
 ```
 
 ### Multi-source Visualizations
@@ -223,7 +223,7 @@ Combine data from multiple sources:
 
 ```bash
 # Combine test results and static analysis data
-npx web3fuzzforge visualize --sources=test-results.json,slither-output.json
+npx Audityzer visualize --sources=test-results.json,slither-output.json
 ```
 
 ## Specialized Visualization Types
@@ -234,7 +234,7 @@ Visualize transactions with step-by-step replay:
 
 ```bash
 # Visualize a transaction simulation
-npx web3fuzzforge visualize tx-simulation --tx=0x1234...
+npx Audityzer visualize tx-simulation --tx=0x1234...
 ```
 
 ### State Transition Diagrams
@@ -243,7 +243,7 @@ Visualize contract state changes during attacks:
 
 ```bash
 # Generate state transition diagram
-npx web3fuzzforge visualize state-transitions --scenario=reentrancy
+npx Audityzer visualize state-transitions --scenario=reentrancy
 ```
 
 ### Cross-chain Vulnerability Maps
@@ -252,7 +252,7 @@ Visualize vulnerabilities across multiple chains:
 
 ```bash
 # Generate cross-chain vulnerability map
-npx web3fuzzforge visualize cross-chain --chains=ethereum,polygon,arbitrum
+npx Audityzer visualize cross-chain --chains=ethereum,polygon,arbitrum
 ```
 
 ## Templates and Presets
@@ -261,10 +261,10 @@ Use built-in templates for common visualization needs:
 
 ```bash
 # List available visualization templates
-npx web3fuzzforge visualize templates list
+npx Audityzer visualize templates list
 
 # Use a template
-npx web3fuzzforge visualize --template=defi-attack-surface
+npx Audityzer visualize --template=defi-attack-surface
 ```
 
 Available templates include:
@@ -282,7 +282,7 @@ Available templates include:
 
 ```bash
 # Generate visualization of a flash loan attack
-npx web3fuzzforge visualize attack-flow --vulnerability=flash-loan
+npx Audityzer visualize attack-flow --vulnerability=flash-loan
 ```
 
 This creates an interactive diagram showing:
@@ -296,7 +296,7 @@ This creates an interactive diagram showing:
 
 ```bash
 # Generate a protocol interaction security map
-npx web3fuzzforge visualize security-map --project=./contracts
+npx Audityzer visualize security-map --project=./contracts
 ```
 
 This visualizes:

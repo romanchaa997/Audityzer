@@ -1,5 +1,5 @@
 /**
- * Web3FuzzForge Wallet Helper Functions
+ * Audityzer Wallet Helper Functions
  *
  * Utility functions for wallet interactions in testing.
  */

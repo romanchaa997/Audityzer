@@ -1,6 +1,6 @@
 # Protocol-Specific Testing Guides
 
-Welcome to the Web3FuzzForge protocol-specific testing guides. These comprehensive guides provide detailed instructions, best practices, and examples for testing different blockchain protocols and applications.
+Welcome to the Audityzer protocol-specific testing guides. These comprehensive guides provide detailed instructions, best practices, and examples for testing different blockchain protocols and applications.
 
 ## Available Protocol Guides
 
@@ -50,7 +50,7 @@ Throughout the guides, you'll find interactive examples you can run directly:
 
 ```bash
 # Example: Test ERC20 token approval vulnerability
-npx web3fuzzforge test erc20 --scenario=approval-race-condition
+npx Audityzer test erc20 --scenario=approval-race-condition
 ```
 
 ## Community Contributions
@@ -67,7 +67,7 @@ For teams with specific needs, use our guide builder to create custom testing wo
 
 ```bash
 # Generate a custom testing guide for your protocol
-npx web3fuzzforge guide-builder --protocol=my-protocol --template=defi
+npx Audityzer guide-builder --protocol=my-protocol --template=defi
 ```
 
 ## Stay Updated

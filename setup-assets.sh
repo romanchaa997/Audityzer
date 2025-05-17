@@ -1,10 +1,10 @@
 #!/bin/bash
-# Setup script for Web3FuzzForge visuals & metadata
+# Setup script for Audityzer visuals & metadata
 
 # Stop on error
 set -e
 
-echo "🚀 Setting up Web3FuzzForge Landing Page Assets"
+echo "🚀 Setting up Audityzer Landing Page Assets"
 
 # Step 1: Create directories
 echo "\n📁 Creating asset directories..."
@@ -13,7 +13,7 @@ mkdir -p assets/img assets/demo
 # Step 2: Check for existing visual assets
 if [ -d "./visuals" ]; then
   echo "\n📁 Copying media files from visuals folder..."
-  [ -f "./visuals/banner.png" ] && cp ./visuals/banner.png ./assets/img/web3fuzzforge-banner.png
+  [ -f "./visuals/banner.png" ] && cp ./visuals/banner.png ./assets/img/Audityzer-banner.png
   [ -f "./visuals/logo.png" ] && cp ./visuals/logo.png ./assets/img/logo.png
   [ -f "./visuals/demo.gif" ] && cp ./visuals/demo.gif ./assets/demo/demo.gif
   [ -f "./visuals/favicon.ico" ] || [ -f "./visuals/favicon.png" ] && cp ./visuals/favicon.* ./assets/
@@ -26,8 +26,8 @@ if [ ! -f "./assets/demo/demo.gif" ] && [ -f "./create-quickstart-gif.sh" ]; the
   ./create-quickstart-gif.sh
   
   # Check if the script created the GIF in the media folder
-  if [ -f "./media/web3fuzzforge-quickstart.gif" ]; then
-    cp ./media/web3fuzzforge-quickstart.gif ./assets/demo/demo.gif
+  if [ -f "./media/Audityzer-quickstart.gif" ]; then
+    cp ./media/Audityzer-quickstart.gif ./assets/demo/demo.gif
   fi
 fi
 
@@ -35,8 +35,8 @@ fi
 echo "\n🔍 Checking for missing assets..."
 missing=0
 
-if [ ! -f "./assets/img/web3fuzzforge-banner.png" ]; then
-  echo "❌ Missing: assets/img/web3fuzzforge-banner.png"
+if [ ! -f "./assets/img/Audityzer-banner.png" ]; then
+  echo "❌ Missing: assets/img/Audityzer-banner.png"
   missing=1
 fi
 

@@ -1,12 +1,12 @@
-# Web3FuzzForge CLI Playground
+# Audityzer CLI Playground
 
-This is a browser-based CLI emulator for the Web3FuzzForge tool. It provides a convenient way to interact with Web3FuzzForge commands and functionality without having to use the command line.
+This is a browser-based CLI emulator for the Audityzer tool. It provides a convenient way to interact with Audityzer commands and functionality without having to use the command line.
 
 ## Features
 
 - Interactive terminal emulator
 - Command history
-- Support for core Web3FuzzForge commands:
+- Support for core Audityzer commands:
   - `create` - Create new test templates
   - `list` - List available templates and presets
   - `run` - Simulate running tests
@@ -18,7 +18,7 @@ This is a browser-based CLI emulator for the Web3FuzzForge tool. It provides a c
 ### Prerequisites
 
 - Node.js installed (v14 or later)
-- Web3FuzzForge package installed
+- Audityzer package installed
 
 ### Running the Web UI
 
@@ -36,7 +36,7 @@ http://localhost:3000
 
 ## Using the CLI Playground
 
-The Web UI provides an interactive terminal where you can enter Web3FuzzForge commands. Here are some examples:
+The Web UI provides an interactive terminal where you can enter Audityzer commands. Here are some examples:
 
 ### Create a test template
 
@@ -73,7 +73,7 @@ run tests/metamask-connect.ts --headed
 
 ## Screenshots
 
-![Web3FuzzForge CLI Playground](../../media/web-ui-screenshot.png)
+![Audityzer CLI Playground](../../media/web-ui-screenshot.png)
 
 ## License
 

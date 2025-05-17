@@ -1,5 +1,5 @@
 /**
- * @fileoverview CI/CD test executor for Web3FuzzForge
+ * @fileoverview CI/CD test executor for Audityzer
  *
  * This module provides cross-platform test execution capabilities for CI/CD environments.
  */

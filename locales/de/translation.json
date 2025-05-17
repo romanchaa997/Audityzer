@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Web3FuzzForge",
+    "name": "Audityzer",
     "tagline": "Umfassendes Web3-Sicherheits-Testtoolkit",
     "description": "Automatisierte Tests für Web3-Anwendungen mit Unterstützung für Wallet-Interaktionen, Transaktions-Fuzzing und Sicherheitsvalidierung."
   },

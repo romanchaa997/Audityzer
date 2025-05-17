@@ -1,4 +1,4 @@
-name: Web3FuzzForge CI/CD
+name: Audityzer CI/CD
 
 on:
   push:

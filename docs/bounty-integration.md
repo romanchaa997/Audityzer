@@ -1,17 +1,17 @@
 # Bug Bounty Platform Integration
 
-This document covers the bug bounty platform integration features of Web3FuzzForge, which allow you to generate standardized vulnerability reports and submissions for popular bug bounty platforms.
+This document covers the bug bounty platform integration features of Audityzer, which allow you to generate standardized vulnerability reports and submissions for popular bug bounty platforms.
 
 ## Overview
 
-Web3FuzzForge includes specialized modules for generating properly formatted vulnerability reports and submissions for several popular bug bounty platforms:
+Audityzer includes specialized modules for generating properly formatted vulnerability reports and submissions for several popular bug bounty platforms:
 
 - **Immunefi**: Generate standardized vulnerability submissions for the Immunefi platform
 - **Code4rena**: Create contest submissions in the format required by Code4rena
 - **Sherlock**: Format security reports according to Sherlock's requirements
 - **Bridge Bounty**: Specialized adapter for cross-chain bridge vulnerabilities
 
-These integrations help automate the process of reporting vulnerabilities discovered through Web3FuzzForge's testing tools, ensuring they meet each platform's specific requirements.
+These integrations help automate the process of reporting vulnerabilities discovered through Audityzer's testing tools, ensuring they meet each platform's specific requirements.
 
 ## Quick Start
 
@@ -19,36 +19,36 @@ These integrations help automate the process of reporting vulnerabilities discov
 
 ```bash
 # Generate Immunefi submission from test results
-npx web3fuzzforge submit-to-immunefi --input ./test-results/security/report.json
+npx Audityzer submit-to-immunefi --input ./test-results/security/report.json
 ```
 
 ### 2. Create Code4rena Contest Submissions
 
 ```bash
 # Generate Code4rena submissions for a contest
-npx web3fuzzforge submit-to-code4rena --contest-id your-contest-name
+npx Audityzer submit-to-code4rena --contest-id your-contest-name
 ```
 
 ### 3. Generate Sherlock Audit Reports
 
 ```bash
 # Generate Sherlock audit report
-npx web3fuzzforge generate-sherlock-report --contest-name your-audit-name
+npx Audityzer generate-sherlock-report --contest-name your-audit-name
 ```
 
 ### 4. Generate Bridge Vulnerability Reports
 
 ```bash
 # Generate bridge vulnerability reports with data from Code4rena and Sherlock
-npx web3fuzzforge generate-bridge-reports --fetch-code4rena --fetch-sherlock
+npx Audityzer generate-bridge-reports --fetch-code4rena --fetch-sherlock
 ```
 
 ## Installation
 
-The bounty integration modules are included in the main Web3FuzzForge package. Make sure you're using version 1.1.0 or later:
+The bounty integration modules are included in the main Audityzer package. Make sure you're using version 1.1.0 or later:
 
 ```bash
-npm install web3fuzzforge@latest
+npm install Audityzer@latest
 ```
 
 ## Detailed Usage
@@ -58,7 +58,7 @@ npm install web3fuzzforge@latest
 The Immunefi Submission Generator creates properly formatted vulnerability reports for submission to the Immunefi platform.
 
 ```javascript
-const { ImmunefiSubmissionGenerator } = require('web3fuzzforge/core/bounty-integration');
+const { ImmunefiSubmissionGenerator } = require('Audityzer/core/bounty-integration');
 
 // Create a new instance
 const generator = new ImmunefiSubmissionGenerator('./reports/immunefi');
@@ -79,7 +79,7 @@ const summaryPath = generator.createSummaryReport(submissions);
 The Code4rena integration module creates properly formatted contest submissions.
 
 ```javascript
-const { Code4renaIntegration } = require('web3fuzzforge/core/bounty-integration');
+const { Code4renaIntegration } = require('Audityzer/core/bounty-integration');
 
 // Create a new instance with contest ID
 const c4 = new Code4renaIntegration('your-contest-id', './reports/code4rena');
@@ -100,7 +100,7 @@ const metricsPath = c4.generateMetricsReport();
 The Sherlock Report Formatter creates audit reports according to Sherlock's specifications.
 
 ```javascript
-const { SherlockReportFormatter } = require('web3fuzzforge/core/bounty-integration');
+const { SherlockReportFormatter } = require('Audityzer/core/bounty-integration');
 
 // Create a new instance
 // Set judging=true to use Sherlock's judging format
@@ -123,7 +123,7 @@ const savedFiles = formatter.saveSubmissions(submissions);
 The Bridge Bounty Adapter specializes in cross-chain bridge vulnerabilities and can generate test templates from existing reports.
 
 ```javascript
-const { BridgeBountyAdapter } = require('web3fuzzforge/core/bounty-integration');
+const { BridgeBountyAdapter } = require('Audityzer/core/bounty-integration');
 
 // Create a new instance
 const adapter = new BridgeBountyAdapter('./test-templates/bridge');
@@ -144,12 +144,12 @@ const report = adapter.generateReport();
 
 ## CLI Reference
 
-Web3FuzzForge includes a CLI for the bounty integration features.
+Audityzer includes a CLI for the bounty integration features.
 
 ### Submit to Immunefi
 
 ```bash
-npx web3fuzzforge submit-to-immunefi [options]
+npx Audityzer submit-to-immunefi [options]
 ```
 
 **Options:**
@@ -162,7 +162,7 @@ npx web3fuzzforge submit-to-immunefi [options]
 ### Submit to Code4rena
 
 ```bash
-npx web3fuzzforge submit-to-code4rena [options]
+npx Audityzer submit-to-code4rena [options]
 ```
 
 **Options:**
@@ -176,7 +176,7 @@ npx web3fuzzforge submit-to-code4rena [options]
 ### Generate Sherlock Report
 
 ```bash
-npx web3fuzzforge generate-sherlock-report [options]
+npx Audityzer generate-sherlock-report [options]
 ```
 
 **Options:**
@@ -191,7 +191,7 @@ npx web3fuzzforge generate-sherlock-report [options]
 ### Generate Bridge Reports
 
 ```bash
-npx web3fuzzforge generate-bridge-reports [options]
+npx Audityzer generate-bridge-reports [options]
 ```
 
 **Options:**
@@ -209,7 +209,7 @@ Each bounty platform module can be customized with additional options:
 
 ```javascript
 // Using the factory function for any platform
-const { createBountySubmissionGenerator } = require('web3fuzzforge/core/bounty-integration');
+const { createBountySubmissionGenerator } = require('Audityzer/core/bounty-integration');
 
 // Create a submission generator for Immunefi
 const generator = createBountySubmissionGenerator('immunefi', {
@@ -241,7 +241,7 @@ You can integrate bounty submission generation into your test workflows:
 
 ```javascript
 const { test } = require('@playwright/test');
-const { ImmunefiSubmissionGenerator } = require('web3fuzzforge/core/bounty-integration');
+const { ImmunefiSubmissionGenerator } = require('Audityzer/core/bounty-integration');
 
 test('should generate Immunefi submissions after testing', async ({ page }) => {
   // Run your security tests

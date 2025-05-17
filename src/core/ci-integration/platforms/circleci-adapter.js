@@ -12,7 +12,7 @@ const yaml = require('js-yaml');
 
 /**
  * CircleCI Integration Adapter
- * Creates and manages CircleCI pipeline configurations for Web3FuzzForge
+ * Creates and manages CircleCI pipeline configurations for Audityzer
  */
 class CircleCIAdapter {
   /**
@@ -34,7 +34,7 @@ class CircleCIAdapter {
   }
 
   /**
-   * Generate a CircleCI configuration for Web3FuzzForge
+   * Generate a CircleCI configuration for Audityzer
    * @param {Object} options - Generation options
    * @returns {Object} Generated configuration object
    */
@@ -132,7 +132,7 @@ class CircleCIAdapter {
       config.jobs.test.steps.push({
         run: {
           name: 'Run security checks',
-          command: 'npx web3fuzzforge analyze',
+          command: 'npx Audityzer analyze',
         },
       });
     }
@@ -142,7 +142,7 @@ class CircleCIAdapter {
       config.jobs.test.steps.push({
         run: {
           name: 'Validate deployments',
-          command: 'npx web3fuzzforge deploy-validate',
+          command: 'npx Audityzer deploy-validate',
         },
       });
     }
@@ -251,12 +251,12 @@ class CircleCIAdapter {
   }
 
   /**
-   * Generate default CircleCI configuration for a Web3FuzzForge project
+   * Generate default CircleCI configuration for a Audityzer project
    * @param {string} outputPath - Where to write the configuration
    * @returns {string} Path to the written configuration file
    */
   generateDefaultConfig(outputPath = this.config.configPath) {
-    // Default options for Web3FuzzForge tests
+    // Default options for Audityzer tests
     const defaultOptions = {
       nodeVersion: '18.16',
       browsers: ['chromium'],

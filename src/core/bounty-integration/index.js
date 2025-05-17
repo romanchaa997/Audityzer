@@ -1,7 +1,7 @@
 /**
  * Bounty Integration Modules
  *
- * This module exports all bounty platform integrations for the Web3FuzzForge toolkit.
+ * This module exports all bounty platform integrations for the Audityzer toolkit.
  */
 
 // Note: We're providing JavaScript wrappers for the TypeScript classes
@@ -237,7 +237,7 @@ class SherlockReportFormatter {
 
 // JavaScript implementation of the BridgeBountyAdapter class
 class BridgeBountyAdapter {
-  constructor(outputDir = './web3fuzzforge-community-tests/dapp-tests') {
+  constructor(outputDir = './Audityzer-community-tests/dapp-tests') {
     this.outputDir = outputDir;
     this.vulnerabilityReports = [];
     this.templates = [];

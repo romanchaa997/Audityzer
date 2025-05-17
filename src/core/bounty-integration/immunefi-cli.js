@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Web3FuzzForge - Immunefi Submission CLI
+ * Audityzer - Immunefi Submission CLI
  * 
  * Command line tool to submit vulnerabilities to Immunefi from test results.
  */
@@ -45,7 +45,7 @@ if (!process.env.IMMUNEFI_API_KEY) {
 }
 
 // Display submission information
-console.log('Web3FuzzForge - Immunefi Vulnerability Submission');
+console.log('Audityzer - Immunefi Vulnerability Submission');
 console.log('================================================');
 console.log(`Test Results: ${testResultsPath}`);
 console.log(`Project Name: ${projectName}`);

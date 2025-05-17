@@ -1,5 +1,5 @@
 /**
- * Contributor tracking utility for Web3FuzzForge community tests
+ * Contributor tracking utility for Audityzer community tests
  * This module handles acknowledging test contributors in the Hall of Fame
  */
 
@@ -110,7 +110,7 @@ async function generateHallOfFame() {
     }
 
     // Generate markdown content
-    let markdown = '# Web3FuzzForge Hall of Fame\n\n';
+    let markdown = '# Audityzer Hall of Fame\n\n';
     markdown +=
       'This Hall of Fame celebrates the amazing contributors who have submitted Web3 fuzzing tests to help improve security across the ecosystem.\n\n';
 

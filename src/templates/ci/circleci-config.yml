@@ -41,7 +41,7 @@ jobs:
           at: .
       - run:
           name: Validate Security Rules
-          command: npx web3fuzzforge security-validate ./security-rules.json
+          command: npx Audityzer security-validate ./security-rules.json
       - persist_to_workspace:
           root: .
           paths:
@@ -63,7 +63,7 @@ jobs:
       - run:
           name: Run Web3 Security Tests
           command: |
-            npx web3fuzzforge ci-run \
+            npx Audityzer ci-run \
               --reporter=circleci,html,json,junit \
               --notify=true
       - store_test_results:
@@ -92,7 +92,7 @@ jobs:
       - run:
           name: Run Static Analysis
           command: |
-            npx web3fuzzforge ci-run \
+            npx Audityzer ci-run \
               --reporter=circleci,html,json \
               --static-analysis=true \
               --contracts-dir=./contracts
@@ -111,7 +111,7 @@ jobs:
           name: Validate Contract Deployments
           command: |
             mkdir -p test-results/deployment
-            npx web3fuzzforge deploy-validate \
+            npx Audityzer deploy-validate \
               --network=mainnet,testnet \
               --check-verification=true \
               --output=./test-results/deployment/validation-report.json

@@ -12,7 +12,7 @@ const dirsToSearch = [
   'tests',
   'autotests',
   'examples',
-  'web3fuzzforge-community-tests'
+  'Audityzer-community-tests'
 ];
 
 // Patterns that identify Playwright tests

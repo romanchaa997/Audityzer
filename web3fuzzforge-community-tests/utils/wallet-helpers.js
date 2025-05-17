@@ -1,5 +1,5 @@
 /**
- * Wallet interaction helper functions for Web3FuzzForge community tests
+ * Wallet interaction helper functions for Audityzer community tests
  * These utilities help simulate and interact with various wallet providers
  */
 

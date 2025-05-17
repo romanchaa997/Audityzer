@@ -1,8 +1,8 @@
-# Web3FuzzForge Plugin System Architecture
+# Audityzer Plugin System Architecture
 
 ## Overview
 
-This document outlines the plugin system architecture for Web3FuzzForge, enabling external developers to create and contribute new test types, wallet integrations, and reporting modules. The plugin system follows a modular design with standardized interfaces to ensure compatibility and extensibility.
+This document outlines the plugin system architecture for Audityzer, enabling external developers to create and contribute new test types, wallet integrations, and reporting modules. The plugin system follows a modular design with standardized interfaces to ensure compatibility and extensibility.
 
 ## Core Design Principles
 
@@ -15,7 +15,7 @@ This document outlines the plugin system architecture for Web3FuzzForge, enablin
 
 ## Plugin Types
 
-The Web3FuzzForge plugin system supports the following types of plugins:
+The Audityzer plugin system supports the following types of plugins:
 
 ### 1. Test Type Plugins
 
@@ -89,7 +89,7 @@ Plugins are registered using a manifest file that defines:
   "entryPoint": "./index.js",
   "configSchema": "./config/schema.json",
   "dependencies": {
-    "web3fuzzforge": "^1.0.0"
+    "Audityzer": "^1.0.0"
   },
   "author": "Developer Name",
   "license": "MIT"
@@ -169,7 +169,7 @@ Plugins are configured through a unified configuration system that supports:
 Configuration example:
 
 ```javascript
-// web3fuzzforge.config.js
+// Audityzer.config.js
 module.exports = {
   plugins: {
     'front-running-detection': {
@@ -191,7 +191,7 @@ module.exports = {
 1. **Create**: Initialize a new plugin using the plugin template
 
    ```bash
-   npx web3fuzzforge create-plugin my-plugin --type test
+   npx Audityzer create-plugin my-plugin --type test
    ```
 
 2. **Develop**: Implement the plugin functionality following the interface requirements
@@ -199,18 +199,18 @@ module.exports = {
 3. **Test**: Test the plugin locally
 
    ```bash
-   npx web3fuzzforge test-plugin ./my-plugin
+   npx Audityzer test-plugin ./my-plugin
    ```
 
 4. **Package**: Package the plugin for distribution
 
    ```bash
-   npx web3fuzzforge package-plugin ./my-plugin
+   npx Audityzer package-plugin ./my-plugin
    ```
 
 5. **Publish**: Publish to the plugin registry
    ```bash
-   npx web3fuzzforge publish-plugin ./my-plugin.tgz
+   npx Audityzer publish-plugin ./my-plugin.tgz
    ```
 
 ## Installation and Usage
@@ -218,13 +218,13 @@ module.exports = {
 Users can install plugins from the plugin registry:
 
 ```bash
-npx web3fuzzforge install-plugin front-running-detection
+npx Audityzer install-plugin front-running-detection
 ```
 
 Or directly from a GitHub repository:
 
 ```bash
-npx web3fuzzforge install-plugin github:username/front-running-plugin
+npx Audityzer install-plugin github:username/front-running-plugin
 ```
 
 Plugins can be used in tests with minimal configuration:
@@ -289,7 +289,7 @@ module.exports = api => {
 The overall plugin system is organized as follows:
 
 ```
-web3fuzzforge/
+Audityzer/
 ├── src/
 │   ├── core/
 │   │   ├── plugin-manager.js
@@ -318,4 +318,4 @@ web3fuzzforge/
 
 ## Conclusion
 
-This plugin system architecture enables Web3FuzzForge to be extended with new test types, wallet integrations, and reporting capabilities. By following standardized interfaces and lifecycle hooks, developers can create plugins that seamlessly integrate with the core framework, enhancing its functionality and enabling the community to contribute to the security testing ecosystem.
+This plugin system architecture enables Audityzer to be extended with new test types, wallet integrations, and reporting capabilities. By following standardized interfaces and lifecycle hooks, developers can create plugins that seamlessly integrate with the core framework, enhancing its functionality and enabling the community to contribute to the security testing ecosystem.

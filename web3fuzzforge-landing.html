@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web3FuzzForge - ERC-4337 Security Testing</title>
+    <title>Audityzer - ERC-4337 Security Testing</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -671,7 +671,7 @@
     
     <header>
         <div class="container">
-            <div class="logo"><span class="logo-icon">🔐</span> Web3FuzzForge</div>
+            <div class="logo"><span class="logo-icon">🔐</span> Audityzer</div>
         </div>
     </header>
     
@@ -682,7 +682,7 @@
                 <p class="subtitle">Zero-config security tests for UserOperations, Paymasters, Bundlers, and everything Account Abstraction. One CLI flag. Instant fuzz. Open source.</p>
                 
                 <div class="cta-container">
-                    <a href="https://github.com/username/web3fuzzforge" class="cta-btn cta-primary">
+                    <a href="https://github.com/username/Audityzer" class="cta-btn cta-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                         GitHub
                     </a>
@@ -724,7 +724,7 @@
                 <button class="copy-btn" onclick="copyCode()">Copy</button>
                 <span class="code-line">
                     <span class="prompt">$</span> 
-                    <span class="command typing-animation">npx web3fuzzforge --aa --report</span>
+                    <span class="command typing-animation">npx Audityzer --aa --report</span>
                 </span>
             </div>
             <p style="text-align: center; margin-bottom: 3rem;">Just one command. That's it. We handle the rest.</p>
@@ -785,13 +785,13 @@
                 <a href="#" class="footer-link">Twitter</a>
                 <a href="#" class="footer-link">Discord</a>
             </div>
-            <p>© 2023 Web3FuzzForge. Open-source security testing for ERC-4337.</p>
+            <p>© 2023 Audityzer. Open-source security testing for ERC-4337.</p>
         </div>
     </footer>
     
     <script>
         function copyCode() {
-            const code = "npx web3fuzzforge --aa --report";
+            const code = "npx Audityzer --aa --report";
             navigator.clipboard.writeText(code)
                 .then(() => {
                     const copyBtn = document.querySelector('.copy-btn');

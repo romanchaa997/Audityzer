@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "projectId": "web3fuzzforge-demo",
+  "projectId": "Audityzer-demo",
   "rules": [
     {
       "id": "WALLET-SEC-001",

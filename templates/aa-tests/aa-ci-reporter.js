@@ -160,8 +160,8 @@ class AACIReporter {
         {
           tool: {
             driver: {
-              name: 'Web3FuzzForge AA Testing',
-              informationUri: 'https://github.com/web3fuzzforge',
+              name: 'Audityzer AA Testing',
+              informationUri: 'https://github.com/Audityzer',
               version: '1.0.0',
               rules: failedTests.map((test, index) => ({
                 id: `aa-test-failure-${index + 1}`,

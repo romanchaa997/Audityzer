@@ -1,7 +1,7 @@
 /**
- * Web3FuzzForge Visualization Demo
+ * Audityzer Visualization Demo
  *
- * This script demonstrates the visualization capabilities of Web3FuzzForge.
+ * This script demonstrates the visualization capabilities of Audityzer.
  * It generates:
  * 1. Test results dashboard
  * 2. Transaction flow visualization

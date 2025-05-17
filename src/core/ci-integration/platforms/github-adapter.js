@@ -1,5 +1,5 @@
 /**
- * @fileoverview GitHub CI/CD platform adapter for Web3FuzzForge
+ * @fileoverview GitHub CI/CD platform adapter for Audityzer
  *
  * This module provides GitHub-specific integration functionality including
  * GitHub Actions workflow integration, SARIF reporting for GitHub Security,
@@ -113,9 +113,9 @@ class GitHubAdapter {
           {
             tool: {
               driver: {
-                name: 'Web3FuzzForge',
+                name: 'Audityzer',
                 version: '1.1.0',
-                informationUri: 'https://github.com/romanchaa997/Web3FuzzForge',
+                informationUri: 'https://github.com/romanchaa997/Audityzer',
                 rules: [],
               },
             },
@@ -129,7 +129,7 @@ class GitHubAdapter {
 
       securityIssues.forEach(issue => {
         const ruleId =
-          issue.ruleId || `web3fuzzforge-${issue.category}-${Math.floor(Math.random() * 1000)}`;
+          issue.ruleId || `Audityzer-${issue.category}-${Math.floor(Math.random() * 1000)}`;
 
         // Add rule definition if not already added
         if (!addedRuleIds.has(ruleId)) {
@@ -141,7 +141,7 @@ class GitHubAdapter {
             fullDescription: {
               text: issue.description || 'Web3 Security Issue',
             },
-            helpUri: issue.references?.[0]?.url || 'https://github.com/romanchaa997/Web3FuzzForge',
+            helpUri: issue.references?.[0]?.url || 'https://github.com/romanchaa997/Audityzer',
             properties: {
               category: issue.category || 'security',
               tags: [issue.category, `severity-${issue.severity}`],
@@ -211,8 +211,8 @@ class GitHubAdapter {
   }
 
   /**
-   * Map Web3FuzzForge severity levels to SARIF levels
-   * @param {string} severity - Web3FuzzForge severity level
+   * Map Audityzer severity levels to SARIF levels
+   * @param {string} severity - Audityzer severity level
    * @returns {string} SARIF severity level
    */
   mapSeverityToLevel(severity) {
@@ -298,7 +298,7 @@ ${issue.remediation || 'No remediation steps provided.'}
 ${(issue.references || []).map(ref => `- [${ref.title}](${ref.url})`).join('\n') || 'No references provided.'}
 
 ---
-*This issue was automatically created by Web3FuzzForge Security Testing.*
+*This issue was automatically created by Audityzer Security Testing.*
     `;
   }
 }

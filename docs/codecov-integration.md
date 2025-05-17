@@ -1,6 +1,6 @@
-# Codecov Integration for Web3FuzzForge
+# Codecov Integration for Audityzer
 
-This guide explains how the Web3FuzzForge project is integrated with Codecov for tracking test results and coverage.
+This guide explains how the Audityzer project is integrated with Codecov for tracking test results and coverage.
 
 ## Overview
 

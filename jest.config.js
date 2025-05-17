@@ -1,5 +1,5 @@
 /**
- * Jest configuration for Web3FuzzForge
+ * Jest configuration for Audityzer
  */
 module.exports = {
   // Automatically clear mock calls and instances between every test
@@ -63,7 +63,7 @@ module.exports = {
     '/tests/metamask-',
     '/tests/zk-snark',
     '/tests/layerzero-',
-    '/web3fuzzforge-community-tests/',
+    '/Audityzer-community-tests/',
     '/darkforest-v0.6/eth/test/',
   ],
 

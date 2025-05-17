@@ -44,8 +44,8 @@ my-vue-app/
 plugins/
 SolidStartApp/
 uniswap-dapp-starter/
-Web3FuzzForge/
-web3fuzzforge-community-tests/
+Audityzer/
+audityzer-community-tests/
 
 # Environment and configuration
 .env*
@@ -102,7 +102,7 @@ test-results/
 test-output/
 test-user-data-dir/
 tests/
-Web3FuzzForge/
+Audityzer/
 
 # Config files not needed in the final package
 .eslintrc.cjs

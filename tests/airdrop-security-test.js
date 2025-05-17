@@ -1,4 +1,4 @@
-// Airdrop Security Test Suite using Web3FuzzForge
+// Airdrop Security Test Suite using Audityzer
 const { test, expect } = require('@playwright/test');
 
 /**

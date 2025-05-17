@@ -918,7 +918,7 @@ function generateDebugDashboardHTML(session, options) {
         </div>
         
         <div class="footer">
-          <p>Web3FuzzForge Debug Tools</p>
+          <p>Audityzer Debug Tools</p>
         </div>
       </div>
       

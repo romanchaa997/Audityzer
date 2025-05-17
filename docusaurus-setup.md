@@ -10,8 +10,8 @@ mkdir -p docs-site
 cd docs-site
 
 # Initialize a new Docusaurus site
-npx @docusaurus/init@latest init web3fuzzforge-docs classic
-cd web3fuzzforge-docs
+npx @docusaurus/init@latest init Audityzer-docs classic
+cd Audityzer-docs
 ```
 
 ## 2. Structure Documentation Content
@@ -41,7 +41,7 @@ docs/
 
 ## sidebar_position: 1
 
-# Web3FuzzForge
+# Audityzer
 
 Automated test scaffolding for the battle-tested Web3 developer who doesn't have time for bullshit.
 
@@ -58,15 +58,15 @@ Update `docusaurus.config.js` with project information:
 
 ```js
 module.exports = {
-  title: 'Web3FuzzForge',
+  title: 'Audityzer',
   tagline: 'Automated test scaffolding for Web3 developers',
-  url: 'https://your-domain.com',
+  url: 'https://Audityzer.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  organizationName: 'your-github-org',
-  projectName: 'web3-security-test-kit',
+  organizationName: Audityzer',
+  projectName: 'Audityzer',
   // ...rest of config
 };
 ```
@@ -96,8 +96,8 @@ If you prefer SvelteKit over Docusaurus:
 
 ```bash
 # Create a new SvelteKit project
-npm create svelte@latest web3fuzzforge-docs
-cd web3fuzzforge-docs
+npm create svelte@latest Audityzer-docs
+cd Audityzer-docs
 npm install
 
 # Install markdown processing packages

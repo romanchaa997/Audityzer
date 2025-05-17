@@ -62,7 +62,7 @@ function startServer(options = {}) {
   app.get('/dashboard', (req, res) => {
     const testResults = loadLatestTestResults(config.reportsDir);
     const dashboard = dashboardRenderer.generateDashboardHTML(testResults, {
-      title: 'Web3FuzzForge Test Results',
+      title: 'Audityzer Test Results',
       theme: config.theme,
     });
     res.send(dashboard);
@@ -226,7 +226,7 @@ function setupApiRoutes(app, config) {
 
       const dashboard = dashboardRenderer.initialize({ outputDir });
       const result = dashboardRenderer.render(testResults, {
-        title: options.title || 'Web3FuzzForge Test Results',
+        title: options.title || 'Audityzer Test Results',
         theme: options.theme || config.theme,
         filename: options.filename || `dashboard-${Date.now()}.html`,
       });

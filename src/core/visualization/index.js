@@ -1,5 +1,5 @@
 /**
- * Web3FuzzForge Visualization Module
+ * Audityzer Visualization Module
  * Provides tools for visualizing test results, transaction flows, and debugging information
  */
 

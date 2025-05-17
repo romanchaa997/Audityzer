@@ -35,7 +35,7 @@ stages:
           - script: npx playwright install --with-deps chromium
             displayName: 'Install Playwright browsers'
 
-          - script: npx web3fuzzforge security-validate ./security-rules.json
+          - script: npx Audityzer security-validate ./security-rules.json
             displayName: 'Validate security rules'
             continueOnError: false
 
@@ -54,15 +54,15 @@ stages:
           - script: npx playwright install --with-deps chromium
             displayName: 'Install Playwright browsers'
 
-          - script: npx web3fuzzforge ci-run --reporter=azure,html,json,junit --notify=true
-            displayName: 'Run Web3FuzzForge security tests'
+          - script: npx Audityzer ci-run --reporter=azure,html,json,junit --notify=true
+            displayName: 'Run Audityzer security tests'
 
           - task: PublishTestResults@2
             inputs:
               testResultsFormat: 'JUnit'
               testResultsFiles: 'test-results/junit-report.xml'
               mergeTestResults: true
-              testRunTitle: 'Web3FuzzForge Security Tests'
+              testRunTitle: 'Audityzer Security Tests'
             displayName: 'Publish test results'
             condition: always()
 
@@ -91,7 +91,7 @@ stages:
               if [ -d "./contracts" ]; then
                 mkdir -p test-results/static-analysis
                 npm install -g solhint
-                npx web3fuzzforge ci-run --static-analysis=true --contracts-dir=./contracts
+                npx Audityzer ci-run --static-analysis=true --contracts-dir=./contracts
                 echo "Static analysis completed"
               else
                 echo "No contracts directory found, skipping static analysis"
@@ -114,7 +114,7 @@ stages:
           - script: npm ci
             displayName: 'Install dependencies'
 
-          - script: npx web3fuzzforge generate-report --format=html,pdf,markdown
+          - script: npx Audityzer generate-report --format=html,pdf,markdown
             displayName: 'Generate security reports'
 
           - task: PublishBuildArtifacts@1

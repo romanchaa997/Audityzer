@@ -4,11 +4,11 @@ sidebar_position: 2
 
 # Mobile Wallet Testing
 
-Mobile wallets are increasingly important in the Web3 ecosystem. Web3FuzzForge is expanding support for testing mobile wallet interactions to provide comprehensive coverage for multi-platform applications, focusing first on the most widely used wallet options.
+Mobile wallets are increasingly important in the Web3 ecosystem. Audityzer is expanding support for testing mobile wallet interactions to provide comprehensive coverage for multi-platform applications, focusing first on the most widely used wallet options.
 
 ## Current Mobile Wallet Support
 
-Web3FuzzForge currently offers the following mobile wallet testing capabilities, prioritized by usage:
+Audityzer currently offers the following mobile wallet testing capabilities, prioritized by usage:
 
 ### High-Priority Mobile Wallets (Phase 1: Now-Q2 2025)
 
@@ -204,7 +204,7 @@ We're working on the following improvements in order of priority:
 
 We encourage community contributions of mobile wallet testing examples, especially for our high-priority wallet list. To contribute:
 
-1. Create a test example in the `web3fuzzforge-community-tests/mobile-wallets/` directory
+1. Create a test example in the `Audityzer-community-tests/mobile-wallets/` directory
 2. Focus on MetaMask, WalletConnect, or Coinbase Wallet for maximum value
 3. Include detailed setup instructions for mobile devices or emulators
 4. Document any required plugins or extensions

@@ -1,4 +1,4 @@
-name: Web3FuzzForge Security Analysis
+name: Audityzer Security Analysis
 
 on:
   push:

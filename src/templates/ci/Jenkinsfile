@@ -32,14 +32,14 @@ pipeline {
         
         stage('Validate Security Rules') {
             steps {
-                sh 'npx web3fuzzforge security-validate ./security-rules.json'
+                sh 'npx Audityzer security-validate ./security-rules.json'
             }
         }
         
         stage('Security Tests') {
             steps {
                 sh 'mkdir -p test-results'
-                sh 'npx web3fuzzforge ci-run --reporter=jenkins,html,json,junit --notify=true'
+                sh 'npx Audityzer ci-run --reporter=jenkins,html,json,junit --notify=true'
             }
             post {
                 always {
@@ -55,7 +55,7 @@ pipeline {
             steps {
                 sh 'mkdir -p test-results/static-analysis'
                 sh 'npm install -g solhint'
-                sh 'npx web3fuzzforge ci-run --static-analysis=true --contracts-dir=./contracts'
+                sh 'npx Audityzer ci-run --static-analysis=true --contracts-dir=./contracts'
             }
         }
         
@@ -68,7 +68,7 @@ pipeline {
                     reportDir: 'test-results',
                     reportFiles: 'report.html',
                     reportName: 'Security Test Report',
-                    reportTitles: 'Web3FuzzForge Security Report'
+                    reportTitles: 'Audityzer Security Report'
                 ])
             }
         }

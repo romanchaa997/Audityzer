@@ -1,7 +1,7 @@
 /**
  * Multi-Wallet Test Example
  *
- * This example demonstrates how to use the Web3FuzzForge wallet adapters
+ * This example demonstrates how to use the Audityzer wallet adapters
  * to test wallet interactions with multiple wallet providers.
  */
 
@@ -66,7 +66,7 @@ test('should connect and sign message with WalletConnect', async ({ page }) => {
   expect(connection.address).toBe('0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC');
 
   // Sign a test message
-  const message = 'Hello, Web3FuzzForge!';
+  const message = 'Hello, Audityzer!';
   const signature = await walletConnectAdapter.signMessage(page, {
     message,
   });

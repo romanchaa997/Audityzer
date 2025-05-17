@@ -1,5 +1,5 @@
 /**
- * Web3FuzzForge Plugin API
+ * Audityzer Plugin API
  * Provides the interface for plugins to interact with the core framework
  */
 

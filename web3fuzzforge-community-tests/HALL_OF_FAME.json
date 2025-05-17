@@ -1,6 +1,6 @@
 [
   {
-    "contributor": "Web3FuzzForge Team",
+    "contributor": "Audityzer Team",
     "date": "2024-03-20T12:00:00.000Z",
     "testName": "transaction-parameter-fuzzing.test.js",
     "testPath": "dapp-tests/transaction-flow/transaction-parameter-fuzzing.test.js",

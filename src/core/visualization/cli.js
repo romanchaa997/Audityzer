@@ -23,7 +23,7 @@ const commonOptions = {
 };
 
 // Setup CLI program
-program.name('web3fuzzforge-viz').description('Web3FuzzForge Visualization Tools').version('1.0.0');
+program.name('Audityzer-viz').description('Audityzer Visualization Tools').version('1.0.0');
 
 // Dashboard command
 program
@@ -43,7 +43,7 @@ program
 
       const testResults = loadTestResults(input);
       const outputPath = options.output || path.join(process.cwd(), 'reports', 'dashboards');
-      const title = options.title || 'Web3FuzzForge Test Results';
+      const title = options.title || 'Audityzer Test Results';
 
       console.log(`Generating dashboard from ${input}...`);
 
@@ -163,7 +163,7 @@ program
     try {
       const inputDir = options.input || path.join(process.cwd(), 'reports');
       const outputPath = options.output || path.join(process.cwd(), 'reports', 'visualizations');
-      const title = options.title || 'Web3FuzzForge Security Report';
+      const title = options.title || 'Audityzer Security Report';
 
       console.log(`Generating comprehensive report from ${inputDir}...`);
 
@@ -223,7 +223,7 @@ program
       // Generate dashboard
       const dashboard = dashboardRenderer.initialize({ outputDir: outputPath });
       const dashboardResult = dashboardRenderer.render(testResults, {
-        title: 'Web3FuzzForge Test Results',
+        title: 'Audityzer Test Results',
         theme: options.theme,
         filename: `dashboard-${timestamp}.html`,
       });

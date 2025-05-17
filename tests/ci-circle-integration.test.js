@@ -85,7 +85,7 @@ describe('CircleCI Integration Tests', () => {
     );
 
     expect(securityStep).toBeDefined();
-    expect(securityStep.run.command).toContain('web3fuzzforge analyze');
+    expect(securityStep.run.command).toContain('Audityzer analyze');
   });
 
   test('CircleCI adapter excludes security checks when not requested', () => {

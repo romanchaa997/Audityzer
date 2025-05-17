@@ -24,7 +24,7 @@ function Test-RemoteExists($remoteName) {
 }
 
 Write-Host ""
-Write-ColorOutput Yellow "Web3FuzzForge Repository Synchronization Tool"
+Write-ColorOutput Yellow "Audityzer Repository Synchronization Tool"
 Write-Host "==========================================="
 
 # Check if git is installed
@@ -51,9 +51,9 @@ if (-not (Test-Path ".git")) {
 Write-Host ""
 Write-ColorOutput Yellow "Setting up GitHub remote..."
 $GITHUB_USERNAME = Read-Host "Enter GitHub username"
-$GITHUB_REPO = Read-Host "Enter GitHub repository name [Web3FuzzForge]"
+$GITHUB_REPO = Read-Host "Enter GitHub repository name [Audityzer]"
 if ([string]::IsNullOrEmpty($GITHUB_REPO)) {
-    $GITHUB_REPO = "Web3FuzzForge"
+    $GITHUB_REPO = "Audityzer"
 }
 
 if (Test-RemoteExists "github") {

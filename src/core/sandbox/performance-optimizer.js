@@ -20,7 +20,7 @@ class SandboxPerformanceOptimizer {
   constructor(config = {}) {
     this.config = {
       // Cache settings
-      cacheDir: config.cacheDir || path.join(os.tmpdir(), 'web3fuzzforge-cache'),
+      cacheDir: config.cacheDir || path.join(os.tmpdir(), 'Audityzer-cache'),
       cacheSize: config.cacheSize || 500, // Max number of entries
       cacheMaxAge: config.cacheMaxAge || 60 * 60 * 1000, // 1 hour
 

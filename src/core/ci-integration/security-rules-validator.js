@@ -583,8 +583,8 @@ class SecurityRulesValidator {
           {
             tool: {
               driver: {
-                name: 'Web3FuzzForge Security Validator',
-                informationUri: 'https://github.com/yourusername/web3fuzzforge',
+                name: 'Audityzer Security Validator',
+                informationUri: 'https://github.com/yourusername/Audityzer',
                 version: '1.0.0',
                 rules: rules.rules.map(rule => ({
                   id: rule.id,

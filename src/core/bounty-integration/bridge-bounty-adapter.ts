@@ -1,7 +1,7 @@
 /**
  * Bridge Bounty Platform Adapter
  *
- * This module connects the Web3FuzzForge bridge testing framework to bounty platforms
+ * This module connects the Audityzer bridge testing framework to bounty platforms
  * like Code4rena and Sherlock, enabling the automated generation of test templates
  * based on previously discovered vulnerabilities.
  */
@@ -49,7 +49,7 @@ export class BridgeBountyAdapter {
   private templates: TestTemplate[] = [];
   private outputDir: string;
 
-  constructor(outputDir: string = './web3fuzzforge-community-tests/dapp-tests') {
+  constructor(outputDir: string = './Audityzer-community-tests/dapp-tests') {
     this.outputDir = outputDir;
   }
 

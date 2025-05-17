@@ -49,26 +49,26 @@ EOL
 cat > demo.sh << EOL
 #!/bin/bash
 clear
-echo "# Web3FuzzForge Quickstart Demo"
+echo "# Audityzer Quickstart Demo"
 sleep 1
 echo
 echo "# Generate a MetaMask connection test"
 sleep 1.5
-echo "\$ web3fuzzforge generate connect --provider metamask --out ./tests/connection.test.js"
+echo "\$ Audityzer generate connect --provider metamask --out ./tests/connection.test.js"
 sleep 2
 echo "✅ Generated test template at ./tests/connection.test.js"
 sleep 1.5
 echo
 echo "# Generate a transaction test with TypeScript"
 sleep 1.5
-echo "\$ web3fuzzforge generate tx --provider metamask --out ./tests/transaction.test.ts --typescript"
+echo "\$ Audityzer generate tx --provider metamask --out ./tests/transaction.test.ts --typescript"
 sleep 2
 echo "✅ Generated test template at ./tests/transaction.test.ts"
 sleep 1.5
 echo
 echo "# Generate a test using DeFi preset"
 sleep 1.5
-echo "\$ web3fuzzforge generate tx --preset defi --out ./tests/defi-swap.test.js"
+echo "\$ Audityzer generate tx --preset defi --out ./tests/defi-swap.test.js"
 sleep 2
 echo "✅ Generated test template at ./tests/defi-swap.test.js"
 sleep 1.5
@@ -93,15 +93,15 @@ chmod +x demo.sh
 
 # Record the terminal session
 terminalizer record demo --config config.yml
-terminalizer render demo --output media/web3fuzzforge-quickstart.gif
+terminalizer render demo --output media/audityzer-quickstart.gif
 
 # Optimize the GIF (if ImageMagick is installed)
 if command -v convert &> /dev/null; then
-  convert media/web3fuzzforge-quickstart.gif -fuzz 5% -layers optimize media/web3fuzzforge-quickstart-optimized.gif
-  mv media/web3fuzzforge-quickstart-optimized.gif media/web3fuzzforge-quickstart.gif
+  convert media/audityzer-quickstart.gif -fuzz 5% -layers optimize media/audityzer-quickstart-optimized.gif
+  mv media/audityzer-quickstart-optimized.gif media/audityzer-quickstart.gif
 fi
 
-echo "Quickstart GIF created at media/web3fuzzforge-quickstart.gif"
+echo "Quickstart GIF created at media/audityzer-quickstart.gif"
 
 # Clean up
 rm config.yml demo.sh demo.yml 

@@ -99,7 +99,7 @@ function generateComparisonReport(current, previous) {
   const isPerformanceImproved = averageDurationDiff < 0;
 
   // Build report header
-  let report = '# Web3FuzzForge Performance Benchmark Results\n\n';
+  let report = '# Audityzer Performance Benchmark Results\n\n';
 
   report += '## Summary\n\n';
   report += '| Metric | Current | Previous | Change |\n';

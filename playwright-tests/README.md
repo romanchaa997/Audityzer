@@ -8,7 +8,7 @@ This directory contains all Playwright tests for the Web3 Security Test Kit.
 - `autotests/` - Automated test scripts
 - `examples/` - Example test cases
 - `utils/` - Utility functions for testing
-- `web3fuzzforge-community-tests/` - Community contributed tests
+- `Audityzer-community-tests/` - Community contributed tests
 
 ## Running Tests
 
