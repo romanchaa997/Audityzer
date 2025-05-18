@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  web3-security-test-kit:
+  audityzer:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: web3-security-test-kit
+    container_name: audityzer
     ports:
       - "5000:5000"
     volumes:

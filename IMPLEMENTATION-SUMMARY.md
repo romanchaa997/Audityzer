@@ -1,8 +1,8 @@
-# Web3 Security Test Kit Implementation Summary
+# Audityzer Implementation Summary
 
 ## Implemented Enhancements
 
-We have implemented the following major enhancements to the Web3 Security Test Kit:
+We have implemented the following major enhancements to the Audityzer:
 
 ### 1. Wallet Provider Templates
 
@@ -109,7 +109,7 @@ npx playwright test --project=phantom
 
 ## Conclusion
 
-These enhancements significantly improve the Web3 Security Test Kit's capabilities for detecting vulnerabilities in Web3 applications, with a focus on wallet security, Layer 2 bridge vulnerabilities, comprehensive visualization, and bounty platform integration. The implementation follows best practices for security testing and provides detailed reporting for security teams.
+These enhancements significantly improve the Audityzer's capabilities for detecting vulnerabilities in Web3 applications, with a focus on wallet security, Layer 2 bridge vulnerabilities, comprehensive visualization, and bounty platform integration. The implementation follows best practices for security testing and provides detailed reporting for security teams.
 
 # Implementation Summary - Enhanced Visualization for Account Abstraction Testing
 

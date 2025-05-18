@@ -82,7 +82,7 @@ jobs:
           echo "Listing files in scan-results/"
           ls -l scan-results/
           echo "Checking individual files"
-          ls -l slither-report.md npm-audit.json dependency-check.log dappeteer-deps.json snyk-results.json
+          ls -l slither-report.md npm-audit.json dependency-check.log dappeteer-deps.json -results.json
 
       - name: Run npm audit
         id: run_npm_audit
@@ -103,7 +103,7 @@ jobs:
             npm-audit.json
             dependency-check.log
             dappeteer-deps.json
-            snyk-results.json
+            -results.json
 
   deploy-validation:
     name: Deployment Validation
