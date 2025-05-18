@@ -69,10 +69,14 @@ jobs:
           fi
 
       - name: Save scan results
-        uses: actions/upload-artifact@v3.1.3
+        uses: actions/upload-artifact@v3
         with:
           name: security-scan-results
           path: |
             scan-results/
             slither-report.md
+            npm-audit.json
+            dependency-check.log
+            dappeteer-deps.json
+            snyk-results.json
         if: always()
