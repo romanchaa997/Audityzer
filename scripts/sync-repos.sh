@@ -52,8 +52,8 @@ echo -e "${GREEN}GitHub remote configured: https://github.com/$GITHUB_USERNAME/$
 # Configure GitLab remote
 echo -e "\n${YELLOW}Setting up GitLab remote...${NC}"
 read -p "Enter GitLab username: " GITLAB_USERNAME
-read -p "Enter GitLab repository name [web3-security-test-kit]: " GITLAB_REPO
-GITLAB_REPO=${GITLAB_REPO:-web3-security-test-kit}
+read -p "Enter GitLab repository name [Audityzer]: " GITLAB_REPO
+GITLAB_REPO=${GITLAB_REPO:-Audityzer}
 
 if remote_exists "gitlab"; then
     echo -e "GitLab remote already exists. Updating URL..."

@@ -227,7 +227,7 @@ function generateSarifReport(testResults, options = {}) {
           driver: {
             name: 'Audityzer Security Scanner',
             version: '1.0.0',
-            informationUri: 'https://github.com/yourusername/web3-security-test-kit',
+            informationUri: 'https://github.com/yourusername/Audityzer',
             rules: [],
           },
         },
@@ -253,7 +253,7 @@ function generateSarifReport(testResults, options = {}) {
         fullDescription: {
           text: vuln.original.description || `Vulnerability of type ${category}`,
         },
-        helpUri: `https://github.com/yourusername/web3-security-test-kit/docs/${category.toLowerCase()}.md`,
+        helpUri: `https://github.com/yourusername/Audityzer/docs/${category.toLowerCase()}.md`,
         properties: {
           tags: ['security', 'web3', category.toLowerCase()],
           category,

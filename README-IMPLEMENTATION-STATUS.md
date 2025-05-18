@@ -61,8 +61,8 @@ To use the MetaMask security testing framework:
 
    ```bash
    # Clone the repository
-   git clone https://github.com/your-org/web3-security-test-kit.git
-   cd web3-security-test-kit
+   git clone https://github.com/your-org/Audityzer.git
+   cd Audityzer
 
    # Install dependencies
    npm install

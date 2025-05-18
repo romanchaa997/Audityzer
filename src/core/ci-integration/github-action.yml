@@ -63,25 +63,25 @@ jobs:
 
       - name: Run static analysis
         id: static-analysis
-        run: npx @web3-security-test-kit/cli analyze --path ${{ steps.contract-path.outputs.path }}
+        run: npx @Audityzer/cli analyze --path ${{ steps.contract-path.outputs.path }}
 
       - name: Generate security rules
-        run: npx @web3-security-test-kit/cli generate-rules --path ${{ steps.contract-path.outputs.path }} --output security-rules.json
+        run: npx @Audityzer/cli generate-rules --path ${{ steps.contract-path.outputs.path }} --output security-rules.json
 
       - name: Verify security rules
-        run: npx @web3-security-test-kit/cli verify-rules --rules security-rules.json
+        run: npx @Audityzer/cli verify-rules --rules security-rules.json
 
       - name: Run vulnerability detection
         if: steps.test-level.outputs.level != 'basic'
-        run: npx @web3-security-test-kit/cli detect-vulnerabilities --path ${{ steps.contract-path.outputs.path }} --output vulnerability-report.json
+        run: npx @Audityzer/cli detect-vulnerabilities --path ${{ steps.contract-path.outputs.path }} --output vulnerability-report.json
 
       - name: Run protocol-specific tests
         if: steps.test-level.outputs.level == 'comprehensive'
-        run: npx @web3-security-test-kit/cli test-protocol --path ${{ steps.contract-path.outputs.path }} --output protocol-report.json
+        run: npx @Audityzer/cli test-protocol --path ${{ steps.contract-path.outputs.path }} --output protocol-report.json
 
       - name: Run L2 compatibility tests
         if: steps.test-level.outputs.level == 'comprehensive'
-        run: npx @web3-security-test-kit/cli test-l2 --path ${{ steps.contract-path.outputs.path }} --output l2-report.json
+        run: npx @Audityzer/cli test-l2 --path ${{ steps.contract-path.outputs.path }} --output l2-report.json
 
       - name: Generate comprehensive report
         run: |
@@ -95,7 +95,7 @@ jobs:
           if [[ -f "l2-report.json" ]]; then
             ARGS="$ARGS --l2-report l2-report.json"
           fi
-          npx @web3-security-test-kit/cli generate-report $ARGS --output security-report.md --format markdown
+          npx @Audityzer/cli generate-report $ARGS --output security-report.md --format markdown
 
       - name: Upload security report
         uses: actions/upload-artifact@v3

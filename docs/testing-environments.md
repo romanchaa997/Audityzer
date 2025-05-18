@@ -78,7 +78,7 @@ cd your-dapp
 npm start
 
 # In another terminal, run tests
-cd web3-security-test-kit
+cd Audityzer
 Audityzer run --target-url=http://localhost:3000
 ```
 

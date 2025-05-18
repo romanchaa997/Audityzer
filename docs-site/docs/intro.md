@@ -74,7 +74,7 @@ Try our interactive learning resources:
 
 Join our community:
 
-- [GitHub Repository](https://github.com/Audityzer/web3-security-test-kit)
+- [GitHub Repository](https://github.com/Audityzer/Audityzer)
 - [Discord Community](https://discord.gg/Audityzer)
 - [Monthly Security Calls](https://Audityzer.dev/events)
 

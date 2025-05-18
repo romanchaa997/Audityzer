@@ -1,6 +1,6 @@
 // Web3 Security Test Kit Service Worker - Optimized for Performance
 
-const CACHE_NAME = 'web3-security-test-kit-v1';
+const CACHE_NAME = 'Audityzer-v1';
 const URLS_TO_CACHE = [
   '/',
   '/index.html',

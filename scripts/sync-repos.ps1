@@ -70,9 +70,9 @@ Write-ColorOutput Green "GitHub remote configured: https://github.com/$GITHUB_US
 Write-Host ""
 Write-ColorOutput Yellow "Setting up GitLab remote..."
 $GITLAB_USERNAME = Read-Host "Enter GitLab username"
-$GITLAB_REPO = Read-Host "Enter GitLab repository name [web3-security-test-kit]"
+$GITLAB_REPO = Read-Host "Enter GitLab repository name [Audityzer]"
 if ([string]::IsNullOrEmpty($GITLAB_REPO)) {
-    $GITLAB_REPO = "web3-security-test-kit"
+    $GITLAB_REPO = "Audityzer"
 }
 
 if (Test-RemoteExists "gitlab") {

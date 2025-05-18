@@ -137,7 +137,7 @@ function receiveFromL1(bytes memory message) external {
 Our toolkit includes an `OptimismValidator` specifically designed to test for Optimism-specific vulnerabilities:
 
 ```javascript
-const { OptimismValidator } = require('@web3-security-test-kit/cross-chain');
+const { OptimismValidator } = require('@Audityzer/cross-chain');
 
 async function testOptimismContract() {
   // Initialize the validator

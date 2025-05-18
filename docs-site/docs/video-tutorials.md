@@ -210,7 +210,7 @@ Welcome to our collection of video tutorials, demonstrations, and walkthroughs f
 Don't see a tutorial on a topic you're interested in? Request new tutorial topics by:
 
 1. Joining our [Discord community](https://discord.gg/Audityzer)
-2. Opening an issue on our [GitHub repository](https://github.com/Audityzer/web3-security-test-kit)
+2. Opening an issue on our [GitHub repository](https://github.com/Audityzer/Audityzer)
 3. Emailing us at tutorials@Audityzer.dev
 
 ## Contribute Your Own

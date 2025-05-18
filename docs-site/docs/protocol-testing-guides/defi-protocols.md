@@ -274,5 +274,5 @@ This will launch a browser-based visualization tool that demonstrates potential 
 Join our DeFi security focused channels:
 
 - [Discord #defi-security](https://discord.gg/Audityzer)
-- [GitHub Discussions](https://github.com/Audityzer/web3-security-test-kit/discussions)
+- [GitHub Discussions](https://github.com/Audityzer/Audityzer/discussions)
 - [Monthly DeFi Security Calls](https://Audityzer.dev/events)

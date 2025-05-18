@@ -487,14 +487,14 @@ class GitHubActionIntegration {
       if (platformsToAdd.includes('code4rena')) {
         workflowConfig.jobs['bounty-package'].steps.push({
           name: 'Generate Code4rena submission',
-          run: 'npm run submit-to-code4rena -- --input=reports/security-report.json --contest-id=web3-security-test-kit',
+          run: 'npm run submit-to-code4rena -- --input=reports/security-report.json --contest-id=Audityzer',
         });
       }
 
       if (platformsToAdd.includes('sherlock')) {
         workflowConfig.jobs['bounty-package'].steps.push({
           name: 'Generate Sherlock report',
-          run: 'npm run generate-sherlock-report -- --input=reports/security-report.json --contest-name=web3-security-test-kit',
+          run: 'npm run generate-sherlock-report -- --input=reports/security-report.json --contest-name=Audityzer',
         });
       }
 

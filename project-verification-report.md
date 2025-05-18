@@ -2,7 +2,7 @@
 
 ## Summary
 
-This report outlines the verification process for the web3-security-test-kit, which is a testing framework for web3 applications. The project provides tools for testing wallet connections, transactions, and other web3 interactions.
+This report outlines the verification process for the Audityzer, which is a testing framework for web3 applications. The project provides tools for testing wallet connections, transactions, and other web3 interactions.
 
 ## Issues Found and Fixed
 

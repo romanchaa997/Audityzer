@@ -21,15 +21,15 @@ We welcome contributions from the community. To contribute your own test example
 
 | Name                             | Description                                              | Author          | Link                                                                                                                                                                      |
 | -------------------------------- | -------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Wallet Connection Hijacking Test | Tests for prevention of malicious connection requests    | @web3-tester    | [View Example](https://github.com/Audityzer/web3-security-test-kit/blob/main/Audityzer-community-tests/dapp-tests/wallet-connection/connection-hijacking-test.js) |
-| Multi-Wallet Support Test        | Tests dApp compatibility with different wallet providers | @chain-defender | [View Example](https://github.com/Audityzer/web3-security-test-kit/blob/main/Audityzer-community-tests/dapp-tests/wallet-connection/multi-wallet-test.js)         |
+| Wallet Connection Hijacking Test | Tests for prevention of malicious connection requests    | @web3-tester    | [View Example](https://github.com/Audityzer/Audityzer/blob/main/Audityzer-community-tests/dapp-tests/wallet-connection/connection-hijacking-test.js) |
+| Multi-Wallet Support Test        | Tests dApp compatibility with different wallet providers | @chain-defender | [View Example](https://github.com/Audityzer/Audityzer/blob/main/Audityzer-community-tests/dapp-tests/wallet-connection/multi-wallet-test.js)         |
 
 ### Transaction Flow Tests
 
 | Name                               | Description                                             | Author         | Link                                                                                                                                                                 |
 | ---------------------------------- | ------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Transaction Parameter Manipulation | Tests for prevention of transaction parameter tampering | @smart-audit   | [View Example](https://github.com/Audityzer/web3-security-test-kit/blob/main/Audityzer-community-tests/dapp-tests/transaction-flow/tx-parameter-test.js)     |
-| Gas Optimization Test              | Tests for reasonable gas limits and price suggestions   | @gas-optimizer | [View Example](https://github.com/Audityzer/web3-security-test-kit/blob/main/Audityzer-community-tests/dapp-tests/transaction-flow/gas-optimization-test.js) |
+| Transaction Parameter Manipulation | Tests for prevention of transaction parameter tampering | @smart-audit   | [View Example](https://github.com/Audityzer/Audityzer/blob/main/Audityzer-community-tests/dapp-tests/transaction-flow/tx-parameter-test.js)     |
+| Gas Optimization Test              | Tests for reasonable gas limits and price suggestions   | @gas-optimizer | [View Example](https://github.com/Audityzer/Audityzer/blob/main/Audityzer-community-tests/dapp-tests/transaction-flow/gas-optimization-test.js) |
 
 ## Example Details
 

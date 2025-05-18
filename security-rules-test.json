@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "projectId": "web3-security-test-kit",
+  "projectId": "Audityzer",
   "rules": [
     {
       "id": "WALLET-SEC-001",

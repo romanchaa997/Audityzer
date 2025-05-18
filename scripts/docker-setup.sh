@@ -124,16 +124,16 @@ run_tests() {
   print_message "$CYAN" "\n=== Running Web3 Security Tests in Docker ==="
   
   if [ -z "$1" ]; then
-    docker exec -it web3-security-test-kit npm run test:security
+    docker exec -it Audityzer npm run test:security
   else
-    docker exec -it web3-security-test-kit npm run "$1"
+    docker exec -it Audityzer npm run "$1"
   fi
 }
 
 # Function to start a shell in the container
 start_shell() {
   print_message "$CYAN" "\n=== Starting Shell in Web3 Security Test Kit Container ==="
-  docker exec -it web3-security-test-kit /bin/bash
+  docker exec -it Audityzer /bin/bash
 }
 
 # Function to rebuild the Docker image
@@ -157,7 +157,7 @@ clean_environment() {
   $DOCKER_COMPOSE down -v
   
   print_message "$YELLOW" "Removing all related containers..."
-  docker ps -a | grep 'web3-security-test-kit' | awk '{print $1}' | xargs -r docker rm -f
+  docker ps -a | grep 'Audityzer' | awk '{print $1}' | xargs -r docker rm -f
   
   print_message "$GREEN" "Environment cleaned successfully!"
 }

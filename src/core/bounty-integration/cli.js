@@ -187,7 +187,7 @@ program
 program
   .command('code4rena')
   .description('Generate reports for Code4rena contests')
-  .option('-c, --contest <id>', 'Code4rena contest ID', 'web3-security-test-kit')
+  .option('-c, --contest <id>', 'Code4rena contest ID', 'Audityzer')
   .option('-a, --api-key <key>', 'Code4rena API key (or use CODE4RENA_API_KEY env var)')
   .option('--submit', 'Submit reports to Code4rena (requires API key and contest ID)', false)
   .action(async options => {
@@ -227,7 +227,7 @@ program
 program
   .command('sherlock')
   .description('Generate reports for Sherlock audits')
-  .option('-c, --contest <name>', 'Sherlock contest name', 'web3-security-test-kit')
+  .option('-c, --contest <name>', 'Sherlock contest name', 'Audityzer')
   .option('-j, --judging', 'Use Sherlock judging format', false)
   .option('-a, --api-key <key>', 'Sherlock API key (or use SHERLOCK_API_KEY env var)')
   .option('--submit', 'Submit reports to Sherlock (requires API key and contest name)', false)

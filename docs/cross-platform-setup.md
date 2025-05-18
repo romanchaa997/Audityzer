@@ -143,7 +143,7 @@ You can specify a custom port for the server:
   # Modify docker-compose.yml ports section or use:
   ./scripts/docker-setup.sh start
   # And then manually map ports with:
-  docker run -p 3000:5000 web3-security-test-kit
+  docker run -p 3000:5000 Audityzer
   ```
 
 ### Environment Variables
@@ -164,7 +164,7 @@ $env:MOCK_MODE = "true"; npm run test:security
 MOCK_MODE=true npm run test:security
 
 # Docker
-docker run -e MOCK_MODE=true web3-security-test-kit npm run test:security
+docker run -e MOCK_MODE=true Audityzer npm run test:security
 ```
 
 ## Troubleshooting
@@ -173,7 +173,7 @@ docker run -e MOCK_MODE=true web3-security-test-kit npm run test:security
 
 - **Port conflict**: If port 5000 is already in use, specify a different port in docker-compose.yml
 - **Permission issues**: Run Docker commands with sudo on Unix or run PowerShell as Administrator on Windows
-- **Container not starting**: Check Docker logs with `docker logs web3-security-test-kit`
+- **Container not starting**: Check Docker logs with `docker logs Audityzer`
 
 ### Script Permission Issues
 

@@ -16,7 +16,7 @@ function generateTweetSummary(results, options = {}) {
   const {
     testName = 'Audityzer Run',
     includeLink = true,
-    link = 'https://github.com/your-org/web3-security-test-kit',
+    link = 'https://github.com/your-org/Audityzer',
     maxLength = 240,
   } = options;
 

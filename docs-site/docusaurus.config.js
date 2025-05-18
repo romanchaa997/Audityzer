@@ -19,7 +19,7 @@ const config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'Audityzer', // Usually your GitHub org/user name.
-  projectName: 'web3-security-test-kit', // Usually your repo name.
+  projectName: 'Audityzer', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -58,13 +58,13 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/Audityzer/web3-security-test-kit/tree/main/docs-site/',
+          editUrl: 'https://github.com/Audityzer/Audityzer/tree/main/docs-site/',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/Audityzer/web3-security-test-kit/tree/main/docs-site/',
+          editUrl: 'https://github.com/Audityzer/Audityzer/tree/main/docs-site/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -120,7 +120,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://github.com/Audityzer/web3-security-test-kit',
+            href: 'https://github.com/Audityzer/Audityzer',
             label: 'GitHub',
             position: 'right',
           },
@@ -172,7 +172,7 @@ const config = {
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/Audityzer/web3-security-test-kit',
+                href: 'https://github.com/Audityzer/Audityzer',
               },
               {
                 label: 'Interactive Demo',
@@ -205,7 +205,7 @@ const config = {
       announcementBar: {
         id: 'support_us',
         content:
-          '⭐️ If you find Audityzer helpful, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/Audityzer/web3-security-test-kit">GitHub</a> ⭐️',
+          '⭐️ If you find Audityzer helpful, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/Audityzer/Audityzer">GitHub</a> ⭐️',
         backgroundColor: '#FF6B2B',
         textColor: '#fff',
         isCloseable: true,

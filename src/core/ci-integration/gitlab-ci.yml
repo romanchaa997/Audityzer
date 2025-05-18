@@ -49,9 +49,9 @@ static-analysis:
   needs:
     - setup
   script:
-    - npx @web3-security-test-kit/cli analyze --path $CONTRACT_PATH --output static-analysis.json
-    - npx @web3-security-test-kit/cli generate-rules --path $CONTRACT_PATH --output security-rules.json
-    - npx @web3-security-test-kit/cli verify-rules --rules security-rules.json
+    - npx @Audityzer/cli analyze --path $CONTRACT_PATH --output static-analysis.json
+    - npx @Audityzer/cli generate-rules --path $CONTRACT_PATH --output security-rules.json
+    - npx @Audityzer/cli verify-rules --rules security-rules.json
   artifacts:
     paths:
       - static-analysis.json
@@ -66,7 +66,7 @@ vulnerability-detection:
   rules:
     - if: $TEST_LEVEL != "basic"
   script:
-    - npx @web3-security-test-kit/cli detect-vulnerabilities --path $CONTRACT_PATH --output vulnerability-report.json
+    - npx @Audityzer/cli detect-vulnerabilities --path $CONTRACT_PATH --output vulnerability-report.json
   artifacts:
     paths:
       - vulnerability-report.json
@@ -80,7 +80,7 @@ protocol-testing:
   rules:
     - if: $TEST_LEVEL == "comprehensive"
   script:
-    - npx @web3-security-test-kit/cli test-protocol --path $CONTRACT_PATH --output protocol-report.json
+    - npx @Audityzer/cli test-protocol --path $CONTRACT_PATH --output protocol-report.json
   artifacts:
     paths:
       - protocol-report.json
@@ -94,7 +94,7 @@ l2-compatibility:
   rules:
     - if: $TEST_LEVEL == "comprehensive"
   script:
-    - npx @web3-security-test-kit/cli test-l2 --path $CONTRACT_PATH --output l2-report.json
+    - npx @Audityzer/cli test-l2 --path $CONTRACT_PATH --output l2-report.json
   artifacts:
     paths:
       - l2-report.json
@@ -122,9 +122,9 @@ generate-report:
       if [ -f "l2-report.json" ]; then
         ARGS="$ARGS --l2-report l2-report.json"
       fi
-      npx @web3-security-test-kit/cli generate-report $ARGS --output security-report.md --format markdown
-      npx @web3-security-test-kit/cli generate-report $ARGS --output security-report.json --format json
-      npx @web3-security-test-kit/cli generate-report $ARGS --output security-report.html --format html
+      npx @Audityzer/cli generate-report $ARGS --output security-report.md --format markdown
+      npx @Audityzer/cli generate-report $ARGS --output security-report.json --format json
+      npx @Audityzer/cli generate-report $ARGS --output security-report.html --format html
     # Check for critical vulnerabilities
     - |
       if [ -f "vulnerability-report.json" ]; then
