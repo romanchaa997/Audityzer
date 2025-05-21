@@ -1,0 +1,16 @@
+# Example configuration for the labeler action
+# Labels to apply based on the paths modified in a pull request.
+
+documentation:
+    - '**/*.md'
+    - 'docs/**/*'
+  
+  frontend:
+    - 'frontend/**/*'
+  
+  backend:
+    - 'backend/**/*'
+  
+  tests:
+    - '**/*.{spec,test}.js'
+    - '**/tests/**/*'
