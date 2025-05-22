@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  audityzer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: production
+    command: node dist/cli.js
