@@ -2,10 +2,10 @@
   "name": "audityzer",
   "type": "module",
   "version": "1.1.2",
-  "description": "Intelligent development server with auto port management for web3 security testing",
+  "description": "Intelligent security testing framework for Web3 applications and smart contracts",
   "main": "src/core/index.js",
   "bin": {
-    "devforge": "bin/devforge.js"
+    "audityzer": "bin/audityzer.js"
   },
   "files": [
     "bin/",

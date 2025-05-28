@@ -1,0 +1,133 @@
+{
+  "strategy": {
+    "id": "test-arbitrage-strategy",
+    "name": "Test Arbitrage Strategy",
+    "type": "arbitrage",
+    "description": ""
+  },
+  "vulnerabilities": [
+    {
+      "id": "PRICE_MANIPULATION",
+      "name": "Price Manipulation Vulnerability",
+      "description": "The strategy is vulnerable to price manipulation attacks",
+      "severity": "HIGH",
+      "remediation": "Use time-weighted average prices (TWAPs) or implement circuit breakers to detect sudden price changes.",
+      "detected": true,
+      "confidence": 1,
+      "details": {
+        "usesSingleBlockPrices": true,
+        "usesLowLiquidityPools": true,
+        "usesDiversePriceSources": false
+      }
+    },
+    {
+      "id": "SANDWICH_ATTACK",
+      "name": "Sandwich Attack Vulnerability",
+      "description": "The strategy is vulnerable to sandwich attacks (front/back-running)",
+      "severity": "HIGH",
+      "remediation": "Use strict slippage parameters and consider private transactions via flashbots or similar services.",
+      "detected": true,
+      "confidence": 1,
+      "details": {
+        "usesLargeSwaps": true,
+        "hasLooseSlippage": true,
+        "usesPublicMempool": true
+      }
+    },
+    {
+      "id": "FLASH_LOAN_ATTACK",
+      "name": "Flash Loan Attack Vulnerability",
+      "description": "The strategy is vulnerable to flash loan attacks",
+      "severity": "CRITICAL",
+      "remediation": "Implement proper access controls and use secure price oracles that cannot be manipulated in a single transaction.",
+      "detected": true,
+      "confidence": 0.7,
+      "details": {
+        "usesManipulableOracles": true,
+        "hasWeakAccessControls": true,
+        "usesAtomicPriceBasedLogic": false
+      }
+    },
+    {
+      "id": "ORACLE_MANIPULATION",
+      "name": "Oracle Manipulation",
+      "description": "The strategy relies on oracles that can be manipulated",
+      "severity": "HIGH",
+      "remediation": "Use decentralized oracles with multiple data sources and implement circuit breakers for suspicious price movements.",
+      "detected": true,
+      "confidence": 0.7,
+      "details": {
+        "usesCentralizedOracles": false,
+        "usesSingleSourceOracles": true,
+        "lacksOracleSecurityModules": true
+      }
+    },
+    {
+      "id": "INSUFFICIENT_SLIPPAGE",
+      "name": "Insufficient Slippage Protection",
+      "description": "The strategy does not implement proper slippage controls",
+      "severity": "MEDIUM",
+      "remediation": "Implement proper slippage parameters based on token volatility and liquidity.",
+      "detected": true,
+      "confidence": 0.8,
+      "details": {
+        "usesHighSlippageTolerance": true,
+        "lacksSlippageChecks": true
+      }
+    },
+    {
+      "id": "UNLIMITED_APPROVALS",
+      "name": "Unlimited Token Approvals",
+      "description": "The strategy uses unlimited token approvals",
+      "severity": "MEDIUM",
+      "remediation": "Use exact approvals for the amount needed rather than unlimited approvals.",
+      "detected": true,
+      "confidence": 0.5,
+      "details": {
+        "usesUnlimitedApprovals": true,
+        "doesntRevokeApprovals": false
+      }
+    }
+  ],
+  "riskScore": 80,
+  "analysisTime": 2,
+  "timestamp": "2025-05-12T14:47:20.318Z",
+  "recommendations": [
+    {
+      "vulnerabilityId": "PRICE_MANIPULATION",
+      "title": "Fix Price Manipulation Vulnerability",
+      "description": "Use time-weighted average prices (TWAPs) or implement circuit breakers to detect sudden price changes.",
+      "priority": "HIGH"
+    },
+    {
+      "vulnerabilityId": "SANDWICH_ATTACK",
+      "title": "Fix Sandwich Attack Vulnerability",
+      "description": "Use strict slippage parameters and consider private transactions via flashbots or similar services.",
+      "priority": "HIGH"
+    },
+    {
+      "vulnerabilityId": "FLASH_LOAN_ATTACK",
+      "title": "Fix Flash Loan Attack Vulnerability",
+      "description": "Implement proper access controls and use secure price oracles that cannot be manipulated in a single transaction.",
+      "priority": "IMMEDIATE"
+    },
+    {
+      "vulnerabilityId": "ORACLE_MANIPULATION",
+      "title": "Fix Oracle Manipulation",
+      "description": "Use decentralized oracles with multiple data sources and implement circuit breakers for suspicious price movements.",
+      "priority": "HIGH"
+    },
+    {
+      "vulnerabilityId": "INSUFFICIENT_SLIPPAGE",
+      "title": "Fix Insufficient Slippage Protection",
+      "description": "Implement proper slippage parameters based on token volatility and liquidity.",
+      "priority": "MEDIUM"
+    },
+    {
+      "vulnerabilityId": "UNLIMITED_APPROVALS",
+      "title": "Fix Unlimited Token Approvals",
+      "description": "Use exact approvals for the amount needed rather than unlimited approvals.",
+      "priority": "MEDIUM"
+    }
+  ]
+}

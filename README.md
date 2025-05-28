@@ -1,187 +1,140 @@
-# DevForge
+# Audityzer
 
-[![npm version](https://img.shields.io/npm/v/devforge.svg)](https://www.npmjs.com/package/Audityzer)
+[![npm version](https://img.shields.io/npm/v/audityzer.svg)](https://www.npmjs.com/package/audityzer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI/CD Pipeline](https://github.com/romanchaa997/Audityzer/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/romanchaa997/Audityzer/actions/workflows/ci-cd.yml)
 [![Cross-Platform Tests](https://github.com/romanchaa997/Audityzer/actions/workflows/cross-platform-tests.yml/badge.svg)](https://github.com/romanchaa997/Audityzer/actions/workflows/cross-platform-tests.yml)
-[![Lighthouse Regression](https://github.com/romanchaa997/Audityzer/actions/workflows/website-regression.yml/badge.svg)](https://github.com/romanchaa997/Audityzer/actions/workflows/website-regression.yml)
+[![Security Scan](https://github.com/romanchaa997/Audityzer/actions/workflows/security-scan.yml/badge.svg)](https://github.com/romanchaa997/Audityzer/actions/workflows/security-scan.yml)
 
-**Jump to:** [CI/CD](#ci-cd-integration) • [Docs](#comprehensive-documentation) • [Deployment](#smart-contract-deployment-validation) • [Security Scan](#security-testing)
+**Jump to:** [Features](#key-features) • [Installation](#installation) • [Quick Start](#quick-start) • [Security Testing](#security-testing) • [Documentation](#documentation)
 
-DevForge is an intelligent development server with automatic port management, specifically designed for Web3 security testing environments. It eliminates port conflicts, provides health monitoring endpoints, and delivers robust process management across all platforms.
+Audityzer is a comprehensive Web3 security testing framework designed to identify vulnerabilities in dApps, smart contracts, and blockchain protocols. It provides automated testing, vulnerability detection, and security reporting across multiple chains and wallet providers.
 
 <p align="center">
-  <img src="https://github.com/romanchaa997/devforge/raw/main/assets/img/devforge-logo.svg" width="250" alt="DevForge Logo">
+  <img src="https://github.com/romanchaa997/audityzer/raw/main/assets/img/audityzer-logo.svg" width="250" alt="Audityzer Logo">
 </p>
+
+## Key Features
+
+- ✅ **Comprehensive Security Testing** - Detect common Web3 vulnerabilities and security issues
+- ✅ **Multi-Chain Support** - Test across Ethereum, Polygon, Optimism, Arbitrum, and more
+- ✅ **Wallet Integration** - Test with MetaMask, WalletConnect, Coinbase Wallet, and others
+- ✅ **Automated Test Generation** - Create test cases from templates or AI-assisted generation
+- ✅ **Security Reporting** - Generate detailed HTML, Markdown, and SARIF reports
+- ✅ **CI/CD Integration** - GitHub Actions workflows for automated testing
+- ✅ **Account Abstraction** - ERC-4337 compliant testing for smart accounts
+- ✅ **Cross-Platform** - Works on Windows, macOS, and Linux
 
 ## Installation
 
 ```bash
 # Global installation
-
+npm install -g audityzer
 
 # Project installation
-npm install --save-dev devforge
+npm install --save-dev audityzer
 ```
 
 ## Quick Start
 
 ```bash
-# Start a development server on the default port (5050)
-devforge start
+# Generate a test template
+audityzer generate security --wallet metamask --out ./tests/my-security-test.js
 
-# Start with a specific port (will find next available if occupied)
-devforge start -p 3000
+# Run security tests against a dApp
+audityzer run --target-url https://my-dapp.com --security
 
-# Start with a custom directory to serve
-devforge start -d ./public
+# Generate a security report
+audityzer report --format html
 
-# Check server status
-devforge status
-
-# Restart the server
-devforge restart
-
-# Stop the server
-devforge stop
+# Start the development server for local testing
+audityzer server start
 ```
 
-## Key Features
+## Project Structure
 
-- ✅ **Automatic Port Management** - Automatically finds open ports when your preferred one is in use
-- ✅ **Health API Endpoint** - Built-in monitoring endpoint with server metadata
-- ✅ **Cross-Platform** - Works seamlessly on Windows, macOS, and Linux
-- ✅ **Smart Process Management** - Properly handles process cleanup and termination
-- ✅ **Detailed Logging** - Configurable logging for troubleshooting
-- ✅ **Security-Focused** - Built for Web3 security testing workflows
-
-## Development Environment
-
-We've streamlined the development experience with automated setup scripts and improved workflow tools:
-
-### Cross-Platform Setup
-
-We now support multiple platforms for development:
-
-1. **Windows**:
-   ```powershell
-   # Run the setup script
-   .\scripts\setup-windows.ps1
-   
-   # Start the development server
-   .\start-server.bat
-   ```
-
-2. **Linux/macOS**:
-   ```bash
-   # Set up the environment
-   ./scripts/setup-unix.sh
-   
-   # Start the development server
-   ./start-server.sh
-   ```
-
-3. **Docker** (works on all platforms):
-   ```bash
-   # Start Docker environment
-   ./scripts/docker-setup.sh start
-   
-   # For Windows
-   powershell -ExecutionPolicy Bypass -File "scripts\docker-setup.sh" start
-   ```
-
-For detailed instructions, see our [Cross-Platform Setup Guide](docs/cross-platform-setup.md).
-
-### Using the Server Manager
-
-#### Windows PowerShell:
-```powershell
-.\scripts\server-manager.ps1 -Action start -Port 5000
-.\scripts\server-manager.ps1 -Action stop -Port 5000
-.\scripts\server-manager.ps1 -Action restart -Port 5000
 ```
-
-#### Linux/macOS:
-```bash
-./scripts/server-manager.sh start 5000
-./scripts/server-manager.sh stop 5000
-./scripts/server-manager.sh restart 5000
+Audityzer/
+├── bin/                        # CLI entry points
+├── packages/                   # Modular packages
+│   └── dev-server-runner/      # Dev server management
+├── scripts/                    # Utility scripts
+│   ├── build/                  # Build scripts
+│   ├── ci/                     # CI/CD scripts
+│   ├── docker/                 # Docker setup
+│   ├── docs/                   # Documentation scripts
+│   ├── media/                  # Media generation
+│   ├── project/                # Project management
+│   ├── server/                 # Server management
+│   └── test/                   # Test utilities
+├── src/                        # Core source code
+│   ├── cli/                    # Command-line interface
+│   ├── fuzzers/                # Fuzzing engines
+│   ├── generators/             # Test generators
+│   ├── reporting/              # Report generation
+│   └── security/               # Security checks
+├── templates/                  # Test templates
+│   └── security/               # Security test templates
+├── tests/                      # Test scripts
+│   ├── sample-tests/           # Example tests
+│   ├── security-bug-tests/     # Security tests
+│   ├── utils/                  # Test utilities
+│   ├── wallet-tests/           # Wallet tests
+│   ├── l2-tests/               # L2 tests
+│   └── airdrop-tests/          # Airdrop tests
+└── playwright-tests/           # Playwright tests
+    └── autotests/              # Automated tests
 ```
-
-#### Docker:
-```bash
-./scripts/docker-setup.sh start
-./scripts/docker-setup.sh stop
-./scripts/docker-setup.sh restart
-```
-
-For more detailed setup instructions, see our [Development Environment Setup Guide](docs/development-setup.md).
 
 ## Security Testing
 
-We've enhanced the security testing capabilities with new test scenarios:
+Audityzer provides comprehensive security testing for Web3 applications:
 
 ```bash
 # Run all security tests
 npm run test:security
 
 # Test for specific vulnerabilities
-npm run test:reentrancy
-npm run test:oracle
-npm run test:front-running
-npm run test:phishing
-npm run test:signature-replay
-npm run test:access-control
-npm run test:flash-loan  # New test for flash loan attacks
+npm run test:vuln:reentrancy
+npm run test:vuln:oracle
+npm run test:vuln:front-running
+npm run test:vuln:phishing
+npm run test:vuln:signature-replay
+npm run test:vuln:access-control
+npm run test:vuln:flash-loan
 
-# Run a subset of tests
-npm run test:all-vulns
+# Generate security reports
+npm run report:html      # HTML report
+npm run report:md        # Markdown report
+npm run report:upload    # Upload to dashboard
 ```
 
-### Automated CI Testing
+### Vulnerability Categories
 
-Our GitHub Actions workflow now includes comprehensive security testing that runs automatically on code changes.
+Audityzer tests for common Web3 vulnerabilities including:
+
+- **Smart Contract Vulnerabilities**: Reentrancy, access control issues, arithmetic bugs
+- **Transaction Vulnerabilities**: Front-running, MEV attacks, gas optimization issues
+- **Wallet Integration Issues**: Signature phishing, approval exploits
+- **Cross-Chain Vulnerabilities**: Bridge security, cross-chain transaction issues
+- **Protocol-Specific Issues**: Liquidity pool attacks, oracle manipulation
 
 ### Custom Test Development
 
-You can create custom test scenarios for your specific dApp vulnerabilities in `examples/security-bug-tests/`. See our [Custom Test Guide](docs/custom-test-development.md) for examples.
-
-## Command Reference
-
-### Generate Test Templates
+Create custom test scenarios for your specific dApp vulnerabilities:
 
 ```bash
-# Basic syntax
-audityzer generate <type> --out <file-path> [options]
+# Generate a custom test template
+audityzer generate custom --name my-custom-test
 
-# Available test types
-# - connect: Wallet connection tests
-# - tx: Transaction tests
-# - sign: Message signing tests
-# - error: Error handling tests
-# - security: Security vulnerability tests
+# Customize the test for your specific vulnerability
+# Edit tests/security-bug-tests/my-custom-test.js
 
-# Options
-# --wallet        Wallet provider to use (metamask, walletconnect, coinbase, rabby, phantom)
-# --lang          Programming language (js, ts)
-# --fuzz          Enable security fuzzing
-# --lint          Enable linting and formatting
+# Run your custom test
+audityzer run --test tests/security-bug-tests/my-custom-test.js
 ```
 
-### Run Tests
-
-```bash
-# Run tests against a mock dApp
-audityzer run --mock-mode
-
-# Run tests against a real dApp
-audityzer run --target-url http://your-dapp-url
-
-# Generate security report after tests
-audityzer run --generate-report
-```
-
-### Account Abstraction (ERC-4337) Testing
+## Account Abstraction Testing
 
 Test ERC-4337 compliant smart accounts, paymasters, and bundlers:
 
@@ -198,6 +151,89 @@ audityzer run myapp --aa --pimlico
 # Generate HTML report and dashboard
 audityzer run myapp --aa --report --dashboard
 ```
+
+## Command Reference
+
+### Test Generation
+
+```bash
+# Generate test templates
+audityzer generate <type> --out <file-path> [options]
+
+# Available test types:
+# - connect: Wallet connection tests
+# - tx: Transaction tests
+# - sign: Message signing tests
+# - error: Error handling tests
+# - security: Security vulnerability tests
+# - aa: Account abstraction tests
+
+# Options:
+# --wallet        Wallet provider (metamask, walletconnect, coinbase, etc.)
+# --lang          Programming language (js, ts)
+# --fuzz          Enable security fuzzing
+# --lint          Enable linting and formatting
+```
+
+### Test Execution
+
+```bash
+# Run tests against a target dApp
+audityzer run --target-url <url> [options]
+
+# Options:
+# --security      Run security tests
+# --wallet        Specify wallet provider
+# --chain         Specify blockchain network
+# --mock-mode     Use mock environment
+# --report        Generate report after tests
+# --dashboard     Create visual dashboard
+# --aa            Test account abstraction
+```
+
+### Report Generation
+
+```bash
+# Generate security reports
+audityzer report [options]
+
+# Options:
+# --format        Report format (html, md, json, sarif)
+# --output        Output directory
+# --upload        Upload to dashboard
+# --notify        Send notifications
+```
+
+### Development Server
+
+```bash
+# Start development server
+audityzer server start [options]
+
+# Options:
+# --port          Server port (default: 5050)
+# --directory     Directory to serve
+# --config        Config file path
+```
+
+## Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+
+- [Getting Started Guide](docs/getting-started.md)
+- [Security Testing Guide](docs/security-testing.md)
+- [Custom Test Development](docs/custom-test-development.md)
+- [Report Generation](docs/reporting.md)
+- [Account Abstraction Testing](docs/account-abstraction.md)
+- [CI/CD Integration](docs/ci-cd-integration.md)
+
+## Contributing
+
+Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 #### Specialized AA Addons
 
