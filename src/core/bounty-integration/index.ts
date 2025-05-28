@@ -5,16 +5,16 @@
  */
 
 // Import all bounty integration classes
-import { BridgeBountyAdapter } from './bridge-bounty-adapter';
-import { ImmunefiSubmissionGenerator } from './immunefi-submission-generator';
-import { Code4renaIntegration } from './code4rena-integration';
-import { SherlockReportFormatter } from './sherlock-report-formatter';
+import { BridgeBountyAdapter } from './bridge-bounty-adapter.js';
+import { ImmunefiSubmissionGenerator } from './immunefi-submission-generator.js';
+import { Code4renaIntegration } from './code4rena-integration.js';
+import { SherlockReportFormatter } from './sherlock-report-formatter.js';
 
 // Export all bounty integration classes
-export { BridgeBountyAdapter } from './bridge-bounty-adapter';
-export { ImmunefiSubmissionGenerator } from './immunefi-submission-generator';
-export { Code4renaIntegration } from './code4rena-integration';
-export { SherlockReportFormatter } from './sherlock-report-formatter';
+export { BridgeBountyAdapter } from './bridge-bounty-adapter.js';
+export { ImmunefiSubmissionGenerator } from './immunefi-submission-generator.js';
+export { Code4renaIntegration } from './code4rena-integration.js';
+export { SherlockReportFormatter } from './sherlock-report-formatter.js';
 
 // Common interfaces
 export interface VulnerabilityIssue {

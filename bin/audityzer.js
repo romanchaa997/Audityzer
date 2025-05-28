@@ -1,100 +1,265 @@
 #!/usr/bin/env node
 
 /**
- * Audityzer CLI Entry Point
+ * Audityzer CLI
  * 
- * This is the main entry point for the Audityzer CLI tool.
- * It handles command parsing and delegates to the appropriate modules.
+ * Main entry point for the Audityzer security testing framework.
+ * This CLI provides commands for testing Web3 applications and smart contracts.
+ * 
+ * @license MIT
+ * @version 1.1.2
  */
 
 import { program } from 'commander';
+import { createRequire } from 'module';
 import chalk from 'chalk';
-import { startServer, stopServer, restartServer, getServerStatus } from '../src/core/server.js';
-import { generateTest } from '../src/generators/test-generator.js';
-import { runTests } from '../src/core/test-runner.js';
-import { generateReport } from '../src/reporting/report-generator.js';
-import { version } from '../package.json';
 
-// Configure the CLI program
-program
-  .name('audityzer')
-  .description('Web3 security testing framework for dApps and smart contracts')
-  .version(version);
+// Create require function for importing JSON
+const require = createRequire(import.meta.url);
+const { version } = require('../package.json');
 
-// Server commands
+// Display banner
+const displayBanner = () => {
+  console.log(chalk.cyan(`
+  █████╗ ██╗   ██╗██████╗ ██╗████████╗██╗   ██╗███████╗███████╗██████╗ 
+ ██╔══██╗██║   ██║██╔══██╗██║╚══██╔══╝╚██╗ ██╔╝╚══███╔╝██╔════╝██╔══██╗
+ ███████║██║   ██║██║  ██║██║   ██║    ╚████╔╝   ███╔╝ █████╗  ██████╔╝
+ ██╔══██║██║   ██║██║  ██║██║   ██║     ╚██╔╝   ███╔╝  ██╔══╝  ██╔══██╗
+ ██║  ██║╚██████╔╝██████╔╝██║   ██║      ██║   ███████╗███████╗██║  ██║
+ ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝╚═╝  ╚═╝
+`));
+  console.log(chalk.white(`  Web3 Security Testing Framework v${version}`));
+  console.log(chalk.white(`  https://github.com/romanchaa997/audityzer`));
+  console.log();
+};
+
+// Configure CLI
 program
-  .command('server')
-  .description('Manage the development server')
-  .argument('<action>', 'Action to perform: start, stop, restart, status')
-  .option('-p, --port <port>', 'Port to use for the server', '5050')
-  .option('-d, --directory <directory>', 'Directory to serve', './public')
-  .option('-c, --config <config>', 'Path to config file')
-  .action((action, options) => {
-    const port = parseInt(options.port, 10);
-    
-    switch (action) {
-      case 'start':
-        startServer(port, options.directory, options.config);
-        break;
-      case 'stop':
-        stopServer(port);
-        break;
-      case 'restart':
-        restartServer(port, options.directory, options.config);
-        break;
-      case 'status':
-        getServerStatus(port);
-        break;
-      default:
-        console.error(chalk.red(`Unknown action: ${action}`));
-        console.log(chalk.yellow('Available actions: start, stop, restart, status'));
+  .version(version)
+  .description('Audityzer: Intelligent security testing framework for Web3 applications and smart contracts');
+
+// Run command
+program
+  .command('run <target>')
+  .description('Run security tests on a target')
+  .option('-c, --config <file>', 'Config file path')
+  .option('-r, --report', 'Generate a report after testing')
+  .option('-f, --format <format>', 'Report format (html, md, json)', 'html')
+  .option('-o, --output <dir>', 'Output directory for reports', 'reports')
+  .option('-v, --verbose', 'Enable verbose output')
+  .option('--aa', 'Enable Account Abstraction testing')
+  .option('--pimlico', 'Use Pimlico for AA testing')
+  .action((target, options) => {
+    displayBanner();
+    console.log(chalk.green(`Starting security tests on target: ${target}`));
+
+    // Import the CLI module dynamically
+    import('../src/cli/index.js')
+      .then(module => {
+        // Pass command to the CLI module
+        module.default.run(target, options);
+      })
+      .catch(err => {
+        console.error(chalk.red(`Error loading CLI module: ${err.message}`));
         process.exit(1);
-    }
+      });
+  });
+
+// Scan command
+program
+  .command('scan <contract>')
+  .description('Scan a smart contract for vulnerabilities')
+  .option('-c, --config <file>', 'Config file path')
+  .option('-r, --report', 'Generate a report after scanning')
+  .option('-f, --format <format>', 'Report format (html, md, json)', 'html')
+  .option('-o, --output <dir>', 'Output directory for reports', 'reports')
+  .option('-v, --verbose', 'Enable verbose output')
+  .option('--chain <chain>', 'Target blockchain (ethereum, polygon, etc.)', 'ethereum')
+  .action((contract, options) => {
+    displayBanner();
+    console.log(chalk.green(`Starting contract scan on: ${contract}`));
+
+    // Import the CLI module dynamically
+    import('../src/cli/index.js')
+      .then(module => {
+        // Pass command to the CLI module
+        module.default.scan(contract, options);
+      })
+      .catch(err => {
+        console.error(chalk.red(`Error loading CLI module: ${err.message}`));
+        process.exit(1);
+      });
+  });
+
+// Init command
+program
+  .command('init [dir]')
+  .description('Initialize a new Audityzer project')
+  .option('-t, --template <template>', 'Project template to use', 'default')
+  .option('--no-install', 'Skip dependency installation')
+  .action((dir = '.', options) => {
+    displayBanner();
+    console.log(chalk.green(`Initializing new Audityzer project in: ${dir}`));
+
+    // Import the CLI module dynamically
+    import('../src/cli/index.js')
+      .then(module => {
+        // Pass command to the CLI module
+        module.default.init(dir, options);
+      })
+      .catch(err => {
+        console.error(chalk.red(`Error loading CLI module: ${err.message}`));
+        process.exit(1);
+      });
   });
 
 // Generate command
 program
-  .command('generate')
-  .description('Generate test templates')
-  .argument('<type>', 'Test type: connect, tx, sign, error, security, aa')
-  .option('-o, --out <file>', 'Output file path')
-  .option('-w, --wallet <wallet>', 'Wallet provider to use')
-  .option('-l, --lang <language>', 'Programming language (js, ts)', 'js')
-  .option('-f, --fuzz', 'Enable security fuzzing')
-  .option('--lint', 'Enable linting and formatting')
-  .action((type, options) => {
-    generateTest(type, options);
+  .command('generate <type> <name>')
+  .alias('g')
+  .description('Generate a new component (test, contract, report)')
+  .option('-t, --template <template>', 'Template to use', 'default')
+  .option('-o, --output <dir>', 'Output directory', '.')
+  .action((type, name, options) => {
+    displayBanner();
+    console.log(chalk.green(`Generating new ${type}: ${name}`));
+
+    // Import the CLI module dynamically
+    import('../src/cli/index.js')
+      .then(module => {
+        // Pass command to the CLI module
+        module.default.generate(type, name, options);
+      })
+      .catch(err => {
+        console.error(chalk.red(`Error loading CLI module: ${err.message}`));
+        process.exit(1);
+      });
   });
 
-// Run command
-program
-  .command('run')
-  .description('Run tests against a target')
-  .option('-t, --target-url <url>', 'Target URL to test')
-  .option('-s, --security', 'Run security tests')
-  .option('-w, --wallet <wallet>', 'Specify wallet provider')
-  .option('-c, --chain <chain>', 'Specify blockchain network')
-  .option('-m, --mock-mode', 'Use mock environment')
-  .option('-r, --report', 'Generate report after tests')
-  .option('-d, --dashboard', 'Create visual dashboard')
-  .option('--aa', 'Test account abstraction')
-  .option('--pimlico', 'Use Pimlico-compatible mode')
-  .option('--test <test>', 'Specific test to run')
+// Server command group
+const serverCommand = program
+  .command('server')
+  .description('Manage the development server');
+
+// Server start subcommand
+serverCommand
+  .command('start')
+  .description('Start the development server')
+  .option('-p, --port <port>', 'Server port')
   .action((options) => {
-    runTests(options);
+    displayBanner();
+    console.log(chalk.green('Starting development server...'));
+
+    // Import the devforge module dynamically
+    import('./devforge.js')
+      .then(module => {
+        // Call the start function
+        if (typeof module.default === 'object' && module.default.start) {
+          module.default.start(options);
+        } else {
+          console.log(chalk.yellow('Using legacy server start method'));
+          // Fallback to direct script execution
+          import('child_process').then(cp => {
+            cp.spawn('node', ['./bin/devforge.js', 'start'], { stdio: 'inherit' });
+          });
+        }
+      })
+      .catch(err => {
+        console.error(chalk.red(`Error starting server: ${err.message}`));
+        process.exit(1);
+      });
   });
 
-// Report command
-program
-  .command('report')
-  .description('Generate security reports')
-  .option('-f, --format <format>', 'Report format (html, md, json, sarif)', 'html')
-  .option('-o, --output <directory>', 'Output directory', './reports')
-  .option('-u, --upload', 'Upload to dashboard')
-  .option('-n, --notify', 'Send notifications')
+// Server stop subcommand
+serverCommand
+  .command('stop')
+  .description('Stop the development server')
+  .action(() => {
+    displayBanner();
+    console.log(chalk.green('Stopping development server...'));
+
+    // Import the devforge module dynamically
+    import('./devforge.js')
+      .then(module => {
+        // Call the stop function
+        if (typeof module.default === 'object' && module.default.stop) {
+          module.default.stop();
+        } else {
+          console.log(chalk.yellow('Using legacy server stop method'));
+          // Fallback to direct script execution
+          import('child_process').then(cp => {
+            cp.spawn('node', ['./bin/devforge.js', 'stop'], { stdio: 'inherit' });
+          });
+        }
+      })
+      .catch(err => {
+        console.error(chalk.red(`Error stopping server: ${err.message}`));
+        process.exit(1);
+      });
+  });
+
+// Server restart subcommand
+serverCommand
+  .command('restart')
+  .description('Restart the development server')
+  .option('-p, --port <port>', 'Server port')
   .action((options) => {
-    generateReport(options);
+    displayBanner();
+    console.log(chalk.green('Restarting development server...'));
+
+    // Import the devforge module dynamically
+    import('./devforge.js')
+      .then(module => {
+        // Call the restart function
+        if (typeof module.default === 'object' && module.default.restart) {
+          module.default.restart(options);
+        } else {
+          console.log(chalk.yellow('Using legacy server restart method'));
+          // Fallback to direct script execution
+          import('child_process').then(cp => {
+            cp.spawn('node', ['./bin/devforge.js', 'restart'], { stdio: 'inherit' });
+          });
+        }
+      })
+      .catch(err => {
+        console.error(chalk.red(`Error restarting server: ${err.message}`));
+        process.exit(1);
+      });
   });
 
-// Parse arguments
-program.parse();
+// Server status subcommand
+serverCommand
+  .command('status')
+  .description('Check the status of the development server')
+  .action(() => {
+    displayBanner();
+    console.log(chalk.green('Checking server status...'));
+
+    // Import the devforge module dynamically
+    import('./devforge.js')
+      .then(module => {
+        // Call the status function
+        if (typeof module.default === 'object' && module.default.status) {
+          module.default.status();
+        } else {
+          console.log(chalk.yellow('Using legacy server status method'));
+          // Fallback to direct script execution
+          import('child_process').then(cp => {
+            cp.spawn('node', ['./bin/devforge.js', 'status'], { stdio: 'inherit' });
+          });
+        }
+      })
+      .catch(err => {
+        console.error(chalk.red(`Error checking server status: ${err.message}`));
+        process.exit(1);
+      });
+  });
+
+// Parse args
+program.parse(process.argv);
+
+// Display help if no args
+if (process.argv.length <= 2) {
+  displayBanner();
+  program.help();
+}

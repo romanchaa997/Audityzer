@@ -9,14 +9,6 @@ const MESSAGE_TO_SIGN: string = 'Hello Web3 World!';
 // eslint-disable-next-line no-unused-vars
 const NETWORK_NAME: string = 'Ethereum';
 
-interface EthereumProvider {
-  isMetaMask: boolean;
-  selectedAddress: string | null;
-  chainId: string;
-  request: (args: { method: string; params?: any[] }) => Promise<any>;
-  on: (eventName: string, callback: (...args: any[]) => void) => void;
-}
-
 declare global {
   interface Window {
     ethereum: EthereumProvider;
@@ -123,8 +115,9 @@ test.describe('MetaMask Signing Test', () => {
             path: `media/eth-sign-phishing-test-${Buffer.from(phishingPayload).toString('base64').slice(0, 10)}.png`,
           });
         }
-      } catch (e) {
-        console.log(`Error testing eth_sign phishing vector: ${e.message}`);
+      } catch (e: unknown) {
+        const error = e as Error;
+        console.log(`Error testing eth_sign phishing vector: ${error.message}`);
       }
 
       // Reset the page state

@@ -1,7 +1,7 @@
 // bridge-transfer.test.ts
 import { test, expect } from '@playwright/test';
-import { simulateBridgeTransfer, getBridgeHistory, setupBridgeProviders } from './utils/bridgeMock';
-import { connectWallet } from './utils/walletMock';
+import { simulateBridgeTransfer, getBridgeHistory, setupBridgeProviders } from './utils/bridgeMock.js';
+import { connectWallet } from './utils/walletMock.js';
 
 test.describe('Cross-chain bridge transfer tests', () => {
   test.beforeEach(async ({ page }) => {

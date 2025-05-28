@@ -1,262 +1,177 @@
 /**
- * This script manually fixes vulnerable dependencies in package-lock.json
- * by forcing resolution to newer versions for specific vulnerable packages.
+ * Fix Vulnerabilities Script
+ * 
+ * This script helps fix npm audit vulnerabilities by:
+ * 1. Running npm audit to identify vulnerabilities
+ * 2. Adding overrides to package.json for vulnerable packages
+ * 3. Creating .npmrc with security settings
+ * 4. Running npm audit fix to resolve issues
  */
 
-const fs = require('fs');
-const path = require('path');
-const chalk = require('chalk');
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Path to package-lock.json
-const packageLockPath = path.join(__dirname, '..', 'package-lock.json');
+// Get the directory name in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Function to read package-lock.json
-function readPackageLock() {
+console.log('Starting vulnerability fix process...');
+
+// Function to run npm audit and parse results
+function runAudit() {
   try {
-    const content = fs.readFileSync(packageLockPath);
-    return JSON.parse(content);
+    const auditOutput = execSync('npm audit --json', { encoding: 'utf8' });
+    return JSON.parse(auditOutput);
   } catch (error) {
-    console.error(chalk.red(`Error reading package-lock.json: ${error.message}`));
-    process.exit(1);
+    // npm audit returns non-zero exit code when vulnerabilities are found
+    if (error.stdout) {
+      try {
+        return JSON.parse(error.stdout);
+      } catch (parseError) {
+        console.error('Error parsing npm audit output:', parseError.message);
+      }
+    }
+    console.error('Error running npm audit:', error.message);
+    return { vulnerabilities: {} };
   }
 }
 
-// Function to write package-lock.json
-function writePackageLock(packageLock) {
-  try {
-    fs.writeFileSync(packageLockPath, JSON.stringify(packageLock, null, 2));
-    console.log(chalk.green('Successfully updated package-lock.json'));
-  } catch (error) {
-    console.error(chalk.red(`Error writing package-lock.json: ${error.message}`));
-    process.exit(1);
+// Function to fix vulnerabilities
+function fixVulnerabilities() {
+  console.log('Running npm audit to identify vulnerabilities...');
+
+  const auditResults = runAudit();
+  const vulnerabilities = auditResults.vulnerabilities || {};
+
+  if (Object.keys(vulnerabilities).length === 0) {
+    console.log('u2705 No vulnerabilities found!');
+    return;
   }
+
+  console.log(`Found ${Object.keys(vulnerabilities).length} vulnerable packages.`);
+
+  // Create overrides in package.json
+  updatePackageJsonOverrides(vulnerabilities);
+
+  // Create .npmrc with overrides
+  createNpmrcWithOverrides();
+
+  // Try to fix vulnerabilities
+  console.log('\nAttempting to fix vulnerabilities with npm audit fix...');
+  try {
+    execSync('npm audit fix --force', { stdio: 'inherit' });
+    console.log('u2705 Completed npm audit fix');
+  } catch (error) {
+    console.warn('u26a0ufe0f Some vulnerabilities could not be fixed automatically.');
+  }
+
+  // Run a final check
+  runFinalCheck();
 }
 
-// Main function to fix vulnerable packages
-function fixVulnerablePackages() {
-  console.log(chalk.blue('Starting vulnerability fixes...'));
-  
-  const packageLock = readPackageLock();
-  let modifiedCount = 0;
-  
-  // List of vulnerable packages to fix with their safe versions
-  const vulnerablePackages = {
-    'cookie': '^0.7.0',
-    'lodash.set': '^4.3.2',
-    'tar-fs': '^2.1.1',
-    'ws': '^8.17.1',
-    '@puppeteer/browsers': '^1.4.2',
-    'puppeteer-core': '^22.11.2',
-    '@sentry/node': '^7.75.0'
-  };
-  
-  // Update vulnerable packages in dependencies section
-  if (packageLock.packages) {
-    Object.keys(packageLock.packages).forEach(packagePath => {
-      const pkg = packageLock.packages[packagePath];
-      
-      // Skip the root package
-      if (packagePath === '') return;
-      
-      // Extract the package name
-      const packageName = packagePath.split('/').pop();
-      if (!packageName) return;
-      
-      // Check if this is a vulnerable package
-      Object.keys(vulnerablePackages).forEach(vulnPkg => {
-        if (packageName === vulnPkg || packageName.endsWith(`/${vulnPkg}`)) {
-          // Get the safe version
-          const safeVersion = vulnerablePackages[vulnPkg];
-          
-          // Update package version if needed
-          if (pkg.version && !isVersionSafe(pkg.version, safeVersion)) {
-            const newVersion = getLatestSafeVersion(safeVersion);
-            console.log(chalk.yellow(`Fixing ${packagePath} from version ${pkg.version} to ${newVersion}`));
-            pkg.version = newVersion;
-            modifiedCount++;
-          }
-        }
-      });
+// Function to update package.json overrides
+function updatePackageJsonOverrides(vulnerabilities) {
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
+
+  try {
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+    // Ensure overrides exists
+    packageJson.overrides = packageJson.overrides || {};
+
+    // Add overrides for vulnerable packages
+    let updatedCount = 0;
+
+    Object.entries(vulnerabilities).forEach(([pkgName, details]) => {
+      if (details.fixAvailable && details.fixAvailable.name) {
+        const fixVersion = details.fixAvailable.version || 'latest';
+        packageJson.overrides[pkgName] = fixVersion;
+        console.log(`Adding override for ${pkgName}@${fixVersion}`);
+        updatedCount++;
+      }
     });
+
+    // Add known security fixes
+    const knownFixes = {
+      'semver': '7.6.0',
+      'tough-cookie': '4.1.3',
+      '@babel/traverse': '7.24.8',
+      'follow-redirects': '1.15.6',
+      'tar-fs': '3.0.5',
+      'ws': '8.17.1',
+      'cookie': '0.7.0',
+      'lodash.set': '4.3.2',
+      'json5': '2.2.3',
+      'minimatch': '3.1.2',
+      'glob-parent': '6.0.2',
+      'node-fetch': '2.7.0',
+      'minimist': '1.2.8',
+      'word-wrap': '1.2.5',
+      '@npmcli/fs': '3.1.0',
+      '@npmcli/move-file': '3.0.0',
+      'cacache': '18.0.0'
+    };
+
+    Object.entries(knownFixes).forEach(([pkgName, version]) => {
+      if (!packageJson.overrides[pkgName]) {
+        packageJson.overrides[pkgName] = version;
+        console.log(`Adding known security fix for ${pkgName}@${version}`);
+        updatedCount++;
+      }
+    });
+
+    if (updatedCount > 0) {
+      // Write updated package.json
+      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+      console.log(`u2705 Updated package.json with ${updatedCount} security overrides`);
+    } else {
+      console.log('No new overrides added to package.json');
+    }
+  } catch (error) {
+    console.error('Error updating package.json:', error.message);
   }
-  
-  console.log(chalk.blue(`Fixed ${modifiedCount} vulnerable package(s)`));
-  
-  if (modifiedCount > 0) {
-    writePackageLock(packageLock);
-    console.log(chalk.green('Run "npm install" to apply the changes'));
-  } else {
-    console.log(chalk.green('No vulnerable packages found or all packages are already at safe versions'));
-  }
-
-  // Try to fix the specific Lighthouse/Raven vulnerabilities
-  fixDevDependencyIssues();
 }
 
-// Helper function to check if version is safe
-function isVersionSafe(currentVersion, safeVersionRange) {
-  // Simple version comparison - assumes format like "x.y.z"
-  const current = currentVersion.split('.').map(Number);
-  const safe = safeVersionRange.replace(/[^\d.]/g, '').split('.').map(Number);
-  
-  // Compare major version
-  if (current[0] > safe[0]) return true;
-  if (current[0] < safe[0]) return false;
-  
-  // Compare minor version
-  if (current[1] > safe[1]) return true;
-  if (current[1] < safe[1]) return false;
-  
-  // Compare patch version
-  return current[2] >= safe[2];
-}
+// Function to create .npmrc with overrides
+function createNpmrcWithOverrides() {
+  const npmrcPath = path.join(process.cwd(), '.npmrc');
 
-// Helper function to get the latest safe version
-function getLatestSafeVersion(safeVersionRange) {
-  // Strip symbols and just use the version numbers
-  return safeVersionRange.replace(/[\^~>=<]/g, '');
-}
-
-// Create or update npmrc files with fixed versions
-function updateNpmrc() {
-  // Create or update .npmrc file with dependency overrides
   try {
-    const npmrcPath = path.join(__dirname, '..', '.npmrc');
-    const npmrcContent = `
+    const npmrcContent = `# NPM configuration for security and stability
 audit-level=moderate
 legacy-peer-deps=true
 fund=false
-resolution-mode=highest
 loglevel=warn
-engine-strict=false
-npm-version-audit-fix=true
-
-# Dependency overrides
-cookie:>=0.7.0
-lodash.set:>=4.3.2
-tar-fs:>=2.1.1
-ws:>=8.17.1
-@puppeteer/browsers:>=1.4.2
-puppeteer-core:>=22.11.2
-
-# Ignore specific advisories that only affect dev dependencies
-ignore-advisory=GHSA-pxg6-pf52-xh8x
-ignore-advisory=GHSA-p6mc-m468-83gw
 `;
-    
+
     fs.writeFileSync(npmrcPath, npmrcContent);
-    console.log(chalk.green('✅ Created/updated .npmrc with security overrides'));
-  } catch (err) {
-    console.error(chalk.red(`❌ Failed to create/update .npmrc: ${err.message}`));
-  }
-  
-  // Create CI-specific npmrc with stricter settings
-  try {
-    const npmrcCiPath = path.join(__dirname, '..', '.npmrc-ci');
-    const npmrcCiContent = `
-audit-level=high
-legacy-peer-deps=true
-fund=false
-engine-strict=false
-resolution-mode=highest
-loglevel=warn
-production=true
-omit=dev
-ignore-audit-errors=true
-
-# Package overrides
-cookie:>=0.7.0
-lodash.set:>=4.3.2
-tar-fs:>=2.1.1
-ws:>=8.17.1
-@puppeteer/browsers:>=1.4.2
-puppeteer-core:>=22.11.2
-
-# Ignore specific advisories
-ignore-advisory=GHSA-pxg6-pf52-xh8x
-ignore-advisory=GHSA-p6mc-m468-83gw
-`;
-    
-    fs.writeFileSync(npmrcCiPath, npmrcCiContent);
-    console.log(chalk.green('✅ Created CI-specific .npmrc-ci configuration'));
-  } catch (err) {
-    console.error(chalk.red(`❌ Failed to create .npmrc-ci: ${err.message}`));
+    console.log('u2705 Created/updated .npmrc with security settings');
+  } catch (error) {
+    console.error('Error creating .npmrc:', error.message);
   }
 }
 
-// Fix specific dev dependency issues with lighthouse and raven
-function fixDevDependencyIssues() {
+// Function to run a final check after fixes
+function runFinalCheck() {
+  console.log('\nRunning final vulnerability check...');
+
   try {
-    // Check if the packages exist
-    const ravenPath = path.join(process.cwd(), 'node_modules', 'raven');
-    const hasRaven = fs.existsSync(ravenPath);
-
-    const lodashSetPath = path.join(process.cwd(), 'node_modules', 'lodash.set');
-    const hasLodashSet = fs.existsSync(lodashSetPath);
-
-    // If the Lighthouse and Raven vulnerabilities are present, patch them
-    if (hasRaven || hasLodashSet) {
-      console.log(chalk.yellow('⚠️ Detected development dependencies with vulnerabilities'));
-      console.log(chalk.blue('Creating an npm-audit-resolve.json file to manage these vulnerabilities'));
-      
-      // Create a .nsprc or npm-audit-resolve.json file to explicitly acknowledge these issues
-      const auditResolvePath = path.join(process.cwd(), '.nsprc');
-      const auditResolveContent = JSON.stringify({
-        "exceptions": {
-          "GHSA-pxg6-pf52-xh8x": {
-            "active": true,
-            "notes": "This vulnerability is in a development dependency (cookie via raven) and doesn't affect production code"
-          },
-          "GHSA-p6mc-m468-83gw": {
-            "active": true,
-            "notes": "This vulnerability is in lodash.set (dev dependency) and doesn't affect production code"
-          }
-        }
-      }, null, 2);
-      
-      fs.writeFileSync(auditResolvePath, auditResolveContent);
-      console.log(chalk.green('✅ Created .nsprc to acknowledge and track known vulnerabilities'));
-      
-      // For more aggressive fixes, we could try installing a patched version of these packages
-      console.log(chalk.blue('Attempting to fix lodash.set vulnerability...'));
-      try {
-        execSync('npm install lodash.set@latest --save-dev', { stdio: 'inherit' });
-        console.log(chalk.green('✅ Installed latest version of lodash.set'));
-      } catch (err) {
-        console.log(chalk.yellow('⚠️ Could not update lodash.set automatically'));
-      }
-      
-      // Update package.json to include a specific override for the dev environment
-      console.log(chalk.blue('Updating package.json with explicit overrides...'));
-      try {
-        const packageJsonPath = path.join(process.cwd(), 'package.json');
-        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-        
-        // Make sure overrides exists
-        if (!packageJson.overrides) {
-          packageJson.overrides = {};
-        }
-        
-        // Add specific overrides
-        packageJson.overrides['lodash.set'] = '^4.3.2';
-        packageJson.overrides['raven'] = {
-          'cookie': '^0.7.0'
-        };
-        
-        fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-        console.log(chalk.green('✅ Updated package.json with explicit overrides'));
-      } catch (err) {
-        console.log(chalk.yellow(`⚠️ Could not update package.json: ${err.message}`));
-      }
+    execSync('npm audit --omit=dev', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+    console.log('u2705 No production vulnerabilities found!');
+  } catch (error) {
+    if (error.stdout && error.stdout.includes('found 0 vulnerabilities')) {
+      console.log('u2705 No production vulnerabilities found!');
+    } else {
+      console.warn('u26A0uFE0F Some vulnerabilities still exist in production dependencies.');
+      console.log('Consider running "npm audit --omit=dev" to see remaining issues.');
     }
-  } catch (err) {
-    console.log(chalk.yellow(`⚠️ Error checking for lighthouse/raven: ${err.message}`));
   }
-
-  return true;
 }
 
-// Run the fixes
-fixVulnerablePackages();
-updateNpmrc(); 
+// Run the fix
+fixVulnerabilities();
+
+console.log('\nu2705 Vulnerability fix process completed!');
+console.log('You may need to run "npm install" again to apply all fixes.');

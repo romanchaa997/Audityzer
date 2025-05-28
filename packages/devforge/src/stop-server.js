@@ -1,113 +1,80 @@
 /**
- * Cross-platform script to stop the development server
- * Works on Windows, macOS, and Linux
+ * Stop Server Script
+ * 
+ * This script stops the running development server by:
+ * 1. Reading the PID from the .server-pid file
+ * 2. Killing the process with the appropriate command for the platform
+ * 3. Removing the PID file
  */
 
-const fs = require('fs');
-const path = require('path');
-const LOG_FILE = path.join(__dirname, '..', 'server.log');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
-// Logger
-const logger = {
-  log: (message) => {
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] ${message}\n`;
-    console.log(message);
-    
-    // Append to log file
-    try {
-      fs.appendFileSync(LOG_FILE, logMessage);
-    } catch (err) {
-      // Silent fail on log write error
-    }
-  },
-  error: (message) => {
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] ERROR: ${message}\n`;
-    console.error(message);
-    
-    // Append to log file
-    try {
-      fs.appendFileSync(LOG_FILE, logMessage);
-    } catch (err) {
-      // Silent fail on log write error
-    }
-  }
-};
+// Get the directory name in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+console.log('Stopping development server...');
+
+// Path to the PID file
+const pidFile = path.join(__dirname, '..', '.server-pid');
+
+// Check if server is running
+if (!fs.existsSync(pidFile)) {
+  console.log('No running server detected.');
+  process.exit(0);
+}
+
+// Read PID file
 try {
-  const pidFile = path.join(__dirname, '..', '.server-pid');
-  
-  // Check if PID file exists
-  if (fs.existsSync(pidFile)) {
-    // Read PID file content
-    const fileContent = fs.readFileSync(pidFile, 'utf8').trim();
-    
-    // Try parsing as JSON first
-    let pid, port;
-    try {
-      const data = JSON.parse(fileContent);
-      pid = data.pid;
-      port = data.port;
-      
-      const uptime = (Date.now() - data.startTime) / 1000; // seconds
-      logger.log(`Stopping server with PID: ${pid}, Port: ${port}, Uptime: ${uptime.toFixed(2)} seconds`);
-    } catch (err) {
-      // Fallback to old format (just the PID as string)
-      pid = fileContent;
-      logger.log(`Stopping server with PID: ${pid} (using legacy format)`);
-    }
-    
-    // Use different kill command based on platform
-    const isWindows = process.platform === 'win32';
-    if (isWindows) {
-      // Windows-specific process termination
-      const { execSync } = require('child_process');
-      try {
-        execSync(`taskkill /PID ${pid} /F /T`);
-        logger.log('Server stopped successfully');
-      } catch (err) {
-        logger.log('Server was not running or already stopped');
-      }
-    } else {
-      // Unix-like systems
-      try {
-        process.kill(Number(pid), 'SIGTERM');
-        logger.log('Server stopped successfully');
-      } catch (err) {
-        logger.log('Server was not running or already stopped');
-      }
-    }
-    
-    // Stop the health endpoint if it exists
-    if (port) {
-      const healthPort = Number(port) + 1;
-      if (isWindows) {
-        try {
-          const { execSync } = require('child_process');
-          execSync(`powershell -Command "Get-NetTCPConnection -LocalPort ${healthPort} -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | ForEach-Object { taskkill /F /PID $_ }"`);
-        } catch (err) {
-          // Ignore errors
-        }
-      } else {
-        try {
-          const { execSync } = require('child_process');
-          const output = execSync(`lsof -t -i:${healthPort}`);
-          const pids = output.toString().trim().split('\n').filter(Boolean);
-          for (const p of pids) {
-            process.kill(Number(p), 'SIGTERM');
-          }
-        } catch (err) {
-          // Ignore errors
-        }
-      }
-    }
-    
-    // Remove PID file
-    fs.unlinkSync(pidFile);
-  } else {
-    logger.log('No running server found');
+  let pid, port;
+
+  try {
+    // Try to parse as JSON (new format)
+    const data = JSON.parse(fs.readFileSync(pidFile, 'utf8'));
+    pid = data.pid;
+    port = data.port;
+    console.log(`Found server running with PID: ${pid} on port ${port}`);
+  } catch (err) {
+    // Fall back to old format (just PID)
+    pid = fs.readFileSync(pidFile, 'utf8').trim();
+    console.log(`Found server running with PID: ${pid} (legacy format)`);
   }
+
+  // Kill process based on platform
+  const isWindows = process.platform === 'win32';
+
+  if (isWindows) {
+    try {
+      execSync(`taskkill /PID ${pid} /F /T`);
+      console.log('✅ Successfully stopped server');
+    } catch (err) {
+      console.log('Server was not running or already stopped');
+    }
+  } else {
+    try {
+      process.kill(Number(pid), 'SIGTERM');
+      console.log('✅ Successfully stopped server');
+    } catch (err) {
+      console.log('Server was not running or already stopped');
+    }
+  }
+
+  // Remove PID file
+  fs.unlinkSync(pidFile);
+  console.log('✅ Removed server PID file');
+
+  // Check if health endpoint server might be running on port+1
+  if (port) {
+    const healthPort = parseInt(port) + 1;
+    console.log(`Note: Health endpoint on port ${healthPort} should also be stopped`);
+  }
+
 } catch (err) {
-  logger.error(`Error stopping server: ${err.message}`);
-} 
+  console.error(`Error stopping server: ${err.message}`);
+  process.exit(1);
+}
+
+console.log('✅ Server shutdown complete');

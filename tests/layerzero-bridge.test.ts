@@ -9,8 +9,8 @@ import { test, expect } from '@playwright/test';
 import {
   LayerZeroTestHarness,
   LayerZeroChainId,
-} from '../src/core/bridge-testing/layerzero-test-harness';
-import { createWalletAdapter } from '../src/core/wallet-adapter';
+} from '../src/core/bridge-testing/layerzero-test-harness.js';
+import { createWalletAdapter } from '../src/core/wallet-adapter.js';
 
 test.describe('LayerZero Bridge Tests', () => {
   let harness: LayerZeroTestHarness;

@@ -1,6 +1,6 @@
 // bridgeMock.ts
 import { Page } from '@playwright/test';
-import { getWalletState } from './walletMock';
+import { getWalletState } from './walletMock.js';
 
 // Interface definitions
 export interface BridgeTransferOptions {

@@ -6,7 +6,7 @@
  */
 
 import { Page } from '@playwright/test';
-import { LayerZeroTestHarness, LayerZeroChainId } from './layerzero-test-harness';
+import { LayerZeroTestHarness, LayerZeroChainId } from './layerzero-test-harness.js';
 
 // Define the EthereumProvider interface
 interface EthereumProvider {

@@ -1,6 +1,6 @@
 // MetaMask signing test
 import { test, expect } from '@playwright/test';
-import { EthereumProvider } from '../utils/types';
+import { EthereumProvider } from '../utils/types.js';
 
 // Test configuration
 // eslint-disable-next-line no-unused-vars

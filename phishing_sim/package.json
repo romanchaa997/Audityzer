@@ -1,0 +1,19 @@
+{
+  "name": "phishing_sim",
+  "version": "1.0.0",
+  "description": "This project uses Puppeteer to open a web page, retrieve its `localStorage` and cookies, and print them to the console. Puppeteer is a Node.js library which provides a high-level API to control Chrome or Chromium over the DevTools Protocol.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "acorn": "^8.14.1",
+    "axios": "^1.9.0",
+    "puppeteer": "^24.9.0"
+  }
+}

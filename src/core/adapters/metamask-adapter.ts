@@ -13,7 +13,7 @@ import {
   TransactionOptions,
   SignOptions,
   NetworkOptions,
-} from '../../types/provider';
+} from '../../types/provider.js';
 
 /**
  * Utility function to get network name from chain ID
