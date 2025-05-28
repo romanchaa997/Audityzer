@@ -127,7 +127,7 @@ class GitHubActionIntegration {
               },
               {
                 name: 'Archive security reports',
-                uses: 'actions/upload-artifact@v3',
+                uses: 'actions/upload-artifact@v3.1.3',
                 with: {
                   name: 'security-reports',
                   path: ['reports/', 'test-results/security/'].join('\n'),
@@ -168,7 +168,7 @@ class GitHubActionIntegration {
             },
             {
               name: 'Archive deployment reports',
-              uses: 'actions/upload-artifact@v3',
+              uses: 'actions/upload-artifact@v3.1.3',
               with: {
                 name: 'deployment-reports',
                 path: 'test-results/deployment/',
@@ -222,7 +222,7 @@ class GitHubActionIntegration {
             },
             {
               name: 'Archive bounty submissions',
-              uses: 'actions/upload-artifact@v3',
+              uses: 'actions/upload-artifact@v3.1.3',
               with: {
                 name: 'bounty-submissions',
                 path: ['test-results/bounty-submissions/', 'reports/bounty-*/'].join('\n'),
@@ -333,7 +333,7 @@ class GitHubActionIntegration {
               },
               {
                 name: 'Archive deployment reports',
-                uses: 'actions/upload-artifact@v3',
+                uses: 'actions/upload-artifact@v3.1.3',
                 with: {
                   name: 'deployment-reports',
                   path: 'test-results/deployment/',
@@ -509,7 +509,7 @@ class GitHubActionIntegration {
       // Add artifact upload step
       workflowConfig.jobs['bounty-package'].steps.push({
         name: 'Archive bounty submissions',
-        uses: 'actions/upload-artifact@v3',
+        uses: 'actions/upload-artifact@v3.1.3',
         with: {
           name: 'bounty-submissions',
           path: [
@@ -668,7 +668,7 @@ class GitHubActionIntegration {
               },
               {
                 name: 'Archive L2 validation results',
-                uses: 'actions/upload-artifact@v3',
+                uses: 'actions/upload-artifact@v3.1.3',
                 with: {
                   name: 'l2-validation-${{ matrix.l2_chain }}',
                   path: [
@@ -720,7 +720,7 @@ class GitHubActionIntegration {
             },
             {
               name: 'Archive performance test results',
-              uses: 'actions/upload-artifact@v3',
+              uses: 'actions/upload-artifact@v3.1.3',
               with: {
                 name: 'l2-performance-tests',
                 path: ['l2-performance-tests.json', 'test-results/l2-performance/**'].join('\n'),

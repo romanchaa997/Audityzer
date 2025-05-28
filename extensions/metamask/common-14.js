@@ -1,0 +1,10515 @@
+LavaPack.loadBundle(
+  [
+    [
+      6859,
+      {
+        '../../../shared/modules/i18n': 5865,
+        '../../../shared/modules/selectors/util': 5877,
+        '../../store/actionConstants': 7618,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.default = function (e = i, t) {
+                    if (t.type === n.SET_CURRENT_LOCALE)
+                      return { ...e, current: t.payload.messages, currentLocale: t.payload.locale };
+                    return e;
+                  }),
+                  (a.getIntlLocale =
+                    a.getEnLocaleMessages =
+                    a.getCurrentLocaleMessages =
+                    a.getCurrentLocale =
+                      void 0);
+                var n = (function (e, t) {
+                    if (!t && e && e.__esModule) return e;
+                    if (null === e || ('object' != typeof e && 'function' != typeof e))
+                      return { default: e };
+                    var a = o(t);
+                    if (a && a.has(e)) return a.get(e);
+                    var n = { __proto__: null },
+                      s = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                    for (var r in e)
+                      if ('default' !== r && {}.hasOwnProperty.call(e, r)) {
+                        var i = s ? Object.getOwnPropertyDescriptor(e, r) : null;
+                        i && (i.get || i.set) ? Object.defineProperty(n, r, i) : (n[r] = e[r]);
+                      }
+                    return (n.default = e), a && a.set(e, n), n;
+                  })(e('../../store/actionConstants')),
+                  s = e('../../../shared/modules/i18n'),
+                  r = e('../../../shared/modules/selectors/util');
+                function o(e) {
+                  if ('function' != typeof WeakMap) return null;
+                  var t = new WeakMap(),
+                    a = new WeakMap();
+                  return (o = function (e) {
+                    return e ? a : t;
+                  })(e);
+                }
+                const i = {};
+                const c = e => e.localeMessages.currentLocale;
+                a.getCurrentLocale = c;
+                a.getIntlLocale = (0, r.createDeepEqualSelector)(
+                  c,
+                  e => Intl.getCanonicalLocales(e ? e.replace(/_/gu, '-') : s.FALLBACK_LOCALE)[0]
+                );
+                a.getCurrentLocaleMessages = e => e.localeMessages.current;
+                a.getEnLocaleMessages = e => e.localeMessages.en;
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/ducks/locale/locale.ts' },
+    ],
+    [
+      6860,
+      {
+        '../../../shared/constants/alerts': 5787,
+        '../../../shared/constants/gas': 5795,
+        '../../../shared/constants/keyring': 5797,
+        '../../../shared/constants/preferences': 5809,
+        '../../../shared/modules/conversion.utils': 5858,
+        '../../../shared/modules/hexstring-utils': 5864,
+        '../../../shared/modules/selectors/networks': 5875,
+        '../../../shared/modules/string-utils': 5878,
+        '../../selectors/accounts': 7592,
+        '../../selectors/selectors': 7611,
+        '../../store/actionConstants': 7618,
+        '../../store/actions': 7619,
+        '../gas/gas.duck': 6856,
+        '@metamask/transaction-controller': 2946,
+        'ethereumjs-util': 4393,
+        reselect: 5353,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.default = function (e = A, t) {
+                    const a = { ...A, ...e };
+                    switch (t.type) {
+                      case f.UPDATE_METAMASK_STATE:
+                        return { ...a, ...t.value };
+                      case f.LOCK_METAMASK:
+                        return { ...a, isUnlocked: !1 };
+                      case f.SET_ACCOUNT_LABEL: {
+                        const { account: e } = t.value,
+                          n = t.value.label,
+                          s = Object.values(a.internalAccounts.accounts).find(
+                            t => t.address.toLowerCase() === e.toLowerCase()
+                          ),
+                          r = {
+                            ...a.internalAccounts,
+                            accounts: {
+                              ...a.internalAccounts.accounts,
+                              [s.id]: { ...s, metadata: { ...s.metadata, name: n } },
+                            },
+                          };
+                        return Object.assign(a, { internalAccounts: r });
+                      }
+                      case f.UPDATE_TRANSACTION_PARAMS: {
+                        const { id: e, value: n } = t;
+                        let { transactions: s } = a;
+                        return (
+                          (s = s.map(t => {
+                            if (t.id === e) {
+                              const e = { ...t };
+                              return (e.txParams = n), e;
+                            }
+                            return t;
+                          })),
+                          { ...a, transactions: s }
+                        );
+                      }
+                      case f.SET_PARTICIPATE_IN_METAMETRICS:
+                        return { ...a, participateInMetaMetrics: t.value };
+                      case f.SET_DATA_COLLECTION_FOR_MARKETING:
+                        return { ...a, dataCollectionForMarketing: t.value };
+                      case f.COMPLETE_ONBOARDING:
+                        return { ...a, completedOnboarding: !0 };
+                      case f.RESET_ONBOARDING:
+                        return {
+                          ...a,
+                          isInitialized: !1,
+                          completedOnboarding: !1,
+                          firstTimeFlowType: null,
+                          isUnlocked: !1,
+                          onboardingTabs: {},
+                          seedPhraseBackedUp: null,
+                        };
+                      case f.SET_FIRST_TIME_FLOW_TYPE:
+                        return { ...a, firstTimeFlowType: t.value };
+                      default:
+                        return a;
+                    }
+                  }),
+                  (a.doesUserHaveALedgerAccount = function (e) {
+                    return e.metamask.keyrings.some(e => e.type === c.KeyringType.ledger);
+                  }),
+                  (a.findKeyringForAddress = O),
+                  (a.getAllNfts = a.getAlertEnabledness = void 0),
+                  (a.getBlockGasLimit = function (e) {
+                    return e.metamask.currentBlockGasLimit;
+                  }),
+                  (a.getCompletedOnboarding = function (e) {
+                    return e.metamask.completedOnboarding;
+                  }),
+                  (a.getConversionRate = function (e) {
+                    var t;
+                    return null ===
+                      (t = e.metamask.currencyRates[(0, g.getProviderConfig)(e).ticker]) ||
+                      void 0 === t
+                      ? void 0
+                      : t.conversionRate;
+                  }),
+                  (a.getCurrencyRates = function (e) {
+                    return e.metamask.currencyRates;
+                  }),
+                  (a.getCurrentCurrency = function (e) {
+                    return e.metamask.currentCurrency;
+                  }),
+                  (a.getEstimatedGasFeeTimeBounds = function (e) {
+                    return e.metamask.estimatedGasFeeTimeBounds;
+                  }),
+                  (a.getEstimatedGasFeeTimeBoundsByChainId = function (e, t) {
+                    var a;
+                    return null === (a = e.metamask.gasFeeEstimatesByChainId) ||
+                      void 0 === a ||
+                      null === (a = a[t]) ||
+                      void 0 === a
+                      ? void 0
+                      : a.estimatedGasFeeTimeBounds;
+                  }),
+                  (a.getGasFeeEstimatesByChainId =
+                    a.getGasFeeEstimates =
+                    a.getGasEstimateTypeByChainId =
+                    a.getGasEstimateType =
+                      void 0),
+                  (a.getIsGasEstimatesLoading = function (e) {
+                    const t = (0, m.checkNetworkAndAccountSupports1559)(e),
+                      a = R(e),
+                      n =
+                        a === i.GasEstimateTypes.feeMarket || a === i.GasEstimateTypes.ethGasPrice;
+                    return (
+                      a === i.GasEstimateTypes.none ||
+                      (t && !n) ||
+                      (!t && a === i.GasEstimateTypes.feeMarket)
+                    );
+                  }),
+                  (a.getIsGasEstimatesLoadingByChainId = function (
+                    e,
+                    { chainId: t, networkClientId: a }
+                  ) {
+                    const n = (0, m.checkNetworkAndAccountSupports1559)(e, a),
+                      s = k(e, t),
+                      r =
+                        s === i.GasEstimateTypes.feeMarket || s === i.GasEstimateTypes.ethGasPrice;
+                    return (
+                      s === i.GasEstimateTypes.none ||
+                      (n && !r) ||
+                      (!n && s === i.GasEstimateTypes.feeMarket)
+                    );
+                  }),
+                  (a.getIsInitialized = function (e) {
+                    return e.metamask.isInitialized;
+                  }),
+                  (a.getIsNetworkBusyByChainId = function (e, t) {
+                    const a = C(e, t);
+                    return (
+                      (null == a ? void 0 : a.networkCongestion) >=
+                      i.NetworkCongestionThresholds.busy
+                    );
+                  }),
+                  (a.getIsUnlocked = function (e) {
+                    return e.metamask.isUnlocked;
+                  }),
+                  (a.getLedgerTransportType = function (e) {
+                    return e.metamask.ledgerTransportType;
+                  }),
+                  (a.getNFTsByChainId = void 0),
+                  (a.getNativeCurrency = function (e) {
+                    return (0, g.getProviderConfig)(e).ticker;
+                  }),
+                  (a.getNfts = a.getNftContracts = void 0),
+                  (a.getNftsDropdownState = function (e) {
+                    return e.metamask.nftsDropdownState;
+                  }),
+                  (a.getSeedPhraseBackedUp = function (e) {
+                    return e.metamask.seedPhraseBackedUp;
+                  }),
+                  (a.getSendHexDataFeatureFlagState = function (e) {
+                    return e.metamask.featureFlags.sendHexData;
+                  }),
+                  (a.getSendToAccounts = function (e) {
+                    const t = (0, m.accountsWithSendEtherInfoSelector)(e),
+                      a = (0, m.getAddressBook)(e);
+                    return [...t, ...a];
+                  }),
+                  (a.getTokenBalances = function (e) {
+                    return e.metamask.tokenBalances;
+                  }),
+                  (a.getWeb3ShimUsageAlertEnabledness =
+                    a.getUnconnectedAccountAlertShown =
+                    a.getUnconnectedAccountAlertEnabledness =
+                    a.getTokens =
+                      void 0),
+                  (a.isAddressLedger = function (e, t) {
+                    const a = O(e, t);
+                    return (null == a ? void 0 : a.type) === c.KeyringType.ledger;
+                  }),
+                  (a.isEIP1559Network = function (e, t) {
+                    var a;
+                    const n = (0, g.getSelectedNetworkClientId)(e);
+                    return (
+                      !0 ===
+                      (null === (a = e.metamask.networksMetadata) ||
+                      void 0 === a ||
+                      null === (a = a[t ?? n]) ||
+                      void 0 === a
+                        ? void 0
+                        : a.EIPS[1559])
+                    );
+                  }),
+                  (a.isNotEIP1559Network = function (e) {
+                    const t = (0, g.getSelectedNetworkClientId)(e);
+                    return !1 === e.metamask.networksMetadata[t].EIPS[1559];
+                  }),
+                  (a.updateGasFees = function ({
+                    gasPrice: e,
+                    gasLimit: t,
+                    maxPriorityFeePerGas: a,
+                    maxFeePerGas: s,
+                    transaction: r,
+                    expectHexWei: o = !1,
+                  }) {
+                    return async i => {
+                      const c = { ...r.txParams, gas: t };
+                      e
+                        ? (i((0, h.setCustomGasPrice)(v(c.gasPrice, o))), (c.gasPrice = v(e, o)))
+                        : s &&
+                          a &&
+                          ((c.maxFeePerGas = v(s, o)),
+                          (c.maxPriorityFeePerGas = (0, n.addHexPrefix)(
+                            (0, l.decGWEIToHexWEI)(a)
+                          )));
+                      const u = { ...r, txParams: c },
+                        d = (0, n.isHexString)((0, n.addHexPrefix)(t))
+                          ? (0, n.addHexPrefix)(t)
+                          : (0, n.addHexPrefix)(t.toString(16));
+                      i((0, h.setCustomGasLimit)(d)),
+                        await i((0, S.updateTransactionGasFees)(u.id, u));
+                    };
+                  });
+                var n = e('ethereumjs-util'),
+                  s = e('reselect'),
+                  r = e('@metamask/transaction-controller'),
+                  o = e('../../../shared/constants/alerts'),
+                  i = e('../../../shared/constants/gas'),
+                  c = e('../../../shared/constants/keyring'),
+                  u = e('../../../shared/constants/preferences'),
+                  l = e('../../../shared/modules/conversion.utils'),
+                  d = e('../../../shared/modules/hexstring-utils'),
+                  p = e('../../../shared/modules/string-utils'),
+                  m = e('../../selectors/selectors'),
+                  g = e('../../../shared/modules/selectors/networks'),
+                  T = e('../../selectors/accounts'),
+                  f = (function (e, t) {
+                    if (!t && e && e.__esModule) return e;
+                    if (null === e || ('object' != typeof e && 'function' != typeof e))
+                      return { default: e };
+                    var a = E(t);
+                    if (a && a.has(e)) return a.get(e);
+                    var n = { __proto__: null },
+                      s = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                    for (var r in e)
+                      if ('default' !== r && {}.hasOwnProperty.call(e, r)) {
+                        var o = s ? Object.getOwnPropertyDescriptor(e, r) : null;
+                        o && (o.get || o.set) ? Object.defineProperty(n, r, o) : (n[r] = e[r]);
+                      }
+                    return (n.default = e), a && a.set(e, n), n;
+                  })(e('../../store/actionConstants')),
+                  S = e('../../store/actions'),
+                  h = e('../gas/gas.duck');
+                function E(e) {
+                  if ('function' != typeof WeakMap) return null;
+                  var t = new WeakMap(),
+                    a = new WeakMap();
+                  return (E = function (e) {
+                    return e ? a : t;
+                  })(e);
+                }
+                const A = {
+                  isInitialized: !1,
+                  isUnlocked: !1,
+                  internalAccounts: { accounts: {}, selectedAccount: '' },
+                  transactions: [],
+                  networkConfigurations: {},
+                  addressBook: [],
+                  useBlockie: !1,
+                  featureFlags: {},
+                  currentLocale: '',
+                  currentBlockGasLimit: '',
+                  currentBlockGasLimitByChainId: {},
+                  preferences: {
+                    autoLockTimeLimit: u.DEFAULT_AUTO_LOCK_TIME_LIMIT,
+                    showExtensionInFullSizeView: !1,
+                    showFiatInTestnets: !1,
+                    showTestNetworks: !1,
+                    smartTransactionsOptInStatus: !0,
+                    petnamesEnabled: !0,
+                    featureNotificationsEnabled: !1,
+                    privacyMode: !1,
+                    showMultiRpcModal: !1,
+                  },
+                  firstTimeFlowType: null,
+                  completedOnboarding: !1,
+                  knownMethodData: {},
+                  use4ByteResolution: !0,
+                  participateInMetaMetrics: null,
+                  dataCollectionForMarketing: null,
+                  currencyRates: { ETH: { conversionRate: null } },
+                  throttledOrigins: {},
+                };
+                const v = (e, t) => (0, n.addHexPrefix)(t ? e : (0, l.decGWEIToHexWEI)(e));
+                const _ = e => e.metamask.alertEnabledness;
+                a.getAlertEnabledness = _;
+                a.getUnconnectedAccountAlertEnabledness = e =>
+                  _(e)[o.AlertTypes.unconnectedAccount];
+                a.getWeb3ShimUsageAlertEnabledness = e => _(e)[o.AlertTypes.web3ShimUsage];
+                a.getUnconnectedAccountAlertShown = e =>
+                  e.metamask.unconnectedAccountAlertShownOrigins;
+                a.getTokens = e => e.metamask.tokens;
+                a.getNfts = e => {
+                  var t;
+                  const {
+                      metamask: { allNfts: a },
+                    } = e,
+                    { address: n } = (0, T.getSelectedInternalAccount)(e),
+                    { chainId: s } = (0, g.getProviderConfig)(e);
+                  return (null == a || null === (t = a[n]) || void 0 === t ? void 0 : t[s]) ?? [];
+                };
+                a.getAllNfts = e => {
+                  const {
+                      metamask: { allNfts: t },
+                    } = e,
+                    { address: a } = (0, T.getSelectedInternalAccount)(e);
+                  return (null == t ? void 0 : t[a]) ?? [];
+                };
+                a.getNFTsByChainId = (e, t) => {
+                  var a;
+                  const {
+                      metamask: { allNfts: n },
+                    } = e,
+                    { address: s } = (0, T.getSelectedInternalAccount)(e);
+                  return (null == n || null === (a = n[s]) || void 0 === a ? void 0 : a[t]) ?? [];
+                };
+                function I(e) {
+                  var t;
+                  const a = null === (t = e.confirmTransaction) || void 0 === t ? void 0 : t.txData;
+                  return null == a ? void 0 : a.gasFeeEstimates;
+                }
+                function y(e, t) {
+                  var a;
+                  const n = null === (a = e.confirmTransaction) || void 0 === a ? void 0 : a.txData;
+                  return (null == n ? void 0 : n.chainId) !== t
+                    ? undefined
+                    : null == n
+                      ? void 0
+                      : n.gasFeeEstimates;
+                }
+                a.getNftContracts = e => {
+                  var t;
+                  const {
+                      metamask: { allNftContracts: a },
+                    } = e,
+                    { address: n } = (0, T.getSelectedInternalAccount)(e),
+                    { chainId: s } = (0, g.getProviderConfig)(e);
+                  return (null == a || null === (t = a[n]) || void 0 === t ? void 0 : t[s]) ?? [];
+                };
+                const w = (0, s.createSelector)(I, e => (null == e ? void 0 : e.type)),
+                  N = (0, s.createSelector)(y, e => (null == e ? void 0 : e.type)),
+                  R = (a.getGasEstimateType = (0, s.createSelector)(
+                    function (e) {
+                      return e.metamask.gasEstimateType;
+                    },
+                    w,
+                    (e, t) => t ?? e
+                  )),
+                  k = (a.getGasEstimateTypeByChainId = (0, s.createSelector)(
+                    function (e, t) {
+                      var a;
+                      return null === (a = e.metamask.gasFeeEstimatesByChainId) ||
+                        void 0 === a ||
+                        null === (a = a[t]) ||
+                        void 0 === a
+                        ? void 0
+                        : a.gasEstimateType;
+                    },
+                    N,
+                    (e, t) => t ?? e
+                  ));
+                const C = (a.getGasFeeEstimatesByChainId = (0, s.createSelector)(
+                  function (e, t) {
+                    var a;
+                    return null === (a = e.metamask.gasFeeEstimatesByChainId) ||
+                      void 0 === a ||
+                      null === (a = a[t]) ||
+                      void 0 === a
+                      ? void 0
+                      : a.gasFeeEstimates;
+                  },
+                  y,
+                  (e, t) =>
+                    t
+                      ? (0, r.mergeGasFeeEstimates)({
+                          gasFeeControllerEstimates: e,
+                          transactionGasFeeEstimates: t,
+                        })
+                      : e
+                ));
+                a.getGasFeeEstimates = (0, s.createSelector)(
+                  function (e) {
+                    return e.metamask.gasFeeEstimates;
+                  },
+                  I,
+                  (e, t) =>
+                    t
+                      ? (0, r.mergeGasFeeEstimates)({
+                          gasFeeControllerEstimates: e,
+                          transactionGasFeeEstimates: t,
+                        })
+                      : e
+                );
+                function O(e, t) {
+                  return e.metamask.keyrings.find(e =>
+                    e.accounts.some(
+                      e =>
+                        (0, p.isEqualCaseInsensitive)(e, (0, n.addHexPrefix)(t)) ||
+                        (0, p.isEqualCaseInsensitive)(e, (0, d.stripHexPrefix)(t))
+                    )
+                  );
+                }
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/ducks/metamask/metamask.js' },
+    ],
+    [
+      6864,
+      {
+        '../../../shared/constants/common': 5791,
+        '../../../shared/constants/gas': 5795,
+        '../../../shared/constants/network': 5804,
+        '../../../shared/constants/swaps': 5815,
+        '../../../shared/constants/transaction': 5819,
+        '../../../shared/lib/transactions-controller-utils': 5851,
+        '../../../shared/modules/Numeric': 5853,
+        '../../../shared/modules/contract-utils': 5857,
+        '../../../shared/modules/conversion.utils': 5858,
+        '../../../shared/modules/error': 5860,
+        '../../../shared/modules/selectors/networks': 5875,
+        '../../../shared/modules/string-utils': 5878,
+        '../../helpers/utils/util': 6921,
+        '../../pages/confirmations/send/send.utils': 7362,
+        '../../selectors': 7601,
+        '../../store/actions': 7619,
+        '../metamask/metamask': 6860,
+        '../swaps/swaps': 6868,
+        '@metamask/transaction-controller': 2946,
+        'bignumber.js': 4030,
+        'ethereumjs-util': 4393,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.calculateBestQuote = a.addAdjustedReturnToQuotes = void 0),
+                  (a.estimateGasLimitForSend = async function ({
+                    selectedAddress: e,
+                    value: t,
+                    gasPrice: a,
+                    sendToken: n,
+                    to: o,
+                    data: u,
+                    isNonStandardEthChain: d,
+                    chainId: g,
+                    gasLimit: T,
+                    ...h
+                  }) {
+                    let E = !1,
+                      A = c.MIN_GAS_LIMIT_HEX;
+                    h.blockGasLimit
+                      ? (A = h.blockGasLimit)
+                      : n && (A = c.GAS_LIMITS.BASE_TOKEN_ESTIMATE);
+                    const v = { from: e, value: t, gasPrice: a };
+                    if (n) {
+                      if (!o) return c.GAS_LIMITS.BASE_TOKEN_ESTIMATE;
+                      (v.value = '0x0'),
+                        (v.data = (0, m.getAssetTransferData)({
+                          sendToken: n,
+                          fromAddress: e,
+                          toAddress: o,
+                          amount: t,
+                        })),
+                        (v.to = n.address);
+                    } else {
+                      if (!u) {
+                        const { isContractAddress: e } = o
+                          ? await (0, p.readAddressAsContract)(global.ethereumProvider, o)
+                          : {};
+                        if (!e && !d) return c.GAS_LIMITS.SIMPLE;
+                        !e && d && (E = !0);
+                      }
+                      (v.data = u || '0x'), o && (v.to = o), (t && '0' !== t) || (v.value = '0xff');
+                    }
+                    E ||
+                      (v.gas = new S.Numeric(A, 16)
+                        .times(new S.Numeric(0.95, 10))
+                        .round(0, r.default.ROUND_DOWN)
+                        .toPrefixedHexString());
+                    let _ = 1.5;
+                    E
+                      ? (_ = 1)
+                      : l.CHAIN_ID_TO_GAS_LIMIT_BUFFER_MAP[g] &&
+                        (_ = l.CHAIN_ID_TO_GAS_LIMIT_BUFFER_MAP[g]);
+                    try {
+                      const e = await (0, f.estimateGas)(v),
+                        t = (0, m.addGasBuffer)(e, A, _);
+                      return (0, s.addHexPrefix)(t);
+                    } catch (e) {
+                      const t = (0, i.getErrorMessage)(e);
+                      if (
+                        t.includes('Transaction execution error.') ||
+                        t.includes(
+                          'gas required exceeds allowance or always failing transaction'
+                        ) ||
+                        (l.CHAIN_ID_TO_GAS_LIMIT_BUFFER_MAP[g] &&
+                          t.includes('gas required exceeds allowance'))
+                      ) {
+                        const e = (0, m.addGasBuffer)((null == v ? void 0 : v.gas) ?? T, A, _);
+                        return (0, s.addHexPrefix)(e);
+                      }
+                      throw e;
+                    }
+                  }),
+                  (a.generateTransactionParams = function (e) {
+                    var t, a, n, s;
+                    const r = e.draftTransactions[e.currentTransactionUUID],
+                      i = {
+                        from:
+                          (null === (t = r.fromAccount) || void 0 === t ? void 0 : t.address) ||
+                          e.selectedAccount.address,
+                        gas: r.gas.gasLimit,
+                      };
+                    switch (r.sendAsset.type) {
+                      case d.AssetType.token:
+                        (i.to = r.sendAsset.details.address),
+                          (i.value = '0x0'),
+                          (i.data = (0, m.generateERC20TransferData)({
+                            toAddress: r.recipient.address,
+                            amount: r.amount.value,
+                            sendToken: r.sendAsset.details,
+                          }));
+                        break;
+                      case d.AssetType.NFT:
+                        (i.to = r.sendAsset.details.address),
+                          (i.value = '0x0'),
+                          (i.data =
+                            (null === (a = r.sendAsset.details) || void 0 === a
+                              ? void 0
+                              : a.standard) === d.TokenStandard.ERC721
+                              ? (0, m.generateERC721TransferData)({
+                                  toAddress: r.recipient.address,
+                                  fromAddress:
+                                    (null === (n = r.fromAccount) || void 0 === n
+                                      ? void 0
+                                      : n.address) ?? e.selectedAccount.address,
+                                  tokenId: r.sendAsset.details.tokenId,
+                                })
+                              : (0, m.generateERC1155TransferData)({
+                                  toAddress: r.recipient.address,
+                                  fromAddress:
+                                    (null === (s = r.fromAccount) || void 0 === s
+                                      ? void 0
+                                      : s.address) ?? e.selectedAccount.address,
+                                  tokenId: r.sendAsset.details.tokenId,
+                                  amount: r.amount.value,
+                                }));
+                        break;
+                      case d.AssetType.native:
+                      default:
+                        (i.to = r.recipient.address),
+                          (i.value = r.amount.value),
+                          (i.data = r.userInputHexData || '0x');
+                    }
+                    e.eip1559support
+                      ? ((i.type = o.TransactionEnvelopeType.feeMarket),
+                        (i.maxFeePerGas = r.gas.maxFeePerGas),
+                        (i.maxPriorityFeePerGas = r.gas.maxPriorityFeePerGas),
+                        (i.maxFeePerGas && '0x0' !== i.maxFeePerGas) ||
+                          (i.maxFeePerGas = r.gas.gasPrice),
+                        (i.maxPriorityFeePerGas && '0x0' !== i.maxPriorityFeePerGas) ||
+                          (i.maxPriorityFeePerGas = i.maxFeePerGas))
+                      : ((i.gasPrice = r.gas.gasPrice),
+                        (i.type = o.TransactionEnvelopeType.legacy));
+                    return i;
+                  }),
+                  (a.getIsDraftSwapAndSend = function (e) {
+                    var t, a;
+                    return !(0, y.isEqualCaseInsensitive)(
+                      (null == e ||
+                      null === (t = e.sendAsset) ||
+                      void 0 === t ||
+                      null === (t = t.details) ||
+                      void 0 === t
+                        ? void 0
+                        : t.address) || '',
+                      (null == e ||
+                      null === (a = e.receiveAsset) ||
+                      void 0 === a ||
+                      null === (a = a.details) ||
+                      void 0 === a
+                        ? void 0
+                        : a.address) || ''
+                    );
+                  }),
+                  (a.getRoundedGasPrice = function (e) {
+                    const t = new S.Numeric(e, 10).round(9).toString(),
+                      a = Number(t);
+                    return (0, T.getGasPriceInHexWei)(a);
+                  });
+                var n,
+                  s = e('ethereumjs-util'),
+                  r = (n = e('bignumber.js')) && n.__esModule ? n : { default: n },
+                  o = e('@metamask/transaction-controller'),
+                  i = e('../../../shared/modules/error'),
+                  c = e('../../../shared/constants/gas'),
+                  u = e('../../../shared/lib/transactions-controller-utils'),
+                  l = e('../../../shared/constants/network'),
+                  d = e('../../../shared/constants/transaction'),
+                  p = e('../../../shared/modules/contract-utils'),
+                  m = e('../../pages/confirmations/send/send.utils'),
+                  g = e('../../../shared/modules/selectors/networks'),
+                  T = e('../../selectors'),
+                  f = e('../../store/actions'),
+                  S = e('../../../shared/modules/Numeric'),
+                  h = e('../metamask/metamask'),
+                  E = e('../swaps/swaps'),
+                  A = e('../../helpers/utils/util'),
+                  v = e('../../../shared/modules/conversion.utils'),
+                  _ = e('../../../shared/constants/common'),
+                  I = e('../../../shared/constants/swaps'),
+                  y = e('../../../shared/modules/string-utils');
+                a.addAdjustedReturnToQuotes = async (e, t, a) => {
+                  if (null == e || !e.length) return e;
+                  try {
+                    const n = (0, g.getCurrentChainId)(t),
+                      { medium: r, gasPrice: o } = (0, h.getGasFeeEstimates)(t),
+                      i = (0, T.checkNetworkAndAccountSupports1559)(t),
+                      c = o ?? (null == r ? void 0 : r.suggestedMaxFeePerGas),
+                      l = (0, E.getUsedSwapsGasPrice)(t),
+                      d = i ? c : l,
+                      p = (0, T.getTokenExchangeRates)(t),
+                      m = (0, T.getConfirmationExchangeRates)(t),
+                      f = { ...p, ...m },
+                      y = (0, h.getNativeCurrency)(t),
+                      w = null != a && a.address ? (0, s.toChecksumAddress)(a.address) : undefined;
+                    let N = w ? f[w] : 1;
+                    return (
+                      !N && w && (N = (await (0, A.fetchTokenExchangeRates)(y, [w], n))[w]),
+                      N
+                        ? e.map(e => {
+                            var t;
+                            const s =
+                                ((null == e ? void 0 : e.gasParams.maxGas) || 0) +
+                                Number(
+                                  (0, v.hexToDecimal)(
+                                    (null == e || null === (t = e.approvalNeeded) || void 0 === t
+                                      ? void 0
+                                      : t.gas) || '0x0'
+                                  )
+                                ),
+                              r = new S.Numeric(d, 10, _.EtherDenomination.GWEI)
+                                .times(s, 10)
+                                .toDenomination(_.EtherDenomination.ETH),
+                              o = (
+                                e.destinationAmount
+                                  ? new S.Numeric(
+                                      (0, u.calcTokenAmount)(
+                                        e.destinationAmount,
+                                        (null == a ? void 0 : a.decimals) ||
+                                          I.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[n].decimals
+                                      ),
+                                      10
+                                    ).times(N, 10)
+                                  : undefined
+                              )
+                                .minus(r)
+                                .toNumber();
+                            return { ...e, adjustAmountReceivedInNative: o };
+                          })
+                        : e
+                    );
+                  } catch (e) {
+                    console.warn(`Could not calculate adjusted return for quote selection: ${e}`);
+                  }
+                  return e;
+                };
+                a.calculateBestQuote = e =>
+                  e.reduce(
+                    (e, t) =>
+                      ((null == t ? void 0 : t.adjustAmountReceivedInNative) ||
+                        Number((null == t ? void 0 : t.destinationAmount) || 0)) >
+                      ((null == e ? void 0 : e.adjustAmountReceivedInNative) ||
+                        Number((null == e ? void 0 : e.destinationAmount) || 0))
+                        ? t
+                        : e,
+                    null == e ? void 0 : e[0]
+                  );
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/ducks/send/helpers.js' },
+    ],
+    [
+      6865,
+      { './send': 6866 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 });
+                var n = e('./send');
+                Object.keys(n).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === n[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return n[e];
+                        },
+                      }));
+                });
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/ducks/send/index.js' },
+    ],
+    [
+      6866,
+      {
+        '../../../shared/constants/common': 5791,
+        '../../../shared/constants/gas': 5795,
+        '../../../shared/constants/swaps': 5815,
+        '../../../shared/constants/time': 5817,
+        '../../../shared/constants/transaction': 5819,
+        '../../../shared/lib/metamask-controller-utils': 5838,
+        '../../../shared/lib/transactions-controller-utils': 5851,
+        '../../../shared/modules/Numeric': 5853,
+        '../../../shared/modules/conversion.utils': 5858,
+        '../../../shared/modules/error': 5860,
+        '../../../shared/modules/hexstring-utils': 5864,
+        '../../../shared/modules/selectors/networks': 5875,
+        '../../../shared/modules/string-utils': 5878,
+        '../../../shared/modules/transaction.utils': 5880,
+        '../../helpers/constants/error-keys': 6873,
+        '../../helpers/constants/routes': 6878,
+        '../../helpers/utils/token-util': 6918,
+        '../../helpers/utils/transactions.util': 6919,
+        '../../helpers/utils/util': 6921,
+        '../../pages/confirmations/send/send.constants': 7361,
+        '../../pages/confirmations/send/send.utils': 7362,
+        '../../pages/swaps/swaps.util': 7583,
+        '../../selectors': 7601,
+        '../../store/actionConstants': 7618,
+        '../../store/actions': 7619,
+        '../confirm-transaction/confirm-transaction.duck': 6853,
+        '../domains': 6854,
+        '../gas/gas.duck': 6856,
+        '../metamask/metamask': 6860,
+        './helpers': 6864,
+        './swap-and-send-utils': 6867,
+        '@metamask/controller-utils': 1515,
+        '@metamask/rpc-errors': 2585,
+        '@metamask/transaction-controller': 2946,
+        '@reduxjs/toolkit': 3073,
+        'bignumber.js': 4030,
+        'ethereumjs-util': 4393,
+        lodash: 4921,
+        uuid: 5733,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.draftTransactionInitialState =
+                    a.default =
+                    a.computeEstimatedGasLimit =
+                    a.addHistoryEntry =
+                    a.acknowledgeRecipientWarning =
+                    a.SEND_STATUSES =
+                    a.SEND_STAGES =
+                    a.RECIPIENT_SEARCH_MODES =
+                    a.GAS_INPUT_MODES =
+                    a.AMOUNT_MODES =
+                      void 0),
+                  (a.editExistingTransaction = function (e, t) {
+                    return async (a, n) => {
+                      await a(se.clearPreviousDrafts());
+                      const s = n(),
+                        r = (0, h.getUnapprovedTransactions)(s)[t],
+                        i = (0, h.getTargetAccount)(s, r.txParams.from);
+                      if (Boolean(s[Z].prevSwapAndSendInput)) {
+                        const {
+                          amountMode: e,
+                          amount: { value: n },
+                          ...r
+                        } = s[Z].prevSwapAndSendInput;
+                        a(
+                          se.addNewDraft({
+                            ...z,
+                            ...r,
+                            id: t,
+                            fromAccount: i,
+                            history: [
+                              `sendFlow - user clicked edit on transaction with id ${t} (swap and send)`,
+                            ],
+                          })
+                        ),
+                          e === Q.MAX
+                            ? (a(se.updateAmountMode(Q.MAX)), a(se.updateAmountToMax()), a(fe()))
+                            : a(Ee(n));
+                      } else if (e === k.AssetType.native)
+                        await a(
+                          se.addNewDraft({
+                            ...z,
+                            id: t,
+                            fromAccount: i,
+                            gas: {
+                              ...z.gas,
+                              gasLimit: r.txParams.gas,
+                              gasPrice: r.txParams.gasPrice,
+                            },
+                            userInputHexData: r.txParams.data,
+                            recipient: {
+                              ...z.recipient,
+                              address: r.txParams.to,
+                              nickname:
+                                (0, h.getAddressBookEntryOrAccountName)(s, r.txParams.to) ?? '',
+                            },
+                            amount: { ...z.amount, value: r.txParams.value },
+                            history: [`sendFlow - user clicked edit on transaction with id ${t}`],
+                          })
+                        ),
+                          await a(Ae({ type: k.AssetType.native }, { initialAssetSet: !0 }));
+                      else {
+                        const n = (0, M.parseStandardTokenTransactionData)(r.txParams.data),
+                          c = e === k.AssetType.token ? (0, b.getTokenValueParam)(n) : '1',
+                          u = (0, _.getTokenAddressParam)(n),
+                          l = (0, h.getAddressBookEntryOrAccountName)(s, u) ?? '',
+                          d = (0, o.addHexPrefix)((0, m.decimalToHex)(c));
+                        await a(
+                          se.addNewDraft({
+                            ...z,
+                            id: t,
+                            fromAccount: i,
+                            gas: {
+                              ...z.gas,
+                              gasLimit: r.txParams.gas,
+                              gasPrice: r.txParams.gasPrice,
+                            },
+                            userInputHexData: r.txParams.data,
+                            recipient: { ...z.recipient, address: u, nickname: l },
+                            amount: { ...z.amount, value: d },
+                            history: [`sendFlow - user clicked edit on transaction with id ${t}`],
+                          })
+                        ),
+                          await a(
+                            Ae(
+                              {
+                                type: e,
+                                details: {
+                                  address: r.txParams.to,
+                                  ...(e === k.AssetType.NFT
+                                    ? {
+                                        tokenId:
+                                          (0, _.getTokenIdParam)(n) ?? (0, b.getTokenValueParam)(n),
+                                      }
+                                    : {}),
+                                },
+                              },
+                              { initialAssetSet: !0 }
+                            )
+                          );
+                      }
+                      await a(ee());
+                    };
+                  }),
+                  (a.gasFeeIsInError = function (e) {
+                    var t;
+                    return Boolean(null === (t = _e(e).gas) || void 0 === t ? void 0 : t.error);
+                  }),
+                  (a.getAssetError = function (e) {
+                    return we(e).error;
+                  }),
+                  (a.getBestQuote = void 0),
+                  (a.getCurrentDraftTransaction = _e),
+                  (a.getCurrentTransactionUUID = ve),
+                  (a.getDraftTransactionExists = function (e) {
+                    const t = _e(e);
+                    if (0 === Object.keys(t).length) return !1;
+                    return !0;
+                  }),
+                  (a.getDraftTransactionID = function (e) {
+                    return _e(e).id;
+                  }),
+                  (a.getGasInputMode = function (e) {
+                    const t = (0, h.getIsMainnet)(e),
+                      a = (0, y.getGasEstimateType)(e),
+                      n = (0, h.getAdvancedInlineGasShown)(e);
+                    if (e[Z].gasIsSetInModal) return q.CUSTOM;
+                    if (!t || n) return q.INLINE;
+                    if (t && a === g.GasEstimateTypes.ethGasPrice) return q.INLINE;
+                    return q.BASIC;
+                  }),
+                  (a.getGasLimit = function (e) {
+                    var t;
+                    return null === (t = _e(e).gas) || void 0 === t ? void 0 : t.gasLimit;
+                  }),
+                  (a.getGasPrice = function (e) {
+                    var t;
+                    return null === (t = _e(e).gas) || void 0 === t ? void 0 : t.gasPrice;
+                  }),
+                  (a.getGasTotal = function (e) {
+                    var t;
+                    return null === (t = _e(e).gas) || void 0 === t ? void 0 : t.gasTotal;
+                  }),
+                  (a.getIsAssetSendable = function (e) {
+                    var t, a;
+                    if (
+                      (null === (t = we(e)) || void 0 === t ? void 0 : t.type) ===
+                      k.AssetType.native
+                    )
+                      return !0;
+                    return (
+                      !1 ===
+                      (null === (a = we(e)) ||
+                      void 0 === a ||
+                      null === (a = a.details) ||
+                      void 0 === a
+                        ? void 0
+                        : a.isERC721)
+                    );
+                  }),
+                  (a.getIsBalanceInsufficient = function (e) {
+                    var t;
+                    return (
+                      (null === (t = _e(e).gas) || void 0 === t ? void 0 : t.error) ===
+                      T.INSUFFICIENT_FUNDS_ERROR
+                    );
+                  }),
+                  (a.getIsSwapAndSendDisabledForNetwork = a.getIsNativeSendPossible = void 0),
+                  (a.getIsUsingMyAccountForRecipientSearch = function (e) {
+                    return e[Z].recipientMode === Y.MY_ACCOUNTS;
+                  }),
+                  (a.getMinimumGasLimitForSend = function (e) {
+                    return e[Z].gasLimitMinimum;
+                  }),
+                  (a.getRecipient = Re),
+                  (a.getRecipientUserInput = function (e) {
+                    return e[Z].recipientInput;
+                  }),
+                  (a.getRecipientWarningAcknowledgement = function (e) {
+                    var t;
+                    return (
+                      (null === (t = _e(e).recipient) || void 0 === t
+                        ? void 0
+                        : t.recipientWarningAcknowledged) ?? !1
+                    );
+                  }),
+                  (a.getSendAmount = function (e) {
+                    var t;
+                    return null === (t = _e(e).amount) || void 0 === t ? void 0 : t.value;
+                  }),
+                  (a.getSendAnalyticProperties = void 0),
+                  (a.getSendAsset = we),
+                  (a.getSendAssetAddress = function (e) {
+                    var t;
+                    return null === (t = we(e)) ||
+                      void 0 === t ||
+                      null === (t = t.details) ||
+                      void 0 === t
+                      ? void 0
+                      : t.address;
+                  }),
+                  (a.getSendErrors = function (e) {
+                    var t, a, n;
+                    return {
+                      gasFee: null === (t = _e(e).gas) || void 0 === t ? void 0 : t.error,
+                      amount: null === (a = _e(e).amount) || void 0 === a ? void 0 : a.error,
+                      hexData: null === (n = _e(e).hexData) || void 0 === n ? void 0 : n.error,
+                    };
+                  }),
+                  (a.getSendHexData = function (e) {
+                    return _e(e).userInputHexData;
+                  }),
+                  (a.getSendHexDataError = function (e) {
+                    var t;
+                    return (
+                      (null === (t = _e(e).hexData) || void 0 === t ? void 0 : t.error) ?? null
+                    );
+                  }),
+                  (a.getSendLayer1GasFee = ye),
+                  (a.getSendMaxModeState = function (e) {
+                    return e[Z].amountMode === Q.MAX;
+                  }),
+                  (a.getSendStage = function (e) {
+                    return e[Z].stage;
+                  }),
+                  (a.getSendTo = function (e) {
+                    var t;
+                    return null === (t = Re(e)) || void 0 === t ? void 0 : t.address;
+                  }),
+                  (a.getSender = Ne),
+                  (a.getSwapsBlockedTokens = function (e) {
+                    return e[Z].swapsBlockedTokens;
+                  }),
+                  (a.hasSendLayer1GasFee = function (e) {
+                    return null !== e[Z].gasTotalForLayer1;
+                  }),
+                  (a.initializeSendState = a.initialState = void 0),
+                  (a.isSendFormInvalid = function (e) {
+                    const t = _e(e);
+                    if (!t) return !0;
+                    return t.status === K.INVALID;
+                  }),
+                  (a.isSendStateInitialized = function (e) {
+                    return e[Z].stage !== V.INACTIVE;
+                  }),
+                  (a.resetRecipientInput = function () {
+                    return async (e, t) => {
+                      const a = t(),
+                        n = (0, S.getCurrentChainId)(a);
+                      (0, E.showLoadingIndication)(),
+                        e(de('sendFlow - user cleared recipient input')),
+                        e((0, w.resetDomainResolution)()),
+                        e(he('')),
+                        await e(Se({ address: '', nickname: '' })),
+                        e(ue({ chainId: n })),
+                        (0, E.hideLoadingIndication)();
+                    };
+                  }),
+                  (a.resetSendState = function () {
+                    return async (e, t) => {
+                      const a = t();
+                      e(se.resetSendState()),
+                        a[Z].gasEstimatePollToken &&
+                          (await (0, E.gasFeeStopPollingByPollingToken)(a[Z].gasEstimatePollToken),
+                          (0, E.removePollingTokenFromAppState)(a[Z].gasEstimatePollToken));
+                    };
+                  }),
+                  (a.sendAmountIsInError = function (e) {
+                    var t;
+                    return Boolean(null === (t = _e(e).amount) || void 0 === t ? void 0 : t.error);
+                  }),
+                  (a.signTransaction = function (e) {
+                    return async (t, a) => {
+                      const n = a(),
+                        s = (0, S.getSelectedNetworkClientId)(n),
+                        { stage: r, eip1559support: o, amountMode: c } = n[Z],
+                        d = n[Z].draftTransactions[n[Z].currentTransactionUUID];
+                      let p;
+                      const m = (0, W.getIsDraftSwapAndSend)(d),
+                        g = d.quotes,
+                        f = g ? (0, W.calculateBestQuote)(g) : undefined;
+                      p = m ? { ...f.trade } : (0, W.generateTransactionParams)(n[Z]);
+                      const { amount: A, sendAsset: v, receiveAsset: _, recipient: I } = d,
+                        w = {
+                          amount: { ...A },
+                          sendAsset: { ...v },
+                          receiveAsset: { ..._ },
+                          recipient: { ...I },
+                          amountMode: n[Z].amountMode,
+                        };
+                      if ((await t(se.setPrevSwapAndSend(w)), r !== V.EDIT || m)) {
+                        let a,
+                          o =
+                            d.recipient.type === T.RECIPIENT_TYPES.SMART_CONTRACT
+                              ? l.TransactionType.contractInteraction
+                              : l.TransactionType.simpleSend;
+                        if (
+                          (d.sendAsset.type !== k.AssetType.native &&
+                            (o =
+                              d.sendAsset.type === k.AssetType.NFT
+                                ? d.sendAsset.details.standard === k.TokenStandard.ERC721
+                                  ? l.TransactionType.tokenMethodTransferFrom
+                                  : l.TransactionType.tokenMethodSafeTransferFrom
+                                : l.TransactionType.tokenMethodTransfer),
+                          await t(
+                            de(
+                              'sendFlow - user clicked next and transaction should be added to controller'
+                            )
+                          ),
+                          m)
+                        ) {
+                          var N, R, C, O, P, M;
+                          if (r === V.EDIT) {
+                            const e = (0, h.getUnapprovedTransactions)(n)[d.id];
+                            e &&
+                              (await t(
+                                (0, E.rejectPendingApproval)(
+                                  e.id,
+                                  u.providerErrors.userRejectedRequest().serialize()
+                                )
+                              ));
+                          }
+                          const o = (0, S.getCurrentChainId)(n),
+                            i = L.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[o].decimals,
+                            c =
+                              (null === (N = d.sendAsset.details) || void 0 === N
+                                ? void 0
+                                : N.symbol) || (0, y.getNativeCurrency)(n),
+                            m =
+                              (null === (R = d.receiveAsset.details) || void 0 === R
+                                ? void 0
+                                : R.symbol) || (0, y.getNativeCurrency)(n),
+                            g =
+                              (null === (C = d.receiveAsset.details) || void 0 === C
+                                ? void 0
+                                : C.decimals) || i,
+                            T =
+                              (null === (O = d.receiveAsset.details) || void 0 === O
+                                ? void 0
+                                : O.address) || L.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[o].address,
+                            v =
+                              (null === (P = d.sendAsset.details) || void 0 === P
+                                ? void 0
+                                : P.decimals) || i,
+                            _ = new D.Numeric((null == A ? void 0 : A.value) || '0x0', 16)
+                              .toBase(10)
+                              .shiftedBy(v)
+                              .toString(),
+                            I = d.recipient.address,
+                            w =
+                              (null === (M = d.sendAsset.details) || void 0 === M
+                                ? void 0
+                                : M.address) || L.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[o].address,
+                            k = null == f ? void 0 : f.sourceAmount,
+                            b = null == f ? void 0 : f.destinationAmount,
+                            F = {
+                              swapAndSendRecipient: I,
+                              type: l.TransactionType.swapAndSend,
+                              sourceTokenSymbol: c,
+                              destinationTokenSymbol: m,
+                              destinationTokenDecimals: g,
+                              destinationTokenAddress: T,
+                              swapTokenValue: _,
+                              approvalTxId: undefined,
+                              destinationTokenAmount: b,
+                              sourceTokenAddress: w,
+                              sourceTokenAmount: k,
+                              sourceTokenDecimals: v,
+                            };
+                          if (null != f && f.approvalNeeded) {
+                            const { id: e } = await (0, E.addTransactionAndWaitForPublish)(
+                              { ...f.approvalNeeded, amount: '0x0' },
+                              {
+                                networkClientId: s,
+                                requireApproval: !1,
+                                type: l.TransactionType.swapApproval,
+                                swaps: {
+                                  hasApproveTx: !0,
+                                  meta: {
+                                    type: l.TransactionType.swapApproval,
+                                    sourceTokenSymbol: c,
+                                  },
+                                },
+                              }
+                            );
+                            F.approvalTxId = e;
+                          }
+                          const { id: x } = await (0, E.addTransactionAndWaitForPublish)(p, {
+                            networkClientId: s,
+                            requireApproval: !1,
+                            sendFlowHistory: d.history,
+                            type: l.TransactionType.swapAndSend,
+                            swaps: {
+                              hasApproveTx: Boolean(null == f ? void 0 : f.approvalNeeded),
+                              meta: F,
+                            },
+                          });
+                          (a = x),
+                            await t((0, E.setDefaultHomeActiveTabName)('activity')),
+                            e.push(G.DEFAULT_ROUTE);
+                        } else {
+                          const { id: n } = await t(
+                            (0, E.addTransactionAndRouteToConfirmationPage)(p, {
+                              networkClientId: s,
+                              sendFlowHistory: d.history,
+                              type: o,
+                            })
+                          );
+                          (a = n), e.push(G.CONFIRM_TRANSACTION_ROUTE);
+                        }
+                        await t(
+                          (0, U.setMaxValueMode)(
+                            a,
+                            c === Q.MAX && d.sendAsset.type === k.AssetType.native
+                          )
+                        );
+                      } else {
+                        var b;
+                        const a = (0, h.getUnapprovedTransactions)(n),
+                          s = (0, i.cloneDeep)(a[d.id]),
+                          r = {
+                            data: p.data,
+                            from: p.from,
+                            to: p.to,
+                            value: p.value,
+                            gas: null != s && s.userEditedGasLimit ? s.txParams.gas : p.gas,
+                          };
+                        s.originalGasEstimate = r.gas;
+                        const u = { ...s, txParams: Object.assign(s.txParams, o ? r : p) };
+                        await t(
+                          de(
+                            'sendFlow - user clicked next and transaction should be updated in controller'
+                          )
+                        ),
+                          await t(
+                            (0, E.updateTransactionSendFlowHistory)(
+                              d.id,
+                              (null === (b = s.sendFlowHistory) || void 0 === b
+                                ? void 0
+                                : b.length) || 0,
+                              d.history
+                            )
+                          ),
+                          await t((0, E.updateEditableParams)(d.id, u.txParams)),
+                          await t((0, E.updateTransactionGasFees)(d.id, u.txParams)),
+                          await t(
+                            (0, U.setMaxValueMode)(
+                              d.id,
+                              c === Q.MAX && d.sendAsset.type === k.AssetType.native
+                            )
+                          ),
+                          e.push(G.CONFIRM_TRANSACTION_ROUTE);
+                      }
+                      await t(se.setPrevSwapAndSend(w));
+                    };
+                  }),
+                  (a.startNewDraftTransaction = function (e) {
+                    return async t => {
+                      await t(se.clearPreviousDrafts()),
+                        await t(
+                          se.addNewDraft({
+                            ...z,
+                            history: ['sendFlow - User started new draft transaction'],
+                          })
+                        ),
+                        await t(
+                          Ae({
+                            type: e.type ?? k.AssetType.native,
+                            details: e.details,
+                            skipComputeEstimatedGasLimit: !0,
+                          })
+                        ),
+                        await t(ee());
+                    };
+                  }),
+                  (a.toggleSendMaxMode = function () {
+                    return async (e, t) => {
+                      t()[Z].amountMode === Q.MAX
+                        ? (await e(se.updateAmountMode(Q.INPUT)),
+                          await e(se.updateSendAmount('0x0')),
+                          await e(de('sendFlow - user toggled max mode off')))
+                        : (await e(se.updateAmountMode(Q.MAX)),
+                          await e(se.updateAmountToMax()),
+                          await e(de('sendFlow - user toggled max mode on'))),
+                        await e(fe());
+                    };
+                  }),
+                  (a.updateGasLimit = void 0),
+                  (a.updateGasPrice = function (e) {
+                    return t => {
+                      t(de(`sendFlow - user set legacy gasPrice to ${e}`)),
+                        t(
+                          se.updateGasFees({
+                            gasPrice: e,
+                            transactionType: l.TransactionEnvelopeType.legacy,
+                            manuallyEdited: !0,
+                          })
+                        );
+                    };
+                  }),
+                  (a.updateRecipient = Se),
+                  (a.updateRecipientUserInput = he),
+                  (a.updateSendAmount = Ee),
+                  (a.updateSendAsset = Ae),
+                  (a.updateSendHexData = function (e) {
+                    return async (t, a) => {
+                      await t(de(`sendFlow - user added custom hexData ${e}`)),
+                        await t(se.updateUserInputHexData(e)),
+                        await t(
+                          se.updateUserInputHexDataError(
+                            '' === e || (0, o.isHexString)(e) ? null : T.INVALID_HEX_DATA_ERROR
+                          )
+                        );
+                      const n = a(),
+                        s = n[Z].draftTransactions[n[Z].currentTransactionUUID];
+                      await t(fe(s.sendAsset.type === k.AssetType.native));
+                    };
+                  }),
+                  (a.updateSendQuote = fe),
+                  (a.useContactListForRecipientSearch = function () {
+                    return e => {
+                      e(de('sendFlow - user selected back to all on recipient screen')),
+                        e(le(Y.CONTACT_LIST));
+                    };
+                  }),
+                  (a.useDefaultGas = a.useCustomGas = void 0),
+                  (a.useMyAccountsForRecipientSearch = function () {
+                    return e => {
+                      e(de('sendFlow - user selected transfer to my accounts on recipient screen')),
+                        e(le(Y.MY_ACCOUNTS));
+                    };
+                  });
+                var n,
+                  s = e('@reduxjs/toolkit'),
+                  r = (n = e('bignumber.js')) && n.__esModule ? n : { default: n },
+                  o = e('ethereumjs-util'),
+                  i = e('lodash'),
+                  c = e('uuid'),
+                  u = e('@metamask/rpc-errors'),
+                  l = e('@metamask/transaction-controller'),
+                  d = e('@metamask/controller-utils'),
+                  p = e('../../../shared/modules/error'),
+                  m = e('../../../shared/modules/conversion.utils'),
+                  g = e('../../../shared/constants/gas'),
+                  T = e('../../pages/confirmations/send/send.constants'),
+                  f = e('../../pages/confirmations/send/send.utils'),
+                  S = e('../../../shared/modules/selectors/networks'),
+                  h = e('../../selectors'),
+                  E = e('../../store/actions'),
+                  A = e('../gas/gas.duck'),
+                  v = e('../../store/actionConstants'),
+                  _ = e('../../helpers/utils/token-util'),
+                  I = e('../../helpers/utils/util'),
+                  y = e('../metamask/metamask'),
+                  w = e('../domains'),
+                  N = e('../../../shared/modules/hexstring-utils'),
+                  R = e('../../helpers/utils/transactions.util'),
+                  k = e('../../../shared/constants/transaction'),
+                  C = e('../../helpers/constants/error-keys'),
+                  O = e('../../../shared/constants/time'),
+                  P = e('../../../shared/modules/string-utils'),
+                  M = e('../../../shared/modules/transaction.utils'),
+                  b = e('../../../shared/lib/metamask-controller-utils'),
+                  F = e('../../../shared/lib/transactions-controller-utils'),
+                  D = e('../../../shared/modules/Numeric'),
+                  x = e('../../../shared/constants/common'),
+                  L = e('../../../shared/constants/swaps'),
+                  U = e('../confirm-transaction/confirm-transaction.duck'),
+                  G = e('../../helpers/constants/routes'),
+                  H = e('../../pages/swaps/swaps.util'),
+                  B = e('./swap-and-send-utils'),
+                  W = e('./helpers');
+                const $ = 'This has been replaced with a more recent request',
+                  j = O.SECOND,
+                  V = (a.SEND_STAGES = {
+                    ADD_RECIPIENT: 'ADD_RECIPIENT',
+                    DRAFT: 'DRAFT',
+                    EDIT: 'EDIT',
+                    INACTIVE: 'INACTIVE',
+                  }),
+                  K = (a.SEND_STATUSES = { INVALID: 'INVALID', VALID: 'VALID' }),
+                  q = (a.GAS_INPUT_MODES = { BASIC: 'BASIC', CUSTOM: 'CUSTOM', INLINE: 'INLINE' }),
+                  Q = (a.AMOUNT_MODES = { INPUT: 'INPUT', MAX: 'MAX' }),
+                  Y = (a.RECIPIENT_SEARCH_MODES = {
+                    CONTACT_LIST: 'CONTACT_LIST',
+                    MY_ACCOUNTS: 'MY_ACCOUNTS',
+                  }),
+                  z = (a.draftTransactionInitialState = {
+                    amount: { error: null, value: '0x0' },
+                    sendAsset: {
+                      balance: '0x0',
+                      details: null,
+                      error: null,
+                      type: k.AssetType.native,
+                    },
+                    receiveAsset: {
+                      balance: '0x0',
+                      details: null,
+                      error: null,
+                      type: k.AssetType.native,
+                    },
+                    fromAccount: null,
+                    gas: {
+                      error: null,
+                      gasLimit: '0x0',
+                      gasPrice: '0x0',
+                      gasTotal: '0x0',
+                      maxFeePerGas: '0x0',
+                      maxPriorityFeePerGas: '0x0',
+                      wasManuallyEdited: !1,
+                    },
+                    history: [],
+                    id: null,
+                    recipient: {
+                      address: '',
+                      error: null,
+                      nickname: '',
+                      warning: null,
+                      type: '',
+                      recipientWarningAcknowledged: !1,
+                    },
+                    status: K.VALID,
+                    transactionType: l.TransactionEnvelopeType.legacy,
+                    userInputHexData: null,
+                    isSwapQuoteLoading: !1,
+                    swapQuotesError: null,
+                    swapQuotesLatestRequestTimestamp: null,
+                    timeToFetchQuotes: null,
+                    quotes: null,
+                  }),
+                  X = (a.initialState = {
+                    amountMode: Q.INPUT,
+                    currentTransactionUUID: null,
+                    disabledSwapAndSendNetworks: [],
+                    draftTransactions: {},
+                    eip1559support: !1,
+                    gasEstimateIsLoading: !0,
+                    gasEstimatePollToken: null,
+                    gasIsSetInModal: !1,
+                    gasPriceEstimate: '0x0',
+                    gasLimitMinimum: g.GAS_LIMITS.SIMPLE,
+                    gasTotalForLayer1: null,
+                    prevSwapAndSendInput: null,
+                    recipientMode: Y.CONTACT_LIST,
+                    recipientInput: '',
+                    selectedAccount: { address: null, balance: '0x0' },
+                    stage: V.INACTIVE,
+                    swapsBlockedTokens: [],
+                  }),
+                  Z = 'send',
+                  J = (a.computeEstimatedGasLimit = (0, s.createAsyncThunk)(
+                    'send/computeEstimatedGasLimit',
+                    async (e, t) => {
+                      var a, n;
+                      const s = t.getState(),
+                        { send: r, metamask: o } = s,
+                        i = r.draftTransactions[r.currentTransactionUUID],
+                        c = (0, h.getUnapprovedTransactions)(s)[i.id],
+                        u = (0, h.getIsNonStandardEthChain)(s),
+                        l = (0, S.getCurrentChainId)(s),
+                        d = (0, h.getSelectedInternalAccountWithBalance)(s),
+                        p = await t.dispatch(
+                          (0, E.getLayer1GasFee)({
+                            transactionParams: {
+                              gasPrice: i.gas.gasPrice,
+                              gas: i.gas.gasLimit,
+                              to:
+                                null === (a = i.recipient.address) || void 0 === a
+                                  ? void 0
+                                  : a.toLowerCase(),
+                              value:
+                                r.amountMode === Q.MAX ? r.selectedAccount.balance : i.amount.value,
+                              from: r.selectedAccount.address,
+                              data: i.userInputHexData,
+                              type: '0x0',
+                            },
+                            chainId: l,
+                          })
+                        );
+                      if (
+                        r.stage !== V.EDIT ||
+                        null === (n = c.dappSuggestedGasFees) ||
+                        void 0 === n ||
+                        !n.gas ||
+                        !c.userEditedGasLimit
+                      ) {
+                        var m;
+                        const e = await (0, W.estimateGasLimitForSend)({
+                          gasPrice: i.gas.gasPrice,
+                          blockGasLimit: o.currentBlockGasLimit,
+                          selectedAddress: d.address,
+                          sendToken: i.sendAsset.details,
+                          to:
+                            null === (m = i.recipient.address) || void 0 === m
+                              ? void 0
+                              : m.toLowerCase(),
+                          value: i.amount.value,
+                          data: i.userInputHexData,
+                          isNonStandardEthChain: u,
+                          chainId: l,
+                          gasLimit: i.gas.gasLimit,
+                        });
+                        return (
+                          await t.dispatch((0, A.setCustomGasLimit)(e)),
+                          { gasLimit: e, gasTotalForLayer1: p }
+                        );
+                      }
+                      return null;
+                    }
+                  )),
+                  ee = (a.initializeSendState = (0, s.createAsyncThunk)(
+                    'send/initializeSendState',
+                    async ({ chainHasChanged: e = !1 } = {}, t) => {
+                      const a = t.getState(),
+                        n = (0, h.getIsNonStandardEthChain)(a),
+                        s = (0, S.getSelectedNetworkClientId)(a),
+                        r = (0, S.getCurrentChainId)(a);
+                      let i = (0, h.checkNetworkAndAccountSupports1559)(a);
+                      i === undefined && (i = await (0, E.getCurrentNetworkEIP1559Compatibility)());
+                      const c = (0, h.getSelectedAccount)(a),
+                        { send: u, metamask: l } = a,
+                        d = u.draftTransactions[u.currentTransactionUUID];
+                      if (!d)
+                        return t.rejectWithValue(
+                          'draftTransaction not found, possibly not on send flow'
+                        );
+                      let p = u.stage === V.EDIT ? d.gas.gasPrice : '0x1',
+                        m = null;
+                      (m = await (0, E.gasFeeStartPollingByNetworkClientId)(s)),
+                        (0, E.addPollingTokenToAppState)(m);
+                      const {
+                        metamask: { gasFeeEstimates: T, gasEstimateType: f },
+                      } = t.getState();
+                      u.stage !== V.EDIT &&
+                        (p =
+                          f === g.GasEstimateTypes.legacy
+                            ? (0, h.getGasPriceInHexWei)(T.medium)
+                            : f === g.GasEstimateTypes.ethGasPrice
+                              ? (0, W.getRoundedGasPrice)(T.gasPrice)
+                              : f === g.GasEstimateTypes.feeMarket
+                                ? (0, h.getGasPriceInHexWei)(T.medium.suggestedMaxFeePerGas)
+                                : T.gasPrice
+                                  ? (0, W.getRoundedGasPrice)(T.gasPrice)
+                                  : '0x0');
+                      let { gasLimit: v } = d.gas;
+                      if (
+                        f !== g.GasEstimateTypes.none &&
+                        u.stage !== V.EDIT &&
+                        d.recipient.address
+                      ) {
+                        v =
+                          d.sendAsset.type === k.AssetType.token ||
+                          d.sendAsset.type === k.AssetType.NFT
+                            ? g.GAS_LIMITS.BASE_TOKEN_ESTIMATE
+                            : g.GAS_LIMITS.SIMPLE;
+                        v =
+                          (await (0, W.estimateGasLimitForSend)({
+                            gasPrice: p,
+                            blockGasLimit: l.currentBlockGasLimit,
+                            selectedAddress: Ne(a),
+                            sendToken: d.sendAsset.details,
+                            to: d.recipient.address.toLowerCase(),
+                            value: d.amount.value,
+                            data: d.userInputHexData,
+                            isNonStandardEthChain: n,
+                            chainId: r,
+                          })) || v;
+                      }
+                      await t.dispatch((0, A.setCustomGasLimit)(v));
+                      if (t.getState().send.currentTransactionUUID !== u.currentTransactionUUID)
+                        return t.rejectWithValue(
+                          'draftTransaction changed during initialization.\n        A new initializeSendState action must be dispatched.'
+                        );
+                      const _ =
+                          (0, h.getIsSwapsChain)(a) && (0, h.getUseExternalServices)(a)
+                            ? (await (0, H.fetchBlockedTokens)(r)).map(e => e.toLowerCase())
+                            : [],
+                        I = await (0, B.getDisabledSwapAndSendNetworksFromAPI)();
+                      return {
+                        account: c,
+                        chainId: (0, S.getCurrentChainId)(a),
+                        tokens: (0, y.getTokens)(a),
+                        chainHasChanged: e,
+                        disabledSwapAndSendNetworks: I,
+                        gasFeeEstimates: T,
+                        gasEstimateType: f,
+                        gasLimit: v,
+                        gasTotal: (0, o.addHexPrefix)((0, F.calcGasTotal)(v, p)),
+                        gasEstimatePollToken: m,
+                        eip1559support: i,
+                        useTokenDetection: (0, h.getUseTokenDetection)(a),
+                        tokenAddressList: Object.keys((0, h.getTokenList)(a)),
+                        swapsBlockedTokens: _,
+                      };
+                    }
+                  ));
+                let te;
+                const ae = (0, s.createAsyncThunk)(
+                    'send/fetchSwapAndSendQuotes',
+                    async ({ requestTimestamp: e }, t) => {
+                      var a, n;
+                      const s = t.getState(),
+                        r = s[Z],
+                        i = (0, S.getCurrentChainId)(s),
+                        c = r.draftTransactions[r.currentTransactionUUID],
+                        u = Ne(s),
+                        l = (0, m.hexToDecimal)(c.amount.value);
+                      if (!(Number(l) && c.sendAsset && c.receiveAsset && c.recipient.address))
+                        return { quotes: null, requestTimestamp: e };
+                      let d = await new Promise((t, a) =>
+                        setTimeout(async () => {
+                          var n, s;
+                          e !== te && a(new Error($)),
+                            (0, B.getSwapAndSendQuotes)({
+                              chainId: i,
+                              sourceAmount: l,
+                              sourceToken:
+                                (null === (n = c.sendAsset) ||
+                                void 0 === n ||
+                                null === (n = n.details) ||
+                                void 0 === n
+                                  ? void 0
+                                  : n.address) || L.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[i].address,
+                              destinationToken:
+                                (null === (s = c.receiveAsset) ||
+                                void 0 === s ||
+                                null === (s = s.details) ||
+                                void 0 === s
+                                  ? void 0
+                                  : s.address) || L.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[i].address,
+                              sender: u,
+                              recipient: c.recipient.address,
+                            })
+                              .then(e => t(e))
+                              .catch(() => a(T.SWAPS_QUOTES_ERROR));
+                        }, j)
+                      );
+                      for (const e of d)
+                        e.approvalNeeded &&
+                          (e.approvalNeeded.gas = (0, o.addHexPrefix)(
+                            await (0, E.estimateGas)(e.approvalNeeded)
+                          ));
+                      if (
+                        ((d = await (0, W.addAdjustedReturnToQuotes)(
+                          d,
+                          s,
+                          null === (a = c.receiveAsset) || void 0 === a ? void 0 : a.details
+                        )),
+                        null === (n = d) || void 0 === n || !n.length)
+                      )
+                        throw new Error(T.SWAPS_NO_QUOTES);
+                      return { quotes: d, requestTimestamp: e };
+                    }
+                  ),
+                  ne = (0, s.createSlice)({
+                    name: Z,
+                    initialState: X,
+                    reducers: {
+                      addNewDraft: (e, t) => {
+                        (e.currentTransactionUUID = (0, c.v4)()),
+                          (e.draftTransactions[e.currentTransactionUUID] = t.payload),
+                          t.payload.id ? (e.stage = V.EDIT) : (e.stage = V.ADD_RECIPIENT);
+                      },
+                      addHistoryEntry: (e, t) => {
+                        const a = e.draftTransactions[e.currentTransactionUUID];
+                        a && a.history.push({ entry: t.payload, timestamp: Date.now() });
+                      },
+                      calculateGasTotal: e => {
+                        const t = e.draftTransactions[e.currentTransactionUUID];
+                        t &&
+                          (t.transactionType === l.TransactionEnvelopeType.feeMarket
+                            ? (t.gas.gasTotal = (0, o.addHexPrefix)(
+                                (0, F.calcGasTotal)(t.gas.gasLimit, t.gas.maxFeePerGas)
+                              ))
+                            : (t.gas.gasTotal = (0, o.addHexPrefix)(
+                                (0, F.calcGasTotal)(t.gas.gasLimit, t.gas.gasPrice)
+                              )),
+                          e.amountMode === Q.MAX &&
+                            t.sendAsset.type === k.AssetType.native &&
+                            ne.caseReducers.updateAmountToMax(e),
+                          ne.caseReducers.validateAmountField(e),
+                          ne.caseReducers.validateGasField(e),
+                          ne.caseReducers.validateSendState(e));
+                      },
+                      clearPreviousDrafts: e => {
+                        (e.currentTransactionUUID = null), (e.draftTransactions = {});
+                      },
+                      resetSendState: e => ({ ...X, prevSwapAndSendInput: e.prevSwapAndSendInput }),
+                      setPrevSwapAndSend: (e, t) => {
+                        e.prevSwapAndSendInput = t.payload;
+                      },
+                      updateAmountMode: (e, t) => {
+                        Object.values(Q).includes(t.payload) && (e.amountMode = t.payload);
+                      },
+                      updateAmountToMax: e => {
+                        const t = e.draftTransactions[e.currentTransactionUUID];
+                        let a = '0x0';
+                        if ((null == t ? void 0 : t.sendAsset.type) === k.AssetType.token) {
+                          var n;
+                          const e =
+                              (null === (n = t.sendAsset.details) || void 0 === n
+                                ? void 0
+                                : n.decimals) ?? 0,
+                            s = Math.pow(10, Number(e));
+                          a = new D.Numeric(t.sendAsset.balance, 16).times(s, 10).toString();
+                        } else {
+                          const n = new D.Numeric(t.gas.gasTotal || '0x0', 16).add(
+                            new D.Numeric(e.gasTotalForLayer1 ?? '0x0', 16)
+                          );
+                          a = new D.Numeric(t.sendAsset.balance, 16).lessThanOrEqualTo(n)
+                            ? '0'
+                            : new D.Numeric(t.sendAsset.balance, 16).minus(n).toString();
+                        }
+                        ne.caseReducers.updateSendAmount(e, { payload: a });
+                      },
+                      updateAsset: (e, t) => {
+                        const { asset: a, initialAssetSet: n, isReceived: s } = t.payload,
+                          r = e.draftTransactions[e.currentTransactionUUID],
+                          o = r[s ? 'receiveAsset' : 'sendAsset'];
+                        (o.type = a.type),
+                          (o.balance = a.balance),
+                          (o.error = a.error),
+                          o.type === k.AssetType.token || o.type === k.AssetType.NFT
+                            ? (o.details = a.details)
+                            : ((o.details = null),
+                              r.recipient.error === T.CONTRACT_ADDRESS_ERROR &&
+                                (r.recipient.error = null)),
+                          s || (r.receiveAsset = o),
+                          e.amountMode === Q.MAX
+                            ? ((e.amountMode = Q.INPUT),
+                              ne.caseReducers.updateSendAmount(e, { payload: '0x0' }))
+                            : !1 === n &&
+                              (s
+                                ? (r.quotes = z.quotes)
+                                : (ne.caseReducers.updateSendAmount(e, { payload: '0x0' }),
+                                  ne.caseReducers.updateUserInputHexData(e, { payload: '' }))),
+                          ne.caseReducers.validateSendState(e);
+                      },
+                      updateGasFeeEstimates: (e, t) => {
+                        const { gasFeeEstimates: a, gasEstimateType: n } = t.payload;
+                        let s = '0x0';
+                        switch (n) {
+                          case g.GasEstimateTypes.feeMarket:
+                            ne.caseReducers.updateGasFees(e, {
+                              payload: {
+                                transactionType: l.TransactionEnvelopeType.feeMarket,
+                                maxFeePerGas: (0, h.getGasPriceInHexWei)(
+                                  a.medium.suggestedMaxFeePerGas
+                                ),
+                                maxPriorityFeePerGas: (0, h.getGasPriceInHexWei)(
+                                  a.medium.suggestedMaxPriorityFeePerGas
+                                ),
+                              },
+                            });
+                            break;
+                          case g.GasEstimateTypes.legacy:
+                            (s = (0, W.getRoundedGasPrice)(a.medium)),
+                              ne.caseReducers.updateGasFees(e, {
+                                payload: {
+                                  gasPrice: s,
+                                  type: l.TransactionEnvelopeType.legacy,
+                                  isAutomaticUpdate: !0,
+                                },
+                              });
+                            break;
+                          case g.GasEstimateTypes.ethGasPrice:
+                            (s = (0, W.getRoundedGasPrice)(a.gasPrice)),
+                              ne.caseReducers.updateGasFees(e, {
+                                payload: {
+                                  gasPrice: (0, W.getRoundedGasPrice)(a.gasPrice),
+                                  type: l.TransactionEnvelopeType.legacy,
+                                  isAutomaticUpdate: !0,
+                                },
+                              });
+                          case g.GasEstimateTypes.none:
+                        }
+                        e.gasPriceEstimate = (0, o.addHexPrefix)(s);
+                      },
+                      updateGasFees: (e, t) => {
+                        const a = e.draftTransactions[e.currentTransactionUUID];
+                        a &&
+                          (t.payload.transactionType === l.TransactionEnvelopeType.feeMarket
+                            ? ((a.gas.maxFeePerGas = (0, o.addHexPrefix)(t.payload.maxFeePerGas)),
+                              (a.gas.maxPriorityFeePerGas = (0, o.addHexPrefix)(
+                                t.payload.maxPriorityFeePerGas
+                              )),
+                              (a.transactionType = l.TransactionEnvelopeType.feeMarket))
+                            : (t.payload.manuallyEdited && (a.gas.wasManuallyEdited = !0),
+                              (a.gas.wasManuallyEdited && !t.payload.manuallyEdited) ||
+                                (a.gas.gasPrice = (0, o.addHexPrefix)(t.payload.gasPrice)),
+                              (a.transactionType = l.TransactionEnvelopeType.legacy)),
+                          ne.caseReducers.calculateGasTotal(e));
+                      },
+                      updateGasLimit: (e, t) => {
+                        const a = e.draftTransactions[e.currentTransactionUUID];
+                        a &&
+                          ((a.gas.gasLimit = (0, o.addHexPrefix)(t.payload)),
+                          ne.caseReducers.calculateGasTotal(e));
+                      },
+                      updateLayer1Fees: (e, t) => {
+                        const a = e.draftTransactions[e.currentTransactionUUID];
+                        (e.gasTotalForLayer1 = t.payload),
+                          e.amountMode === Q.MAX &&
+                            (null == a ? void 0 : a.sendAsset.type) === k.AssetType.native &&
+                            ne.caseReducers.updateAmountToMax(e);
+                      },
+                      updateRecipient: (e, t) => {
+                        const a = e.draftTransactions[e.currentTransactionUUID];
+                        (a.recipient.error = null),
+                          (e.recipientInput = ''),
+                          (a.recipient.address = t.payload.address ?? ''),
+                          (a.recipient.nickname = t.payload.nickname ?? ''),
+                          '' === a.recipient.address
+                            ? (e.stage = V.ADD_RECIPIENT)
+                            : ((e.stage = null === a.id ? V.DRAFT : V.EDIT),
+                              (e.recipientMode = Y.CONTACT_LIST)),
+                          ne.caseReducers.validateSendState(e);
+                      },
+                      updateRecipientSearchMode: (e, t) => {
+                        (e.recipientInput = ''), (e.recipientMode = t.payload);
+                      },
+                      updateRecipientWarning: (e, t) => {
+                        e.draftTransactions[e.currentTransactionUUID].recipient.warning = t.payload;
+                      },
+                      updateRecipientType: (e, t) => {
+                        e.draftTransactions[e.currentTransactionUUID].recipient.type = t.payload;
+                      },
+                      updateDraftTransactionStatus: (e, t) => {
+                        e.draftTransactions[e.currentTransactionUUID].status = t.payload;
+                      },
+                      acknowledgeRecipientWarning: e => {
+                        (e.draftTransactions[
+                          e.currentTransactionUUID
+                        ].recipient.recipientWarningAcknowledged = !0),
+                          ne.caseReducers.validateSendState(e);
+                      },
+                      updateUserInputHexDataError: (e, t) => {
+                        const a = e.draftTransactions[e.currentTransactionUUID];
+                        a.hexData = { ...a.hexData, error: null == t ? void 0 : t.payload };
+                      },
+                      updateRecipientUserInput: (e, t) => {
+                        e.recipientInput = t.payload;
+                      },
+                      updateSendAmount: (e, t) => {
+                        const a = e.draftTransactions[e.currentTransactionUUID];
+                        (a.amount.value = (0, o.addHexPrefix)(t.payload)),
+                          ne.caseReducers.validateAmountField(e),
+                          a.sendAsset.type === k.AssetType.native &&
+                            ne.caseReducers.validateGasField(e);
+                      },
+                      updateUserInputHexData: (e, t) => {
+                        e.draftTransactions[e.currentTransactionUUID].userInputHexData = t.payload;
+                      },
+                      useCustomGas: e => {
+                        e.gasIsSetInModal = !0;
+                      },
+                      useDefaultGas: e => {
+                        e.gasIsSetInModal = !1;
+                      },
+                      validateAmountField: e => {
+                        const t = e.draftTransactions[e.currentTransactionUUID];
+                        if (!t) return;
+                        const a = new D.Numeric(t.amount.value, 16);
+                        switch (!0) {
+                          case t.sendAsset.type === k.AssetType.NFT &&
+                            t.sendAsset.details.standard === k.TokenStandard.ERC1155 &&
+                            '0x0' === t.amount.value:
+                            (t.amount.error = T.NEGATIVE_OR_ZERO_AMOUNT_TOKENS_ERROR),
+                              t.status !== K.INVALID && ne.caseReducers.validateSendState(e);
+                            break;
+                          case t.sendAsset.type === k.AssetType.NFT &&
+                            t.sendAsset.details.standard === k.TokenStandard.ERC1155 &&
+                            !(0, f.isERC1155BalanceSufficient)({
+                              tokenBalance: t.sendAsset.balance ?? '0x0',
+                              amount: t.amount.value,
+                            }):
+                            (t.amount.error = T.INSUFFICIENT_FUNDS_ERROR),
+                              t.status !== K.INVALID && ne.caseReducers.validateSendState(e);
+                            break;
+                          case a.isFloat() &&
+                            t.sendAsset.type === k.AssetType.NFT &&
+                            t.sendAsset.details.standard === k.TokenStandard.ERC1155:
+                            (t.amount.error = T.FLOAT_TOKENS_ERROR),
+                              t.status !== K.INVALID && ne.caseReducers.validateSendState(e);
+                            break;
+                          case t.sendAsset.type === k.AssetType.token &&
+                            !(0, f.isTokenBalanceSufficient)({
+                              tokenBalance: t.sendAsset.balance ?? '0x0',
+                              amount: t.amount.value,
+                              decimals: t.sendAsset.details.decimals,
+                            }):
+                            (t.amount.error = T.INSUFFICIENT_TOKENS_ERROR),
+                              t.status !== K.INVALID && ne.caseReducers.validateSendState(e);
+                            break;
+                          case !(0, f.isBalanceSufficient)({
+                            amount:
+                              t.sendAsset.type === k.AssetType.native ? t.amount.value : undefined,
+                            balance:
+                              t.sendAsset.type === k.AssetType.native
+                                ? t.sendAsset.balance
+                                : e.selectedAccount.balance,
+                            gasTotal: t.gas.gasTotal ?? '0x0',
+                          }): {
+                            const a =
+                              t.sendAsset.type === k.AssetType.native &&
+                              !(0, f.isBalanceSufficient)({
+                                amount: t.amount.value,
+                                balance: t.sendAsset.balance,
+                                gasTotal: '0x0',
+                              });
+                            (t.amount.error = a
+                              ? T.INSUFFICIENT_FUNDS_ERROR
+                              : T.INSUFFICIENT_FUNDS_FOR_GAS_ERROR),
+                              t.status !== K.INVALID && ne.caseReducers.validateSendState(e);
+                            break;
+                          }
+                          default:
+                            (t.amount.error = null),
+                              t.status === K.INVALID && ne.caseReducers.validateSendState(e);
+                        }
+                      },
+                      validateGasField: e => {
+                        var t;
+                        const a = e.draftTransactions[e.currentTransactionUUID];
+                        if (!a) return;
+                        const n = !(0, f.isBalanceSufficient)({
+                          amount: a.sendAsset.type === k.AssetType.native ? a.amount.value : '0x0',
+                          balance:
+                            (null === (t = a.fromAccount) || void 0 === t ? void 0 : t.balance) ??
+                            e.selectedAccount.balance,
+                          gasTotal: a.gas.gasTotal ?? '0x0',
+                        });
+                        a.gas.error = n ? T.INSUFFICIENT_FUNDS_ERROR : null;
+                      },
+                      validateRecipientUserInput: (e, t) => {
+                        const a = e.draftTransactions[e.currentTransactionUUID];
+                        if (a)
+                          if (
+                            e.recipientMode === Y.MY_ACCOUNTS ||
+                            '' === e.recipientInput ||
+                            null === e.recipientInput
+                          )
+                            (a.recipient.error = null), (a.recipient.warning = null);
+                          else {
+                            var n;
+                            const {
+                              tokens: s,
+                              tokenAddressList: r,
+                              isProbablyAnAssetContract: o,
+                            } = t.payload;
+                            (0, N.isBurnAddress)(e.recipientInput) ||
+                            ((0, N.isPossibleAddress)(e.recipientInput) &&
+                              !(0, N.isValidHexAddress)(e.recipientInput, {
+                                mixedCaseUseChecksum: !0,
+                              }))
+                              ? (a.recipient.error = T.INVALID_RECIPIENT_ADDRESS_ERROR)
+                              : (0, I.isOriginContractAddress)(
+                                    e.recipientInput,
+                                    null === (n = a.sendAsset) ||
+                                      void 0 === n ||
+                                      null === (n = n.details) ||
+                                      void 0 === n
+                                      ? void 0
+                                      : n.address
+                                  )
+                                ? (a.recipient.error = T.CONTRACT_ADDRESS_ERROR)
+                                : (a.recipient.error = null),
+                              ((0, N.isValidHexAddress)(e.recipientInput) &&
+                                (r.find(t => (0, P.isEqualCaseInsensitive)(t, e.recipientInput)) ||
+                                  (0, I.checkExistingAddresses)(e.recipientInput, s))) ||
+                              o
+                                ? (a.recipient.warning = T.KNOWN_RECIPIENT_ADDRESS_WARNING)
+                                : (a.recipient.warning = null);
+                          }
+                        ne.caseReducers.validateSendState(e);
+                      },
+                      validateSendState: e => {
+                        var t, a, n, s, i;
+                        const c = e.draftTransactions[e.currentTransactionUUID];
+                        if (
+                          (ne.caseReducers.addHistoryEntry(e, {
+                            payload: 'Begin validating send state',
+                          }),
+                          c)
+                        ) {
+                          const u = (0, W.getIsDraftSwapAndSend)(c),
+                            l = () =>
+                              [
+                                T.INSUFFICIENT_TOKENS_ERROR,
+                                T.INSUFFICIENT_FUNDS_ERROR,
+                                T.INSUFFICIENT_FUNDS_FOR_GAS_ERROR,
+                              ].includes(c.amount.error) && !c.sendAsset.balance,
+                            { quotes: d, gas: p } = c,
+                            g = d ? (0, W.calculateBestQuote)(d) : undefined,
+                            S =
+                              (0, m.hexToDecimal)((null == p ? void 0 : p.gasTotal) || '0x0') > 0 &&
+                              (0, m.hexToDecimal)((null == p ? void 0 : p.gasLimit) || '0x0') > 0
+                                ? new D.Numeric(p.gasTotal, 16).divide(p.gasLimit, 16).toString()
+                                : undefined;
+                          switch (!0) {
+                            case Boolean(c.amount.error && !l()):
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: `Amount is in error ${c.amount.error}`,
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case Boolean(c.gas.error):
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: `Gas is in error ${c.gas.error}`,
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case Boolean(c.sendAsset.error):
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: `Send asset is in error ${c.sendAsset.error}`,
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case Boolean(c.receiveAsset.error):
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: `Receive asset is in error ${c.receiveAsset.error}`,
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case c.sendAsset.type === k.AssetType.token &&
+                              null === c.sendAsset.details:
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: 'Send asset is TOKEN and token details is null',
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case c.receiveAsset.type === k.AssetType.token &&
+                              null === c.receiveAsset.details:
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: 'Receive asset is TOKEN and token details is null',
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case e.stage === V.ADD_RECIPIENT:
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: 'Form is invalid because stage is ADD_RECIPIENT',
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case e.stage === V.INACTIVE:
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: 'Form is invalid because stage is INACTIVE',
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case e.gasEstimateIsLoading:
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: 'Form is invalid because gasEstimateIsLoading',
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case new r.default(c.gas.gasLimit, 16).lessThan(
+                              new r.default(e.gasLimitMinimum)
+                            ):
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: `Form is invalid because ${c.gas.gasLimit} is lessThan ${e.gasLimitMinimum}`,
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case 'loading' === c.recipient.warning:
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: 'Form is invalid because recipient warning is loading',
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case c.recipient.warning === T.KNOWN_RECIPIENT_ADDRESS_WARNING &&
+                              !1 === c.recipient.recipientWarningAcknowledged:
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload:
+                                  'Form is invalid because recipient warning not acknolwedged',
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case Boolean(
+                              g && !(0, P.isEqualCaseInsensitive)(g.recipient, c.recipient.address)
+                            ):
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: `Recipient is not match ${c.recipient.address} ${g.recipient}`,
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case Boolean(
+                              g &&
+                                !(0, P.isEqualCaseInsensitive)(
+                                  g.trade.from,
+                                  e.selectedAccount.address
+                                )
+                            ):
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: `Sender is not match ${e.selectedAccount.address} ${g.trade.from}`,
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case Boolean(
+                              g &&
+                                !(0, P.isEqualCaseInsensitive)(
+                                  (null === (t = c.sendAsset) ||
+                                  void 0 === t ||
+                                  null === (t = t.details) ||
+                                  void 0 === t
+                                    ? void 0
+                                    : t.address) || (0, o.zeroAddress)(),
+                                  g.sourceToken
+                                )
+                            ):
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: `Source token is not match ${null === (a = c.sendAsset) || void 0 === a || null === (a = a.details) || void 0 === a ? void 0 : a.address} ${g.sourceToken}`,
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case Boolean(
+                              g &&
+                                !(0, P.isEqualCaseInsensitive)(
+                                  g.destinationToken,
+                                  (null === (n = c.receiveAsset) ||
+                                  void 0 === n ||
+                                  null === (n = n.details) ||
+                                  void 0 === n
+                                    ? void 0
+                                    : n.address) || (0, o.zeroAddress)()
+                                )
+                            ):
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: `Destination token is not match ${null === (s = c.receiveAsset) || void 0 === s || null === (s = s.details) || void 0 === s ? void 0 : s.address} ${g.destinationToken}`,
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            case g &&
+                              !(0, f.isBalanceSufficient)({
+                                amount:
+                                  c.sendAsset.type === k.AssetType.native
+                                    ? c.amount.value
+                                    : undefined,
+                                balance: e.selectedAccount.balance,
+                                gasTotal: (0, F.calcGasTotal)(
+                                  new D.Numeric(
+                                    (null == g || null === (i = g.gasParams) || void 0 === i
+                                      ? void 0
+                                      : i.maxGas) || 0,
+                                    10
+                                  ).toPrefixedHexString(),
+                                  S ?? '0x0'
+                                ),
+                              }):
+                              c.amount.error ||
+                                (c.amount.error = T.INSUFFICIENT_FUNDS_FOR_GAS_ERROR),
+                                (c.status = K.INVALID);
+                              break;
+                            case u && !g:
+                              ne.caseReducers.addHistoryEntry(e, {
+                                payload: 'No swap and send quote available',
+                              }),
+                                (c.status = K.INVALID);
+                              break;
+                            default:
+                              ne.caseReducers.addHistoryEntry(e, { payload: 'Form is valid' }),
+                                (c.status = K.VALID);
+                          }
+                        }
+                      },
+                    },
+                    extraReducers: e => {
+                      e.addCase(v.ACCOUNT_CHANGED, (e, t) => {
+                        if (e.stage === V.EDIT && t.payload.account) {
+                          const a = e.draftTransactions[e.currentTransactionUUID];
+                          a &&
+                            a.fromAccount &&
+                            a.fromAccount.address === t.payload.account.address &&
+                            ((a.fromAccount.balance = t.payload.account.balance),
+                            a.sendAsset.type === k.AssetType.native &&
+                              (a.sendAsset.balance = t.payload.account.balance),
+                            ne.caseReducers.validateAmountField(e),
+                            ne.caseReducers.validateGasField(e),
+                            ne.caseReducers.validateSendState(e));
+                        }
+                      })
+                        .addCase(v.ADDRESS_BOOK_UPDATED, (e, t) => {
+                          var a;
+                          const { addressBook: n } = t.payload,
+                            s = e.draftTransactions[e.currentTransactionUUID];
+                          s &&
+                            null !== (a = n[s.recipient.address]) &&
+                            void 0 !== a &&
+                            a.name &&
+                            (s.recipient.nickname = n[s.recipient.address].name);
+                        })
+                        .addCase(v.CLEAR_SWAP_AND_SEND_STATE, e => {
+                          const t = e.draftTransactions[e.currentTransactionUUID];
+                          (t.quotes = z.quotes),
+                            (t.swapQuotesError = z.swapQuotesError),
+                            (t.isSwapQuoteLoading = z.isSwapQuoteLoading),
+                            (t.swapQuotesLatestRequestTimestamp =
+                              z.swapQuotesLatestRequestTimestamp),
+                            (t.timeToFetchQuotes = z.timeToFetchQuotes);
+                        })
+                        .addCase(J.pending, e => {
+                          e.gasEstimateIsLoading = !0;
+                        })
+                        .addCase(J.fulfilled, (e, t) => {
+                          var a, n;
+                          (e.gasEstimateIsLoading = !1),
+                            null !== (a = t.payload) &&
+                              void 0 !== a &&
+                              a.gasLimit &&
+                              ne.caseReducers.updateGasLimit(e, { payload: t.payload.gasLimit }),
+                            null !== (n = t.payload) &&
+                              void 0 !== n &&
+                              n.gasTotalForLayer1 &&
+                              ne.caseReducers.updateLayer1Fees(e, {
+                                payload: t.payload.gasTotalForLayer1,
+                              });
+                        })
+                        .addCase(J.rejected, e => {
+                          e.gasEstimateIsLoading = !1;
+                        })
+                        .addCase(v.GAS_FEE_ESTIMATES_UPDATED, (e, t) => {
+                          ne.caseReducers.updateGasFeeEstimates(e, { payload: t.payload });
+                        })
+                        .addCase(ee.pending, e => {
+                          e.gasEstimateIsLoading = !0;
+                        })
+                        .addCase(ee.fulfilled, (e, t) => {
+                          (e.eip1559support = t.payload.eip1559support),
+                            (e.selectedAccount.address = t.payload.account.address),
+                            (e.selectedAccount.balance = t.payload.account.balance),
+                            (e.prevSwapAndSendInput = X.prevSwapAndSendInput);
+                          const a = e.draftTransactions[e.currentTransactionUUID];
+                          var n;
+                          a &&
+                            ((a.gas.gasLimit = t.payload.gasLimit),
+                            (a.gas.gasTotal = t.payload.gasTotal),
+                            t.payload.chainHasChanged &&
+                              ((a.sendAsset.type = k.AssetType.native),
+                              (a.sendAsset.balance =
+                                (null === (n = a.fromAccount) || void 0 === n
+                                  ? void 0
+                                  : n.balance) ?? e.selectedAccount.balance),
+                              (a.sendAsset.details = null),
+                              (a.receiveAsset = z.receiveAsset)));
+                          ne.caseReducers.updateGasFeeEstimates(e, {
+                            payload: {
+                              gasFeeEstimates: t.payload.gasFeeEstimates,
+                              gasEstimateType: t.payload.gasEstimateType,
+                            },
+                          }),
+                            (e.gasEstimatePollToken = t.payload.gasEstimatePollToken),
+                            t.payload.gasEstimatePollToken && (e.gasEstimateIsLoading = !1),
+                            e.stage !== V.INACTIVE &&
+                              ne.caseReducers.validateRecipientUserInput(e, {
+                                payload: {
+                                  chainId: t.payload.chainId,
+                                  tokens: t.payload.tokens,
+                                  useTokenDetection: t.payload.useTokenDetection,
+                                  tokenAddressList: t.payload.tokenAddressList,
+                                },
+                              }),
+                            (e.swapsBlockedTokens = t.payload.swapsBlockedTokens),
+                            (e.disabledSwapAndSendNetworks = t.payload.disabledSwapAndSendNetworks),
+                            e.amountMode === Q.MAX && ne.caseReducers.updateAmountToMax(e),
+                            ne.caseReducers.validateAmountField(e),
+                            ne.caseReducers.validateGasField(e),
+                            ne.caseReducers.validateSendState(e);
+                        })
+                        .addCase(ee.rejected, e => {
+                          e.prevSwapAndSendInput = X.prevSwapAndSendInput;
+                        })
+                        .addCase(ae.pending, (e, t) => {
+                          const a = e.draftTransactions[e.currentTransactionUUID];
+                          var n;
+                          a &&
+                            ((null !== (n = t.meta) &&
+                              void 0 !== n &&
+                              null !== (n = n.arg) &&
+                              void 0 !== n &&
+                              n.isRefreshingQuotes) ||
+                              (a.quotes = z.quotes),
+                            (a.swapQuotesError = null),
+                            (a.isSwapQuoteLoading = !0),
+                            (a.swapQuotesLatestRequestTimestamp = Math.max(
+                              t.meta.arg.requestTimestamp,
+                              a.swapQuotesLatestRequestTimestamp
+                            )));
+                          ne.caseReducers.validateSendState(e);
+                        })
+                        .addCase(ae.fulfilled, (e, t) => {
+                          const a = e.draftTransactions[e.currentTransactionUUID];
+                          a &&
+                            t.payload.requestTimestamp === a.swapQuotesLatestRequestTimestamp &&
+                            ((a.timeToFetchQuotes = Date.now() - t.payload.requestTimestamp),
+                            (a.isSwapQuoteLoading = !1),
+                            (a.swapQuotesError = null),
+                            t.payload && (a.quotes = t.payload.quotes)),
+                            ne.caseReducers.validateSendState(e);
+                        })
+                        .addCase(ae.rejected, (e, t) => {
+                          if (t.error.message === $) return;
+                          const a = e.draftTransactions[e.currentTransactionUUID];
+                          a && ((a.isSwapQuoteLoading = !1), (a.swapQuotesError = t.error.message));
+                        })
+                        .addCase(v.SELECTED_ACCOUNT_CHANGED, (e, t) => {
+                          if (e.stage !== V.EDIT && t.payload.account) {
+                            (e.selectedAccount.balance = t.payload.account.balance),
+                              (e.selectedAccount.address = t.payload.account.address);
+                            const a = e.draftTransactions[e.currentTransactionUUID];
+                            a &&
+                              ((null == a ? void 0 : a.sendAsset.type) === k.AssetType.native &&
+                                (a.sendAsset.balance = t.payload.account.balance),
+                              ((null == a ? void 0 : a.sendAsset.type) !== k.AssetType.token &&
+                                (null == a ? void 0 : a.sendAsset.type) !== k.AssetType.NFT) ||
+                                ((a.sendAsset.type = z.sendAsset.type),
+                                (a.sendAsset.error = z.sendAsset.error),
+                                (a.sendAsset.details = z.sendAsset.details),
+                                (a.sendAsset.balance = t.payload.account.balance),
+                                (a.receiveAsset = z.receiveAsset),
+                                (a.amount.value = z.amount.value)),
+                              ne.caseReducers.validateAmountField(e),
+                              ne.caseReducers.validateGasField(e),
+                              ne.caseReducers.validateSendState(e));
+                          }
+                        })
+                        .addCase(v.QR_CODE_DETECTED, (e, t) => {
+                          const a = t.value,
+                            n = e.draftTransactions[e.currentTransactionUUID];
+                          if (a && n && 'address' === a.type) {
+                            const t = a.values.address.toLowerCase();
+                            (0, N.isValidHexAddress)(t, { allowNonPrefixed: !1 })
+                              ? n.recipient.address !== t &&
+                                ne.caseReducers.updateRecipient(e, { payload: { address: t } })
+                              : (n.recipient.error = T.INVALID_RECIPIENT_ADDRESS_ERROR);
+                          }
+                        });
+                    },
+                  }),
+                  { actions: se, reducer: re } = ne;
+                a.default = re;
+                const {
+                  useDefaultGas: oe,
+                  useCustomGas: ie,
+                  updateGasLimit: ce,
+                  validateRecipientUserInput: ue,
+                  updateRecipientSearchMode: le,
+                  addHistoryEntry: de,
+                  acknowledgeRecipientWarning: pe,
+                } = se;
+                (a.acknowledgeRecipientWarning = pe),
+                  (a.addHistoryEntry = de),
+                  (a.updateGasLimit = ce),
+                  (a.useCustomGas = ie),
+                  (a.useDefaultGas = oe);
+                const me = (0, i.debounce)((e, t, a) => {
+                    e(de(`sendFlow - user typed ${t.userInput} into recipient input field`)),
+                      e(ue(t)),
+                      a();
+                  }, 300),
+                  ge = (0, i.debounce)(async e => {
+                    await e(J());
+                  }, 300),
+                  Te = (0, i.debounce)((e, t) => {
+                    e(de(t));
+                  }, 100);
+                function fe(e = !0, t = !1, a = !0) {
+                  return async (n, s) => {
+                    var r;
+                    const o = s()[Z],
+                      i =
+                        null === (r = o.draftTransactions) || void 0 === r
+                          ? void 0
+                          : r[null == o ? void 0 : o.currentTransactionUUID],
+                      c = (0, W.getIsDraftSwapAndSend)(i),
+                      {
+                        quotes: u,
+                        swapQuotesError: l,
+                        isSwapQuoteLoading: d,
+                        swapQuotesLatestRequestTimestamp: p,
+                      } = i ?? {};
+                    if (c) {
+                      const e = Date.now();
+                      (te = e), n(ae({ requestTimestamp: e, isRefreshingQuotes: t }));
+                    } else (u || l || d || p) && n({ type: v.CLEAR_SWAP_AND_SEND_STATE });
+                    e && (a ? await n(J()) : await ge(n));
+                  };
+                }
+                function Se({ address: e, nickname: t }) {
+                  return async (a, n) => {
+                    const s = n(),
+                      r = (0, h.getAddressBookEntryOrAccountName)(s, e) ?? '';
+                    await a(se.updateRecipient({ address: e, nickname: t || r })), await a(fe());
+                  };
+                }
+                function he(e) {
+                  return async (t, a) => {
+                    t(se.updateRecipientWarning('loading')),
+                      t(se.updateDraftTransactionStatus(K.INVALID)),
+                      await t(se.updateRecipientUserInput(e));
+                    const n = a(),
+                      s = Ne(n),
+                      r = (0, S.getCurrentChainId)(n),
+                      o = (0, y.getTokens)(n),
+                      i = (0, h.getUseTokenDetection)(n),
+                      c = (0, h.getTokenList)(n),
+                      u = Object.keys(c),
+                      l = (0, N.isValidHexAddress)(e);
+                    let d = !1;
+                    if (l) {
+                      if (await (0, R.isSmartContractAddress)(e)) {
+                        t(se.updateRecipientType(T.RECIPIENT_TYPES.SMART_CONTRACT));
+                        const { symbol: a, decimals: n } = (0, _.getTokenMetadata)(e, c) || {};
+                        if (((d = a && n !== undefined), !d))
+                          try {
+                            const { standard: t } = await (0, E.getTokenStandardAndDetails)(e, s);
+                            d = Boolean(t);
+                          } catch (e) {
+                            console.log(e);
+                          }
+                      }
+                    }
+                    return new Promise(a => {
+                      me(
+                        t,
+                        {
+                          userInput: e,
+                          chainId: r,
+                          tokens: o,
+                          useTokenDetection: i,
+                          tokenAddressList: u,
+                          isProbablyAnAssetContract: d,
+                        },
+                        a
+                      );
+                    });
+                  };
+                }
+                function Ee(e, t) {
+                  return async (a, n) => {
+                    const s = n();
+                    if (
+                      (a(se.updateSendAmount(e)),
+                      s[Z].amountMode === Q.MAX && a(se.updateAmountMode(Q.INPUT)),
+                      await a(fe(!0, !1, !1)),
+                      t === undefined)
+                    )
+                      return;
+                    const { ticker: r } = (0, S.getProviderConfig)(s),
+                      o = s[Z].draftTransactions[s[Z].currentTransactionUUID];
+                    let i = e;
+                    var c;
+                    o.sendAsset.type === k.AssetType.token
+                      ? (i = `${t} ${null === (c = o.sendAsset.details) || void 0 === c ? void 0 : c.symbol}`)
+                      : (i = `${t} ${r || x.EtherDenomination.ETH}`);
+                    Te(a, `sendFlow - user set amount to ${i}`);
+                  };
+                }
+                function Ae(
+                  { type: e, details: t, skipComputeEstimatedGasLimit: a, isReceived: n },
+                  { initialAssetSet: s = !1 } = {}
+                ) {
+                  return async (r, i) => {
+                    const c = i(),
+                      { ticker: u } = (0, S.getProviderConfig)(c),
+                      m = c[Z].draftTransactions[c[Z].currentTransactionUUID],
+                      g = Ne(c),
+                      T = (0, h.getTargetAccount)(c, g);
+                    if (e === k.AssetType.native) {
+                      const t = (0, h.getUnapprovedTransactions)(c),
+                        a = null == t ? void 0 : t[m.id];
+                      await r(
+                        de(
+                          `sendFlow - user set asset of type ${k.AssetType.native} with symbol ${u ?? x.EtherDenomination.ETH}`
+                        )
+                      ),
+                        await r(
+                          se.updateAsset({
+                            asset: { type: e, details: null, balance: T.balance, error: null },
+                            initialAssetSet: s,
+                            isReceived: n,
+                          })
+                        ),
+                        ((null == a ? void 0 : a.type) !==
+                          l.TransactionType.tokenMethodTransferFrom &&
+                          (null == a ? void 0 : a.type) !== l.TransactionType.tokenMethodTransfer &&
+                          (null == a ? void 0 : a.type) !==
+                            l.TransactionType.tokenMethodSafeTransferFrom) ||
+                          (await r(se.updateUserInputHexData('')));
+                    } else {
+                      var f;
+                      await r((0, E.showLoadingIndication)());
+                      let a,
+                        i =
+                          null ===
+                            (f = {
+                              [k.TokenStandard.ERC20]: n
+                                ? ['address', 'symbol', 'decimals']
+                                : ['address', 'symbol', 'decimals', 'balance'],
+                              [k.TokenStandard.ERC721]: ['address', 'symbol', 'tokenId'],
+                              [k.TokenStandard.ERC1155]: ['address', 'symbol', 'tokenId'],
+                            }[t.standard]) || void 0 === f
+                            ? void 0
+                            : f.find(e =>
+                                t.collection && 'symbol' === e
+                                  ? t.collection[e] === undefined
+                                  : t[e] === undefined
+                              );
+                      if ('balance' === i) {
+                        var A;
+                        const e = (0, S.getSelectedNetworkClientId)(c),
+                          a = Ne(c),
+                          n =
+                            null ===
+                              (A = (
+                                await (0, E.getBalancesInSingleCall)(a, [t.address], e).catch(
+                                  () => ({})
+                                )
+                              )[t.address]) || void 0 === A
+                              ? void 0
+                              : A.hex;
+                        (t.balance = n ? (0, o.addHexPrefix)(n) : undefined), (i = undefined);
+                      }
+                      (a =
+                        t.standard && !i
+                          ? { ...t }
+                          : {
+                              ...t,
+                              ...(await (0, E.getTokenStandardAndDetails)(
+                                t.address,
+                                g,
+                                t.tokenId
+                              ).catch(() => {
+                                r((0, E.hideLoadingIndication)());
+                              })),
+                            }),
+                        await r((0, E.hideLoadingIndication)());
+                      const u = { type: e, details: a, error: null };
+                      if (a.standard === k.TokenStandard.ERC20)
+                        (u.balance =
+                          a.balance && a.decimals !== undefined
+                            ? (0, o.addHexPrefix)(
+                                (0, F.calcTokenAmount)(a.balance, a.decimals).toString(16)
+                              )
+                            : undefined),
+                          await r(
+                            de(
+                              `sendFlow - user set asset to ERC20 token with symbol ${a.symbol} and address ${a.address}`
+                            )
+                          );
+                      else if (
+                        a.standard === k.TokenStandard.ERC1155 ||
+                        a.standard === k.TokenStandard.ERC721
+                      ) {
+                        if (e === k.AssetType.token)
+                          throw (
+                            (r(
+                              (0, E.showModal)({
+                                name: 'CONVERT_TOKEN_TO_NFT',
+                                tokenAddress: a.address,
+                              })
+                            ),
+                            (u.error = C.INVALID_ASSET_TYPE),
+                            new Error(C.INVALID_ASSET_TYPE))
+                          );
+                        {
+                          let e = !0;
+                          try {
+                            e = await (0, E.isNftOwner)(g, a.address, a.tokenId);
+                          } catch (e) {
+                            (0, p.getErrorMessage)(e).includes('Unable to verify ownership.') ||
+                              r((0, E.displayWarning)(e));
+                          }
+                          if (!e)
+                            throw new Error(
+                              'Send slice initialized as NFT send with an NFT not currently owned by the select account'
+                            );
+                          (u.error = null),
+                            (u.balance = a.balance ? (0, d.toHex)(a.balance) : '0x1'),
+                            await r(
+                              de(
+                                `sendFlow - user set asset to NFT with tokenId ${a.tokenId} and address ${a.address}`
+                              )
+                            );
+                        }
+                      }
+                      await r(se.updateAsset({ asset: u, initialAssetSet: s, isReceived: n }));
+                    }
+                    await r(fe(!1 === s && !a));
+                  };
+                }
+                function ve(e) {
+                  return e[Z].currentTransactionUUID;
+                }
+                function _e(e) {
+                  return e[Z].draftTransactions[ve(e)] ?? {};
+                }
+                const Ie = (a.getBestQuote = (0, s.createSelector)(
+                  _e,
+                  ({ quotes: e, swapQuotesError: t }) => {
+                    const a = e;
+                    if (t || null == a || !a.length) return undefined;
+                    return (0, W.calculateBestQuote)(a);
+                  }
+                ));
+                function ye(e) {
+                  return e[Z].gasTotalForLayer1;
+                }
+                a.getIsNativeSendPossible = (0, s.createSelector)(
+                  _e,
+                  ye,
+                  ({ gas: { gasTotal: e }, sendAsset: t }, a) => {
+                    if (t.type !== k.AssetType.native) return !0;
+                    const n = t.balance;
+                    return new D.Numeric(e || '0x0', 16)
+                      .add(new D.Numeric(a ?? '0x0', 16))
+                      .lessThan(n, 16);
+                  }
+                );
+                function we(e) {
+                  return _e(e).sendAsset;
+                }
+                function Ne(e) {
+                  var t, a;
+                  const n = e[Z],
+                    s = n.draftTransactions[n.currentTransactionUUID];
+                  return (
+                    (null == s || null === (t = s.fromAccount) || void 0 === t
+                      ? void 0
+                      : t.address) ??
+                    n.selectedAccount.address ??
+                    (null === (a = (0, h.getSelectedInternalAccount)(e)) || void 0 === a
+                      ? void 0
+                      : a.address)
+                  );
+                }
+                function Re(e) {
+                  const t = _e(e);
+                  if (!t.recipient)
+                    return { address: '', nickname: '', error: null, warning: null };
+                  const a = (0, N.toChecksumHexAddress)(t.recipient.address);
+                  return e.metamask.ensResolutionsByAddress
+                    ? {
+                        ...t.recipient,
+                        nickname: t.recipient.nickname || (0, h.getEnsResolutionByAddress)(e, a),
+                      }
+                    : t.recipient;
+                }
+                (a.getIsSwapAndSendDisabledForNetwork = (0, s.createSelector)(
+                  e => (0, S.getCurrentChainId)(e),
+                  e => {
+                    var t;
+                    return (
+                      (null === (t = e[Z]) || void 0 === t
+                        ? void 0
+                        : t.disabledSwapAndSendNetworks) ?? []
+                    );
+                  },
+                  (e, t) => t.includes(e)
+                )),
+                  (a.getSendAnalyticProperties = (0, s.createSelector)(
+                    e => (0, S.getProviderConfig)(e),
+                    _e,
+                    Ie,
+                    ({ chainId: e, ticker: t }, a, n) => {
+                      try {
+                        var s, r, o, i, c, u;
+                        const l = L.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[e].decimals,
+                          d = L.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[e].address,
+                          p = (0, W.getIsDraftSwapAndSend)(a),
+                          {
+                            quotes: m,
+                            amount: g,
+                            sendAsset: T,
+                            receiveAsset: f,
+                            swapQuotesError: S,
+                            timeToFetchQuotes: h,
+                          } = a,
+                          E =
+                            (null == a ||
+                            null === (s = a.sendAsset) ||
+                            void 0 === s ||
+                            null === (s = s.details) ||
+                            void 0 === s
+                              ? void 0
+                              : s.symbol) || t,
+                          A =
+                            (null == a ||
+                            null === (r = a.receiveAsset) ||
+                            void 0 === r ||
+                            null === (r = r.details) ||
+                            void 0 === r
+                              ? void 0
+                              : r.symbol) || t,
+                          v =
+                            (null == a ||
+                            null === (o = a.receiveAsset) ||
+                            void 0 === o ||
+                            null === (o = o.details) ||
+                            void 0 === o
+                              ? void 0
+                              : o.decimals) || l,
+                          _ =
+                            (null == a ||
+                            null === (i = a.sendAsset) ||
+                            void 0 === i ||
+                            null === (i = i.details) ||
+                            void 0 === i
+                              ? void 0
+                              : i.decimals) || l,
+                          I = new D.Numeric((null == g ? void 0 : g.value) || '0x0', 16)
+                            .toBase(10)
+                            .shiftedBy(_)
+                            .toString(),
+                          y = null == n ? void 0 : n.sourceAmount,
+                          w = null == n ? void 0 : n.destinationAmount,
+                          N =
+                            (null == a ||
+                            null === (c = a.receiveAsset) ||
+                            void 0 === c ||
+                            null === (c = c.details) ||
+                            void 0 === c
+                              ? void 0
+                              : c.address) || d,
+                          R =
+                            (null == a ||
+                            null === (u = a.sendAsset) ||
+                            void 0 === u ||
+                            null === (u = u.details) ||
+                            void 0 === u
+                              ? void 0
+                              : u.address) || d;
+                        return {
+                          is_swap_and_send: p,
+                          chain_id: e,
+                          token_amount_source: y && _ ? (0, F.calcTokenAmount)(y, _).toString() : I,
+                          token_amount_dest_estimate:
+                            w && v ? (0, F.calcTokenAmount)(w, v).toString() : undefined,
+                          token_symbol_source: E,
+                          token_symbol_destination: A,
+                          token_address_source: R,
+                          token_address_destination: N,
+                          results_count: null == m ? void 0 : m.length,
+                          quotes_load_time_ms: h,
+                          aggregator_list:
+                            null == m
+                              ? void 0
+                              : m.map(({ aggregator: e, error: t }) => `${e} (${t || 'no error'})`),
+                          aggregator_recommended: null == n ? void 0 : n.aggregator,
+                          errors: [
+                            null == g ? void 0 : g.error,
+                            null == T ? void 0 : T.error,
+                            null == f ? void 0 : f.error,
+                            S,
+                          ].filter(Boolean),
+                        };
+                      } catch (e) {
+                        return { analyticsError: e };
+                      }
+                    }
+                  ));
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/ducks/send/send.js' },
+    ],
+    [
+      6867,
+      {
+        '../../../shared/constants/swaps': 5815,
+        '../../../shared/constants/time': 5817,
+        '../../../shared/lib/fetch-with-cache': 5834,
+        '../../../shared/lib/swaps-utils': 5846,
+        '../../../shared/modules/conversion.utils': 5858,
+        '../../../shared/modules/hexstring-utils': 5864,
+        '../../pages/swaps/swaps.util': 7583,
+        lodash: 4921,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getDisabledSwapAndSendNetworksFromAPI = async function () {
+                    try {
+                      const e = [],
+                        t = await (0, d.fetchSwapsFeatureFlags)();
+                      return (
+                        r.ALLOWED_PROD_SWAPS_CHAIN_IDS.forEach(a => {
+                          var n;
+                          !1 ===
+                            (null === (n = t[(0, d.getNetworkNameByChainId)(a)]) ||
+                            void 0 === n ||
+                            null === (n = n.v2) ||
+                            void 0 === n ||
+                            null === (n = n.swapAndSend) ||
+                            void 0 === n
+                              ? void 0
+                              : n.enabled) && e.push(a);
+                        }),
+                        e
+                      );
+                    } catch (e) {
+                      return [];
+                    }
+                  }),
+                  (a.getSwapAndSendQuotes = async function (e) {
+                    const { chainId: t, ...a } = e;
+                    a.slippage = a.slippage ?? m;
+                    const n = new URLSearchParams(a),
+                      s = `${T}/${g}/networks/${(0, u.hexToDecimal)(t)}/quotes?${n}`,
+                      l = await (0, i.default)({
+                        url: s,
+                        fetchOptions: {
+                          method: 'GET',
+                          headers: { 'X-Client-Id': r.SWAPS_CLIENT_ID },
+                        },
+                        cacheOptions: { cacheRefreshTime: 0, timeout: 15 * o.SECOND },
+                        functionName: 'getSwapAndSendQuotes',
+                      });
+                    return l
+                      .map(e => {
+                        if (e.trade && !e.error && (0, c.validateData)(p, e, s)) {
+                          const t = (0, c.addHexPrefixToObjectValues)({
+                            to: e.trade.to,
+                            from: e.trade.from,
+                            data: e.trade.data,
+                            value: (0, u.decimalToHex)(e.trade.value),
+                            gas: (0, u.decimalToHex)(e.gasParams.maxGas),
+                          });
+                          let { approvalNeeded: n } = e;
+                          return (
+                            n && (n = (0, c.addHexPrefixToObjectValues)(n)),
+                            { ...e, slippage: a.slippage, trade: t, approvalNeeded: n }
+                          );
+                        }
+                        return undefined;
+                      })
+                      .filter(Boolean);
+                  });
+                var n,
+                  s = e('lodash'),
+                  r = e('../../../shared/constants/swaps'),
+                  o = e('../../../shared/constants/time'),
+                  i =
+                    (n = e('../../../shared/lib/fetch-with-cache')) && n.__esModule
+                      ? n
+                      : { default: n },
+                  c = e('../../../shared/lib/swaps-utils'),
+                  u = e('../../../shared/modules/conversion.utils'),
+                  l = e('../../../shared/modules/hexstring-utils'),
+                  d = e('../../pages/swaps/swaps.util');
+                const p = [
+                    {
+                      property: 'gasParams',
+                      type: 'object',
+                      validator: e => e && (0, s.isNumber)(e.maxGas),
+                    },
+                    {
+                      property: 'trade',
+                      type: 'object',
+                      validator: e =>
+                        e &&
+                        (0, c.validHex)(e.data) &&
+                        (0, l.isValidHexAddress)(e.to, { allowNonPrefixed: !1 }) &&
+                        (0, l.isValidHexAddress)(e.from, { allowNonPrefixed: !1 }) &&
+                        (0, c.truthyString)(e.value),
+                    },
+                    {
+                      property: 'approvalNeeded',
+                      type: 'object',
+                      validator: e =>
+                        null === e ||
+                        (e &&
+                          (0, c.validHex)(e.data) &&
+                          (0, l.isValidHexAddress)(e.to, { allowNonPrefixed: !1 }) &&
+                          (0, l.isValidHexAddress)(e.from, { allowNonPrefixed: !1 })),
+                    },
+                    { property: 'sourceAmount', type: 'string', validator: c.truthyDigitString },
+                    {
+                      property: 'destinationAmount',
+                      type: 'string',
+                      validator: c.truthyDigitString,
+                    },
+                    {
+                      property: 'sourceToken',
+                      type: 'string',
+                      validator: e => (0, l.isValidHexAddress)(e, { allowNonPrefixed: !1 }),
+                    },
+                    {
+                      property: 'destinationToken',
+                      type: 'string',
+                      validator: e => (0, l.isValidHexAddress)(e, { allowNonPrefixed: !1 }),
+                    },
+                    {
+                      property: 'sender',
+                      type: 'string',
+                      validator: e => (0, l.isValidHexAddress)(e, { allowNonPrefixed: !1 }),
+                    },
+                    {
+                      property: 'recipient',
+                      type: 'string',
+                      validator: e => (0, l.isValidHexAddress)(e, { allowNonPrefixed: !1 }),
+                    },
+                    { property: 'aggregator', type: 'string', validator: c.truthyString },
+                    { property: 'aggregatorType', type: 'string', validator: c.truthyString },
+                    {
+                      property: 'error',
+                      type: 'object',
+                      validator: e => null === e || 'object' == typeof e,
+                    },
+                    { property: 'fee', type: 'number' },
+                  ],
+                  m = '2',
+                  g = 'v2',
+                  T = r.SWAPS_API_V2_BASE_URL;
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/ducks/send/swap-and-send-utils.ts' },
+    ],
+    [
+      6868,
+      {
+        '../../../shared/constants/app': 5789,
+        '../../../shared/constants/common': 5791,
+        '../../../shared/constants/metametrics': 5800,
+        '../../../shared/constants/network': 5804,
+        '../../../shared/constants/swaps': 5815,
+        '../../../shared/constants/transaction': 5819,
+        '../../../shared/lib/swaps-utils': 5846,
+        '../../../shared/lib/transactions-controller-utils': 5851,
+        '../../../shared/modules/Numeric': 5853,
+        '../../../shared/modules/conversion.utils': 5858,
+        '../../../shared/modules/selectors': 5874,
+        '../../../shared/modules/selectors/feature-flags': 5873,
+        '../../../shared/modules/selectors/networks': 5875,
+        '../../helpers/constants/routes': 6878,
+        '../../hooks/useTokenFiatAmount': 7014,
+        '../../pages/swaps/swaps.util': 7583,
+        '../../selectors': 7601,
+        '../../store/actions': 7619,
+        '../metamask/metamask': 6860,
+        '@metamask/transaction-controller': 2946,
+        '@metamask/utils': 2995,
+        '@reduxjs/toolkit': 3073,
+        '@sentry/browser': 3136,
+        'bignumber.js': 4030,
+        loglevel: 4929,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.GAS_PRICES_LOADING_STATES = void 0),
+                  (a.cancelSwapsSmartTransaction = function (e) {
+                    return async (t, a) => {
+                      try {
+                        await t((0, l.cancelSmartTransaction)(e));
+                      } catch (e) {
+                        const {
+                          swaps: { isFeatureFlagLoaded: n },
+                        } = a();
+                        if (e.message.startsWith('Fetch error:') && n) {
+                          const a = (0, p.parseSmartTransactionsError)(e.message);
+                          t(Ne(null == a ? void 0 : a.error));
+                        }
+                      }
+                    };
+                  }),
+                  (a.fetchAndSetSwapsGasPriceInfo = a.default = a.clearSwapsState = void 0),
+                  (a.fetchMetaSwapsGasPriceEstimates = Oe),
+                  (a.fetchSwapsLivenessAndFeatureFlags = a.fetchQuotesAndSetQuoteState = void 0),
+                  (a.fetchSwapsSmartTransactionFees = Pe),
+                  (a.setTransactionSettingsOpened =
+                    a.setTopAssets =
+                    a.setSwapsFromToken =
+                    a.setSwapToToken =
+                    a.setSwapQuotesFetchStartTime =
+                    a.setReviewSwapClickedTimestamp =
+                    a.setMaxSlippage =
+                    a.setLatestAddedTokenTo =
+                    a.setIsFeatureFlagLoaded =
+                    a.setFromTokenInputValue =
+                    a.setFromTokenError =
+                    a.setFetchingQuotes =
+                    a.setBalanceError =
+                    a.setAggregatorMetadata =
+                    a.prepareToLeaveSwaps =
+                    a.prepareForRetryGetQuotes =
+                    a.navigateBackToPrepareSwap =
+                    a.getUsedSwapsGasPrice =
+                    a.getUsedQuote =
+                    a.getTransactionSettingsOpened =
+                    a.getTradeTxId =
+                    a.getTopQuote =
+                    a.getTopAssets =
+                    a.getToToken =
+                    a.getSwapsWelcomeMessageSeenStatus =
+                    a.getSwapsUserFeeLevel =
+                    a.getSwapsTokens =
+                    a.getSwapsSTXLoading =
+                    a.getSwapsQuoteRefreshTime =
+                    a.getSwapsQuotePrefetchingRefreshTime =
+                    a.getSwapsNetworkConfig =
+                    a.getSwapsFeatureIsLive =
+                    a.getSwapsFallbackGasPrice =
+                    a.getSwapsErrorKey =
+                    a.getSwapsCustomizationModalPrice =
+                    a.getSwapsCustomizationModalLimit =
+                    a.getSwapGasPriceEstimateData =
+                    a.getSmartTransactionsErrorMessageDismissed =
+                    a.getSmartTransactionsError =
+                    a.getSmartTransactionFees =
+                    a.getSmartTransactionEstimatedGas =
+                    a.getShowQuoteLoadingScreen =
+                    a.getSelectedQuote =
+                    a.getReviewSwapClickedTimestamp =
+                    a.getQuotesLastFetched =
+                    a.getQuotesFetchStartTime =
+                    a.getQuotes =
+                    a.getPendingSmartTransactions =
+                    a.getMaxSlippage =
+                    a.getLatestAddedTokenTo =
+                    a.getIsFeatureFlagLoaded =
+                    a.getIsEstimatedReturnLow =
+                    a.getFromTokenInputValue =
+                    a.getFromTokenError =
+                    a.getFromToken =
+                    a.getFetchingQuotes =
+                    a.getFetchParams =
+                    a.getDestinationTokenInfo =
+                    a.getCustomSwapsGasPrice =
+                    a.getCustomSwapsGas =
+                    a.getCustomMaxPriorityFeePerGas =
+                    a.getCustomMaxFeePerGas =
+                    a.getCurrentSmartTransactionsError =
+                    a.getCurrentSmartTransactionsEnabled =
+                    a.getCurrentSmartTransactions =
+                    a.getBalanceError =
+                    a.getBackgroundSwapRouteState =
+                    a.getApproveTxParams =
+                    a.getApproveTxId =
+                    a.getAggregatorMetadata =
+                      void 0),
+                  (a.shouldShowCustomPriceTooLowWarning = function (e) {
+                    const { average: t } = H(e),
+                      a = G(e);
+                    if (!a || t === undefined) return !1;
+                    return new w.Numeric(a, 16, y.EtherDenomination.WEI)
+                      .toDenomination(y.EtherDenomination.GWEI)
+                      .greaterThan(t, 10);
+                  }),
+                  (a.swapsSlice =
+                    a.swapsQuoteSelected =
+                    a.swapGasPriceEstimateIsLoading =
+                    a.swapGasEstimateLoadingHasFailed =
+                    a.swapCustomGasModalPriceEdited =
+                    a.swapCustomGasModalLimitEdited =
+                    a.swapCustomGasModalClosed =
+                    a.signAndSendTransactions =
+                    a.signAndSendSwapsSmartTransaction =
+                      void 0);
+                var n = e('@reduxjs/toolkit'),
+                  s = k(e('bignumber.js')),
+                  r = k(e('loglevel')),
+                  o = e('@sentry/browser'),
+                  i = e('@metamask/transaction-controller'),
+                  c = e('@metamask/utils'),
+                  u = e('../../../shared/constants/network'),
+                  l = e('../../store/actions'),
+                  d = e('../../helpers/constants/routes'),
+                  p = e('../../pages/swaps/swaps.util'),
+                  m = e('../../../shared/modules/conversion.utils'),
+                  g = e('../../../shared/modules/selectors/networks'),
+                  T = e('../../../shared/modules/selectors/feature-flags'),
+                  f = e('../../selectors'),
+                  S = e('../../../shared/modules/selectors'),
+                  h = e('../../../shared/constants/metametrics'),
+                  E = e('../../../shared/constants/swaps'),
+                  A = e('../../../shared/constants/transaction'),
+                  v = e('../metamask/metamask'),
+                  _ = e('../../../shared/constants/app'),
+                  I = e('../../../shared/lib/transactions-controller-utils'),
+                  y = e('../../../shared/constants/common'),
+                  w = e('../../../shared/modules/Numeric'),
+                  N = e('../../../shared/lib/swaps-utils'),
+                  R = e('../../hooks/useTokenFiatAmount');
+                function k(e) {
+                  return e && e.__esModule ? e : { default: e };
+                }
+                const C = (0, c.createProjectLogger)('swaps'),
+                  O = (a.GAS_PRICES_LOADING_STATES = {
+                    INITIAL: 'INITIAL',
+                    LOADING: 'LOADING',
+                    FAILED: 'FAILED',
+                    COMPLETED: 'COMPLETED',
+                  }),
+                  P = {
+                    aggregatorMetadata: null,
+                    approveTxId: null,
+                    tradeTxId: null,
+                    balanceError: !1,
+                    fetchingQuotes: !1,
+                    fromToken: null,
+                    fromTokenInputValue: '',
+                    fromTokenError: null,
+                    isFeatureFlagLoaded: !1,
+                    maxSlippage: E.Slippage.default,
+                    quotesFetchStartTime: null,
+                    reviewSwapClickedTimestamp: null,
+                    topAssets: {},
+                    toToken: null,
+                    customGas: {
+                      price: null,
+                      limit: null,
+                      loading: O.INITIAL,
+                      priceEstimates: {},
+                      fallBackPrice: null,
+                    },
+                    currentSmartTransactionsError: '',
+                    swapsSTXLoading: !1,
+                    transactionSettingsOpened: !1,
+                    latestAddedTokenTo: '',
+                  },
+                  M = (a.swapsSlice = (0, n.createSlice)({
+                    name: 'swaps',
+                    initialState: P,
+                    reducers: {
+                      clearSwapsState: () => P,
+                      navigatedBackToBuildQuote: e => {
+                        (e.approveTxId = null),
+                          (e.tradeTxId = null),
+                          (e.balanceError = !1),
+                          (e.fetchingQuotes = !1),
+                          (e.customGas.limit = null),
+                          (e.customGas.price = null);
+                      },
+                      retriedGetQuotes: e => {
+                        (e.approveTxId = null), (e.balanceError = !1), (e.fetchingQuotes = !1);
+                      },
+                      setAggregatorMetadata: (e, t) => {
+                        e.aggregatorMetadata = t.payload;
+                      },
+                      setBalanceError: (e, t) => {
+                        e.balanceError = t.payload;
+                      },
+                      setFetchingQuotes: (e, t) => {
+                        e.fetchingQuotes = t.payload;
+                      },
+                      setLatestAddedTokenTo: (e, t) => {
+                        e.latestAddedTokenTo = t.payload;
+                      },
+                      setFromToken: (e, t) => {
+                        e.fromToken = t.payload;
+                      },
+                      setFromTokenInputValue: (e, t) => {
+                        e.fromTokenInputValue = t.payload;
+                      },
+                      setFromTokenError: (e, t) => {
+                        e.fromTokenError = t.payload;
+                      },
+                      setIsFeatureFlagLoaded: (e, t) => {
+                        e.isFeatureFlagLoaded = t.payload;
+                      },
+                      setMaxSlippage: (e, t) => {
+                        e.maxSlippage = t.payload;
+                      },
+                      setQuotesFetchStartTime: (e, t) => {
+                        e.quotesFetchStartTime = t.payload;
+                      },
+                      setReviewSwapClickedTimestamp: (e, t) => {
+                        e.reviewSwapClickedTimestamp = t.payload;
+                      },
+                      setTopAssets: (e, t) => {
+                        e.topAssets = t.payload;
+                      },
+                      setToToken: (e, t) => {
+                        e.toToken = t.payload;
+                      },
+                      swapCustomGasModalClosed: e => {
+                        (e.customGas.price = null), (e.customGas.limit = null);
+                      },
+                      swapCustomGasModalPriceEdited: (e, t) => {
+                        e.customGas.price = t.payload;
+                      },
+                      swapCustomGasModalLimitEdited: (e, t) => {
+                        e.customGas.limit = t.payload;
+                      },
+                      swapGasPriceEstimatesFetchStarted: e => {
+                        e.customGas.loading = O.LOADING;
+                      },
+                      swapGasPriceEstimatesFetchFailed: e => {
+                        e.customGas.loading = O.FAILED;
+                      },
+                      swapGasPriceEstimatesFetchCompleted: (e, t) => {
+                        (e.customGas.priceEstimates = t.payload.priceEstimates),
+                          (e.customGas.loading = O.COMPLETED);
+                      },
+                      retrievedFallbackSwapsGasPrice: (e, t) => {
+                        e.customGas.fallBackPrice = t.payload;
+                      },
+                      setCurrentSmartTransactionsError: (e, t) => {
+                        const a =
+                          Object.values(p.StxErrorTypes).includes(t.payload) ||
+                          t.payload === undefined
+                            ? t.payload
+                            : p.StxErrorTypes.unavailable;
+                        e.currentSmartTransactionsError = a;
+                      },
+                      setSwapsSTXSubmitLoading: (e, t) => {
+                        e.swapsSTXLoading = t.payload || !1;
+                      },
+                      setTransactionSettingsOpened: (e, t) => {
+                        e.transactionSettingsOpened = Boolean(t.payload);
+                      },
+                    },
+                  })),
+                  { actions: b, reducer: F } = M;
+                a.default = F;
+                a.getAggregatorMetadata = e => e.swaps.aggregatorMetadata;
+                const D = e => e.swaps.balanceError;
+                a.getBalanceError = D;
+                const x = e => e.swaps.fromToken;
+                a.getFromToken = x;
+                a.getFromTokenError = e => e.swaps.fromTokenError;
+                a.getFromTokenInputValue = e => e.swaps.fromTokenInputValue;
+                a.getIsFeatureFlagLoaded = e => e.swaps.isFeatureFlagLoaded;
+                a.getSwapsSTXLoading = e => e.swaps.swapsSTXLoading;
+                a.getMaxSlippage = e => e.swaps.maxSlippage;
+                a.getTopAssets = e => e.swaps.topAssets;
+                const L = e => e.swaps.toToken;
+                a.getToToken = L;
+                a.getFetchingQuotes = e => e.swaps.fetchingQuotes;
+                const U = e => e.swaps.latestAddedTokenTo;
+                a.getLatestAddedTokenTo = U;
+                a.getQuotesFetchStartTime = e => e.swaps.quotesFetchStartTime;
+                a.getReviewSwapClickedTimestamp = e => e.swaps.reviewSwapClickedTimestamp;
+                const G = e => e.swaps.customGas.price;
+                a.getSwapsCustomizationModalPrice = G;
+                a.getSwapsCustomizationModalLimit = e => e.swaps.customGas.limit;
+                a.swapGasPriceEstimateIsLoading = e => e.swaps.customGas.loading === O.LOADING;
+                a.swapGasEstimateLoadingHasFailed = e => e.swaps.customGas.loading === O.INITIAL;
+                const H = e => e.swaps.customGas.priceEstimates;
+                a.getSwapGasPriceEstimateData = H;
+                const B = e => e.swaps.customGas.fallBackPrice;
+                a.getSwapsFallbackGasPrice = B;
+                const W = e => e.swaps.currentSmartTransactionsError;
+                a.getCurrentSmartTransactionsError = W;
+                a.getTransactionSettingsOpened = e => e.swaps.transactionSettingsOpened;
+                const $ = e => e.metamask.swapsState;
+                a.getSwapsFeatureIsLive = e => e.metamask.swapsState.swapsFeatureIsLive;
+                a.getSmartTransactionsError = e => e.appState.smartTransactionsError;
+                a.getSmartTransactionsErrorMessageDismissed = e =>
+                  e.appState.smartTransactionsErrorMessageDismissed;
+                const j = e => {
+                  const t = (0, S.getSmartTransactionsEnabled)(e),
+                    a = W(e);
+                  return t && !a;
+                };
+                a.getCurrentSmartTransactionsEnabled = j;
+                a.getSwapsQuoteRefreshTime = e => e.metamask.swapsState.swapsQuoteRefreshTime;
+                a.getSwapsQuotePrefetchingRefreshTime = e =>
+                  e.metamask.swapsState.swapsQuotePrefetchingRefreshTime;
+                a.getBackgroundSwapRouteState = e => e.metamask.swapsState.routeState;
+                const V = e => e.metamask.swapsState.customMaxGas;
+                a.getCustomSwapsGas = V;
+                const K = e => e.metamask.swapsState.customGasPrice;
+                a.getCustomSwapsGasPrice = K;
+                a.getCustomMaxFeePerGas = e => e.metamask.swapsState.customMaxFeePerGas;
+                a.getCustomMaxPriorityFeePerGas = e =>
+                  e.metamask.swapsState.customMaxPriorityFeePerGas;
+                a.getSwapsUserFeeLevel = e => e.metamask.swapsState.swapsUserFeeLevel;
+                const q = e => e.metamask.swapsState.fetchParams;
+                a.getFetchParams = q;
+                const Q = e => e.metamask.swapsState.quotes;
+                a.getQuotes = Q;
+                a.getQuotesLastFetched = e => e.metamask.swapsState.quotesLastFetched;
+                const Y = e => {
+                  const { selectedAggId: t, quotes: a } = $(e);
+                  return a[t];
+                };
+                a.getSelectedQuote = Y;
+                a.getSwapsErrorKey = e => {
+                  var t;
+                  return null === (t = $(e)) || void 0 === t ? void 0 : t.errorKey;
+                };
+                a.getShowQuoteLoadingScreen = e => e.swaps.showQuoteLoadingScreen;
+                const z = e => e.metamask.swapsState.tokens;
+                a.getSwapsTokens = z;
+                a.getSwapsWelcomeMessageSeenStatus = e =>
+                  e.metamask.swapsWelcomeMessageHasBeenShown;
+                const X = e => {
+                  const { topAggId: t, quotes: a } = $(e);
+                  return a[t];
+                };
+                a.getTopQuote = X;
+                a.getApproveTxId = e => e.metamask.swapsState.approveTxId;
+                a.getTradeTxId = e => e.metamask.swapsState.tradeTxId;
+                const Z = e => Y(e) || X(e);
+                a.getUsedQuote = Z;
+                a.getDestinationTokenInfo = e => {
+                  var t;
+                  return null === (t = q(e)) ||
+                    void 0 === t ||
+                    null === (t = t.metaData) ||
+                    void 0 === t
+                    ? void 0
+                    : t.destinationTokenInfo;
+                };
+                const J = e => K(e) || B(e);
+                a.getUsedSwapsGasPrice = J;
+                const ee = e => {
+                  var t;
+                  const { approvalNeeded: a } = Y(e) || X(e) || {};
+                  if (!a) return null;
+                  const n =
+                      (null === (t = $(e)) || void 0 === t ? void 0 : t.customApproveTxData) ||
+                      a.data,
+                    s = J(e);
+                  return { ...a, gasPrice: s, data: n };
+                };
+                a.getApproveTxParams = ee;
+                const te = e => {
+                  var t;
+                  return null === (t = e.metamask.smartTransactionsState) ||
+                    void 0 === t ||
+                    null === (t = t.smartTransactions) ||
+                    void 0 === t
+                    ? void 0
+                    : t[(0, g.getCurrentChainId)(e)];
+                };
+                a.getCurrentSmartTransactions = te;
+                a.getPendingSmartTransactions = e => {
+                  const t = te(e);
+                  return t && 0 !== t.length
+                    ? t.filter(e => e.status === A.SmartTransactionStatus.pending)
+                    : [];
+                };
+                const ae = e => {
+                  const t = Z(e);
+                  var a;
+                  return null != t && t.isGasIncludedTrade
+                    ? { approvalTxFees: t.approvalTxFees, tradeTxFees: t.tradeTxFees }
+                    : null === (a = e.metamask.smartTransactionsState) || void 0 === a
+                      ? void 0
+                      : a.fees;
+                };
+                a.getSmartTransactionFees = ae;
+                a.getSmartTransactionEstimatedGas = e => {
+                  var t;
+                  return null === (t = e.metamask.smartTransactionsState) || void 0 === t
+                    ? void 0
+                    : t.estimatedGas;
+                };
+                a.getSwapsNetworkConfig = e => {
+                  const {
+                    swapsQuoteRefreshTime: t,
+                    swapsQuotePrefetchingRefreshTime: a,
+                    swapsStxGetTransactionsRefreshTime: n,
+                    swapsStxBatchStatusRefreshTime: s,
+                    swapsStxStatusDeadline: r,
+                    swapsStxMaxFeeMultiplier: o,
+                  } = e.metamask.swapsState;
+                  return {
+                    quoteRefreshTime: t,
+                    quotePrefetchingRefreshTime: a,
+                    stxGetTransactionsRefreshTime: n,
+                    stxBatchStatusRefreshTime: s,
+                    stxStatusDeadline: r,
+                    stxMaxFeeMultiplier: o,
+                  };
+                };
+                const {
+                  clearSwapsState: ne,
+                  navigatedBackToBuildQuote: se,
+                  retriedGetQuotes: re,
+                  swapGasPriceEstimatesFetchCompleted: oe,
+                  swapGasPriceEstimatesFetchStarted: ie,
+                  swapGasPriceEstimatesFetchFailed: ce,
+                  setAggregatorMetadata: ue,
+                  setBalanceError: le,
+                  setFetchingQuotes: de,
+                  setLatestAddedTokenTo: pe,
+                  setFromToken: me,
+                  setFromTokenError: ge,
+                  setFromTokenInputValue: Te,
+                  setIsFeatureFlagLoaded: fe,
+                  setMaxSlippage: Se,
+                  setQuotesFetchStartTime: he,
+                  setReviewSwapClickedTimestamp: Ee,
+                  setTopAssets: Ae,
+                  setToToken: ve,
+                  swapCustomGasModalPriceEdited: _e,
+                  swapCustomGasModalLimitEdited: Ie,
+                  retrievedFallbackSwapsGasPrice: ye,
+                  swapCustomGasModalClosed: we,
+                  setCurrentSmartTransactionsError: Ne,
+                  setSwapsSTXSubmitLoading: Re,
+                  setTransactionSettingsOpened: ke,
+                } = b;
+                (a.setTransactionSettingsOpened = ke),
+                  (a.swapCustomGasModalClosed = we),
+                  (a.swapCustomGasModalLimitEdited = Ie),
+                  (a.swapCustomGasModalPriceEdited = _e),
+                  (a.setSwapToToken = ve),
+                  (a.setTopAssets = Ae),
+                  (a.setReviewSwapClickedTimestamp = Ee),
+                  (a.setSwapQuotesFetchStartTime = he),
+                  (a.setMaxSlippage = Se),
+                  (a.setIsFeatureFlagLoaded = fe),
+                  (a.setFromTokenInputValue = Te),
+                  (a.setFromTokenError = ge),
+                  (a.setSwapsFromToken = me),
+                  (a.setLatestAddedTokenTo = pe),
+                  (a.setFetchingQuotes = de),
+                  (a.setBalanceError = le),
+                  (a.setAggregatorMetadata = ue),
+                  (a.clearSwapsState = ne);
+                a.navigateBackToPrepareSwap = e => async t => {
+                  await t((0, l.setBackgroundSwapRouteState)('')),
+                    t(se()),
+                    e.push(d.PREPARE_SWAP_ROUTE);
+                };
+                a.prepareForRetryGetQuotes = () => async e => {
+                  await e((0, l.resetSwapsPostFetchState)()), e(re());
+                };
+                a.prepareToLeaveSwaps = () => async e => {
+                  e(ne()), await e((0, l.resetBackgroundSwapsState)());
+                };
+                a.swapsQuoteSelected = e => t => {
+                  t(Ie(null)), t((0, l.setSelectedQuoteAggId)(e)), t((0, l.setSwapsTxGasLimit)(''));
+                };
+                const Ce = () => async e => {
+                  const t = await e(Oe());
+                  null != t &&
+                    t.fast &&
+                    e((0, l.setSwapsTxGasPrice)((0, m.decGWEIToHexWEI)(t.fast)));
+                };
+                a.fetchAndSetSwapsGasPriceInfo = Ce;
+                a.fetchSwapsLivenessAndFeatureFlags = () => async (e, t) => {
+                  let a = { swapsFeatureIsLive: !1 };
+                  const n = t(),
+                    s = (0, g.getCurrentChainId)(n);
+                  try {
+                    const t = await (0, p.fetchSwapsFeatureFlags)();
+                    if (
+                      (await e((0, l.setSwapsFeatureFlags)(t)),
+                      E.ALLOWED_SMART_TRANSACTIONS_CHAIN_IDS.includes(s))
+                    ) {
+                      var o;
+                      await e(Ne(undefined)), await e((0, l.fetchSmartTransactionsLiveness)());
+                      ((e, t) => {
+                        if (!((null == t ? void 0 : t.length) <= 0))
+                          for (const a of t)
+                            if (A.IN_PROGRESS_TRANSACTION_STATUSES.includes(a.status)) {
+                              e(Ne(p.StxErrorTypes.regularTxPending));
+                              break;
+                            }
+                      })(
+                        e,
+                        await (0, l.getTransactions)({
+                          searchCriteria: {
+                            chainId: s,
+                            from:
+                              null === (o = (0, f.getSelectedInternalAccount)(n)) || void 0 === o
+                                ? void 0
+                                : o.address,
+                          },
+                        })
+                      );
+                    }
+                    a = (0, p.getSwapsLivenessForNetwork)(s, t);
+                  } catch (e) {
+                    r.default.error(
+                      'Failed to fetch Swaps feature flags and Swaps liveness, defaulting to false.',
+                      e
+                    );
+                  }
+                  return await e((0, l.setSwapsLiveness)(a)), e(fe(!0)), a;
+                };
+                a.fetchQuotesAndSetQuoteState = (e, t, a, n, o) => async (i, c) => {
+                  var u, m, g;
+                  const T = c(),
+                    A = (0, f.getHDEntropyIndex)(T),
+                    _ = (0, f.getSelectedNetwork)(T),
+                    { chainId: y } = _.configuration;
+                  let w = { swapsFeatureIsLive: !1 };
+                  try {
+                    const e = await (0, p.fetchSwapsFeatureFlags)();
+                    w = (0, p.getSwapsLivenessForNetwork)(y, e);
+                  } catch (e) {
+                    r.default.error('Failed to fetch Swaps liveness, defaulting to false.', e);
+                  }
+                  if ((await i((0, l.setSwapsLiveness)(w)), !w.swapsFeatureIsLive))
+                    return void (await e.push(d.SWAPS_MAINTENANCE_ROUTE));
+                  const N = q(T),
+                    R = (0, f.getSelectedAccount)(T),
+                    k = D(T),
+                    C = (0, f.getSwapsDefaultToken)(T),
+                    O =
+                      (null == N ||
+                      null === (u = N.metaData) ||
+                      void 0 === u ||
+                      null === (u = u.sourceTokenInfo) ||
+                      void 0 === u
+                        ? void 0
+                        : u.symbol) === C.symbol
+                        ? C
+                        : null == N || null === (m = N.metaData) || void 0 === m
+                          ? void 0
+                          : m.sourceTokenInfo,
+                    P = x(T) || O || {},
+                    M =
+                      L(T) ||
+                      (null == N || null === (g = N.metaData) || void 0 === g
+                        ? void 0
+                        : g.destinationTokenInfo) ||
+                      {},
+                    { address: b, symbol: F, decimals: G, iconUrl: H, balance: B } = P,
+                    { address: W, symbol: $, decimals: V, iconUrl: K } = M;
+                  o ||
+                    (await i((0, l.setBackgroundSwapRouteState)('loading')),
+                    e.push(d.LOADING_QUOTES_ROUTE)),
+                    i(de(!0));
+                  const Q = (0, f.getTokenExchangeRates)(T);
+                  if (
+                    !W ||
+                    $ === C.symbol ||
+                    Q[W] !== undefined ||
+                    ((Y = W),
+                    (X = (0, v.getTokens)(T)),
+                    Array.isArray(X) && X.find(e => e.address.toLowerCase() === Y.toLowerCase()))
+                  ) {
+                    U(T) !== W && (await i(pe('')));
+                  } else
+                    await i(
+                      (0, l.addToken)(
+                        {
+                          address: W,
+                          symbol: $,
+                          decimals: V,
+                          image: K,
+                          networkClientId: _.clientId,
+                        },
+                        !0
+                      )
+                    ),
+                      await i(pe(W));
+                  var Y, X;
+                  b &&
+                    F !== C.symbol &&
+                    !Q[b] &&
+                    B &&
+                    new s.default(B, 16).gt(0) &&
+                    i(
+                      (0, l.addToken)(
+                        {
+                          address: b,
+                          symbol: F,
+                          decimals: G,
+                          image: H,
+                          networkClientId: _.clientId,
+                        },
+                        !0
+                      )
+                    );
+                  const Z = z(T),
+                    J = (null == Z ? void 0 : Z.find(({ address: e }) => e === b)) || P,
+                    ee = (null == Z ? void 0 : Z.find(({ address: e }) => e === W)) || M;
+                  i(me(P));
+                  const te = (0, f.isHardwareWallet)(T),
+                    ae = (0, f.getHardwareWalletType)(T),
+                    ne = (0, f.checkNetworkAndAccountSupports1559)(T),
+                    se = (0, S.getSmartTransactionsEnabled)(T),
+                    re = j(T),
+                    oe = (e, t) => {
+                      if (!t) return !1;
+                      const a = t.toLowerCase();
+                      for (const t of e) if (t.toLowerCase() === a) return !0;
+                      return !1;
+                    },
+                    ie = E.StablecoinsByChainId[y],
+                    ce = Boolean(ie && oe(ie, b) && oe(ie, W)) ? E.Slippage.stable : a;
+                  n({
+                    event: h.MetaMetricsEventName.QuotesRequested,
+                    category: h.MetaMetricsEventCategory.Swaps,
+                    sensitiveProperties: {
+                      token_from: F,
+                      token_from_amount: String(t),
+                      token_to: $,
+                      request_type: k ? 'Quote' : 'Order',
+                      slippage: ce,
+                      custom_slippage: ce !== E.Slippage.default && ce !== E.Slippage.stable,
+                      is_hardware_wallet: te,
+                      hardware_wallet_type: ae,
+                      stx_enabled: se,
+                      current_stx_enabled: re,
+                      stx_user_opt_in: (0, S.getSmartTransactionsOptInStatusForMetrics)(T),
+                      anonymizedData: !0,
+                    },
+                    properties: { hd_entropy_index: A },
+                  });
+                  try {
+                    var ue;
+                    const e = Date.now();
+                    i(he(e));
+                    const a = i(
+                        (0, l.fetchAndSetQuotes)(
+                          {
+                            slippage: ce,
+                            sourceToken: b,
+                            destinationToken: W,
+                            value: t,
+                            fromAddress: R.address,
+                            balanceError: k,
+                            sourceDecimals: G,
+                            enableGasIncludedQuotes:
+                              re && (0, S.getSmartTransactionsPreferenceEnabled)(T),
+                          },
+                          {
+                            sourceTokenInfo: J,
+                            destinationTokenInfo: ee,
+                            accountBalance: R.balance,
+                            networkClientId: _.clientId,
+                          }
+                        )
+                      ),
+                      s = ne ? null : i(Ce()),
+                      [[r, o]] = await Promise.all([a, s]);
+                    if (
+                      0 === (null === (ue = Object.values(r)) || void 0 === ue ? void 0 : ue.length)
+                    )
+                      n({
+                        event: 'No Quotes Available',
+                        category: h.MetaMetricsEventCategory.Swaps,
+                        sensitiveProperties: {
+                          token_from: F,
+                          token_from_amount: String(t),
+                          token_to: $,
+                          request_type: k ? 'Quote' : 'Order',
+                          slippage: ce,
+                          custom_slippage: ce !== E.Slippage.default && ce !== E.Slippage.stable,
+                          is_hardware_wallet: te,
+                          hardware_wallet_type: ae,
+                          stx_enabled: se,
+                          current_stx_enabled: re,
+                          stx_user_opt_in: (0, S.getSmartTransactionsOptInStatusForMetrics)(T),
+                        },
+                      }),
+                        i((0, l.setSwapsErrorKey)(E.QUOTES_NOT_AVAILABLE_ERROR));
+                    else {
+                      var le;
+                      const a = r[o],
+                        s = (0, I.calcTokenAmount)(a.destinationAmount, a.decimals || 18).toString(
+                          10
+                        );
+                      n({
+                        event: h.MetaMetricsEventName.QuotesReceived,
+                        category: h.MetaMetricsEventCategory.Swaps,
+                        sensitiveProperties: {
+                          token_from: F,
+                          token_from_amount: String(t),
+                          token_to: $,
+                          token_to_amount: s,
+                          request_type: k ? 'Quote' : 'Order',
+                          slippage: ce,
+                          custom_slippage: ce !== E.Slippage.default && ce !== E.Slippage.stable,
+                          response_time: Date.now() - e,
+                          best_quote_source: a.aggregator,
+                          available_quotes:
+                            null === (le = Object.values(r)) || void 0 === le ? void 0 : le.length,
+                          is_hardware_wallet: te,
+                          hardware_wallet_type: ae,
+                          stx_enabled: se,
+                          current_stx_enabled: re,
+                          stx_user_opt_in: (0, S.getSmartTransactionsOptInStatusForMetrics)(T),
+                          gas_included: a.isGasIncludedTrade,
+                          anonymizedData: !0,
+                        },
+                        properties: { hd_entropy_index: A },
+                      }),
+                        i((0, l.setInitialGasEstimate)(o));
+                    }
+                  } catch (e) {
+                    if (e.message === E.SWAPS_FETCH_ORDER_CONFLICT)
+                      return void r.default.debug(
+                        'Swap fetch order conflict detected; ignoring older request'
+                      );
+                    r.default.error('Error fetching quotes: ', e),
+                      i((0, l.setSwapsErrorKey)(E.ERROR_FETCHING_QUOTES));
+                  }
+                  i(de(!1));
+                };
+                a.signAndSendSwapsSmartTransaction =
+                  ({
+                    unsignedTransaction: e,
+                    trackEvent: t,
+                    history: a,
+                    additionalTrackingParams: n,
+                  }) =>
+                  async (s, c) => {
+                    var u, g, A, v, y, w, N, R, k;
+                    s(Re(!0));
+                    const C = c(),
+                      O = (0, f.getHDEntropyIndex)(C),
+                      P = q(C),
+                      M = (0, f.isHardwareWallet)(C),
+                      b = (0, f.getHardwareWalletType)(C),
+                      { metaData: F, value: D, slippage: x } = P,
+                      { sourceTokenInfo: L = {}, destinationTokenInfo: U = {} } = F,
+                      G = Z(C),
+                      H = (0, f.getSelectedNetwork)(C),
+                      B = (0, T.getFeatureFlagsByChainId)(C);
+                    s(
+                      (0, l.setSmartTransactionsRefreshInterval)(
+                        null == B || null === (u = B.smartTransactions) || void 0 === u
+                          ? void 0
+                          : u.batchStatusPollingInterval
+                      )
+                    );
+                    const W = G.trade,
+                      $ = (0, I.calcTokenAmount)(G.destinationAmount, U.decimals || 18).toPrecision(
+                        8
+                      ),
+                      V = (0, S.getSmartTransactionsEnabled)(C),
+                      K = j(C),
+                      Y = {
+                        token_from: L.symbol,
+                        token_from_amount: String(D),
+                        token_to: U.symbol,
+                        token_to_amount: $,
+                        slippage: x,
+                        custom_slippage: 2 !== x,
+                        best_quote_source:
+                          null === (g = X(C)) || void 0 === g ? void 0 : g.aggregator,
+                        available_quotes: null === (A = Q(C)) || void 0 === A ? void 0 : A.length,
+                        other_quote_selected:
+                          G.aggregator !==
+                          (null === (v = X(C)) || void 0 === v ? void 0 : v.aggregator),
+                        other_quote_selected_source:
+                          G.aggregator ===
+                          (null === (y = X(C)) || void 0 === y ? void 0 : y.aggregator)
+                            ? ''
+                            : G.aggregator,
+                        average_savings:
+                          null === (w = G.savings) || void 0 === w ? void 0 : w.total,
+                        performance_savings:
+                          null === (N = G.savings) || void 0 === N ? void 0 : N.performance,
+                        fee_savings: null === (R = G.savings) || void 0 === R ? void 0 : R.fee,
+                        median_metamask_fee:
+                          null === (k = G.savings) || void 0 === k ? void 0 : k.medianMetaMaskFee,
+                        is_hardware_wallet: M,
+                        hardware_wallet_type: b,
+                        stx_enabled: V,
+                        current_stx_enabled: K,
+                        stx_user_opt_in: (0, S.getSmartTransactionsOptInStatusForMetrics)(C),
+                        gas_included: G.isGasIncludedTrade,
+                        ...n,
+                      };
+                    if (
+                      (t({
+                        event: 'STX Swap Started',
+                        category: h.MetaMetricsEventCategory.Swaps,
+                        sensitiveProperties: Y,
+                        properties: { hd_entropy_index: O },
+                      }),
+                      !(0, p.isContractAddressValid)(W.to, H.configuration.chainId))
+                    )
+                      return (
+                        (0, o.captureMessage)('Invalid contract address', {
+                          extra: {
+                            token_from: Y.token_from,
+                            token_to: Y.token_to,
+                            contract_address: W.to,
+                          },
+                        }),
+                        await s((0, l.setSwapsErrorKey)(E.SWAP_FAILED_ERROR)),
+                        void a.push(d.SWAPS_ERROR_ROUTE)
+                      );
+                    const z = ee(C);
+                    let J, te;
+                    try {
+                      var ne;
+                      let t;
+                      if (
+                        (z && (te = { ...z, value: '0x0' }),
+                        (t = G.isGasIncludedTrade
+                          ? ae(C)
+                          : await s(
+                              Pe({
+                                unsignedTransaction: e,
+                                approveTxParams: te,
+                                fallbackOnNotEnoughFunds: !0,
+                              })
+                            )),
+                        !t)
+                      )
+                        return (
+                          r.default.error('"fetchSwapsSmartTransactionFees" failed'),
+                          s(Re(!1)),
+                          void s(Ne(p.StxErrorTypes.unavailable))
+                        );
+                      var se;
+                      if (z)
+                        (te.gas = `0x${(0, m.decimalToHex)((null === (se = t.approvalTxFees) || void 0 === se ? void 0 : se.gasLimit) || 0)}`),
+                          (te.chainId = H.configuration.chainId),
+                          (J = await s(
+                            (0, l.signAndSendSmartTransaction)({
+                              unsignedTransaction: te,
+                              smartTransactionFees: t.approvalTxFees,
+                            })
+                          ));
+                      (e.gas = `0x${(0, m.decimalToHex)((null === (ne = t.tradeTxFees) || void 0 === ne ? void 0 : ne.gasLimit) || 0)}`),
+                        (e.chainId = H.configuration.chainId);
+                      const n = await s(
+                          (0, l.signAndSendSmartTransaction)({
+                            unsignedTransaction: e,
+                            smartTransactionFees: t.tradeTxFees,
+                          })
+                        ),
+                        o = U.address,
+                        c = U.decimals,
+                        u = U.symbol,
+                        g = L.symbol;
+                      await s(
+                        (0, l.updateSmartTransaction)(n, {
+                          origin: _.ORIGIN_METAMASK,
+                          destinationTokenAddress: o,
+                          destinationTokenDecimals: c,
+                          destinationTokenSymbol: u,
+                          sourceTokenSymbol: g,
+                          swapMetaData: Y,
+                          swapTokenValue: D,
+                          type: i.TransactionType.swap,
+                        })
+                      ),
+                        J &&
+                          (await s(
+                            (0, l.updateSmartTransaction)(J, {
+                              origin: _.ORIGIN_METAMASK,
+                              type: i.TransactionType.swapApproval,
+                              sourceTokenSymbol: g,
+                            })
+                          )),
+                        a.push(d.SMART_TRANSACTION_STATUS_ROUTE),
+                        s(Re(!1));
+                    } catch (e) {
+                      console.log('signAndSendSwapsSmartTransaction error', e), s(Re(!1));
+                      const {
+                        swaps: { isFeatureFlagLoaded: t },
+                      } = c();
+                      if (e.message.startsWith('Fetch error:') && t) {
+                        const t = (0, p.parseSmartTransactionsError)(e.message);
+                        s(Ne(null == t ? void 0 : t.error));
+                      }
+                    }
+                  };
+                function Oe() {
+                  return async (e, t) => {
+                    const a = t(),
+                      n = (0, g.getCurrentChainId)(a);
+                    let s;
+                    e(ie());
+                    try {
+                      s = await (0, p.fetchSwapsGasPrices)(n);
+                    } catch (t) {
+                      var o;
+                      if (
+                        (r.default.warn('Fetching swaps gas prices failed:', t),
+                        null === (o = t.message) ||
+                          void 0 === o ||
+                          !o.match(/NetworkError|Fetch failed with status:/u))
+                      )
+                        throw t;
+                      e(ce());
+                      try {
+                        const t = await global.ethereumProvider.request({
+                            method: 'eth_gasPrice',
+                            params: [],
+                          }),
+                          a = (0, m.hexWEIToDecGWEI)(t.toString(10));
+                        return e(ye(a)), null;
+                      } catch (e) {
+                        return console.error('Failed to retrieve fallback gas price: ', e), null;
+                      }
+                    }
+                    return e(oe({ priceEstimates: s })), s;
+                  };
+                }
+                function Pe({
+                  unsignedTransaction: e,
+                  approveTxParams: t,
+                  fallbackOnNotEnoughFunds: a = !1,
+                }) {
+                  return async (n, s) => {
+                    const {
+                      swaps: { isFeatureFlagLoaded: r },
+                    } = s();
+                    try {
+                      return await n((0, l.fetchSmartTransactionFees)(e, t));
+                    } catch (e) {
+                      if (e.message.startsWith('Fetch error:') && r) {
+                        const t = (0, p.parseSmartTransactionsError)(e.message);
+                        (a || (null == t ? void 0 : t.error) !== p.StxErrorTypes.notEnoughFunds) &&
+                          n(Ne(null == t ? void 0 : t.error));
+                      }
+                    }
+                    return null;
+                  };
+                }
+                a.signAndSendTransactions = (e, t, a) => async (n, c) => {
+                  var T, A, _, y, w, R, k, O, P, M, b;
+                  const F = c(),
+                    D = (0, f.getHDEntropyIndex)(F),
+                    x = (0, g.getCurrentChainId)(F),
+                    L = (0, g.getSelectedNetworkClientId)(F),
+                    U = (0, f.isHardwareWallet)(F),
+                    G = (0, f.checkNetworkAndAccountSupports1559)(F);
+                  let B = { swapsFeatureIsLive: !1 };
+                  try {
+                    const e = await (0, p.fetchSwapsFeatureFlags)();
+                    B = (0, p.getSwapsLivenessForNetwork)(x, e);
+                  } catch (e) {
+                    r.default.error('Failed to fetch Swaps liveness, defaulting to false.', e);
+                  }
+                  if ((await n((0, l.setSwapsLiveness)(B)), !B.swapsFeatureIsLive))
+                    return void (await e.push(d.SWAPS_MAINTENANCE_ROUTE));
+                  const W = V(F),
+                    $ = q(F),
+                    { metaData: K, value: Y, slippage: z } = $,
+                    { sourceTokenInfo: te = {}, destinationTokenInfo: ae = {} } = K;
+                  await n((0, l.setBackgroundSwapRouteState)('awaiting')),
+                    await n((0, l.stopPollingForQuotes)()),
+                    U || e.push(d.AWAITING_SWAP_ROUTE);
+                  const { fast: ne } = H(F),
+                    se = Z(F),
+                    re = se.trade,
+                    oe = ee(F);
+                  let ie;
+                  if (G) {
+                    const e = (0, v.getGasFeeEstimates)(F),
+                      { estimatedBaseFee: t = '0' } = e;
+                    (ie = await (0, p.getSwap1559GasFeeEstimates)(se.trade, oe, t, x)),
+                      C('Received 1559 gas fee estimates', ie);
+                  }
+                  const ce = null === (T = ie) || void 0 === T ? void 0 : T.tradeGasFeeEstimates,
+                    ue = null === (A = ie) || void 0 === A ? void 0 : A.approveGasFeeEstimates,
+                    le = new s.default((null == se ? void 0 : se.gasEstimate) || 0, 16)
+                      .round(0)
+                      .toString(16),
+                    de = (0, N.calculateMaxGasLimit)(
+                      null == se ? void 0 : se.gasEstimate,
+                      null == se ? void 0 : se.gasMultiplier,
+                      null == se ? void 0 : se.maxGas,
+                      W
+                    ),
+                    pe = J(F);
+                  (re.gas = de),
+                    G
+                      ? ((re.maxFeePerGas = null == ce ? void 0 : ce.maxFeePerGas),
+                        (re.maxPriorityFeePerGas = null == ce ? void 0 : ce.maxPriorityFeePerGas),
+                        delete re.gasPrice)
+                      : (re.gasPrice = pe);
+                  const me = (0, f.getUSDConversionRate)(F),
+                    ge = (0, I.calcTokenAmount)(
+                      se.destinationAmount,
+                      ae.decimals || 18
+                    ).toPrecision(8),
+                    Te =
+                      (null == se ? void 0 : se.gasEstimateWithRefund) ||
+                      `0x${(0, m.decimalToHex)((null == se ? void 0 : se.averageGas) || 0)}`,
+                    fe = (0, I.calcGasTotal)(
+                      Te,
+                      G ? (null == ce ? void 0 : ce.baseAndPriorityFeePerGas) : pe
+                    ),
+                    Se = null === (_ = se.approvalNeeded) || void 0 === _ ? void 0 : _.gas,
+                    he = Se
+                      ? (0, I.calcGasTotal)(
+                          Se,
+                          G ? (null == ue ? void 0 : ue.baseAndPriorityFeePerGas) : pe
+                        )
+                      : '0x0',
+                    Ee = (0, m.getValueFromWeiHex)({
+                      value: (0, m.addHexes)(fe, he),
+                      toCurrency: 'usd',
+                      conversionRate: me,
+                      numberOfDecimals: 6,
+                    }),
+                    Ae = (0, S.getSmartTransactionsEnabled)(F),
+                    ve = j(F),
+                    _e = {
+                      token_from: te.symbol,
+                      token_from_amount: String(Y),
+                      token_to: ae.symbol,
+                      token_to_amount: ge,
+                      slippage: z,
+                      custom_slippage: 2 !== z,
+                      best_quote_source:
+                        null === (y = X(F)) || void 0 === y ? void 0 : y.aggregator,
+                      available_quotes: null === (w = Q(F)) || void 0 === w ? void 0 : w.length,
+                      other_quote_selected:
+                        se.aggregator !==
+                        (null === (R = X(F)) || void 0 === R ? void 0 : R.aggregator),
+                      other_quote_selected_source:
+                        se.aggregator ===
+                        (null === (k = X(F)) || void 0 === k ? void 0 : k.aggregator)
+                          ? ''
+                          : se.aggregator,
+                      gas_fees: Ee,
+                      estimated_gas: new s.default(le, 16).toString(10),
+                      suggested_gas_price: ne,
+                      used_gas_price: (0, m.hexWEIToDecGWEI)(pe),
+                      average_savings: null === (O = se.savings) || void 0 === O ? void 0 : O.total,
+                      performance_savings:
+                        null === (P = se.savings) || void 0 === P ? void 0 : P.performance,
+                      fee_savings: null === (M = se.savings) || void 0 === M ? void 0 : M.fee,
+                      median_metamask_fee:
+                        null === (b = se.savings) || void 0 === b ? void 0 : b.medianMetaMaskFee,
+                      is_hardware_wallet: U,
+                      hardware_wallet_type: (0, f.getHardwareWalletType)(F),
+                      stx_enabled: Ae,
+                      current_stx_enabled: ve,
+                      stx_user_opt_in: (0, S.getSmartTransactionsOptInStatusForMetrics)(F),
+                      ...a,
+                    };
+                  if (
+                    (G &&
+                      ((_e.max_fee_per_gas = null == ce ? void 0 : ce.maxFeePerGas),
+                      (_e.max_priority_fee_per_gas = null == ce ? void 0 : ce.maxPriorityFeePerGas),
+                      (_e.base_and_priority_fee_per_gas =
+                        null == ce ? void 0 : ce.baseAndPriorityFeePerGas)),
+                    t({
+                      event: h.MetaMetricsEventName.SwapStarted,
+                      category: h.MetaMetricsEventCategory.Swaps,
+                      sensitiveProperties: _e,
+                      properties: { hd_entropy_index: D },
+                    }),
+                    !(0, p.isContractAddressValid)(re.to, x))
+                  )
+                    return (
+                      (0, o.captureMessage)('Invalid contract address', {
+                        extra: {
+                          token_from: _e.token_from,
+                          token_to: _e.token_to,
+                          contract_address: re.to,
+                        },
+                      }),
+                      await n((0, l.setSwapsErrorKey)(E.SWAP_FAILED_ERROR)),
+                      void e.push(d.SWAPS_ERROR_ROUTE)
+                    );
+                  let Ie;
+                  if ((U && e.push(d.AWAITING_SIGNATURES_ROUTE), oe)) {
+                    G &&
+                      ((oe.maxFeePerGas = null == ue ? void 0 : ue.maxFeePerGas),
+                      (oe.maxPriorityFeePerGas = null == ue ? void 0 : ue.maxPriorityFeePerGas),
+                      delete oe.gasPrice),
+                      C('Creating approve transaction', oe);
+                    try {
+                      if (
+                        ((Ie = await (0, l.addTransactionAndWaitForPublish)(
+                          { ...oe, amount: '0x0' },
+                          {
+                            networkClientId: L,
+                            requireApproval: !1,
+                            type: i.TransactionType.swapApproval,
+                            swaps: {
+                              hasApproveTx: !0,
+                              meta: {
+                                type: i.TransactionType.swapApproval,
+                                sourceTokenSymbol: te.symbol,
+                              },
+                            },
+                          }
+                        )),
+                        [
+                          u.CHAIN_IDS.LINEA_MAINNET,
+                          u.CHAIN_IDS.LINEA_GOERLI,
+                          u.CHAIN_IDS.LINEA_SEPOLIA,
+                        ].includes(x))
+                      ) {
+                        C('Delaying submitting trade tx to make Linea confirmation more likely');
+                        const e = new Promise(e => setTimeout(e, 5e3));
+                        await e;
+                      }
+                    } catch (t) {
+                      return (
+                        C('Approve transaction failed', t),
+                        await n((0, l.setSwapsErrorKey)(E.SWAP_FAILED_ERROR)),
+                        void e.push(d.SWAPS_ERROR_ROUTE)
+                      );
+                    }
+                  }
+                  C('Creating trade transaction', re);
+                  try {
+                    var ye, we;
+                    await (0, l.addTransactionAndWaitForPublish)(re, {
+                      networkClientId: L,
+                      requireApproval: !1,
+                      type: i.TransactionType.swap,
+                      swaps: {
+                        hasApproveTx: Boolean(oe),
+                        meta: {
+                          estimatedBaseFee:
+                            null === (ye = ie) || void 0 === ye ? void 0 : ye.estimatedBaseFee,
+                          sourceTokenSymbol: te.symbol,
+                          destinationTokenSymbol: ae.symbol,
+                          type: i.TransactionType.swap,
+                          destinationTokenDecimals: ae.decimals,
+                          destinationTokenAddress: ae.address,
+                          swapMetaData: _e,
+                          swapTokenValue: Y,
+                          approvalTxId: null === (we = Ie) || void 0 === we ? void 0 : we.id,
+                        },
+                      },
+                    });
+                  } catch (t) {
+                    const a = t.message.includes('EthAppPleaseEnableContractData')
+                      ? E.CONTRACT_DATA_DISABLED_ERROR
+                      : E.SWAP_FAILED_ERROR;
+                    return (
+                      C('Trade transaction failed', t),
+                      await n((0, l.setSwapsErrorKey)(a)),
+                      void e.push(d.SWAPS_ERROR_ROUTE)
+                    );
+                  }
+                  U && e.push(d.AWAITING_SWAP_ROUTE), await (0, l.forceUpdateMetamaskState)(n);
+                };
+                a.getIsEstimatedReturnLow = ({ usedQuote: e, rawNetworkFees: t }) => {
+                  var a, n, r, o, i, c;
+                  const u = (0, I.calcTokenAmount)(
+                      null == e ? void 0 : e.sourceAmount,
+                      null == e || null === (a = e.sourceTokenInfo) || void 0 === a
+                        ? void 0
+                        : a.decimals
+                    ),
+                    l = (0, R.useTokenFiatAmount)(
+                      null == e || null === (n = e.sourceTokenInfo) || void 0 === n
+                        ? void 0
+                        : n.address,
+                      u || 0,
+                      null == e || null === (r = e.sourceTokenInfo) || void 0 === r
+                        ? void 0
+                        : r.symbol,
+                      { showFiat: !0 },
+                      !0,
+                      null,
+                      !1
+                    ),
+                    d = (0, I.calcTokenAmount)(
+                      null == e ? void 0 : e.destinationAmount,
+                      null == e || null === (o = e.destinationTokenInfo) || void 0 === o
+                        ? void 0
+                        : o.decimals
+                    ),
+                    p = (0, R.useTokenFiatAmount)(
+                      null == e || null === (i = e.destinationTokenInfo) || void 0 === i
+                        ? void 0
+                        : i.address,
+                      d || 0,
+                      null == e || null === (c = e.destinationTokenInfo) || void 0 === c
+                        ? void 0
+                        : c.symbol,
+                      { showFiat: !0 },
+                      !0,
+                      null,
+                      !1
+                    ),
+                    m = p && t ? new s.default(p).minus(new s.default(t)) : null;
+                  return (
+                    !(!l || !m) &&
+                    m.lt(new s.default(l).times(1 - E.SWAPS_QUOTE_MAX_RETURN_DIFFERENCE_PERCENTAGE))
+                  );
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/ducks/swaps/swaps.js' },
+    ],
+    [
+      6870,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.SUPPORT_REQUEST_LINK =
+                    a.SUPPORT_LINK =
+                    a.SECONDARY =
+                    a.PRIMARY =
+                    a.PASSWORD_MIN_LENGTH =
+                    a.OUTDATED_BROWSER_VERSIONS =
+                    a.METAMETRICS_SETTINGS_LINK =
+                    a.FIXED_PRERENDER_BROWSER_VERSIONS =
+                    a.CONTRACT_ADDRESS_LINK =
+                    a.BROKEN_PRERENDER_BROWSER_VERSIONS =
+                      void 0);
+                (a.PRIMARY = 'PRIMARY'),
+                  (a.SECONDARY = 'SECONDARY'),
+                  (a.METAMETRICS_SETTINGS_LINK =
+                    'https://support.metamask.io/privacy-and-security/how-to-manage-your-metametrics-settings'),
+                  (a.SUPPORT_REQUEST_LINK = 'https://support.metamask.io/'),
+                  (a.SUPPORT_LINK = 'https://support.metamask.io/'),
+                  (a.CONTRACT_ADDRESS_LINK =
+                    'https://support.metamask.io/managing-my-tokens/moving-your-tokens/why-am-i-being-warned-about-sending-tokens-to-a-contract/'),
+                  (a.PASSWORD_MIN_LENGTH = 8),
+                  (a.OUTDATED_BROWSER_VERSIONS = {
+                    chrome: '<109',
+                    edge: '<109',
+                    firefox: '<102',
+                    opera: '<95',
+                  }),
+                  (a.BROKEN_PRERENDER_BROWSER_VERSIONS = { chrome: '>=113', edge: '>=113' }),
+                  (a.FIXED_PRERENDER_BROWSER_VERSIONS = {
+                    windows: { chrome: '>=120', edge: '>=120' },
+                    macos: { chrome: '>=120', edge: '>=120' },
+                    chrome: '>=121',
+                    edge: '>=121',
+                  });
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/constants/common.ts' },
+    ],
+    [
+      6872,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.TypographyVariant =
+                    a.TextVariant =
+                    a.TextTransform =
+                    a.TextColor =
+                    a.TextAlign =
+                    a.TEXT_TRANSFORM =
+                    a.TEXT_ALIGN =
+                    a.Size =
+                    a.Severity =
+                    a.SEVERITIES =
+                    a.OverflowWrap =
+                    a.OVERFLOW_WRAP =
+                    a.JustifyContent =
+                    a.IconColor =
+                    a.FontWeight =
+                    a.FontStyle =
+                    a.FlexWrap =
+                    a.FlexDirection =
+                    a.FRACTIONS =
+                    a.FONT_WEIGHT =
+                    a.FONT_STYLE =
+                    a.FLEX_WRAP =
+                    a.FLEX_DIRECTION =
+                    a.Display =
+                    a.DISPLAY =
+                    a.Color =
+                    a.BorderStyle =
+                    a.BorderRadius =
+                    a.BorderColor =
+                    a.BlockSize =
+                    a.BackgroundColor =
+                    a.BREAKPOINTS =
+                    a.BLOCK_SIZES =
+                    a.AlignItems =
+                      void 0);
+                (a.Color = (function (e) {
+                  return (
+                    (e.backgroundDefault = 'background-default'),
+                    (e.backgroundAlternative = 'background-alternative'),
+                    (e.backgroundMuted = 'background-muted'),
+                    (e.textDefault = 'text-default'),
+                    (e.textAlternative = 'text-alternative'),
+                    (e.textMuted = 'text-muted'),
+                    (e.iconDefault = 'icon-default'),
+                    (e.iconAlternative = 'icon-alternative'),
+                    (e.iconMuted = 'icon-muted'),
+                    (e.borderDefault = 'border-default'),
+                    (e.borderMuted = 'border-muted'),
+                    (e.overlayDefault = 'overlay-default'),
+                    (e.overlayInverse = 'overlay-inverse'),
+                    (e.primaryDefault = 'primary-default'),
+                    (e.primaryAlternative = 'primary-alternative'),
+                    (e.primaryMuted = 'primary-muted'),
+                    (e.primaryInverse = 'primary-inverse'),
+                    (e.errorDefault = 'error-default'),
+                    (e.errorAlternative = 'error-alternative'),
+                    (e.errorMuted = 'error-muted'),
+                    (e.errorInverse = 'error-inverse'),
+                    (e.warningDefault = 'warning-default'),
+                    (e.warningMuted = 'warning-muted'),
+                    (e.warningInverse = 'warning-inverse'),
+                    (e.successDefault = 'success-default'),
+                    (e.successMuted = 'success-muted'),
+                    (e.successInverse = 'success-inverse'),
+                    (e.infoDefault = 'info-default'),
+                    (e.infoMuted = 'info-muted'),
+                    (e.infoInverse = 'info-inverse'),
+                    (e.goerli = 'goerli'),
+                    (e.sepolia = 'sepolia'),
+                    (e.lineaGoerli = 'linea-goerli'),
+                    (e.lineaGoerliInverse = 'linea-goerli-inverse'),
+                    (e.lineaSepolia = 'linea-sepolia'),
+                    (e.lineaSepoliaInverse = 'linea-sepolia-inverse'),
+                    (e.lineaMainnet = 'linea-mainnet'),
+                    (e.lineaMainnetInverse = 'linea-mainnet-inverse'),
+                    (e.transparent = 'transparent'),
+                    (e.localhost = 'localhost'),
+                    (e.inherit = 'inherit'),
+                    (e.goerliInverse = 'goerli-inverse'),
+                    (e.sepoliaInverse = 'sepolia-inverse'),
+                    e
+                  );
+                })({})),
+                  (a.BackgroundColor = (function (e) {
+                    return (
+                      (e.backgroundDefault = 'background-default'),
+                      (e.backgroundAlternative = 'background-alternative'),
+                      (e.backgroundMuted = 'background-muted'),
+                      (e.backgroundAlternativeSoft = 'background-alternative-soft'),
+                      (e.backgroundHover = 'background-hover'),
+                      (e.backgroundPressed = 'background-pressed'),
+                      (e.iconDefault = 'icon-default'),
+                      (e.iconAlternative = 'icon-alternative'),
+                      (e.iconMuted = 'icon-muted'),
+                      (e.overlayDefault = 'overlay-default'),
+                      (e.overlayAlternative = 'overlay-alternative'),
+                      (e.primaryDefault = 'primary-default'),
+                      (e.primaryAlternative = 'primary-alternative'),
+                      (e.primaryMuted = 'primary-muted'),
+                      (e.errorDefault = 'error-default'),
+                      (e.errorAlternative = 'error-alternative'),
+                      (e.errorMuted = 'error-muted'),
+                      (e.warningDefault = 'warning-default'),
+                      (e.warningMuted = 'warning-muted'),
+                      (e.successDefault = 'success-default'),
+                      (e.successMuted = 'success-muted'),
+                      (e.infoDefault = 'info-default'),
+                      (e.infoMuted = 'info-muted'),
+                      (e.mainnet = 'mainnet'),
+                      (e.goerli = 'goerli'),
+                      (e.sepolia = 'sepolia'),
+                      (e.lineaGoerli = 'linea-goerli'),
+                      (e.lineaSepolia = 'linea-sepolia'),
+                      (e.lineaMainnet = 'linea-mainnet'),
+                      (e.transparent = 'transparent'),
+                      (e.localhost = 'localhost'),
+                      e
+                    );
+                  })({})),
+                  (a.BorderColor = (function (e) {
+                    return (
+                      (e.borderDefault = 'border-default'),
+                      (e.borderMuted = 'border-muted'),
+                      (e.primaryDefault = 'primary-default'),
+                      (e.primaryAlternative = 'primary-alternative'),
+                      (e.primaryMuted = 'primary-muted'),
+                      (e.errorDefault = 'error-default'),
+                      (e.errorAlternative = 'error-alternative'),
+                      (e.errorMuted = 'error-muted'),
+                      (e.warningDefault = 'warning-default'),
+                      (e.warningMuted = 'warning-muted'),
+                      (e.successDefault = 'success-default'),
+                      (e.successMuted = 'success-muted'),
+                      (e.infoDefault = 'info-default'),
+                      (e.infoMuted = 'info-muted'),
+                      (e.mainnet = 'mainnet'),
+                      (e.goerli = 'goerli'),
+                      (e.sepolia = 'sepolia'),
+                      (e.lineaGoerli = 'linea-goerli'),
+                      (e.lineaSepolia = 'linea-sepolia'),
+                      (e.lineaMainnet = 'linea-mainnet'),
+                      (e.transparent = 'transparent'),
+                      (e.localhost = 'localhost'),
+                      (e.backgroundDefault = 'background-default'),
+                      e
+                    );
+                  })({})),
+                  (a.TextColor = (function (e) {
+                    return (
+                      (e.textDefault = 'text-default'),
+                      (e.textAlternative = 'text-alternative'),
+                      (e.textAlternativeSoft = 'text-alternative-soft'),
+                      (e.textMuted = 'text-muted'),
+                      (e.overlayInverse = 'overlay-inverse'),
+                      (e.primaryDefault = 'primary-default'),
+                      (e.primaryInverse = 'primary-inverse'),
+                      (e.errorDefault = 'error-default'),
+                      (e.errorAlternative = 'error-alternative'),
+                      (e.errorInverse = 'error-inverse'),
+                      (e.successDefault = 'success-default'),
+                      (e.successInverse = 'success-inverse'),
+                      (e.warningDefault = 'warning-default'),
+                      (e.warningInverse = 'warning-inverse'),
+                      (e.infoDefault = 'info-default'),
+                      (e.infoInverse = 'info-inverse'),
+                      (e.inherit = 'inherit'),
+                      (e.goerli = 'goerli'),
+                      (e.sepolia = 'sepolia'),
+                      (e.lineaGoerli = 'linea-goerli'),
+                      (e.lineaGoerliInverse = 'linea-goerli-inverse'),
+                      (e.lineaSepolia = 'linea-sepolia'),
+                      (e.lineaSepoliaInverse = 'linea-sepolia-inverse'),
+                      (e.lineaMainnet = 'linea-mainnet'),
+                      (e.lineaMainnetInverse = 'linea-mainnet-inverse'),
+                      (e.goerliInverse = 'goerli-inverse'),
+                      (e.sepoliaInverse = 'sepolia-inverse'),
+                      (e.transparent = 'transparent'),
+                      e
+                    );
+                  })({})),
+                  (a.IconColor = (function (e) {
+                    return (
+                      (e.iconDefault = 'icon-default'),
+                      (e.iconAlternative = 'icon-alternative'),
+                      (e.iconAlternativeSoft = 'icon-alternative-soft'),
+                      (e.iconMuted = 'icon-muted'),
+                      (e.overlayInverse = 'overlay-inverse'),
+                      (e.primaryDefault = 'primary-default'),
+                      (e.primaryInverse = 'primary-inverse'),
+                      (e.errorDefault = 'error-default'),
+                      (e.errorInverse = 'error-inverse'),
+                      (e.successDefault = 'success-default'),
+                      (e.successInverse = 'success-inverse'),
+                      (e.warningDefault = 'warning-default'),
+                      (e.warningInverse = 'warning-inverse'),
+                      (e.infoDefault = 'info-default'),
+                      (e.infoInverse = 'info-inverse'),
+                      (e.inherit = 'inherit'),
+                      (e.goerli = 'goerli'),
+                      (e.sepolia = 'sepolia'),
+                      (e.lineaGoerli = 'linea-goerli'),
+                      (e.lineaGoerliInverse = 'linea-goerli-inverse'),
+                      (e.lineaSepolia = 'linea-sepolia'),
+                      (e.lineaSepoliaInverse = 'linea-sepolia-inverse'),
+                      (e.lineaMainnet = 'linea-mainnet'),
+                      (e.lineaMainnetInverse = 'linea-mainnet-inverse'),
+                      (e.goerliInverse = 'goerli-inverse'),
+                      (e.sepoliaInverse = 'sepolia-inverse'),
+                      (e.transparent = 'transparent'),
+                      e
+                    );
+                  })({})),
+                  (a.TypographyVariant = (function (e) {
+                    return (
+                      (e.H1 = 'h1'),
+                      (e.H2 = 'h2'),
+                      (e.H3 = 'h3'),
+                      (e.H4 = 'h4'),
+                      (e.H5 = 'h5'),
+                      (e.H6 = 'h6'),
+                      (e.H7 = 'h7'),
+                      (e.H8 = 'h8'),
+                      (e.H9 = 'h9'),
+                      (e.paragraph = 'p'),
+                      (e.span = 'span'),
+                      e
+                    );
+                  })({})),
+                  (a.TextVariant = (function (e) {
+                    return (
+                      (e.displayMd = 'display-md'),
+                      (e.headingLg = 'heading-lg'),
+                      (e.headingMd = 'heading-md'),
+                      (e.headingSm = 'heading-sm'),
+                      (e.bodyLgMedium = 'body-lg-medium'),
+                      (e.bodyMd = 'body-md'),
+                      (e.bodyMdMedium = 'body-md-medium'),
+                      (e.bodyMdBold = 'body-md-bold'),
+                      (e.bodySm = 'body-sm'),
+                      (e.bodySmMedium = 'body-sm-medium'),
+                      (e.bodySmBold = 'body-sm-bold'),
+                      (e.bodyXs = 'body-xs'),
+                      (e.bodyXsMedium = 'body-xs-medium'),
+                      (e.inherit = 'inherit'),
+                      e
+                    );
+                  })({})),
+                  (a.Size = (function (e) {
+                    return (
+                      (e.XXS = 'xxs'),
+                      (e.XS = 'xs'),
+                      (e.SM = 'sm'),
+                      (e.MD = 'md'),
+                      (e.LG = 'lg'),
+                      (e.XL = 'xl'),
+                      (e.inherit = 'inherit'),
+                      (e.auto = 'auto'),
+                      e
+                    );
+                  })({})),
+                  (a.BorderStyle = (function (e) {
+                    return (
+                      (e.dashed = 'dashed'),
+                      (e.solid = 'solid'),
+                      (e.dotted = 'dotted'),
+                      (e.double = 'double'),
+                      (e.none = 'none'),
+                      e
+                    );
+                  })({})),
+                  (a.BorderRadius = (function (e) {
+                    return (
+                      (e.XS = 'xs'),
+                      (e.SM = 'sm'),
+                      (e.MD = 'md'),
+                      (e.LG = 'lg'),
+                      (e.XL = 'xl'),
+                      (e.none = 'none'),
+                      (e.pill = 'pill'),
+                      (e.full = 'full'),
+                      e
+                    );
+                  })({})),
+                  (a.AlignItems = (function (e) {
+                    return (
+                      (e.flexStart = 'flex-start'),
+                      (e.flexEnd = 'flex-end'),
+                      (e.center = 'center'),
+                      (e.baseline = 'baseline'),
+                      (e.stretch = 'stretch'),
+                      e
+                    );
+                  })({})),
+                  (a.JustifyContent = (function (e) {
+                    return (
+                      (e.flexStart = 'flex-start'),
+                      (e.flexEnd = 'flex-end'),
+                      (e.center = 'center'),
+                      (e.spaceAround = 'space-around'),
+                      (e.spaceBetween = 'space-between'),
+                      (e.spaceEvenly = 'space-evenly'),
+                      e
+                    );
+                  })({})),
+                  (a.FlexDirection = (function (e) {
+                    return (
+                      (e.Row = 'row'),
+                      (e.RowReverse = 'row-reverse'),
+                      (e.Column = 'column'),
+                      (e.ColumnReverse = 'column-reverse'),
+                      e
+                    );
+                  })({}));
+                a.FLEX_DIRECTION = {
+                  ROW: 'row',
+                  ROW_REVERSE: 'row-reverse',
+                  COLUMN: 'column',
+                  COLUMN_REVERSE: 'column-reverse',
+                };
+                a.FlexWrap = (function (e) {
+                  return (
+                    (e.Wrap = 'wrap'), (e.WrapReverse = 'wrap-reverse'), (e.NoWrap = 'nowrap'), e
+                  );
+                })({});
+                a.FLEX_WRAP = { WRAP: 'wrap', WRAP_REVERSE: 'wrap-reverse', NO_WRAP: 'nowrap' };
+                a.Display = (function (e) {
+                  return (
+                    (e.Block = 'block'),
+                    (e.Flex = 'flex'),
+                    (e.Grid = 'grid'),
+                    (e.InlineBlock = 'inline-block'),
+                    (e.Inline = 'inline'),
+                    (e.InlineFlex = 'inline-flex'),
+                    (e.InlineGrid = 'inline-grid'),
+                    (e.ListItem = 'list-item'),
+                    (e.None = 'none'),
+                    e
+                  );
+                })({});
+                a.DISPLAY = {
+                  BLOCK: 'block',
+                  FLEX: 'flex',
+                  GRID: 'grid',
+                  INLINE_BLOCK: 'inline-block',
+                  INLINE: 'inline',
+                  INLINE_FLEX: 'inline-flex',
+                  INLINE_GRID: 'inline-grid',
+                  LIST_ITEM: 'list-item',
+                  NONE: 'none',
+                };
+                const n = (a.FRACTIONS = {
+                  HALF: '1/2',
+                  ONE_THIRD: '1/3',
+                  TWO_THIRDS: '2/3',
+                  ONE_FOURTH: '1/4',
+                  TWO_FOURTHS: '2/4',
+                  THREE_FOURTHS: '3/4',
+                  ONE_FIFTH: '1/5',
+                  TWO_FIFTHS: '2/5',
+                  THREE_FIFTHS: '3/5',
+                  FOUR_FIFTHS: '4/5',
+                  ONE_SIXTH: '1/6',
+                  TWO_SIXTHS: '2/6',
+                  THREE_SIXTHS: '3/6',
+                  FOUR_SIXTHS: '4/6',
+                  FIVE_SIXTHS: '5/6',
+                  ONE_TWELFTH: '1/12',
+                  TWO_TWELFTHS: '2/12',
+                  THREE_TWELFTHS: '3/12',
+                  FOUR_TWELFTHS: '4/12',
+                  FIVE_TWELFTHS: '5/12',
+                  SIX_TWELFTHS: '6/12',
+                  SEVEN_TWELFTHS: '7/12',
+                  EIGHT_TWELFTHS: '8/12',
+                  NINE_TWELFTHS: '9/12',
+                  TEN_TWELFTHS: '10/12',
+                  ELEVEN_TWELFTHS: '11/12',
+                });
+                a.BlockSize = (function (e) {
+                  return (
+                    (e.Zero = '0'),
+                    (e.Half = '1/2'),
+                    (e.OneThird = '1/3'),
+                    (e.TwoThirds = '2/3'),
+                    (e.OneFourth = '1/4'),
+                    (e.TwoFourths = '2/4'),
+                    (e.ThreeFourths = '3/4'),
+                    (e.OneFifth = '1/5'),
+                    (e.TwoFifths = '2/5'),
+                    (e.ThreeFifths = '3/5'),
+                    (e.FourFifths = '4/5'),
+                    (e.OneSixth = '1/6'),
+                    (e.TwoSixths = '2/6'),
+                    (e.ThreeSixths = '3/6'),
+                    (e.FourSixths = '4/6'),
+                    (e.FiveSixths = '5/6'),
+                    (e.OneTwelfth = '1/12'),
+                    (e.TwoTwelfths = '2/12'),
+                    (e.ThreeTwelfths = '3/12'),
+                    (e.FourTwelfths = '4/12'),
+                    (e.FiveTwelfths = '5/12'),
+                    (e.SixTwelfths = '6/12'),
+                    (e.SevenTwelfths = '7/12'),
+                    (e.EightTwelfths = '8/12'),
+                    (e.NineTwelfths = '9/12'),
+                    (e.TenTwelfths = '10/12'),
+                    (e.ElevenTwelfths = '11/12'),
+                    (e.Screen = 'screen'),
+                    (e.Max = 'max'),
+                    (e.Min = 'min'),
+                    (e.Full = 'full'),
+                    e
+                  );
+                })({});
+                a.BLOCK_SIZES = { ...n, SCREEN: 'screen', MAX: 'max', MIN: 'min', FULL: 'full' };
+                a.TextAlign = (function (e) {
+                  return (
+                    (e.Left = 'left'),
+                    (e.Center = 'center'),
+                    (e.Right = 'right'),
+                    (e.Justify = 'justify'),
+                    (e.End = 'end'),
+                    (e.Start = 'start'),
+                    e
+                  );
+                })({});
+                a.TEXT_ALIGN = {
+                  LEFT: 'left',
+                  CENTER: 'center',
+                  RIGHT: 'right',
+                  JUSTIFY: 'justify',
+                  END: 'end',
+                  START: 'start',
+                };
+                a.TextTransform = (function (e) {
+                  return (
+                    (e.Uppercase = 'uppercase'),
+                    (e.Lowercase = 'lowercase'),
+                    (e.Capitalize = 'capitalize'),
+                    e
+                  );
+                })({});
+                a.TEXT_TRANSFORM = {
+                  UPPERCASE: 'uppercase',
+                  LOWERCASE: 'lowercase',
+                  CAPITALIZE: 'capitalize',
+                };
+                a.FontWeight = (function (e) {
+                  return (e.Bold = 'bold'), (e.Medium = 'medium'), (e.Normal = 'normal'), e;
+                })({});
+                a.FONT_WEIGHT = { BOLD: 'bold', MEDIUM: 'medium', NORMAL: 'normal' };
+                a.OverflowWrap = (function (e) {
+                  return (
+                    (e.BreakWord = 'break-word'),
+                    (e.Anywhere = 'anywhere'),
+                    (e.Normal = 'normal'),
+                    e
+                  );
+                })({});
+                a.OVERFLOW_WRAP = {
+                  BREAK_WORD: 'break-word',
+                  ANYWHERE: 'anywhere',
+                  NORMAL: 'normal',
+                };
+                a.FontStyle = (function (e) {
+                  return (e.Italic = 'italic'), (e.Normal = 'normal'), e;
+                })({});
+                a.FONT_STYLE = { ITALIC: 'italic', NORMAL: 'normal' };
+                a.Severity = (function (e) {
+                  return (
+                    (e.Danger = 'danger'),
+                    (e.Warning = 'warning'),
+                    (e.Info = 'info'),
+                    (e.Success = 'success'),
+                    e
+                  );
+                })({});
+                (a.SEVERITIES = {
+                  DANGER: 'danger',
+                  WARNING: 'warning',
+                  INFO: 'info',
+                  SUCCESS: 'success',
+                }),
+                  (a.BREAKPOINTS = ['base', 'sm', 'md', 'lg']);
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/constants/design-system.ts' },
+    ],
+    [
+      6873,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.USER_OP_CONTRACT_DEPLOY_ERROR_KEY =
+                    a.UNSENDABLE_ASSET_ERROR_KEY =
+                    a.TRANSACTION_ERROR_KEY =
+                    a.IS_SIGNING_OR_SUBMITTING =
+                    a.INVALID_ASSET_TYPE =
+                    a.INSUFFICIENT_FUNDS_FOR_GAS_ERROR_KEY =
+                    a.INSUFFICIENT_FUNDS_ERROR_KEY =
+                    a.GAS_PRICE_FETCH_FAILURE_ERROR_KEY =
+                    a.GAS_PRICE_EXCESSIVE_ERROR_KEY =
+                    a.GAS_LIMIT_TOO_LOW_ERROR_KEY =
+                    a.ETH_GAS_PRICE_FETCH_WARNING_KEY =
+                      void 0);
+                (a.INSUFFICIENT_FUNDS_ERROR_KEY = 'insufficientFunds'),
+                  (a.GAS_LIMIT_TOO_LOW_ERROR_KEY = 'gasLimitTooLow'),
+                  (a.TRANSACTION_ERROR_KEY = 'transactionError'),
+                  (a.ETH_GAS_PRICE_FETCH_WARNING_KEY = 'ethGasPriceFetchWarning'),
+                  (a.GAS_PRICE_FETCH_FAILURE_ERROR_KEY = 'gasPriceFetchFailed'),
+                  (a.GAS_PRICE_EXCESSIVE_ERROR_KEY = 'gasPriceExcessive'),
+                  (a.UNSENDABLE_ASSET_ERROR_KEY = 'unsendableAsset'),
+                  (a.INSUFFICIENT_FUNDS_FOR_GAS_ERROR_KEY = 'insufficientFundsForGas'),
+                  (a.INVALID_ASSET_TYPE = 'invalidAssetType'),
+                  (a.IS_SIGNING_OR_SUBMITTING = 'isSigningOrSubmitting'),
+                  (a.USER_OP_CONTRACT_DEPLOY_ERROR_KEY = 'userOpContractDeployError');
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/constants/error-keys.js' },
+    ],
+    [
+      6876,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.NOTIFICATIONS_EXPIRATION_DELAY = void 0);
+                a.NOTIFICATIONS_EXPIRATION_DELAY = 1e4;
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/constants/notifications.ts' },
+    ],
+    [
+      6878,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.UNLOCK_ROUTE =
+                    a.SWAPS_ROUTE =
+                    a.SWAPS_NOTIFICATION_ROUTE =
+                    a.SWAPS_MAINTENANCE_ROUTE =
+                    a.SWAPS_ERROR_ROUTE =
+                    a.SNAP_SETTINGS_ROUTE =
+                    a.SNAPS_VIEW_ROUTE =
+                    a.SNAPS_ROUTE =
+                    a.SMART_TRANSACTION_STATUS_ROUTE =
+                    a.SIGNATURE_REQUEST_PATH =
+                    a.SETTINGS_ROUTE =
+                    a.SEND_ROUTE =
+                    a.SECURITY_ROUTE =
+                    a.REVIEW_PERMISSIONS =
+                    a.REVEAL_SRP_LIST_ROUTE =
+                    a.REVEAL_SEED_ROUTE =
+                    a.RESTORE_VAULT_ROUTE =
+                    a.PREPARE_SWAP_ROUTE =
+                    a.PERMISSIONS =
+                    a.PATH_NAME_MAP =
+                    a.ONBOARDING_WELCOME_ROUTE =
+                    a.ONBOARDING_UNLOCK_ROUTE =
+                    a.ONBOARDING_SECURE_YOUR_WALLET_ROUTE =
+                    a.ONBOARDING_ROUTE =
+                    a.ONBOARDING_REVIEW_SRP_ROUTE =
+                    a.ONBOARDING_PRIVACY_SETTINGS_ROUTE =
+                    a.ONBOARDING_PIN_EXTENSION_ROUTE =
+                    a.ONBOARDING_METAMETRICS =
+                    a.ONBOARDING_IMPORT_WITH_SRP_ROUTE =
+                    a.ONBOARDING_HELP_US_IMPROVE_ROUTE =
+                    a.ONBOARDING_EXPERIMENTAL_AREA =
+                    a.ONBOARDING_CREATE_PASSWORD_ROUTE =
+                    a.ONBOARDING_CONFIRM_SRP_ROUTE =
+                    a.ONBOARDING_COMPLETION_ROUTE =
+                    a.NOTIFICATIONS_SETTINGS_ROUTE =
+                    a.NOTIFICATIONS_ROUTE =
+                    a.NEW_ACCOUNT_ROUTE =
+                    a.NETWORKS_ROUTE =
+                    a.NETWORKS_FORM_ROUTE =
+                    a.LOCK_ROUTE =
+                    a.LOADING_QUOTES_ROUTE =
+                    a.INITIALIZE_EXPERIMENTAL_AREA =
+                    a.IMPORT_TOKEN_ROUTE =
+                    a.IMPORT_TOKENS_ROUTE =
+                    a.GENERAL_ROUTE =
+                    a.EXPERIMENTAL_ROUTE =
+                    a.ENCRYPTION_PUBLIC_KEY_REQUEST_PATH =
+                    a.DEVELOPER_OPTIONS_ROUTE =
+                    a.DEFAULT_ROUTE =
+                    a.DECRYPT_MESSAGE_REQUEST_PATH =
+                    a.CROSS_CHAIN_SWAP_TX_DETAILS_ROUTE =
+                    a.CROSS_CHAIN_SWAP_ROUTE =
+                    a.CONTACT_VIEW_ROUTE =
+                    a.CONTACT_LIST_ROUTE =
+                    a.CONTACT_EDIT_ROUTE =
+                    a.CONTACT_ADD_ROUTE =
+                    a.CONNECT_SNAP_UPDATE_ROUTE =
+                    a.CONNECT_SNAP_RESULT_ROUTE =
+                    a.CONNECT_SNAP_INSTALL_ROUTE =
+                    a.CONNECT_SNAPS_CONNECT_ROUTE =
+                    a.CONNECT_ROUTE =
+                    a.CONNECT_HARDWARE_ROUTE =
+                    a.CONNECT_CONFIRM_PERMISSIONS_ROUTE =
+                    a.CONNECTIONS =
+                    a.CONNECTED_ROUTE =
+                    a.CONNECTED_ACCOUNTS_ROUTE =
+                    a.CONFIRM_TRANSFER_FROM_PATH =
+                    a.CONFIRM_TRANSACTION_ROUTE =
+                    a.CONFIRM_TOKEN_METHOD_PATH =
+                    a.CONFIRM_SET_APPROVAL_FOR_ALL_PATH =
+                    a.CONFIRM_SEND_TOKEN_PATH =
+                    a.CONFIRM_SEND_ETHER_PATH =
+                    a.CONFIRM_SAFE_TRANSFER_FROM_PATH =
+                    a.CONFIRM_INCREASE_ALLOWANCE_PATH =
+                    a.CONFIRM_IMPORT_TOKEN_ROUTE =
+                    a.CONFIRM_DEPLOY_CONTRACT_PATH =
+                    a.CONFIRM_APPROVE_PATH =
+                    a.CONFIRM_ADD_SUGGESTED_TOKEN_ROUTE =
+                    a.CONFIRM_ADD_SUGGESTED_NFT_ROUTE =
+                    a.CONFIRMATION_V_NEXT_ROUTE =
+                    a.AWAITING_SWAP_ROUTE =
+                    a.AWAITING_SIGNATURES_ROUTE =
+                    a.ASSET_ROUTE =
+                    a.ADVANCED_ROUTE =
+                    a.ADD_POPULAR_CUSTOM_NETWORK =
+                    a.ADD_NETWORK_ROUTE =
+                    a.ABOUT_US_ROUTE =
+                      void 0);
+                const n = (a.PATH_NAME_MAP = {});
+                n[(a.DEFAULT_ROUTE = '/')] = 'Home';
+                n[(a.UNLOCK_ROUTE = '/unlock')] = 'Unlock Page';
+                n[(a.LOCK_ROUTE = '/lock')] = 'Lock Page';
+                const s = (a.ASSET_ROUTE = '/asset');
+                (n[`${s}/:asset/:id`] = 'Asset Page'),
+                  (n[`${s}/image/:asset/:id`] = 'Nft Image Page');
+                n[(a.SETTINGS_ROUTE = '/settings')] = 'Settings Page';
+                n[(a.GENERAL_ROUTE = '/settings/general')] = 'General Settings Page';
+                n[(a.ADVANCED_ROUTE = '/settings/advanced')] = 'Advanced Settings Page';
+                a.DEVELOPER_OPTIONS_ROUTE = '/settings/developer-options';
+                n[(a.EXPERIMENTAL_ROUTE = '/settings/experimental')] = 'Experimental Settings Page';
+                n[(a.SECURITY_ROUTE = '/settings/security')] = 'Security Settings Page';
+                n[(a.ABOUT_US_ROUTE = '/settings/about-us')] = 'About Us Page';
+                n[(a.NETWORKS_ROUTE = '/settings/networks')] = 'Network Settings Page';
+                n[(a.NETWORKS_FORM_ROUTE = '/settings/networks/form')] =
+                  'Network Settings Page Form';
+                n[(a.ADD_NETWORK_ROUTE = '/settings/networks/add-network')] =
+                  'Add Network From Settings Page Form';
+                n[
+                  (a.ADD_POPULAR_CUSTOM_NETWORK = '/settings/networks/add-popular-custom-network')
+                ] = 'Add Network From A List Of Popular Custom Networks';
+                n[(a.CONTACT_LIST_ROUTE = '/settings/contact-list')] = 'Contact List Settings Page';
+                n[`${(a.CONTACT_EDIT_ROUTE = '/settings/contact-list/edit-contact')}/:address`] =
+                  'Edit Contact Settings Page';
+                n[(a.CONTACT_ADD_ROUTE = '/settings/contact-list/add-contact')] =
+                  'Add Contact Settings Page';
+                n[`${(a.CONTACT_VIEW_ROUTE = '/settings/contact-list/view-contact')}/:address`] =
+                  'View Contact Settings Page';
+                n[`${(a.SNAP_SETTINGS_ROUTE = '/settings/snap')}/:snapId`] = 'Snap Settings Page';
+                n[(a.REVEAL_SRP_LIST_ROUTE = '/settings/security-and-privacy/reveal-srp-list')] =
+                  'Reveal Secret Recovery Phrase List Page';
+                n[`${(a.REVEAL_SEED_ROUTE = '/seed')}/:keyringId`] =
+                  'Reveal Secret Recovery Phrase Page';
+                n[(a.RESTORE_VAULT_ROUTE = '/restore-vault')] = 'Restore Vault Page';
+                n[(a.IMPORT_TOKEN_ROUTE = '/import-token')] = 'Import Token Page';
+                n[(a.IMPORT_TOKENS_ROUTE = '/import-tokens')] = 'Import Tokens Page';
+                n[(a.CONFIRM_IMPORT_TOKEN_ROUTE = '/confirm-import-token')] =
+                  'Confirm Import Token Page';
+                n[(a.CONFIRM_ADD_SUGGESTED_TOKEN_ROUTE = '/confirm-add-suggested-token')] =
+                  'Confirm Add Suggested Token Page';
+                n[(a.NEW_ACCOUNT_ROUTE = '/new-account')] = 'New Account Page';
+                n[(a.CONFIRM_ADD_SUGGESTED_NFT_ROUTE = '/confirm-add-suggested-nft')] =
+                  'Confirm Add Suggested NFT Page';
+                n[(a.CONNECT_HARDWARE_ROUTE = '/new-account/connect')] =
+                  'Connect Hardware Wallet Page';
+                n[(a.SEND_ROUTE = '/send')] = 'Send Page';
+                n[(a.CONNECTIONS = '/connections')] = 'Connections';
+                n[(a.PERMISSIONS = '/permissions')] = 'Permissions';
+                a.REVIEW_PERMISSIONS = '/review-permissions';
+                const r = (a.CONNECT_ROUTE = '/connect');
+                n[`${r}/:id`] = 'Connect To Site Confirmation Page';
+                n[`${r}/:id${(a.CONNECT_CONFIRM_PERMISSIONS_ROUTE = '/confirm-permissions')}`] =
+                  'Grant Connected Site Permissions Confirmation Page';
+                n[`${r}/:id${(a.CONNECT_SNAPS_CONNECT_ROUTE = '/snaps-connect')}`] =
+                  'Snaps Connect Page';
+                n[`${r}/:id${(a.CONNECT_SNAP_INSTALL_ROUTE = '/snap-install')}`] =
+                  'Snap Install Page';
+                n[`${r}/:id${(a.CONNECT_SNAP_UPDATE_ROUTE = '/snap-update')}`] = 'Snap Update Page';
+                n[`${r}/:id${(a.CONNECT_SNAP_RESULT_ROUTE = '/snap-install-result')}`] =
+                  'Snap Install Result Page';
+                n[(a.SNAPS_ROUTE = '/snaps')] = 'Snaps List Page';
+                n[`${(a.SNAPS_VIEW_ROUTE = '/snaps/view')}/:snapId`] = 'Snap View Page';
+                const o = (a.NOTIFICATIONS_ROUTE = '/notifications');
+                (n[o] = 'Notifications Page'), (n[`${o}/:uuid`] = 'Notification Detail Page');
+                n[(a.NOTIFICATIONS_SETTINGS_ROUTE = '/notifications/settings')] =
+                  'Notifications Settings Page';
+                n[(a.CONNECTED_ROUTE = '/connected')] = 'Sites Connected To This Account Page';
+                n[(a.CONNECTED_ACCOUNTS_ROUTE = '/connected/accounts')] =
+                  'Accounts Connected To This Site Page';
+                const i = (a.CONFIRM_TRANSACTION_ROUTE = '/confirm-transaction');
+                (n[i] = 'Confirmation Root Page'), (n[`${i}/:id`] = 'Confirmation Root Page');
+                const c = (a.CONFIRMATION_V_NEXT_ROUTE = '/confirmation');
+                (n[c] = 'New Confirmation Page'), (n[`${c}/:id`] = 'New Confirmation Page');
+                n[`${i}/:id${(a.CONFIRM_SEND_ETHER_PATH = '/send-ether')}`] =
+                  'Confirm Send Ether Transaction Page';
+                n[`${i}/:id${(a.CONFIRM_SEND_TOKEN_PATH = '/send-token')}`] =
+                  'Confirm Send Token Transaction Page';
+                n[`${i}/:id${(a.CONFIRM_DEPLOY_CONTRACT_PATH = '/deploy-contract')}`] =
+                  'Confirm Deploy Contract Transaction Page';
+                n[`${i}/:id${(a.CONFIRM_APPROVE_PATH = '/approve')}`] =
+                  'Confirm Approve Transaction Page';
+                n[`${i}/:id${(a.CONFIRM_SET_APPROVAL_FOR_ALL_PATH = '/set-approval-for-all')}`] =
+                  'Confirm Set Approval For All Transaction Page';
+                n[`${i}/:id${(a.CONFIRM_TRANSFER_FROM_PATH = '/transfer-from')}`] =
+                  'Confirm Transfer From Transaction Page';
+                n[`${i}/:id${(a.CONFIRM_SAFE_TRANSFER_FROM_PATH = '/safe-transfer-from')}`] =
+                  'Confirm Safe Transfer From Transaction Page';
+                n[`${i}/:id${(a.CONFIRM_TOKEN_METHOD_PATH = '/token-method')}`] =
+                  'Confirm Token Method Transaction Page';
+                n[`${i}/:id${(a.CONFIRM_INCREASE_ALLOWANCE_PATH = '/increase-allowance')}`] =
+                  'Confirm Increase Allowance Transaction Page';
+                n[`${i}/:id${(a.SIGNATURE_REQUEST_PATH = '/signature-request')}`] =
+                  'Signature Request Page';
+                n[`${i}/:id${(a.DECRYPT_MESSAGE_REQUEST_PATH = '/decrypt-message-request')}`] =
+                  'Decrypt Message Request Page';
+                n[
+                  `${i}/:id${(a.ENCRYPTION_PUBLIC_KEY_REQUEST_PATH = '/encryption-public-key-request')}`
+                ] = 'Encryption Public Key Request Page';
+                n[(a.CROSS_CHAIN_SWAP_ROUTE = '/cross-chain')] = 'Prepare Cross Chain Swap Page';
+                (a.CROSS_CHAIN_SWAP_TX_DETAILS_ROUTE = '/cross-chain/tx-details'),
+                  (a.SWAPS_ROUTE = '/swaps');
+                n[(a.PREPARE_SWAP_ROUTE = '/swaps/prepare-swap-page')] = 'Prepare Swap Page';
+                n[(a.SWAPS_NOTIFICATION_ROUTE = '/swaps/notification-page')] =
+                  'Swaps Notification Page';
+                n[(a.LOADING_QUOTES_ROUTE = '/swaps/loading-quotes')] = 'Swaps Loading Quotes Page';
+                (a.AWAITING_SIGNATURES_ROUTE = '/swaps/awaiting-signatures'),
+                  (a.SMART_TRANSACTION_STATUS_ROUTE = '/swaps/smart-transaction-status');
+                n[(a.AWAITING_SWAP_ROUTE = '/swaps/awaiting-swap')] = 'Swaps Awaiting Swaps Page';
+                n[(a.SWAPS_ERROR_ROUTE = '/swaps/swaps-error')] = 'Swaps Error Page';
+                (a.SWAPS_MAINTENANCE_ROUTE = '/swaps/maintenance'),
+                  (a.ONBOARDING_ROUTE = '/onboarding'),
+                  (a.ONBOARDING_REVIEW_SRP_ROUTE = '/onboarding/review-recovery-phrase'),
+                  (a.ONBOARDING_CONFIRM_SRP_ROUTE = '/onboarding/confirm-recovery-phrase'),
+                  (a.ONBOARDING_CREATE_PASSWORD_ROUTE = '/onboarding/create-password'),
+                  (a.ONBOARDING_COMPLETION_ROUTE = '/onboarding/completion'),
+                  (a.ONBOARDING_UNLOCK_ROUTE = '/onboarding/unlock'),
+                  (a.ONBOARDING_HELP_US_IMPROVE_ROUTE = '/onboarding/help-us-improve'),
+                  (a.ONBOARDING_IMPORT_WITH_SRP_ROUTE = '/onboarding/import-with-recovery-phrase'),
+                  (a.ONBOARDING_SECURE_YOUR_WALLET_ROUTE = '/onboarding/secure-your-wallet'),
+                  (a.ONBOARDING_PRIVACY_SETTINGS_ROUTE = '/onboarding/privacy-settings'),
+                  (a.ONBOARDING_PIN_EXTENSION_ROUTE = '/onboarding/pin-extension'),
+                  (a.ONBOARDING_WELCOME_ROUTE = '/onboarding/welcome'),
+                  (a.ONBOARDING_METAMETRICS = '/onboarding/metametrics'),
+                  (a.INITIALIZE_EXPERIMENTAL_AREA = '/initialize/experimental-area'),
+                  (a.ONBOARDING_EXPERIMENTAL_AREA = '/onboarding/experimental-area');
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/constants/routes.ts' },
+    ],
+    [
+      6884,
+      { '@metamask/transaction-controller': 2946 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.TOKEN_CATEGORY_HASH = a.PRIORITY_STATUS_HASH = a.PENDING_STATUS_HASH = void 0);
+                var n = e('@metamask/transaction-controller');
+                const s = (a.PENDING_STATUS_HASH = {
+                  [n.TransactionStatus.unapproved]: !0,
+                  [n.TransactionStatus.approved]: !0,
+                  [n.TransactionStatus.submitted]: !0,
+                });
+                (a.PRIORITY_STATUS_HASH = { ...s, [n.TransactionStatus.confirmed]: !0 }),
+                  (a.TOKEN_CATEGORY_HASH = {
+                    [n.TransactionType.tokenMethodApprove]: !0,
+                    [n.TransactionType.tokenMethodSetApprovalForAll]: !0,
+                    [n.TransactionType.tokenMethodTransfer]: !0,
+                    [n.TransactionType.tokenMethodTransferFrom]: !0,
+                    [n.TransactionType.tokenMethodIncreaseAllowance]: !0,
+                  });
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/constants/transactions.js' },
+    ],
+    [
+      6885,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                a.default = {
+                  ACCOUNT_UPGRADE:
+                    'https://support.metamask.io/configure/accounts/what-is-a-smart-account',
+                  ADD_CUSTOM_TOKENS:
+                    'https://support.metamask.io/managing-my-tokens/custom-tokens/how-to-display-tokens-in-metamask/',
+                  ADD_MISSING_ACCOUNTS:
+                    'https://support.metamask.io/managing-my-wallet/accounts-and-addresses/how-to-add-missing-accounts-after-restoring-with-secret-recovery-phrase/',
+                  BASIC_SAFETY:
+                    'https://support.metamask.io/privacy-and-security/basic-safety-and-security-tips-for-metamask/',
+                  CUSTOMIZE_NONCE:
+                    'https://support.metamask.io/transactions-and-gas/transactions/how-to-customize-a-transaction-nonce/',
+                  GAS_FEES: 'https://support.metamask.io/transactions-and-gas/gas-fees/',
+                  SWAPS_GAS_FEES:
+                    'https://support.metamask.io/token-swaps/user-guide-swaps/#gas-fees',
+                  HARDWARE_CONNECTION:
+                    'https://support.metamask.io/privacy-and-security/hardware-wallet-hub/',
+                  IMPORT_ACCOUNTS:
+                    'https://support.metamask.io/managing-my-wallet/accounts-and-addresses/how-to-import-an-account/',
+                  IMPORTED_ACCOUNTS:
+                    'https://support.metamask.io/managing-my-wallet/accounts-and-addresses/what-are-imported-accounts-/',
+                  INFURA_BLOCKAGE:
+                    'https://support.metamask.io/troubleshooting/why-infura-cannot-serve-certain-areas/',
+                  LEDGER_FIREFOX_U2F_GUIDE:
+                    'https://support.ledger.com/hc/en-us/articles/10371387758493-MetaMask-Firefox-Ledger-Integration-Issue?support=true',
+                  LEGACY_WEB3:
+                    'https://support.metamask.io/third-party-platforms-and-dapps/metamask-legacy-web3/',
+                  NFT_TOKENS:
+                    'https://support.metamask.io/nfts/nft-tokens-in-your-metamask-wallet/',
+                  PASSWORD_AND_SRP_ARTICLE:
+                    'https://support.metamask.io/getting-started/user-guide-secret-recovery-phrase-password-and-private-keys/',
+                  SECRET_RECOVERY_PHRASE:
+                    'https://support.metamask.io/privacy-and-security/what-is-a-secret-recovery-phrase-and-how-to-keep-your-crypto-wallet-secure/',
+                  NON_CUSTODIAL_WALLET:
+                    'https://support.metamask.io/getting-started/metamask-is-a-self-custodial-wallet/',
+                  SPEEDUP_CANCEL:
+                    'https://support.metamask.io/transactions-and-gas/transactions/how-to-speed-up-or-cancel-a-pending-transaction/',
+                  SUPPORT_URL: 'https://support.metamask.io',
+                  TOKEN_ALLOWANCE_WITH_SPENDING_CAP:
+                    'https://support.metamask.io/privacy-and-security/how-to-customize-token-approvals-with-a-spending-cap/',
+                  TOKEN_SAFETY_PRACTICES:
+                    'https://support.metamask.io/managing-my-tokens/token-safety-practices/',
+                  UNKNOWN_NETWORK:
+                    'https://support.metamask.io/networks-and-sidechains/managing-networks/the-risks-of-connecting-to-an-unknown-network/',
+                  USER_GUIDE_CUSTOM_NETWORKS:
+                    'https://support.metamask.io/networks-and-sidechains/managing-networks/user-guide-custom-networks-and-sidechains/',
+                  USER_GUIDE_DAPPS:
+                    'https://support.metamask.io/third-party-platforms-and-dapps/user-guide-dapps/',
+                  USER_GUIDE_GAS:
+                    'https://support.metamask.io/transactions-and-gas/gas-fees/user-guide-gas/',
+                  VERIFY_CUSTOM_NETWORK:
+                    'https://support.metamask.io/networks-and-sidechains/managing-networks/verifying-custom-network-information/',
+                  NETWORK_DEPRECATED:
+                    'https://support.metamask.io/networks-and-sidechains/eth-on-testnets/',
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/constants/zendesk-url.js' },
+    ],
+    [
+      6897,
+      {
+        '../../../app/build-types/flask/images/flask-mascot.json': 3,
+        '../../../app/build-types/main/fox.json': 4,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getBuildSpecificAsset = function (e) {
+                    const t = 'flask';
+                    if (!r[t] || !Object.keys(r[t]).includes(e))
+                      return (
+                        console.error(
+                          `Cannot find asset "${e}" for build "${t}", returning main build asset.`
+                        ),
+                        r.main[e]
+                      );
+                    return r[t][e];
+                  }),
+                  (a.isBeta = function () {
+                    return !1;
+                  }),
+                  (a.isFlask = function () {
+                    return !0;
+                  });
+                var n = s(e('../../../app/build-types/flask/images/flask-mascot.json'));
+                function s(e) {
+                  return e && e.__esModule ? e : { default: e };
+                }
+                const r = {
+                  main: { foxMeshJson: s(e('../../../app/build-types/main/fox.json')).default },
+                  flask: { foxMeshJson: n.default },
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/build-types.js' },
+    ],
+    [
+      6899,
+      {
+        '../../../shared/constants/common': 5791,
+        '../../../shared/modules/Numeric': 5853,
+        'bignumber.js': 4030,
+        'currency-formatter': 4288,
+        'currency-formatter/currencies': 4287,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.addEth = function (e, ...t) {
+                    return t
+                      .reduce((e, t) => e.add(new o.Numeric(t, 10)).round(6), new o.Numeric(e, 10))
+                      .toString();
+                  }),
+                  (a.addFiat = function (e, ...t) {
+                    return t
+                      .reduce((e, t) => e.add(new o.Numeric(t, 10)).round(2), new o.Numeric(e, 10))
+                      .toString();
+                  }),
+                  (a.areDappSuggestedAndTxParamGasFeesTheSame = function (e) {
+                    const { txParams: t, dappSuggestedGasFees: a } = e ?? {},
+                      { gasPrice: n, maxFeePerGas: s, maxPriorityFeePerGas: r } = t || {},
+                      { gasPrice: o, maxFeePerGas: i, maxPriorityFeePerGas: c } = a || {},
+                      u = !o && !i && !c;
+                    if ((!n && !s && !r) || u) return !1;
+                    const l = n && n === o,
+                      d = [s, r].every(e => e === o),
+                      p = s && s === i && r === c;
+                    return Boolean(l || d || p);
+                  }),
+                  (a.convertTokenToFiat = function ({
+                    value: e,
+                    fromCurrency: t = i.EtherDenomination.ETH,
+                    toCurrency: a,
+                    conversionRate: n,
+                    contractExchangeRate: s,
+                  }) {
+                    const r = n * s;
+                    let c = new o.Numeric(e, 10);
+                    t !== a && r && (c = c.applyConversionRate(r));
+                    return c.round(2).toString();
+                  }),
+                  (a.formatCurrency = function (e, t, a) {
+                    const r = t.toUpperCase();
+                    return s.default.find(e => e.code === r)
+                      ? n.default.format(Number(e), { code: r, precision: a })
+                      : e;
+                  }),
+                  (a.getHexGasTotal = function ({ gasLimit: e = '0x0', gasPrice: t = '0x0' }) {
+                    return new o.Numeric(e, 16).times(new o.Numeric(t, 16)).toPrefixedHexString();
+                  }),
+                  (a.getTransactionFee = function ({
+                    value: e,
+                    fromCurrency: t = i.EtherDenomination.ETH,
+                    toCurrency: a,
+                    conversionRate: n,
+                    numberOfDecimals: s,
+                  }) {
+                    let r = new o.Numeric(e, 16, i.EtherDenomination.WEI)
+                      .toDenomination(i.EtherDenomination.ETH)
+                      .toBase(10);
+                    t !== a && n && (r = r.applyConversionRate(n));
+                    return r.round(s).toString();
+                  }),
+                  (a.roundExponential = function (e) {
+                    const t = new r.BigNumber(e);
+                    return t.e > 20 ? t.toPrecision(4) : e;
+                  });
+                var n = c(e('currency-formatter')),
+                  s = c(e('currency-formatter/currencies')),
+                  r = e('bignumber.js'),
+                  o = e('../../../shared/modules/Numeric'),
+                  i = e('../../../shared/constants/common');
+                function c(e) {
+                  return e && e.__esModule ? e : { default: e };
+                }
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/confirm-tx.util.ts' },
+    ],
+    [
+      6901,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.formatETHFee = function (e, t = 'ETH') {
+                    return `${e} ${t}`;
+                  });
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/formatters.js' },
+    ],
+    [
+      6903,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.isHardwareKeyring = function (e = '') {
+                    return e.includes('Hardware');
+                  });
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/hardware.js' },
+    ],
+    [
+      6904,
+      {
+        '../../../shared/constants/network': 5804,
+        '../../../shared/modules/i18n': 5865,
+        '@sentry/browser': 3136,
+        react: 5328,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getMessage = void 0),
+                  (a.getNetworkLabelKey = function (e) {
+                    if (e === i.NETWORK_TYPES.LINEA_SEPOLIA) return 'lineaSepolia';
+                    if (e === i.NETWORK_TYPES.LINEA_MAINNET) return 'lineaMainnet';
+                    return e;
+                  });
+                var n,
+                  s = (n = e('react')) && n.__esModule ? n : { default: n },
+                  r = (function (e, t) {
+                    if (!t && e && e.__esModule) return e;
+                    if (null === e || ('object' != typeof e && 'function' != typeof e))
+                      return { default: e };
+                    var a = c(t);
+                    if (a && a.has(e)) return a.get(e);
+                    var n = { __proto__: null },
+                      s = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                    for (var r in e)
+                      if ('default' !== r && {}.hasOwnProperty.call(e, r)) {
+                        var o = s ? Object.getOwnPropertyDescriptor(e, r) : null;
+                        o && (o.get || o.set) ? Object.defineProperty(n, r, o) : (n[r] = e[r]);
+                      }
+                    return (n.default = e), a && a.set(e, n), n;
+                  })(e('@sentry/browser')),
+                  o = e('../../../shared/modules/i18n'),
+                  i = e('../../../shared/constants/network');
+                function c(e) {
+                  if ('function' != typeof WeakMap) return null;
+                  var t = new WeakMap(),
+                    a = new WeakMap();
+                  return (c = function (e) {
+                    return e ? a : t;
+                  })(e);
+                }
+                a.getMessage = (e, t, a, n) => {
+                  const i = (
+                    null == n
+                      ? void 0
+                      : n.some(e => null !== e && ('function' == typeof e || 'object' == typeof e))
+                  )
+                    ? e => s.default.createElement('span', null, ' ', e, ' ')
+                    : undefined;
+                  return (0, o.getMessage)(
+                    e,
+                    t,
+                    a,
+                    n,
+                    e => {
+                      r.captureException(e);
+                    },
+                    i
+                  );
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/i18n-helper.tsx' },
+    ],
+    [
+      6905,
+      { '../../../shared/modules/hexstring-utils': 5864 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.IconFactory = void 0),
+                  (a.default = function (e) {
+                    o || (o = new r(e));
+                    return o;
+                  });
+                var n = e('../../../shared/modules/hexstring-utils');
+                function s(e, t, a) {
+                  return (
+                    (t = (function (e) {
+                      var t = (function (e, t) {
+                        if ('object' != typeof e || !e) return e;
+                        var a = e[Symbol.toPrimitive];
+                        if (void 0 !== a) {
+                          var n = a.call(e, t || 'default');
+                          if ('object' != typeof n) return n;
+                          throw new TypeError('@@toPrimitive must return a primitive value.');
+                        }
+                        return ('string' === t ? String : Number)(e);
+                      })(e, 'string');
+                      return 'symbol' == typeof t ? t : t + '';
+                    })(t)) in e
+                      ? Object.defineProperty(e, t, {
+                          value: a,
+                          enumerable: !0,
+                          configurable: !0,
+                          writable: !0,
+                        })
+                      : (e[t] = a),
+                    e
+                  );
+                }
+                class r {
+                  constructor(e, t = i) {
+                    s(this, 'jazzicon', void 0),
+                      s(this, 'generateSeed', void 0),
+                      s(this, 'cache', void 0),
+                      (this.jazzicon = e),
+                      (this.generateSeed = t),
+                      (this.cache = {});
+                  }
+                  iconForAddress(e, t, a) {
+                    return (function (e, t) {
+                      if (null == t || !t.iconUrl) return !1;
+                      return (0, n.isValidHexAddress)(e, { allowNonPrefixed: !1 });
+                    })(e, a)
+                      ? (function (e) {
+                          const t = document.createElement('img');
+                          return (t.src = e.iconUrl), (t.style.width = '100%'), t;
+                        })(a)
+                      : this.generateIdenticonSvg(e, t);
+                  }
+                  generateIdenticonSvg(e, t) {
+                    const a = `${e}:${t}`;
+                    return (
+                      this.cache[a] || (this.cache[a] = this.generateNewIdenticon(e, t))
+                    ).cloneNode(!0);
+                  }
+                  generateNewIdenticon(e, t) {
+                    const a = this.generateSeed(e);
+                    return this.jazzicon(t, a);
+                  }
+                }
+                let o;
+                function i(e) {
+                  const t = e.slice(2, 10);
+                  return parseInt(t, 16);
+                }
+                a.IconFactory = r;
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/icon-factory.ts' },
+    ],
+    [
+      6907,
+      {
+        '../../../shared/constants/metametrics': 5800,
+        '../../../shared/constants/security-provider': 5811,
+        '../../../shared/lib/transactions-controller-utils': 5851,
+        '@metamask/transaction-controller': 2946,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.formatAccountType = function (e) {
+                    if ('default' === e) return 'metamask';
+                    return e;
+                  }),
+                  (a.generateSignatureUniqueId = function (e) {
+                    return `signature-${e}`;
+                  }),
+                  (a.getBlockaidMetricsProps = void 0),
+                  (a.getMethodName = function (e) {
+                    if (!e || 'string' != typeof e) return '';
+                    return e
+                      .replace(/([a-z])([A-Z])/gu, '$1 $2')
+                      .replace(/([A-Z])([a-z])/gu, ' $1$2')
+                      .replace(/ +/gu, ' ');
+                  }),
+                  (a.getSwapAndSendMetricsProps = void 0);
+                var n = e('@metamask/transaction-controller'),
+                  s = e('../../../shared/constants/security-provider'),
+                  r = e('../../../shared/constants/metametrics'),
+                  o = e('../../../shared/lib/transactions-controller-utils');
+                a.getBlockaidMetricsProps = ({ securityAlertResponse: e }) => {
+                  if (!e) return {};
+                  const t = {},
+                    {
+                      providerRequestsCount: a,
+                      reason: n,
+                      result_type: o,
+                      description: i,
+                      source: c,
+                    } = e,
+                    u = (e => {
+                      let t;
+                      return (
+                        e === s.BlockaidResultType.Malicious
+                          ? (t = [r.MetaMetricsEventUiCustomization.FlaggedAsMalicious])
+                          : e === s.BlockaidResultType.Warning
+                            ? (t = [r.MetaMetricsEventUiCustomization.FlaggedAsWarning])
+                            : e === s.BlockaidResultType.Errored &&
+                              (t = [r.MetaMetricsEventUiCustomization.SecurityAlertError]),
+                        t
+                      );
+                    })(o);
+                  return (
+                    u && (t.ui_customizations = u),
+                    o !== s.BlockaidResultType.Benign &&
+                      (t.security_alert_reason = n ?? s.BlockaidReason.notApplicable),
+                    i && (t.security_alert_description = i),
+                    (t.security_alert_response = o ?? s.BlockaidResultType.NotApplicable),
+                    (t.security_alert_source = c),
+                    a &&
+                      Object.keys(a).forEach(e => {
+                        t[`ppom_${e}_count`] = a[e];
+                      }),
+                    t
+                  );
+                };
+                a.getSwapAndSendMetricsProps = e => {
+                  if (e.type !== n.TransactionType.swapAndSend) return {};
+                  const {
+                    chainId: t,
+                    sourceTokenAmount: a,
+                    sourceTokenDecimals: s,
+                    destinationTokenAmount: r,
+                    destinationTokenDecimals: i,
+                    sourceTokenSymbol: c,
+                    destinationTokenAddress: u,
+                    destinationTokenSymbol: l,
+                    sourceTokenAddress: d,
+                  } = e;
+                  return {
+                    chain_id: t,
+                    token_amount_source:
+                      a && s ? (0, o.calcTokenAmount)(a, s).toString() : undefined,
+                    token_amount_dest_estimate:
+                      r && i ? (0, o.calcTokenAmount)(r, i).toString() : undefined,
+                    token_symbol_source: c,
+                    token_symbol_destination: l,
+                    token_address_source: d,
+                    token_address_destination: u,
+                  };
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/metrics.js' },
+    ],
+    [
+      6916,
+      { '../../../shared/modules/environment': 5859 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.isSnapIgnoredInProd = a.decodeSnapIdFromPathname = void 0);
+                var n = e('../../../shared/modules/environment');
+                a.decodeSnapIdFromPathname = e => {
+                  var t;
+                  const a =
+                    null == e || null === (t = e.match(/[^/]+$/u)) || void 0 === t ? void 0 : t[0];
+                  return a && decodeURIComponent(a);
+                };
+                const s = ['npm:@metamask/preinstalled-example-snap'];
+                a.isSnapIgnoredInProd = e => !!(0, n.isProduction)() && s.includes(e);
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/snaps.ts' },
+    ],
+    [
+      6918,
+      {
+        '../../../shared/constants/transaction': 5819,
+        '../../../shared/lib/metamask-controller-utils': 5838,
+        '../../../shared/lib/transactions-controller-utils': 5851,
+        '../../../shared/modules/Numeric': 5853,
+        '../../../shared/modules/string-utils': 5878,
+        '../../../shared/modules/transaction.utils': 5880,
+        '../../store/actions': 7619,
+        './confirm-tx.util': 6899,
+        './util': 6921,
+        loglevel: 4929,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getAssetDetails = async function (e, t, a, n) {
+                    var d, p, m;
+                    const g = (0, i.parseStandardTokenTransactionData)(a);
+                    if (!g) throw new Error('Unable to detect valid token data');
+                    let T =
+                      (null === (d = _(g)) || void 0 === d ? void 0 : d.toString()) ??
+                      (0, u.getTokenValueParam)(g);
+                    const f = v(g);
+                    let S;
+                    if (null != n && n.length && T) {
+                      const t = n.find(
+                        ({ address: t, tokenId: a }) =>
+                          (0, o.isEqualCaseInsensitive)(e, t) && a === T
+                      );
+                      if (t && (t.name || t.symbol)) return { toAddress: f, ...t };
+                    }
+                    try {
+                      S = await (0, r.getTokenStandardAndDetails)(e, t, T);
+                    } catch (e) {
+                      return s.default.warn(e), { toAddress: f, tokenId: T };
+                    }
+                    const h = (0, u.getTokenValueParam)(g),
+                      E = null === (p = S) || void 0 === p ? void 0 : p.decimals,
+                      A = g && h && E && (0, l.calcTokenAmount)(h, E).toString(10),
+                      I = E && Number(null == E ? void 0 : E.toString(10));
+                    (null === (m = S) || void 0 === m ? void 0 : m.standard) ===
+                      c.TokenStandard.ERC20 && (T = undefined);
+                    return { tokenAmount: A, toAddress: f, decimals: I, tokenId: T, ...S };
+                  }),
+                  (a.getSymbolAndDecimalsAndName = A),
+                  (a.getTokenAddressParam = v),
+                  (a.getTokenFiatAmount = function (e, t, a, n, s, r = !0, o = !1) {
+                    if (t <= 0 || !e || n === undefined || !1 === n) return undefined;
+                    const i = new d.Numeric(e, 10).times(new d.Numeric(t, 10)).toString();
+                    let c,
+                      u = new d.Numeric(n, 10);
+                    s !== a.toUpperCase() && i && (u = u.applyConversionRate(i));
+                    (u = u.round(2).toString()),
+                      (c =
+                        o && r
+                          ? (0, m.formatCurrency)(u, a)
+                          : r
+                            ? `${(0, m.formatCurrency)(u, a)} ${a.toUpperCase()}`
+                            : u);
+                    return c;
+                  }),
+                  (a.getTokenIdParam = _),
+                  (a.getTokenMetadata = f),
+                  (a.tokenInfoGetter = function () {
+                    const e = {};
+                    return async (t, a) =>
+                      e[t.toLowerCase()] ? e[t.toLowerCase()] : ((e[t] = await A(t, a)), e[t]);
+                  });
+                var n,
+                  s = (n = e('loglevel')) && n.__esModule ? n : { default: n },
+                  r = e('../../store/actions'),
+                  o = e('../../../shared/modules/string-utils'),
+                  i = e('../../../shared/modules/transaction.utils'),
+                  c = e('../../../shared/constants/transaction'),
+                  u = e('../../../shared/lib/metamask-controller-utils'),
+                  l = e('../../../shared/lib/transactions-controller-utils'),
+                  d = e('../../../shared/modules/Numeric'),
+                  p = (function (e, t) {
+                    if (!t && e && e.__esModule) return e;
+                    if (null === e || ('object' != typeof e && 'function' != typeof e))
+                      return { default: e };
+                    var a = g(t);
+                    if (a && a.has(e)) return a.get(e);
+                    var n = { __proto__: null },
+                      s = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                    for (var r in e)
+                      if ('default' !== r && {}.hasOwnProperty.call(e, r)) {
+                        var o = s ? Object.getOwnPropertyDescriptor(e, r) : null;
+                        o && (o.get || o.set) ? Object.defineProperty(n, r, o) : (n[r] = e[r]);
+                      }
+                    return (n.default = e), a && a.set(e, n), n;
+                  })(e('./util')),
+                  m = e('./confirm-tx.util');
+                function g(e) {
+                  if ('function' != typeof WeakMap) return null;
+                  var t = new WeakMap(),
+                    a = new WeakMap();
+                  return (g = function (e) {
+                    return e ? a : t;
+                  })(e);
+                }
+                const T = '';
+                function f(e, t) {
+                  return e && t[e.toLowerCase()];
+                }
+                async function S(e, t) {
+                  let a = await (async function (e) {
+                    const t = p.getContractAtAddress(e);
+                    try {
+                      return '0x' === (await t.provider.getCode(e)) ? '' : await t.symbol();
+                    } catch (t) {
+                      return (
+                        s.default.warn(
+                          `symbol() call for token at address ${e} resulted in error:`,
+                          t
+                        ),
+                        undefined
+                      );
+                    }
+                  })(e);
+                  if (!a) {
+                    const n = f(e, t);
+                    n && (a = n.symbol);
+                  }
+                  return a;
+                }
+                async function h(e, t) {
+                  let a = await (async function (e) {
+                    const t = p.getContractAtAddress(e);
+                    try {
+                      return '0x' === (await t.provider.getCode(e)) ? '' : await t.name();
+                    } catch (t) {
+                      return (
+                        s.default.warn(
+                          `name() call for token at address ${e} resulted in error:`,
+                          t
+                        ),
+                        undefined
+                      );
+                    }
+                  })(e);
+                  if (!a) {
+                    const n = f(e, t);
+                    n && (a = n.name);
+                  }
+                  return a;
+                }
+                async function E(e, t) {
+                  let a = await (async function (e) {
+                    const t = p.getContractAtAddress(e);
+                    try {
+                      if ('0x' === (await t.provider.getCode(e))) return '0';
+                      const a = await t.decimals();
+                      return null == a ? void 0 : a.toString();
+                    } catch (t) {
+                      return (
+                        s.default.warn(
+                          `decimals() call for token at address ${e} resulted in error:`,
+                          t
+                        ),
+                        undefined
+                      );
+                    }
+                  })(e);
+                  if (!a || '0' === a) {
+                    const s = f(e, t);
+                    var n;
+                    if (s) a = null === (n = s.decimals) || void 0 === n ? void 0 : n.toString();
+                  }
+                  return a;
+                }
+                async function A(e, t) {
+                  let a, n, r;
+                  try {
+                    const s = (await Promise.allSettled([S(e, t), E(e, t), h(e, t)]))
+                      .filter(e => 'fulfilled' === e.status)
+                      .map(e => e.value);
+                    [a, n, r] = s;
+                  } catch (t) {
+                    s.default.warn(
+                      `symbol() and decimal() and name() calls for token at address ${e} resulted in error:`,
+                      t
+                    );
+                  }
+                  return { symbol: a || T, decimals: n, name: r };
+                }
+                function v(e = {}) {
+                  var t, a, n;
+                  const s =
+                    (null == e || null === (t = e.args) || void 0 === t ? void 0 : t._to) ||
+                    (null == e || null === (a = e.args) || void 0 === a ? void 0 : a.to) ||
+                    (null == e || null === (n = e.args) || void 0 === n ? void 0 : n[0]);
+                  return null == s ? void 0 : s.toString().toLowerCase();
+                }
+                function _(e = {}) {
+                  var t, a;
+                  return (
+                    (null == e ||
+                    null === (t = e.args) ||
+                    void 0 === t ||
+                    null === (t = t._tokenId) ||
+                    void 0 === t
+                      ? void 0
+                      : t.toString()) ??
+                    (null == e ||
+                    null === (a = e.args) ||
+                    void 0 === a ||
+                    null === (a = a.id) ||
+                    void 0 === a
+                      ? void 0
+                      : a.toString())
+                  );
+                }
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/token-util.js' },
+    ],
+    [
+      6919,
+      {
+        '../../../app/scripts/lib/util': 204,
+        '../../../shared/constants/transaction': 5819,
+        '../../../shared/modules/contract-utils': 5857,
+        '@metamask/transaction-controller': 2946,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getFourBytePrefix = function (e = '') {
+                    const t = (0, s.addHexPrefix)(e);
+                    return t.slice(0, 10);
+                  }),
+                  (a.getLatestSubmittedTxWithNonce = function (e = [], t = '0x0') {
+                    if (!e.length) return {};
+                    return e.reduce((e, a) => {
+                      const { submittedTime: n, txParams: { nonce: s } = {} } = a;
+                      return s === t ? (e.submittedTime ? (n > e.submittedTime ? a : e) : a) : e;
+                    }, {});
+                  }),
+                  (a.getStatusKey = function (e) {
+                    const { txReceipt: { status: t } = {}, type: a, status: s } = e;
+                    if ('0x0' === t) return n.TransactionStatus.failed;
+                    if (s === n.TransactionStatus.confirmed && a === n.TransactionType.cancel)
+                      return r.TransactionGroupStatus.cancelled;
+                    return e.status;
+                  }),
+                  (a.getTransactionTypeTitle = function (e, t, a = 'ETH') {
+                    switch (t) {
+                      case n.TransactionType.tokenMethodTransfer:
+                        return e('transfer');
+                      case n.TransactionType.tokenMethodTransferFrom:
+                        return e('transferFrom');
+                      case n.TransactionType.tokenMethodSafeTransferFrom:
+                        return e('safeTransferFrom');
+                      case n.TransactionType.tokenMethodApprove:
+                        return e('approve');
+                      case n.TransactionType.tokenMethodSetApprovalForAll:
+                        return e('setApprovalForAll');
+                      case n.TransactionType.tokenMethodIncreaseAllowance:
+                        return e('approveIncreaseAllowance');
+                      case n.TransactionType.simpleSend:
+                        return e('sendingNativeAsset', [a]);
+                      case n.TransactionType.contractInteraction:
+                      case n.TransactionType.batch:
+                      case n.TransactionType.revokeDelegation:
+                        return e('contractInteraction');
+                      case n.TransactionType.deployContract:
+                        return e('contractDeployment');
+                      case n.TransactionType.swap:
+                        return e('swap');
+                      case n.TransactionType.swapAndSend:
+                        return e('swapAndSend');
+                      case n.TransactionType.swapApproval:
+                        return e('swapApproval');
+                      default:
+                        throw new Error(`Unrecognized transaction type: ${t}`);
+                    }
+                  }),
+                  (a.isLegacyTransaction = function (e) {
+                    return (null == e ? void 0 : e.type) === n.TransactionEnvelopeType.legacy;
+                  }),
+                  (a.isSmartContractAddress = async function (e) {
+                    const { isContractAddress: t } = await (0, o.readAddressAsContract)(
+                      global.ethereumProvider,
+                      e
+                    );
+                    return t;
+                  }),
+                  (a.isTokenMethodAction = function (e) {
+                    return [
+                      n.TransactionType.tokenMethodTransfer,
+                      n.TransactionType.tokenMethodApprove,
+                      n.TransactionType.tokenMethodSetApprovalForAll,
+                      n.TransactionType.tokenMethodTransferFrom,
+                      n.TransactionType.tokenMethodSafeTransferFrom,
+                      n.TransactionType.tokenMethodIncreaseAllowance,
+                    ].includes(e);
+                  });
+                var n = e('@metamask/transaction-controller'),
+                  s = e('../../../app/scripts/lib/util'),
+                  r = e('../../../shared/constants/transaction'),
+                  o = e('../../../shared/modules/contract-utils');
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/transactions.util.js' },
+    ],
+    [
+      6920,
+      { './util': 6921, loglevel: 4929 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.default = function (e, t, a, n, o, i) {
+                    s.default.debug('tx-helper called with params:'),
+                      s.default.debug({
+                        unapprovedTxs: e,
+                        personalMsgs: t,
+                        decryptMsgs: a,
+                        encryptionPublicKeyMsgs: n,
+                        typedMessages: o,
+                        chainId: i,
+                      });
+                    const c = i
+                        ? (0, r.valuesFor)(e).filter(e => e.chainId === i)
+                        : (0, r.valuesFor)(e),
+                      u = (0, r.valuesFor)(t),
+                      l = (0, r.valuesFor)(a),
+                      d = (0, r.valuesFor)(n),
+                      p = (0, r.valuesFor)(o),
+                      m = c
+                        .concat(u)
+                        .concat(l)
+                        .concat(d)
+                        .concat(p)
+                        .sort((e, t) => e.time - t.time);
+                    return (
+                      s.default.debug(`tx helper found ${c.length} unapproved txs`),
+                      s.default.debug(`tx helper found ${u.length} unsigned personal messages`),
+                      s.default.debug(`tx helper found ${l.length} decrypt requests`),
+                      s.default.debug(`tx helper found ${d.length} encryptionPublicKey requests`),
+                      s.default.debug(`tx helper found ${p.length} unsigned typed messages`),
+                      m
+                    );
+                  });
+                var n,
+                  s = (n = e('loglevel')) && n.__esModule ? n : { default: n },
+                  r = e('./util');
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/tx-helper.ts' },
+    ],
+    [
+      6921,
+      {
+        '../../../app/scripts/lib/multichain/address': 142,
+        '../../../shared/constants/labels': 5798,
+        '../../../shared/constants/network': 5804,
+        '../../../shared/lib/accounts': 5824,
+        '../../../shared/modules/Numeric': 5853,
+        '../../../shared/modules/conversion.utils': 5858,
+        '../../../shared/modules/error': 5860,
+        '../../../shared/modules/hexstring-utils': 5864,
+        '../../../shared/modules/string-utils': 5878,
+        '../constants/common': 6870,
+        '../constants/routes': 6878,
+        '@ethersproject/contracts': 527,
+        '@ethersproject/providers': 565,
+        '@metamask/assets-controllers': 1353,
+        '@metamask/keyring-controller': 2021,
+        '@metamask/snaps-rpc-methods': 2733,
+        '@metamask/snaps-utils': 2890,
+        '@metamask/utils': 2995,
+        'bignumber.js': 4030,
+        'bn.js': 4078,
+        bowser: 4089,
+        buffer: 4139,
+        'human-standard-token-abi': 4706,
+        lodash: 4921,
+        luxon: 4931,
+        'punycode/punycode': 5140,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                (function (t) {
+                  (function () {
+                    Object.defineProperty(a, '__esModule', { value: !0 }),
+                      (a.IS_FLASK = void 0),
+                      (a.addressSummary = function (e, t = 10, a = 4, n = !0) {
+                        if (!e) return '';
+                        let s = (0, N.normalizeSafeAddress)(e);
+                        n || (s = (0, E.stripHexPrefix)(s));
+                        return s ? `${s.slice(0, t)}...${s.slice(s.length - a)}` : '...';
+                      }),
+                      (a.bnGreaterThan = function (e, t) {
+                        if (null === e || e === undefined || null === t || t === undefined)
+                          return null;
+                        return new r.default(e, 10).gt(t, 10);
+                      }),
+                      (a.bnGreaterThanEqualTo = function (e, t) {
+                        if (null === e || e === undefined || null === t || t === undefined)
+                          return null;
+                        return new r.default(e, 10).gte(t, 10);
+                      }),
+                      (a.bnLessThan = function (e, t) {
+                        if (null === e || e === undefined || null === t || t === undefined)
+                          return null;
+                        return new r.default(e, 10).lt(t, 10);
+                      }),
+                      (a.bnLessThanEqualTo = function (e, t) {
+                        if (null === e || e === undefined || null === t || t === undefined)
+                          return null;
+                        return new r.default(e, 10).lte(t, 10);
+                      }),
+                      (a.checkExistingAddresses = function (e, t = []) {
+                        if (!e) return !1;
+                        return t.some(t => t.address.toLowerCase() === e.toLowerCase());
+                      }),
+                      (a.checkExistingAllTokens = function (e, t, a, n = {}) {
+                        var s;
+                        if (!e) return !1;
+                        return null == n ||
+                          null === (s = n[t]) ||
+                          void 0 === s ||
+                          null === (s = s[a]) ||
+                          void 0 === s
+                          ? void 0
+                          : s.some(t => t.address.toLowerCase() === e.toLowerCase());
+                      }),
+                      (a.checkTokenIdExists = void 0),
+                      (a.clearClipboard = function () {
+                        window.navigator.clipboard.writeText('');
+                      }),
+                      (a.fetchTokenExchangeRates = void 0),
+                      (a.formatBalance = function (e, t, a = !0, n = 'ETH') {
+                        const s = a ? P(e) : e.split('.'),
+                          r = s[0];
+                        let o = s[1],
+                          i = 'None';
+                        if (t === undefined)
+                          if ('0' === r) {
+                            if ('0' !== o) {
+                              const e = o.match(/^0*(.{2})/u);
+                              e && (o = e[0]), (i = `0.${o} ${n}`);
+                            }
+                          } else i = `${r}.${o.slice(0, 3)} ${n}`;
+                        else (o += Array(t).join('0')), (i = `${r}.${o.slice(0, t)} ${n}`);
+                        return i;
+                      }),
+                      (a.formatDate = function (e, t = "M/d/y 'at' T") {
+                        if (!e) return '';
+                        return i.DateTime.fromMillis(e).toFormat(t);
+                      }),
+                      (a.formatDateWithSuffix = function (e) {
+                        const t = i.DateTime.fromMillis(1e3 * e),
+                          { day: a } = t,
+                          n = (function (e) {
+                            if (e > 3 && e < 21) return 'th';
+                            switch (e % 10) {
+                              case 1:
+                                return 'st';
+                              case 2:
+                                return 'nd';
+                              case 3:
+                                return 'rd';
+                              default:
+                                return 'th';
+                            }
+                          })(a);
+                        return t.toFormat(`MMM d'${n}', yyyy`);
+                      }),
+                      (a.formatDateWithYearContext = function (e, t = 'MMM d', a = 'MMM d, y') {
+                        if (!e) return '';
+                        const n = i.DateTime.fromMillis(e),
+                          s = i.DateTime.local();
+                        return n.toFormat(s.year === n.year ? t : a);
+                      }),
+                      (a.formatUTCDateFromUnixTimestamp = void 0),
+                      (a.getAccountByAddress = function (e = [], t) {
+                        return e.find(({ address: e }) => e === t);
+                      }),
+                      (a.getAssetImageURL = async function (e, t) {
+                        if (!e || 'string' != typeof e) return '';
+                        if (t && e.startsWith('ipfs://'))
+                          try {
+                            return await (0, c.getFormattedIpfsUrl)(t, e, !0);
+                          } catch (e) {
+                            return (0, h.logErrorWithMessage)(e), '';
+                          }
+                        return e;
+                      }),
+                      (a.getCalculatedTokenAmount1dAgo = a.getAvatarFallbackLetter = void 0),
+                      (a.getContractAtAddress = function (e) {
+                        return new T.Contract(
+                          e,
+                          s.default,
+                          new g.Web3Provider(global.ethereumProvider)
+                        );
+                      }),
+                      (a.getFilteredSnapPermissions = a.getDedupedSnaps = void 0),
+                      (a.getIsBrowserDeprecated = function (
+                        e = l.default.getParser(window.navigator.userAgent)
+                      ) {
+                        return e.satisfies(_.OUTDATED_BROWSER_VERSIONS) ?? !1;
+                      }),
+                      (a.getRandomFileName = function () {
+                        let e = '';
+                        const t = [
+                            ...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+                          ],
+                          a = Math.floor(7 * Math.random() + 6);
+                        for (let n = 0; n < a; n++) e += t[Math.floor(Math.random() * t.length)];
+                        return e;
+                      }),
+                      (a.getSnapRoute = a.getSnapName = void 0),
+                      (a.getURL = F),
+                      (a.getURLHost = function (e) {
+                        var t;
+                        return (null === (t = F(e)) || void 0 === t ? void 0 : t.host) || '';
+                      }),
+                      (a.getURLHostName = function (e) {
+                        var t;
+                        return (null === (t = F(e)) || void 0 === t ? void 0 : t.hostname) || '';
+                      }),
+                      (a.isAbleToRevealSrp = a.isAbleToExportAccount = a.hexToText = void 0),
+                      (a.isDefaultMetaMaskChain = function (e) {
+                        if (
+                          !e ||
+                          e === S.CHAIN_IDS.MAINNET ||
+                          e === S.CHAIN_IDS.LINEA_MAINNET ||
+                          e === S.CHAIN_IDS.GOERLI ||
+                          e === S.CHAIN_IDS.SEPOLIA ||
+                          e === S.CHAIN_IDS.LINEA_GOERLI ||
+                          e === S.CHAIN_IDS.LINEA_SEPOLIA ||
+                          e === S.CHAIN_IDS.LOCALHOST
+                        )
+                          return !0;
+                        return !1;
+                      }),
+                      (a.isExtensionUrl = function (e) {
+                        const t = ['chrome-extension:', 'moz-extension:'];
+                        if ('string' == typeof e) for (const a of t) if (e.startsWith(a)) return !0;
+                        if (null != e && e.protocol) return t.includes(e.protocol);
+                        return !1;
+                      }),
+                      (a.isIpAddress = void 0),
+                      (a.isNullish = function (e) {
+                        return null === e || e === undefined;
+                      }),
+                      (a.isOriginContractAddress = function (e, t) {
+                        if (!e || !t) return !1;
+                        return e.toLowerCase() === t.toLowerCase();
+                      }),
+                      (a.isValidDomainName = function (e) {
+                        return (
+                          null !==
+                          n.default
+                            .toASCII(e)
+                            .toLowerCase()
+                            .match(
+                              /^(?:[a-z0-9](?:[-a-z0-9]*[a-z0-9])?\.)+[a-z0-9][-a-z0-9]*[a-z0-9]$/u
+                            )
+                        );
+                      }),
+                      (a.numericBalance = O),
+                      (a.parseBalance = P),
+                      (a.roundToDecimalPlacesRemovingExtraZeroes = function (e, t) {
+                        if (e === undefined || null === e) return '';
+                        return new v.Numeric(new v.Numeric(e, 10).toFixed(t), 10).toNumber();
+                      }),
+                      (a.sanitizeString = a.sanitizeMessage = void 0),
+                      (a.shortenAddress = function (e = '') {
+                        return M(e, {
+                          truncatedCharLimit: A.TRUNCATED_NAME_CHAR_LIMIT,
+                          truncatedStartChars: A.TRUNCATED_ADDRESS_START_CHARS,
+                          truncatedEndChars: A.TRUNCATED_ADDRESS_END_CHARS,
+                          skipCharacterInEnd: !1,
+                        });
+                      }),
+                      (a.shortenString = M),
+                      (a.sortSelectedInternalAccounts = function (e) {
+                        return e.sort(
+                          (e, t) => (t.metadata.lastSelected ?? 0) - (e.metadata.lastSelected ?? 0)
+                        );
+                      }),
+                      (a.stripHttpSchemes = function (e) {
+                        return e.replace(/^https?:\/\//u, '');
+                      }),
+                      (a.stripHttpsScheme = b),
+                      (a.stripHttpsSchemeWithoutPort = function (e) {
+                        if (F(e).port) return e;
+                        return b(e);
+                      }),
+                      (a.transformOriginToTitle =
+                        a.toHumanReadableTime =
+                        a.stripOneLayerofNesting =
+                          void 0),
+                      (a.valuesFor = function (e) {
+                        if (!e) return [];
+                        return Object.keys(e).map(function (t) {
+                          return e[t];
+                        });
+                      });
+                    var n = C(e('punycode/punycode')),
+                      s = C(e('human-standard-token-abi')),
+                      r = C(e('bignumber.js')),
+                      o = C(e('bn.js')),
+                      i = e('luxon'),
+                      c = e('@metamask/assets-controllers'),
+                      u = (function (e, t) {
+                        if (!t && e && e.__esModule) return e;
+                        if (null === e || ('object' != typeof e && 'function' != typeof e))
+                          return { default: e };
+                        var a = k(t);
+                        if (a && a.has(e)) return a.get(e);
+                        var n = { __proto__: null },
+                          s = Object.defineProperty && Object.getOwnPropertyDescriptor;
+                        for (var r in e)
+                          if ('default' !== r && {}.hasOwnProperty.call(e, r)) {
+                            var o = s ? Object.getOwnPropertyDescriptor(e, r) : null;
+                            o && (o.get || o.set) ? Object.defineProperty(n, r, o) : (n[r] = e[r]);
+                          }
+                        return (n.default = e), a && a.set(e, n), n;
+                      })(e('lodash')),
+                      l = C(e('bowser')),
+                      d = e('@metamask/snaps-rpc-methods'),
+                      p = e('@metamask/snaps-utils'),
+                      m = e('@metamask/utils'),
+                      g = e('@ethersproject/providers'),
+                      T = e('@ethersproject/contracts'),
+                      f = e('@metamask/keyring-controller'),
+                      S = e('../../../shared/constants/network'),
+                      h = e('../../../shared/modules/error'),
+                      E = e('../../../shared/modules/hexstring-utils'),
+                      A = e('../../../shared/constants/labels'),
+                      v = e('../../../shared/modules/Numeric'),
+                      _ = e('../constants/common'),
+                      I = e('../../../shared/modules/string-utils'),
+                      y = e('../../../shared/modules/conversion.utils'),
+                      w = e('../constants/routes'),
+                      N = e('../../../app/scripts/lib/multichain/address'),
+                      R = e('../../../shared/lib/accounts');
+                    function k(e) {
+                      if ('function' != typeof WeakMap) return null;
+                      var t = new WeakMap(),
+                        a = new WeakMap();
+                      return (k = function (e) {
+                        return e ? a : t;
+                      })(e);
+                    }
+                    function C(e) {
+                      return e && e.__esModule ? e : { default: e };
+                    }
+                    function O(e) {
+                      if (!e) return new o.default(0, 16);
+                      const t = (0, E.stripHexPrefix)(e);
+                      return new o.default(t, 16);
+                    }
+                    function P(e) {
+                      let t;
+                      const a = O(e),
+                        n = a.toString(),
+                        s = n.length > 18 ? n.slice(0, n.length - 18) : '0';
+                      return (
+                        (t = `000000000000000000${a}`.slice(-18).replace(/0+$/u, '')),
+                        '' === t && (t = '0'),
+                        [s, t]
+                      );
+                    }
+                    function M(
+                      e = '',
+                      {
+                        truncatedCharLimit: t,
+                        truncatedStartChars: a,
+                        truncatedEndChars: n,
+                        skipCharacterInEnd: s,
+                      } = {
+                        truncatedCharLimit: A.TRUNCATED_NAME_CHAR_LIMIT,
+                        truncatedStartChars: A.TRUNCATED_ADDRESS_START_CHARS,
+                        truncatedEndChars: A.TRUNCATED_ADDRESS_END_CHARS,
+                        skipCharacterInEnd: !1,
+                      }
+                    ) {
+                      return e.length < t ? e : `${e.slice(0, a)}...${s ? '' : e.slice(-n)}`;
+                    }
+                    function b(e) {
+                      return e.replace(/^https:\/\//u, '');
+                    }
+                    function F(e) {
+                      try {
+                        return new URL(e);
+                      } catch (e) {
+                        return '';
+                      }
+                    }
+                    a.formatUTCDateFromUnixTimestamp = e =>
+                      e ? i.DateTime.fromSeconds(e).toUTC().toFormat('dd LLLL yyyy, HH:mm') : e;
+                    a.toHumanReadableTime = (e, t) => {
+                      if (t === undefined || null === t) return '';
+                      const a = Math.ceil(t / 1e3);
+                      return a <= 90
+                        ? e('gasTimingSecondsShort', [a])
+                        : a <= 5400
+                          ? e('gasTimingMinutesShort', [Math.ceil(a / 60)])
+                          : e('gasTimingHoursShort', [Math.ceil(a / 3600)]);
+                    };
+                    const D = (() => {
+                        const e = Array.from(new Array(32)).map((e, t) => 'int' + 8 * (t + 1)),
+                          t = Array.from(new Array(32)).map((e, t) => 'uint' + 8 * (t + 1)),
+                          a = Array.from(new Array(32)).map((e, t) => `bytes${t + 1}`),
+                          n = Array.from(new Array(32)).map((e, t) => 'fixed' + 8 * (t + 1)),
+                          s = Array.from(new Array(32)).map((e, t) => 'ufixed' + 8 * (t + 1)),
+                          r = Array.from(new Array(80)).map((e, t) => n.map(e => `${e}x${t + 1}`)),
+                          o = Array.from(new Array(80)).map((e, t) => s.map(e => `${e}x${t + 1}`));
+                        return [
+                          'bool',
+                          'address',
+                          'string',
+                          'bytes',
+                          'int',
+                          'uint',
+                          'fixed',
+                          'ufixed',
+                          ...e,
+                          ...t,
+                          ...a,
+                          ...r.flat(),
+                          ...o.flat(),
+                        ];
+                      })(),
+                      x = e => e.replace(/\[(\d*)\]/u, '');
+                    a.stripOneLayerofNesting = x;
+                    const L = (e, t, a) => {
+                      if (!a) throw new Error('Invalid types definition');
+                      const n = t && null !== t.match(/\[[[0-9]*\]*/u);
+                      var s;
+                      if (n) return { value: e.map(e => L(e, x(t), a)), type: t };
+                      if (((s = t), D.includes(s))) return { value: e, type: t };
+                      const r = n ? (e => e.replace(/\[[[0-9]*\]*/gu, ''))(t) : t,
+                        o = a[r];
+                      if (!o) throw new Error('Invalid primary type definition');
+                      const i = {};
+                      return (
+                        Object.keys(e).forEach(t => {
+                          const n = Object.values(o).find(e => e.name === t);
+                          n && (i[t] = L(e[t], n.type, a));
+                        }),
+                        { value: i, type: t }
+                      );
+                    };
+                    a.sanitizeMessage = L;
+                    a.getSnapName = e => t => {
+                      var a;
+                      return (
+                        (null === (a = e[t]) || void 0 === a ? void 0 : a.name) ??
+                        (0, p.stripSnapPrefix)(t)
+                      );
+                    };
+                    a.getSnapRoute = e => `${w.SNAPS_VIEW_ROUTE}/${encodeURIComponent(e)}`;
+                    a.getDedupedSnaps = (e, t) => {
+                      var a, n;
+                      const s =
+                          null == e || null === (a = e.permissions) || void 0 === a
+                            ? void 0
+                            : a[d.WALLET_SNAP_PERMISSION_KEY],
+                        r = null == s ? void 0 : s.caveats[0].value,
+                        o =
+                          null == t ||
+                          null === (n = t[d.WALLET_SNAP_PERMISSION_KEY]) ||
+                          void 0 === n
+                            ? void 0
+                            : n.caveats[0].value;
+                      if (!(0, m.isObject)(o) && r) return Object.keys(r);
+                      const i = r ? Object.keys(r) : [],
+                        c = o ? Object.keys(o) : [],
+                        u = i.filter(e => !c.includes(e));
+                      return u.length > 0 ? u : i;
+                    };
+                    a.IS_FLASK = !0;
+                    const U = /\u202D/giu,
+                      G = /\u202E/giu;
+                    a.sanitizeString = e =>
+                      e && u.isString(e) ? e.replace(U, '\\u202D').replace(G, '\\u202E') : e;
+                    a.isAbleToExportAccount = (e = '') =>
+                      !e.includes('Hardware') && !e.includes('Snap');
+                    a.isAbleToRevealSrp = (e, t) => {
+                      const {
+                        metadata: {
+                          keyring: { type: a },
+                          snap: n,
+                        },
+                        options: { entropySource: s },
+                      } = e;
+                      if (a === f.KeyringTypes.hd) return !0;
+                      if (
+                        a === f.KeyringTypes.snap &&
+                        (0, R.isMultichainWalletSnap)(null == n ? void 0 : n.id) &&
+                        s
+                      ) {
+                        const e = s;
+                        return t.some(t => t.type === f.KeyringTypes.hd && t.metadata.id === e);
+                      }
+                      return !1;
+                    };
+                    a.checkTokenIdExists = (e, t, a) => {
+                      const n = (0, m.isStrictHexString)(t);
+                      let s = t;
+                      n && (s = (0, y.hexToDecimal)(t));
+                      const r = (0, E.toChecksumHexAddress)(e);
+                      if (a[r]) {
+                        const e = a[r];
+                        return u.some(
+                          e.nfts,
+                          e =>
+                            e.address === r &&
+                            ((0, I.isEqualCaseInsensitive)(e.tokenId, t) ||
+                              (0, I.isEqualCaseInsensitive)(e.tokenId, s.toString()))
+                        );
+                      }
+                      return !1;
+                    };
+                    a.fetchTokenExchangeRates = async (e, t, a) => {
+                      try {
+                        return await (0, c.fetchTokenContractExchangeRates)({
+                          tokenPricesService: new c.CodefiTokenPricesServiceV2(),
+                          nativeCurrency: e,
+                          tokenAddresses: t,
+                          chainId: a,
+                        });
+                      } catch (e) {
+                        return {};
+                      }
+                    };
+                    a.hexToText = e => {
+                      if (!e) return e;
+                      try {
+                        const a = (0, E.stripHexPrefix)(e),
+                          n = t.from(a, 'hex');
+                        return 32 === n.length ? e : n.toString('utf8');
+                      } catch (t) {
+                        return e;
+                      }
+                    };
+                    a.getAvatarFallbackLetter = e => {
+                      var t;
+                      return (
+                        (null == e || null === (t = e.match(/[a-z0-9]/iu)) || void 0 === t
+                          ? void 0
+                          : t[0]) ?? '?'
+                      );
+                    };
+                    const H = e =>
+                      'string' == typeof e &&
+                      Boolean(e.match(/^(\d{1,3}\.){3}\d{1,3}$|^\[[0-9a-f:]+\]$/iu));
+                    a.isIpAddress = H;
+                    a.transformOriginToTitle = e => {
+                      try {
+                        const t = new URL(e);
+                        if (H(t.hostname)) return t.hostname;
+                        return t.hostname.split('.').slice(-2).join('.');
+                      } catch (e) {
+                        return 'Unknown Origin';
+                      }
+                    };
+                    a.getFilteredSnapPermissions = (e, t = Infinity, a = 3) => {
+                      const n = e.filter(e => e.weight <= t);
+                      if (a && n.length < a) {
+                        const s = e.filter(e => e.weight > t);
+                        return n.concat(s.slice(0, a - n.length));
+                      }
+                      return n;
+                    };
+                    a.getCalculatedTokenAmount1dAgo = (e, t) =>
+                      t !== undefined && e ? e / (1 + t / 100) : (e ?? 0);
+                  }).call(this);
+                }).call(this, e('buffer').Buffer);
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/helpers/utils/util.js' },
+    ],
+    [
+      6926,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.ActionType = void 0);
+                a.ActionType = (function (e) {
+                  return (
+                    (e.CROSSCHAIN_V1 = 'crosschain-v1'), (e.SWAPBRIDGE_V1 = 'swapbridge-v1'), e
+                  );
+                })({});
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/hooks/bridge/events/types.ts' },
+    ],
+    [
+      6974,
+      {
+        '../../shared/constants/common': 5791,
+        '../../shared/constants/network': 5804,
+        '../../shared/modules/Numeric': 5853,
+        '../../shared/modules/conversion.utils': 5858,
+        '../ducks/metamask/metamask': 6860,
+        '../helpers/utils/confirm-tx.util': 6899,
+        '../helpers/utils/token-util': 6918,
+        '../selectors/multichain': 7605,
+        './useMultichainSelector': 6993,
+        'bignumber.js': 4030,
+        react: 5328,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.MIN_AMOUNT = a.DEFAULT_PRECISION = void 0),
+                  (a.useCurrencyDisplay = function (
+                    e,
+                    {
+                      account: t,
+                      displayValue: a,
+                      prefix: n,
+                      numberOfDecimals: r,
+                      denomination: T,
+                      currency: h,
+                      isAggregatedFiatOverviewBalance: E,
+                      ...A
+                    },
+                    v = null
+                  ) {
+                    const _ = (0, g.useMultichainSelector)(i.getMultichainIsEvm, t),
+                      I = (0, g.useMultichainSelector)(i.getMultichainCurrentCurrency, t),
+                      y = (0, g.useMultichainSelector)(i.getMultichainNativeCurrency, t),
+                      w = (0, g.useMultichainSelector)(i.getMultichainConversionRate, t),
+                      N = (0, g.useMultichainSelector)(m.getCurrencyRates, t),
+                      R = h === I,
+                      k = h === y || h === u.CHAIN_ID_TO_CURRENCY_SYMBOL_MAP[v],
+                      C = (0, s.useMemo)(() => {
+                        return (
+                          a ||
+                          (_ || E
+                            ? E
+                              ? (0, o.formatCurrency)(e, h)
+                              : (function ({
+                                  isNativeCurrency: e,
+                                  isUserPreferredCurrency: t,
+                                  currency: a,
+                                  nativeCurrency: n,
+                                  inputValue: s,
+                                  conversionRate: r,
+                                  denomination: i,
+                                  numberOfDecimals: u,
+                                }) {
+                                  if (e || (!t && !n)) {
+                                    const e = new l.Numeric(s, 16, d.EtherDenomination.WEI)
+                                      .toDenomination(i || d.EtherDenomination.ETH)
+                                      .round(u || S)
+                                      .toBase(10)
+                                      .toString();
+                                    return '0' === e && s && 0 !== Number(s) ? f : e;
+                                  }
+                                  if (t && r)
+                                    return (0, o.formatCurrency)(
+                                      (0, c.getValueFromWeiHex)({
+                                        value: s,
+                                        fromCurrency: n,
+                                        toCurrency: a,
+                                        conversionRate: r,
+                                        numberOfDecimals: u || 2,
+                                        toDenomination: i,
+                                      }),
+                                      a
+                                    );
+                                  return null;
+                                })({
+                                  isNativeCurrency: k,
+                                  isUserPreferredCurrency: R,
+                                  currency: h,
+                                  nativeCurrency: y,
+                                  inputValue: e,
+                                  conversionRate: w,
+                                  denomination: T,
+                                  numberOfDecimals: r,
+                                })
+                            : (function ({
+                                tokenSymbol: e,
+                                isNativeCurrency: t,
+                                isUserPreferredCurrency: a,
+                                currency: n,
+                                currentCurrency: s,
+                                nativeCurrency: r,
+                                inputValue: i,
+                                conversionRate: c,
+                              }) {
+                                if (t || (!a && !r)) return new l.Numeric(i, 10).toString();
+                                if (a && c) {
+                                  const t =
+                                    (0, p.getTokenFiatAmount)(1, Number(c), s, i, e, !1, !1) ?? '0';
+                                  return (0, o.formatCurrency)(t, n);
+                                }
+                                return null;
+                              })({
+                                tokenSymbol: y,
+                                isNativeCurrency: k,
+                                isUserPreferredCurrency: R,
+                                currency: h,
+                                currentCurrency: I,
+                                nativeCurrency: y,
+                                inputValue: e,
+                                conversionRate: v
+                                  ? null == N ||
+                                    null === (t = N[u.CHAIN_ID_TO_CURRENCY_SYMBOL_MAP[v]]) ||
+                                    void 0 === t
+                                    ? void 0
+                                    : t.conversionRate
+                                  : w,
+                              }))
+                        );
+                        var t;
+                      }, [a, _, k, R, h, y, e, w, T, r, I, E, v, N]);
+                    let O;
+                    if (!A.hideLabel) {
+                      const e = Object.values(u.TEST_NETWORK_TICKER_MAP).includes(h)
+                        ? h
+                        : null == h
+                          ? void 0
+                          : h.toUpperCase();
+                      O = A.suffix || e;
+                    }
+                    return [
+                      `${n || ''}${C}${O ? ` ${O}` : ''}`,
+                      { prefix: n, value: C, suffix: O },
+                    ];
+                  });
+                var n,
+                  s = e('react'),
+                  r = (n = e('bignumber.js')) && n.__esModule ? n : { default: n },
+                  o = e('../helpers/utils/confirm-tx.util'),
+                  i = e('../selectors/multichain'),
+                  c = e('../../shared/modules/conversion.utils'),
+                  u = e('../../shared/constants/network'),
+                  l = e('../../shared/modules/Numeric'),
+                  d = e('../../shared/constants/common'),
+                  p = e('../helpers/utils/token-util'),
+                  m = e('../ducks/metamask/metamask'),
+                  g = e('./useMultichainSelector');
+                const T = (a.MIN_AMOUNT = 1e-6),
+                  f = `<${T}`,
+                  S = (a.DEFAULT_PRECISION = new r.default(T).decimalPlaces());
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/hooks/useCurrencyDisplay.js' },
+    ],
+    [
+      6985,
+      { '../contexts/i18n': 6832, react: 5328 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.useI18nContext = function () {
+                    return (0, n.useContext)(s.I18nContext);
+                  });
+                var n = e('react'),
+                  s = e('../contexts/i18n');
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/hooks/useI18nContext.js' },
+    ],
+    [
+      6993,
+      { '../selectors': 7601, 'react-redux': 5286 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.useMultichainSelector = function (e, t) {
+                    return (0, n.useSelector)(a => e(a, t || (0, s.getSelectedInternalAccount)(a)));
+                  });
+                var n = e('react-redux'),
+                  s = e('../selectors');
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/hooks/useMultichainSelector.ts' },
+    ],
+    [
+      7014,
+      {
+        '../../shared/modules/selectors/networks': 5875,
+        '../../shared/modules/string-utils': 5878,
+        '../ducks/metamask/metamask': 6860,
+        '../helpers/utils/token-util': 6918,
+        '../selectors': 7601,
+        react: 5328,
+        'react-redux': 5286,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.useTokenFiatAmount = function (e, t, a, l = {}, d, p = null, m = !0) {
+                    var g, T;
+                    const f = (0, s.useSelector)(r.getMarketData),
+                      S = (0, s.useSelector)(r.getTokenExchangeRates, s.shallowEqual),
+                      h =
+                        p && f[p]
+                          ? Object.entries(f[p]).reduce(
+                              (e, [t, a]) => ((e[t] = (null == a ? void 0 : a.price) ?? null), e),
+                              {}
+                            )
+                          : null,
+                      E = p ? h : S,
+                      A = (0, s.useSelector)(r.getConfirmationExchangeRates),
+                      v = { ...E, ...A },
+                      _ = (0, s.useSelector)(r.getCurrencyRates),
+                      I = (0, s.useSelector)(c.getConversionRate),
+                      y = (0, s.useSelector)(o.getNetworkConfigurationsByChainId),
+                      w = p
+                        ? null == _ ||
+                          null ===
+                            (g =
+                              _[null === (T = y[p]) || void 0 === T ? void 0 : T.nativeCurrency]) ||
+                          void 0 === g
+                          ? void 0
+                          : g.conversionRate
+                        : I,
+                      N = (0, s.useSelector)(c.getCurrentCurrency),
+                      R = (0, s.useSelector)(r.getShouldShowFiat),
+                      k = l.showFiat ?? R,
+                      C = Object.keys(v).find(t => (0, u.isEqualCaseInsensitive)(t, e)),
+                      O = l.exchangeRate ?? (C && v[C]),
+                      P = (0, n.useMemo)(
+                        () => (0, i.getTokenFiatAmount)(O, w, N, t, a, m, d),
+                        [w, O, N, t, a, d]
+                      );
+                    if (!k || N.toUpperCase() === a) return undefined;
+                    return P;
+                  });
+                var n = e('react'),
+                  s = e('react-redux'),
+                  r = e('../selectors'),
+                  o = e('../../shared/modules/selectors/networks'),
+                  i = e('../helpers/utils/token-util'),
+                  c = e('../ducks/metamask/metamask'),
+                  u = e('../../shared/modules/string-utils');
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/hooks/useTokenFiatAmount.js' },
+    ],
+    [
+      7074,
+      {
+        '../../../../shared/constants/common': 5791,
+        '../../../../shared/lib/transactions-controller-utils': 5851,
+        '../../../../shared/modules/Numeric': 5853,
+        '../../../../shared/modules/conversion.utils': 5858,
+        '../../../helpers/utils/confirm-tx.util': 6899,
+        '../../../hooks/useCurrencyDisplay': 6974,
+        '../../confirmations/components/simulation-details/formatAmount': 7244,
+        '@metamask/bridge-controller': 1414,
+        'bignumber.js': 4030,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.isQuoteExpired =
+                    a.formatTokenAmount =
+                    a.formatProviderLabel =
+                    a.formatEtaInMinutes =
+                    a.formatCurrencyAmount =
+                    a.calcToAmount =
+                    a.calcSwapRate =
+                    a.calcSolanaTotalNetworkFee =
+                    a.calcSentAmount =
+                    a.calcRelayerFee =
+                    a.calcEstimatedAndMaxTotalGasFee =
+                    a.calcCost =
+                    a.calcAdjustedReturn =
+                      void 0);
+                var n = e('bignumber.js'),
+                  s = e('@metamask/bridge-controller'),
+                  r = e('../../../../shared/lib/transactions-controller-utils'),
+                  o = e('../../../../shared/modules/conversion.utils'),
+                  i = e('../../../helpers/utils/confirm-tx.util'),
+                  c = e('../../../../shared/modules/Numeric'),
+                  u = e('../../../../shared/constants/common'),
+                  l = e('../../../hooks/useCurrencyDisplay'),
+                  d = e('../../confirmations/components/simulation-details/formatAmount');
+                a.isQuoteExpired = (e, t, a) => Boolean(!e && a && Date.now() - a > t);
+                a.calcSolanaTotalNetworkFee = (e, t, a) => {
+                  const { solanaFeesInLamports: s } = e,
+                    o = (0, r.calcTokenAmount)(new n.BigNumber(s ?? '0'), 9);
+                  return {
+                    amount: o,
+                    valueInCurrency: t ? o.mul(t.toString()) : null,
+                    usd: a ? o.mul(a.toString()) : null,
+                  };
+                };
+                a.calcToAmount = ({ destTokenAmount: e, destAsset: t }, a, n) => {
+                  const s = (0, r.calcTokenAmount)(e, t.decimals);
+                  return {
+                    amount: s,
+                    valueInCurrency: a ? s.mul(a.toString()) : null,
+                    usd: n ? s.mul(n.toString()) : null,
+                  };
+                };
+                a.calcSentAmount = ({ srcTokenAmount: e, srcAsset: t, feeData: a }, s, o) => {
+                  const i = (0, r.calcTokenAmount)(
+                    new n.BigNumber(e).plus(a.metabridge.amount),
+                    t.decimals
+                  );
+                  return {
+                    amount: i,
+                    valueInCurrency: s ? i.mul(s.toString()) : null,
+                    usd: o ? i.mul(o.toString()) : null,
+                  };
+                };
+                a.calcRelayerFee = (e, t, a) => {
+                  const {
+                      quote: { srcAsset: i, srcTokenAmount: c, feeData: u },
+                      trade: l,
+                    } = e,
+                    d = (0, r.calcTokenAmount)(
+                      new n.BigNumber((0, o.hexToDecimal)(l.value)).minus(
+                        (0, s.isNativeAddress)(i.address)
+                          ? new n.BigNumber(c).plus(u.metabridge.amount)
+                          : 0
+                      ),
+                      18
+                    );
+                  return {
+                    amount: d,
+                    valueInCurrency: t ? d.mul(t.toString()) : null,
+                    usd: a ? d.mul(a.toString()) : null,
+                  };
+                };
+                const p = ({
+                  bridgeQuote: e,
+                  feePerGasInDecGwei: t,
+                  priorityFeePerGasInDecGwei: a,
+                  nativeToDisplayCurrencyExchangeRate: s,
+                  nativeToUsdExchangeRate: r,
+                }) => {
+                  var i, l;
+                  const { approval: d, trade: p, l1GasFeesInHexWei: m } = e,
+                    g = (0, o.sumDecimals)(
+                      (null === (i = p.gasLimit) || void 0 === i ? void 0 : i.toString()) ?? '0',
+                      (null == d || null === (l = d.gasLimit) || void 0 === l
+                        ? void 0
+                        : l.toString()) ?? '0'
+                    ),
+                    T = (0, o.sumDecimals)(t, a),
+                    f = c.Numeric.from(m ?? '0', 16, u.EtherDenomination.WEI).toDenomination(
+                      u.EtherDenomination.GWEI
+                    ),
+                    S = g.times(T).add(f),
+                    h = new n.BigNumber(S.shiftedBy(9).toString()),
+                    E = s ? h.times(s.toString()) : null,
+                    A = r ? h.times(r.toString()) : null;
+                  return { amount: h, valueInCurrency: E, usd: A };
+                };
+                a.calcEstimatedAndMaxTotalGasFee = ({
+                  bridgeQuote: e,
+                  estimatedBaseFeeInDecGwei: t,
+                  maxFeePerGasInDecGwei: a,
+                  maxPriorityFeePerGasInDecGwei: n,
+                  nativeToDisplayCurrencyExchangeRate: s,
+                  nativeToUsdExchangeRate: r,
+                }) => {
+                  const {
+                      amount: o,
+                      valueInCurrency: i,
+                      usd: c,
+                    } = p({
+                      bridgeQuote: e,
+                      feePerGasInDecGwei: t,
+                      priorityFeePerGasInDecGwei: n,
+                      nativeToDisplayCurrencyExchangeRate: s,
+                      nativeToUsdExchangeRate: r,
+                    }),
+                    {
+                      amount: u,
+                      valueInCurrency: l,
+                      usd: d,
+                    } = p({
+                      bridgeQuote: e,
+                      feePerGasInDecGwei: a,
+                      priorityFeePerGasInDecGwei: n,
+                      nativeToDisplayCurrencyExchangeRate: s,
+                      nativeToUsdExchangeRate: r,
+                    });
+                  return {
+                    amount: o,
+                    amountMax: u,
+                    valueInCurrency: i,
+                    valueInCurrencyMax: l,
+                    usd: c,
+                    usdMax: d,
+                  };
+                };
+                a.calcAdjustedReturn = (e, t) => ({
+                  valueInCurrency:
+                    e.valueInCurrency && t.valueInCurrency
+                      ? e.valueInCurrency.minus(t.valueInCurrency)
+                      : null,
+                  usd: e.usd && t.usd ? e.usd.minus(t.usd) : null,
+                });
+                a.calcSwapRate = (e, t) => t.div(e);
+                a.calcCost = (e, t) => ({
+                  valueInCurrency:
+                    e.valueInCurrency && t.valueInCurrency
+                      ? t.valueInCurrency.minus(e.valueInCurrency)
+                      : null,
+                  usd: e.usd && t.usd ? t.usd.minus(e.usd) : null,
+                });
+                a.formatEtaInMinutes = e => (e < 60 ? '< 1' : (e / 60).toFixed());
+                a.formatTokenAmount = (e, t, a = '') =>
+                  [(0, d.formatAmount)(e, t), a].join(' ').trim();
+                a.formatCurrencyAmount = (e, t, a = l.DEFAULT_PRECISION) => {
+                  if (!e) return undefined;
+                  if (0 === a) {
+                    if (e.lt(0.01)) return '<$0.01';
+                    if (e.lt(1)) return (0, i.formatCurrency)(e.toString(), t, 2);
+                  }
+                  return (0, i.formatCurrency)(e.toString(), t, a);
+                };
+                a.formatProviderLabel = e =>
+                  `${null == e ? void 0 : e.bridgeId}_${null == e ? void 0 : e.bridges[0]}`;
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/bridge/utils/quote.ts' },
+    ],
+    [
+      7244,
+      { '../../../../hooks/useCurrencyDisplay': 6974, 'bignumber.js': 4030 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.formatAmount = function (e, t) {
+                    if (t.isZero()) return o;
+                    if (t.abs().lessThan(s.MIN_AMOUNT)) return `<${i(e, s.MIN_AMOUNT)}`;
+                    if (t.abs().lessThan(1))
+                      return new Intl.NumberFormat(e, { maximumSignificantDigits: r }).format(
+                        t.round(s.DEFAULT_PRECISION).toNumber()
+                      );
+                    const a = t.abs().truncated().toString().length,
+                      n = Math.max(0, r - a + 1);
+                    return new Intl.NumberFormat(e, { maximumFractionDigits: n }).format(
+                      t.toFixed(n)
+                    );
+                  }),
+                  (a.formatAmountMaxPrecision = i);
+                var n = e('bignumber.js'),
+                  s = e('../../../../hooks/useCurrencyDisplay');
+                const r = 3,
+                  o = '0';
+                function i(e, t) {
+                  const a = new n.BigNumber(t),
+                    s = a.decimalPlaces(),
+                    r = a.toFixed(s),
+                    [o, i] = r.split('.'),
+                    c = new Intl.NumberFormat(e).format(o);
+                  return i ? `${c}.${i}` : c;
+                }
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/components/simulation-details/formatAmount.ts',
+      },
+    ],
+    [
+      7267,
+      {
+        '../../../components/component-library': 6402,
+        '../../../helpers/constants/design-system': 6872,
+        './util': 7292,
+        '@metamask/controller-utils': 1515,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.ResultTemplate = void 0);
+                var n = e('@metamask/controller-utils'),
+                  s = e('../../../components/component-library'),
+                  r = e('../../../helpers/constants/design-system'),
+                  o = e('./util');
+                function i(e, t) {
+                  if (t.has(e))
+                    throw new TypeError(
+                      'Cannot initialize the same private elements twice on an object'
+                    );
+                }
+                function c(e, t, a) {
+                  if ('function' == typeof e ? e === t : e.has(t))
+                    return arguments.length < 3 ? t : a;
+                  throw new TypeError('Private element is not present on this object');
+                }
+                var u = new WeakMap(),
+                  l = new WeakSet();
+                function d(e, t) {
+                  const { error: a, header: i, icon: l, message: d, title: p } = e,
+                    m = ((T = this), (g = u).get(c(g, T)) === n.ApprovalType.ResultSuccess);
+                  var g, T;
+                  return [
+                    ...((0, o.processHeader)(i) ?? []),
+                    {
+                      key: 'container',
+                      element: 'Box',
+                      props: {
+                        flexDirection: r.FlexDirection.Column,
+                        alignItems: r.AlignItems.center,
+                        height: r.BlockSize.Full,
+                        padding: 4,
+                      },
+                      children: [
+                        {
+                          key: 'content',
+                          element: 'Box',
+                          props: {
+                            flexDirection: r.FlexDirection.Column,
+                            alignItems: r.AlignItems.center,
+                            justifyContent: r.JustifyContent.center,
+                            height: r.BlockSize.Full,
+                            style: { alignSelf: r.AlignItems.stretch },
+                          },
+                          children: [
+                            null === l
+                              ? undefined
+                              : {
+                                  key: 'icon',
+                                  element: 'AvatarIcon',
+                                  props: {
+                                    iconName:
+                                      l ?? (m ? s.IconName.Confirmation : s.IconName.Warning),
+                                    size: s.IconSize.Xl,
+                                    iconProps: { size: s.IconSize.Xl },
+                                    color: m
+                                      ? r.IconColor.successDefault
+                                      : r.IconColor.errorDefault,
+                                    backgroundColor: m
+                                      ? r.BackgroundColor.successMuted
+                                      : r.BackgroundColor.errorMuted,
+                                  },
+                                  children: 'Icon',
+                                },
+                            null === p
+                              ? undefined
+                              : {
+                                  key: 'title',
+                                  element: 'Typography',
+                                  props: {
+                                    variant: r.TypographyVariant.H3,
+                                    fontWeight: r.FontWeight.Bold,
+                                  },
+                                  children: p ?? t(m ? 'resultPageSuccess' : 'resultPageError'),
+                                },
+                            {
+                              key: 'message',
+                              element: 'Box',
+                              props: {
+                                alignItems: r.AlignItems.center,
+                                textAlign: r.TextAlign.Center,
+                                flexDirection: r.FlexDirection.Column,
+                                width: r.BlockSize.Full,
+                              },
+                              children: m
+                                ? (0, o.processString)(d, t('resultPageSuccessDefaultMessage'))
+                                : (0, o.processError)(a, t('resultPageErrorDefaultMessage')),
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ];
+                }
+                a.ResultTemplate = class {
+                  constructor(e) {
+                    var t, a;
+                    i((t = this), (a = l)),
+                      a.add(t),
+                      (function (e, t, a) {
+                        i(e, t), t.set(e, a);
+                      })(this, u, void 0),
+                      (function (e, t, a) {
+                        e.set(c(e, t), a);
+                      })(u, this, e);
+                  }
+                  getValues(e, t, a) {
+                    return {
+                      content: c(l, this, d).call(this, e.requestData || {}, t),
+                      submitText: t('ok'),
+                      onSubmit: () => a.resolvePendingApproval(e.id, e.requestData),
+                      networkDisplay: !1,
+                    };
+                  }
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/confirmation/ResultTemplate.ts' },
+    ],
+    [
+      7278,
+      {
+        '../../../../../shared/constants/network': 5804,
+        '../../../../../shared/modules/rpc.utils': 5871,
+        '../../../../helpers/constants/design-system': 6872,
+        '../../../../helpers/constants/routes': 6878,
+        '../../../../helpers/constants/zendesk-url': 6885,
+        '../../utils/confirm': 7363,
+        '@metamask/network-controller': 2202,
+        '@metamask/rpc-errors': 2585,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                var n,
+                  s = e('@metamask/rpc-errors'),
+                  r = e('@metamask/network-controller'),
+                  o = e('../../../../../shared/constants/network'),
+                  i = e('../../../../helpers/constants/design-system'),
+                  c = e('../../../../helpers/constants/routes'),
+                  u =
+                    (n = e('../../../../helpers/constants/zendesk-url')) && n.__esModule
+                      ? n
+                      : { default: n },
+                  l = e('../../../../../shared/modules/rpc.utils'),
+                  d = e('../../utils/confirm');
+                const p = {
+                    id: 'UNRECOGNIZED_CHAIN',
+                    severity: i.Severity.Warning,
+                    content: {
+                      element: 'span',
+                      children: {
+                        element: 'MetaMaskTranslation',
+                        props: { translationKey: 'unrecognizedChain' },
+                      },
+                    },
+                  },
+                  m = {
+                    id: 'SAFE_CHAIN_LIST_PROVIDER_ERROR',
+                    severity: i.Severity.Warning,
+                    content: {
+                      element: 'span',
+                      children: {
+                        element: 'MetaMaskTranslation',
+                        props: { translationKey: 'errorGettingSafeChainList' },
+                      },
+                    },
+                  },
+                  g = {
+                    id: 'MISMATCHED_CHAIN_RECOMMENDATION',
+                    severity: i.Severity.Warning,
+                    content: {
+                      element: 'span',
+                      children: {
+                        element: 'MetaMaskTranslation',
+                        props: {
+                          translationKey: 'mismatchedChainRecommendation',
+                          variables: [
+                            {
+                              element: 'a',
+                              key: 'mismatchedChainLink',
+                              props: {
+                                href: u.default.VERIFY_CUSTOM_NETWORK,
+                                target: '__blank',
+                                tabIndex: 0,
+                              },
+                              children: {
+                                element: 'MetaMaskTranslation',
+                                props: { translationKey: 'mismatchedChainLinkText' },
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  T = {
+                    id: 'DEPRECATED_CHAIN_ALERT',
+                    severity: i.Severity.Warning,
+                    content: {
+                      element: 'span',
+                      children: {
+                        element: 'MetaMaskTranslation',
+                        props: { translationKey: 'deprecatedNetwork' },
+                      },
+                    },
+                  },
+                  f = {
+                    id: 'MISMATCHED_NETWORK_NAME',
+                    severity: i.Severity.Warning,
+                    content: {
+                      element: 'span',
+                      children: {
+                        element: 'MetaMaskTranslation',
+                        props: { translationKey: 'mismatchedNetworkName' },
+                      },
+                    },
+                  },
+                  S = {
+                    id: 'MISMATCHED_NETWORK_SYMBOL',
+                    severity: i.Severity.Danger,
+                    content: {
+                      element: 'span',
+                      children: {
+                        element: 'MetaMaskTranslation',
+                        props: { translationKey: 'mismatchedNetworkSymbol' },
+                      },
+                    },
+                  },
+                  h = {
+                    id: 'MISMATCHED_NETWORK_RPC',
+                    severity: i.Severity.Danger,
+                    content: {
+                      element: 'span',
+                      children: {
+                        element: 'MetaMaskTranslation',
+                        props: { translationKey: 'mismatchedRpcUrl' },
+                      },
+                    },
+                  },
+                  E = {
+                    id: 'MISMATCHED_NETWORK_RPC_CHAIN_ID',
+                    severity: i.Severity.Danger,
+                    content: {
+                      element: 'span',
+                      children: {
+                        element: 'MetaMaskTranslation',
+                        props: { translationKey: 'mismatchedRpcChainId' },
+                      },
+                    },
+                  },
+                  A = {
+                    id: 'ERROR_CONNECTING_TO_RPC',
+                    severity: i.Severity.Danger,
+                    content: {
+                      element: 'span',
+                      children: {
+                        element: 'MetaMaskTranslation',
+                        props: { translationKey: 'errorWhileConnectingToRPC' },
+                      },
+                    },
+                  };
+                const v = {
+                  getAlerts: async function (e, t) {
+                    const a = [];
+                    if ('metamask' === e.origin && Boolean(t.matchedChain)) return [];
+                    if (t.matchedChain) {
+                      var n, s, r, i;
+                      (null === (n = t.matchedChain.name) || void 0 === n
+                        ? void 0
+                        : n.toLowerCase()) !== e.requestData.chainName.toLowerCase() && a.push(f),
+                        (null === (s = t.matchedChain.nativeCurrency) ||
+                        void 0 === s ||
+                        null === (s = s.symbol) ||
+                        void 0 === s
+                          ? void 0
+                          : s.toLowerCase()) !==
+                          (null === (r = e.requestData.ticker) || void 0 === r
+                            ? void 0
+                            : r.toLowerCase()) && a.push(S);
+                      const { origin: c } = new URL(e.requestData.rpcUrl);
+                      (null !== (i = t.matchedChain.rpc) &&
+                        void 0 !== i &&
+                        i.map(e => new URL(e).origin).includes(c)) ||
+                        a.push(h),
+                        o.DEPRECATED_NETWORKS.includes(e.requestData.chainId) && a.push(T);
+                    }
+                    return (
+                      !t.matchedChain &&
+                        t.useSafeChainsListValidation &&
+                        (t.providerError ? a.push(m) : a.push(p)),
+                      a.length && a.push(g),
+                      a
+                    );
+                  },
+                  getValues: function (e, t, a, n, p) {
+                    var m;
+                    const g = 'metamask' === e.origin,
+                      T = e.requestData.rpcUrl;
+                    let f, S;
+                    return (
+                      (f = g
+                        ? t('wantToAddThisNetwork')
+                        : p.existingNetworkConfiguration
+                          ? t('updateNetworkConfirmationTitle', [
+                              p.existingNetworkConfiguration.name,
+                            ])
+                          : t('addNetworkConfirmationTitle', [e.requestData.chainName])),
+                      (S = p.existingNetworkConfiguration
+                        ? t('updateEthereumChainConfirmationDescription')
+                        : t('multichainAddEthereumChainConfirmationDescription')),
+                      {
+                        content: [
+                          {
+                            element: 'Typography',
+                            key: 'title',
+                            children: f,
+                            props: {
+                              variant: i.TypographyVariant.H3,
+                              align: 'center',
+                              fontWeight: 'bold',
+                              boxProps: { margin: [0, 0, 4] },
+                            },
+                          },
+                          {
+                            element: 'Typography',
+                            key: 'description',
+                            children: S,
+                            props: {
+                              variant: i.TypographyVariant.H6,
+                              align: 'center',
+                              boxProps: { margin: g ? [0, 8, 4] : [0, 0, 4] },
+                            },
+                          },
+                          {
+                            element: 'OriginPill',
+                            key: 'origin-pill',
+                            props: { origin: e.origin, dataTestId: 'signature-origin-pill' },
+                          },
+                          {
+                            element: 'TruncatedDefinitionList',
+                            key: 'network-details',
+                            props: {
+                              title: t('networkDetails'),
+                              tooltips: {
+                                [t('currencySymbol')]: t('currencySymbolDefinition'),
+                                [t('networkURL')]: t('networkURLDefinition'),
+                                [t('chainId')]: t('chainIdDefinition'),
+                                [t('networkName')]: t('networkNameDefinition'),
+                                [t('blockExplorerUrl')]: t('blockExplorerUrlDefinition'),
+                              },
+                              warnings: {
+                                [t('networkURL')]:
+                                  !T || (0, d.isValidASCIIURL)(T)
+                                    ? undefined
+                                    : t('networkUrlErrorWarning', [(0, d.toPunycodeURL)(T)]),
+                                [t('currencySymbol')]: p.currencySymbolWarning,
+                              },
+                              dictionary: {
+                                [t('currencySymbol')]: e.requestData.ticker,
+                                [t('networkURL')]:
+                                  null !== (m = T.toLowerCase()) &&
+                                  void 0 !== m &&
+                                  m.includes(`/v3/${o.infuraProjectId}`)
+                                    ? T.replace(`/v3/${o.infuraProjectId}`, '').toLowerCase()
+                                    : T.toLowerCase(),
+                                [t('chainId')]: parseInt(e.requestData.chainId, 16),
+                                [t('networkName')]: e.requestData.chainName,
+                                [t('blockExplorerUrl')]: e.requestData.rpcPrefs.blockExplorerUrl,
+                              },
+                              prefaceKeys: [t('currencySymbol'), t('networkURL')],
+                            },
+                          },
+                          {
+                            element: 'Typography',
+                            key: 'only-add-networks-you-trust',
+                            children: [
+                              {
+                                element: 'MetaMaskTranslation',
+                                key: 'learn-about-risks',
+                                props: {
+                                  translationKey: 'watchOutMessage',
+                                  variables: [
+                                    {
+                                      element: 'a',
+                                      children: t('securityMessageLinkForNetworks'),
+                                      key: 'securityMessageLinkForNetworks',
+                                      props: {
+                                        href: u.default.USER_GUIDE_CUSTOM_NETWORKS,
+                                        target: '__blank',
+                                      },
+                                    },
+                                  ],
+                                },
+                              },
+                            ],
+                            props: {
+                              variant: i.TypographyVariant.H6,
+                              boxProps: {
+                                margin: g ? [0, 8] : 0,
+                                display: i.Display.Flex,
+                                flexDirection: i.FlexDirection.Column,
+                                alignItems: i.AlignItems.center,
+                              },
+                            },
+                          },
+                        ],
+                        cancelText: t('cancel'),
+                        submitText: t('approveButtonText'),
+                        loadingText: t('addingCustomNetwork'),
+                        onSubmit: async () => {
+                          let t;
+                          try {
+                            t = await (0, l.jsonRpcRequest)(T, 'eth_chainId');
+                          } catch (e) {
+                            return (
+                              console.error(`Request for method 'eth_chainId on ${T} failed`), [A]
+                            );
+                          }
+                          if (e.requestData.chainId !== t)
+                            return (
+                              console.error(
+                                `Chain ID returned by RPC URL ${T} does not match ${t}`
+                              ),
+                              [E]
+                            );
+                          if ((await a.resolvePendingApproval(e.id, e.requestData), g)) {
+                            const t = e.requestData.rpcPrefs.blockExplorerUrl,
+                              s = await a.addNetwork({
+                                chainId: e.requestData.chainId,
+                                name: e.requestData.chainName,
+                                nativeCurrency: e.requestData.ticker,
+                                blockExplorerUrls: t ? [t] : [],
+                                defaultBlockExplorerUrlIndex: t ? 0 : undefined,
+                                defaultRpcEndpointIndex: 0,
+                                rpcEndpoints: [
+                                  { url: e.requestData.rpcUrl, type: r.RpcEndpointType.Custom },
+                                ],
+                              });
+                            await a.setNewNetworkAdded({
+                              networkConfigurationId: s.rpcEndpoints[0].networkClientId,
+                              nickname: e.requestData.chainName,
+                            });
+                            document.location.hash.replace('#', '/') ===
+                              c.ONBOARDING_PRIVACY_SETTINGS_ROUTE || n.push(c.DEFAULT_ROUTE);
+                          }
+                          return [];
+                        },
+                        onCancel: () =>
+                          a.rejectPendingApproval(
+                            e.id,
+                            s.providerErrors.userRejectedRequest().serialize()
+                          ),
+                        networkDisplay: !g,
+                      }
+                    );
+                  },
+                  getState: function (e) {
+                    return 1 === parseInt(e.requestData.chainId, 16) ? { useWarningModal: !0 } : {};
+                  },
+                };
+                a.default = v;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/add-ethereum-chain.js',
+      },
+    ],
+    [
+      7279,
+      { '../../../../../shared/constants/metametrics': 5800 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                var n = e('../../../../../shared/constants/metametrics');
+                const s = {
+                  getValues: function (e, t, a, s, r, o) {
+                    const { origin: i, snapName: c, requestData: u } = e,
+                      { snapSuggestedAccountName: l } = u,
+                      { trackEvent: d } = o,
+                      p = e => {
+                        d({
+                          event: e,
+                          category: n.MetaMetricsEventCategory.Accounts,
+                          properties: {
+                            account_type: n.MetaMetricsEventAccountType.Snap,
+                            snap_id: i,
+                            snap_name: c,
+                          },
+                        });
+                      };
+                    return {
+                      content: [
+                        {
+                          element: 'CreateNamedSnapAccount',
+                          key: 'create-named-snap-account',
+                          props: {
+                            onActionComplete: async t => {
+                              t.success
+                                ? (p(n.MetaMetricsEventName.AddSnapAccountConfirmed),
+                                  a.resolvePendingApproval(e.id, t))
+                                : (p(n.MetaMetricsEventName.AddSnapAccountCanceled),
+                                  a.resolvePendingApproval(e.id, !1));
+                            },
+                            snapSuggestedAccountName: l,
+                          },
+                        },
+                      ],
+                      loadingText: t('addingAccount'),
+                      hideSubmitButton: !0,
+                      onLoad: () => p(n.MetaMetricsEventName.AddSnapAccountViewed),
+                    };
+                  },
+                };
+                a.default = s;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/create-named-snap-account.js',
+      },
+    ],
+    [
+      7280,
+      { '../../../../../shared/constants/metametrics': 5800 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                var n = e('../../../../../shared/constants/metametrics');
+                const s = {
+                  getValues: function (e, t, a, s, r, o) {
+                    const { origin: i, snapName: c } = e,
+                      { trackEvent: u } = o,
+                      l = e => {
+                        u({
+                          event: e,
+                          category: n.MetaMetricsEventCategory.Accounts,
+                          properties: {
+                            account_type: n.MetaMetricsEventAccountType.Snap,
+                            snap_id: i,
+                            snap_name: c,
+                          },
+                        });
+                      },
+                      d = () => {
+                        l(n.MetaMetricsEventName.AddSnapAccountCanceled),
+                          a.resolvePendingApproval(e.id, !1);
+                      };
+                    return {
+                      content: [
+                        {
+                          element: 'CreateSnapAccount',
+                          key: 'create-snap-account',
+                          props: { snapId: i, snapName: c, onCancel: d },
+                        },
+                      ],
+                      cancelText: t('cancel'),
+                      submitText: t('create'),
+                      onLoad: () => l(n.MetaMetricsEventName.AddSnapAccountViewed),
+                      onSubmit: () => {
+                        l(n.MetaMetricsEventName.AddSnapAccountConfirmed),
+                          a.resolvePendingApproval(e.id, !0);
+                      },
+                      onCancel: d,
+                    };
+                  },
+                };
+                a.default = s;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/create-snap-account.js',
+      },
+    ],
+    [
+      7281,
+      { '../ResultTemplate': 7267, '@metamask/controller-utils': 1515 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                var n = e('@metamask/controller-utils');
+                const s = new (e('../ResultTemplate').ResultTemplate)(n.ApprovalType.ResultError),
+                  r = { getValues: s.getValues.bind(s) };
+                a.default = r;
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/confirmation/templates/error.js' },
+    ],
+    [
+      7282,
+      {
+        '../../../../../shared/constants/app': 5789,
+        '../../../../store/actions': 7619,
+        './add-ethereum-chain': 7278,
+        './create-named-snap-account': 7279,
+        './create-snap-account': 7280,
+        './error': 7281,
+        './remove-snap-account': 7283,
+        './smart-transaction-status-page': 7284,
+        './snap-account-redirect': 7285,
+        './snaps/snap-alert/snap-alert': 7286,
+        './snaps/snap-confirmation/snap-confirmation': 7287,
+        './snaps/snap-default/snap-default': 7288,
+        './snaps/snap-prompt/snap-prompt': 7289,
+        './success': 7290,
+        './switch-ethereum-chain': 7291,
+        '@metamask/controller-utils': 1515,
+        lodash: 4921,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.TEMPLATED_CONFIRMATION_APPROVAL_TYPES = void 0),
+                  (a.getTemplateAlerts = async function (e, t) {
+                    var a;
+                    const n = null === (a = v[e.type]) || void 0 === a ? void 0 : a.getAlerts,
+                      s = n ? await n(e, t) : [];
+                    if (!Array.isArray(s))
+                      throw new Error(`Template alerts must be an array, received: ${s}`);
+                    if (s.some(e => (null == e ? void 0 : e.id) === undefined))
+                      throw new Error(
+                        `Template alert entries must be objects with an id key. Received: ${s}`
+                      );
+                    return s;
+                  }),
+                  (a.getTemplateState = async function (e) {
+                    var t;
+                    const a = (null === (t = v[e.type]) || void 0 === t ? void 0 : t.getState) ?? I,
+                      n = await a(e);
+                    if ('object' != typeof n || Array.isArray(n))
+                      throw new Error(`Template state must be an object, received: ${n}`);
+                    if (null === n || n === undefined) return {};
+                    return n;
+                  }),
+                  (a.getTemplateValues = function (e, t, a, s, o, i) {
+                    var c;
+                    const u = null === (c = v[e.type]) || void 0 === c ? void 0 : c.getValues;
+                    if (!u)
+                      throw new Error(
+                        `MESSAGE_TYPE: '${e.type}' is not specified in approval templates`
+                      );
+                    const l = (function (e) {
+                        return {
+                          rejectPendingApproval: (...t) => e((0, r.rejectPendingApproval)(...t)),
+                          resolvePendingApproval: (...t) => e((0, r.resolvePendingApproval)(...t)),
+                          addNetwork: (...t) => e((0, r.addNetwork)(...t)),
+                          setNewNetworkAdded: (...t) => e((0, r.setNewNetworkAdded)(...t)),
+                          deleteInterface: (...t) => e((0, r.deleteInterface)(...t)),
+                        };
+                      })(a),
+                      d = u(e, t, l, s, o, i),
+                      p = (0, n.omit)(d, _),
+                      m = (0, n.pick)(d, _);
+                    if (p.length > 0)
+                      throw new Error(
+                        `Received extraneous keys from ${e.type}.getValues. These keys are not passed to the confirmation page: ${Object.keys(p)}`
+                      );
+                    return m;
+                  });
+                var n = e('lodash'),
+                  s = e('@metamask/controller-utils'),
+                  r = e('../../../../store/actions'),
+                  o = e('../../../../../shared/constants/app'),
+                  i = A(e('./smart-transaction-status-page')),
+                  c = A(e('./create-snap-account')),
+                  u = A(e('./remove-snap-account')),
+                  l = A(e('./snap-account-redirect')),
+                  d = A(e('./create-named-snap-account')),
+                  p = A(e('./add-ethereum-chain')),
+                  m = A(e('./switch-ethereum-chain')),
+                  g = A(e('./success')),
+                  T = A(e('./error')),
+                  f = A(e('./snaps/snap-alert/snap-alert')),
+                  S = A(e('./snaps/snap-confirmation/snap-confirmation')),
+                  h = A(e('./snaps/snap-prompt/snap-prompt')),
+                  E = A(e('./snaps/snap-default/snap-default'));
+                function A(e) {
+                  return e && e.__esModule ? e : { default: e };
+                }
+                const v = {
+                    [s.ApprovalType.AddEthereumChain]: p.default,
+                    [s.ApprovalType.SwitchEthereumChain]: m.default,
+                    [s.ApprovalType.ResultSuccess]: g.default,
+                    [s.ApprovalType.ResultError]: T.default,
+                    [o.SMART_TRANSACTION_CONFIRMATION_TYPES.showSmartTransactionStatusPage]:
+                      i.default,
+                    [s.ApprovalType.SnapDialogAlert]: f.default,
+                    [s.ApprovalType.SnapDialogConfirmation]: S.default,
+                    [s.ApprovalType.SnapDialogPrompt]: h.default,
+                    [s.ApprovalType.SnapDialogDefault]: E.default,
+                    [o.SNAP_MANAGE_ACCOUNTS_CONFIRMATION_TYPES.confirmAccountCreation]: c.default,
+                    [o.SNAP_MANAGE_ACCOUNTS_CONFIRMATION_TYPES.confirmAccountRemoval]: u.default,
+                    [o.SNAP_MANAGE_ACCOUNTS_CONFIRMATION_TYPES.showNameSnapAccount]: d.default,
+                    [o.SNAP_MANAGE_ACCOUNTS_CONFIRMATION_TYPES.showSnapAccountRedirect]: l.default,
+                  },
+                  _ =
+                    ((a.TEMPLATED_CONFIRMATION_APPROVAL_TYPES = Object.keys(v)),
+                    [
+                      'cancelText',
+                      'content',
+                      'onLoad',
+                      'onCancel',
+                      'onSubmit',
+                      'networkDisplay',
+                      'submitText',
+                      'loadingText',
+                      'hideSubmitButton',
+                    ]);
+                async function I() {
+                  return {};
+                }
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/confirmation/templates/index.js' },
+    ],
+    [
+      7283,
+      { '../../../../../shared/constants/metametrics': 5800 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                var n = e('../../../../../shared/constants/metametrics');
+                const s = {
+                  getValues: function (e, t, a, s, r, o) {
+                    const { origin: i, snapName: c } = e,
+                      { publicAddress: u } = e.requestData,
+                      { trackEvent: l } = o,
+                      d = e => {
+                        l({
+                          event: e,
+                          category: n.MetaMetricsEventCategory.Accounts,
+                          properties: {
+                            account_type: n.MetaMetricsEventAccountType.Snap,
+                            snap_id: i,
+                            snap_name: c,
+                          },
+                        });
+                      },
+                      p = () => {
+                        d(n.MetaMetricsEventName.RemoveSnapAccountCanceled),
+                          a.resolvePendingApproval(e.id, !1);
+                      };
+                    return {
+                      content: [
+                        {
+                          element: 'RemoveSnapAccount',
+                          key: 'remove-snap-account',
+                          props: { snapId: i, snapName: c, publicAddress: u, onCancel: p },
+                        },
+                      ],
+                      cancelText: t('cancel'),
+                      submitText: t('remove'),
+                      onLoad: () => d(n.MetaMetricsEventName.RemoveSnapAccountViewed),
+                      onSubmit: () => {
+                        d(n.MetaMetricsEventName.RemoveSnapAccountConfirmed),
+                          a.resolvePendingApproval(e.id, !0);
+                      },
+                      onCancel: p,
+                    };
+                  },
+                };
+                a.default = s;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/remove-snap-account.js',
+      },
+    ],
+    [
+      7284,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                const n = {
+                  getValues: function (e, t, a, n) {
+                    const { id: s, requestState: r } = e;
+                    return {
+                      content: [
+                        {
+                          element: 'SmartTransactionStatusPage',
+                          key: 'smart-transaction-status-page',
+                          props: {
+                            requestState: r,
+                            onCloseExtension: () => {
+                              a.resolvePendingApproval(s, !0);
+                            },
+                            onViewActivity: () => {
+                              a.resolvePendingApproval(s, !0);
+                            },
+                          },
+                        },
+                      ],
+                      hideSubmitButton: !0,
+                    };
+                  },
+                };
+                a.default = n;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/smart-transaction-status-page.js',
+      },
+    ],
+    [
+      7285,
+      { '../../../../../shared/constants/metametrics': 5800 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                var n = e('../../../../../shared/constants/metametrics');
+                const s = {
+                  getValues: function (e, t, a, s, r, o) {
+                    const { origin: i, snapName: c } = e,
+                      { url: u, message: l, isBlockedUrl: d } = e.requestData,
+                      { trackEvent: p } = o,
+                      m = e => {
+                        p({
+                          event: e,
+                          category: n.MetaMetricsEventCategory.Transactions,
+                          properties: {
+                            account_type: n.MetaMetricsEventAccountType.Snap,
+                            snap_id: i,
+                            snap_name: c,
+                          },
+                        });
+                      },
+                      g = n =>
+                        u !== undefined && null !== u && u.length > 0 && !1 === d
+                          ? {
+                              submitText: t('goToSite'),
+                              onSubmit: () => {
+                                m(n), a.resolvePendingApproval(e.id, !0);
+                              },
+                            }
+                          : {};
+                    return {
+                      content: [
+                        {
+                          element: 'SnapAccountRedirect',
+                          key: 'snap-account-redirect',
+                          props: {
+                            url: u,
+                            message: l,
+                            snapId: i,
+                            snapName: c,
+                            isBlockedUrl: d,
+                            ...g(
+                              n.MetaMetricsEventName
+                                .SnapAccountTransactionFinalizeRedirectSnapUrlClicked
+                            ),
+                          },
+                        },
+                      ],
+                      cancelText: t('close'),
+                      onLoad: () => m(n.MetaMetricsEventName.SnapAccountTransactionFinalizeViewed),
+                      onCancel: () => {
+                        m(n.MetaMetricsEventName.SnapAccountTransactionFinalizeClosed),
+                          a.resolvePendingApproval(e.id, !1);
+                      },
+                      ...g(
+                        n.MetaMetricsEventName.SnapAccountTransactionFinalizeRedirectGoToSiteClicked
+                      ),
+                    };
+                  },
+                };
+                a.default = s;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/snap-account-redirect.js',
+      },
+    ],
+    [
+      7286,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                const n = {
+                  getValues: function (e, t, a) {
+                    const {
+                      requestData: { id: n },
+                    } = e;
+                    return {
+                      submitText: t('ok').toUpperCase(),
+                      onSubmit: () => {
+                        a.resolvePendingApproval(e.id, null), a.deleteInterface(n);
+                      },
+                    };
+                  },
+                };
+                a.default = n;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/snaps/snap-alert/snap-alert.js',
+      },
+    ],
+    [
+      7287,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                const n = {
+                  getValues: function (e, t, a) {
+                    const {
+                      requestData: { id: n },
+                    } = e;
+                    return {
+                      cancelText: t('reject'),
+                      submitText: t('approveButtonText'),
+                      onSubmit: () => {
+                        a.resolvePendingApproval(e.id, !0), a.deleteInterface(n);
+                      },
+                      onCancel: () => {
+                        a.resolvePendingApproval(e.id, !1), a.deleteInterface(n);
+                      },
+                    };
+                  },
+                };
+                a.default = n;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/snaps/snap-confirmation/snap-confirmation.js',
+      },
+    ],
+    [
+      7288,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                const n = {
+                  getValues: function (e, t, a) {
+                    const {
+                      requestData: { id: n },
+                    } = e;
+                    return {
+                      onCancel: () => {
+                        a.resolvePendingApproval(e.id, null), a.deleteInterface(n);
+                      },
+                    };
+                  },
+                };
+                a.default = n;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/snaps/snap-default/snap-default.js',
+      },
+    ],
+    [
+      7289,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                const n = {
+                  getValues: function (e, t, a) {
+                    const {
+                      requestData: { id: n },
+                    } = e;
+                    return {
+                      cancelText: t('cancel'),
+                      submitText: t('submit'),
+                      onSubmit: t => {
+                        a.resolvePendingApproval(e.id, t), a.deleteInterface(n);
+                      },
+                      onCancel: () => {
+                        a.resolvePendingApproval(e.id, null), a.deleteInterface(n);
+                      },
+                    };
+                  },
+                };
+                a.default = n;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/snaps/snap-prompt/snap-prompt.js',
+      },
+    ],
+    [
+      7290,
+      { '../ResultTemplate': 7267, '@metamask/controller-utils': 1515 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                var n = e('@metamask/controller-utils');
+                const s = new (e('../ResultTemplate').ResultTemplate)(n.ApprovalType.ResultSuccess),
+                  r = { getValues: s.getValues.bind(s) };
+                a.default = r;
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/confirmation/templates/success.js' },
+    ],
+    [
+      7291,
+      { '../../../../helpers/constants/design-system': 6872, '@metamask/rpc-errors': 2585 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }), (a.default = void 0);
+                var n = e('@metamask/rpc-errors'),
+                  s = e('../../../../helpers/constants/design-system');
+                const r = {
+                  id: 'PENDING_TX_DROP_NOTICE',
+                  severity: s.SEVERITIES.WARNING,
+                  content: {
+                    element: 'span',
+                    children: {
+                      element: 'MetaMaskTranslation',
+                      props: { translationKey: 'switchingNetworksCancelsPendingConfirmations' },
+                    },
+                  },
+                };
+                const o = {
+                  getAlerts: async function (e, t) {
+                    const a = [];
+                    return t.unapprovedTxsCount > 0 && a.push(r), a;
+                  },
+                  getValues: function (e, t, a) {
+                    return {
+                      content: [
+                        {
+                          element: 'Typography',
+                          key: 'title',
+                          children: t('switchEthereumChainConfirmationTitle'),
+                          props: {
+                            variant: s.TypographyVariant.H3,
+                            align: 'center',
+                            fontWeight: 'normal',
+                            boxProps: { margin: [0, 0, 2], padding: [0, 4, 0, 4] },
+                          },
+                        },
+                        {
+                          element: 'Typography',
+                          key: 'description',
+                          children: t('switchEthereumChainConfirmationDescription'),
+                          props: {
+                            variant: s.TypographyVariant.H7,
+                            color: s.TextColor.textAlternative,
+                            align: 'center',
+                            boxProps: { padding: [0, 4, 0, 4] },
+                          },
+                        },
+                        {
+                          element: 'OriginPill',
+                          key: 'origin-pill',
+                          props: { origin: e.origin, dataTestId: 'signature-origin-pill' },
+                        },
+                        {
+                          element: 'Box',
+                          key: 'status-box',
+                          props: { justifyContent: s.JustifyContent.center },
+                          children: {
+                            element: 'ConfirmationNetworkSwitch',
+                            key: 'network-being-switched',
+                            props: {
+                              toNetwork: e.requestData.toNetworkConfiguration,
+                              fromNetwork: e.requestData.fromNetworkConfiguration,
+                            },
+                          },
+                        },
+                      ],
+                      cancelText: t('cancel'),
+                      submitText: t('switchNetwork'),
+                      onSubmit: () =>
+                        a.resolvePendingApproval(e.id, e.requestData.toNetworkConfiguration),
+                      onCancel: () =>
+                        a.rejectPendingApproval(
+                          e.id,
+                          n.providerErrors.userRejectedRequest().serialize()
+                        ),
+                      networkDisplay: !0,
+                    };
+                  },
+                };
+                a.default = o;
+              };
+            };
+      },
+      {
+        package: '$root$',
+        file: 'ui/pages/confirmations/confirmation/templates/switch-ethereum-chain.js',
+      },
+    ],
+    [
+      7292,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                function n(e) {
+                  return e === undefined
+                    ? undefined
+                    : 'string' == typeof e
+                      ? e
+                      : Array.isArray(e)
+                        ? e.map(n)
+                        : {
+                            key: e.key,
+                            element: e.name,
+                            props: e.properties,
+                            children: n(e.children),
+                          };
+                }
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.processError = function (e, t) {
+                    const a = n(e) || t;
+                    if ('string' != typeof a) return a;
+                    return {
+                      key: 'error',
+                      element: 'ActionableMessage',
+                      props: { type: 'danger', message: a },
+                    };
+                  }),
+                  (a.processHeader = function (e) {
+                    return n(e);
+                  }),
+                  (a.processString = function (e, t) {
+                    const a = n(e) || t;
+                    if ('string' != typeof a) return a;
+                    return (
+                      (s = a),
+                      (function (e, t, a) {
+                        let n = 0,
+                          s = 0;
+                        const r = Array.from(e.matchAll(t)),
+                          o = [];
+                        for (const t of r) {
+                          const r = e.substring(n, t.index);
+                          r.length && o.push(r);
+                          const i = a(t[1], s);
+                          o.push(i), (n = t.index + t[0].length), (s += 1);
+                        }
+                        const i = e.substring(n);
+                        return i.length && o.push(i), o;
+                      })(s, /\*\*(.+?)\*\*/gu, (e, t) => ({
+                        key: `bold-${t}`,
+                        element: 'b',
+                        children: e,
+                      }))
+                    );
+                    var s;
+                  });
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/confirmation/util.ts' },
+    ],
+    [
+      7293,
+      { '../../../../shared/constants/network': 5804 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.TypedSignSignaturePrimaryTypes =
+                    a.TYPED_SIGNATURE_VERSIONS =
+                    a.SPENDING_CAP_UNLIMITED_MSG =
+                    a.IGNORE_GAS_LIMIT_CHAIN_IDS =
+                      void 0);
+                var n = e('../../../../shared/constants/network');
+                (a.IGNORE_GAS_LIMIT_CHAIN_IDS = [n.CHAINLIST_CHAIN_IDS_MAP.MANTLE]),
+                  (a.TYPED_SIGNATURE_VERSIONS = { V1: 'V1', V3: 'V3', V4: 'V4' }),
+                  (a.SPENDING_CAP_UNLIMITED_MSG = 'UNLIMITED MESSAGE'),
+                  (a.TypedSignSignaturePrimaryTypes = { PERMIT: 'Permit', ORDER: 'Order' });
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/constants/index.ts' },
+    ],
+    [
+      7356,
+      {
+        '../../../../shared/modules/selectors/util': 5877,
+        '../../../selectors/approvals': 7594,
+        '@metamask/controller-utils': 1515,
+        reselect: 5353,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.oldestPendingConfirmationSelector = void 0),
+                  (a.pendingConfirmationsSelector = function (e) {
+                    return (0, r.getPendingApprovals)(e).filter(({ type: e }) => i.includes(e));
+                  }),
+                  (a.pendingConfirmationsSortedSelector = c);
+                var n = e('@metamask/controller-utils'),
+                  s = e('reselect'),
+                  r = e('../../../selectors/approvals'),
+                  o = e('../../../../shared/modules/selectors/util');
+                const i = [
+                  n.ApprovalType.PersonalSign,
+                  n.ApprovalType.EthSignTypedData,
+                  n.ApprovalType.Transaction,
+                ];
+                function c(e) {
+                  return (0, r.getPendingApprovals)(e)
+                    .filter(({ type: e }) => i.includes(e))
+                    .sort((e, t) => e.time - t.time);
+                }
+                const u = (0, s.createSelector)(c, e => e[0]);
+                a.oldestPendingConfirmationSelector = (0, o.createDeepEqualSelector)(u, e => e);
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/selectors/confirm.ts' },
+    ],
+    [
+      7361,
+      {
+        '../../../../shared/constants/common': 5791,
+        '../../../../shared/constants/gas': 5795,
+        '../../../../shared/modules/Numeric': 5853,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.TOKEN_TRANSFER_FUNCTION_SIGNATURE =
+                    a.SWAPS_QUOTES_ERROR =
+                    a.SWAPS_NO_QUOTES =
+                    a.REQUIRED_ERROR =
+                    a.RECIPIENT_TYPES =
+                    a.NO_RESOLUTION_FOR_DOMAIN =
+                    a.NFT_TRANSFER_FROM_FUNCTION_SIGNATURE =
+                    a.NFT_SAFE_TRANSFER_FROM_FUNCTION_SIGNATURE =
+                    a.NEGATIVE_OR_ZERO_AMOUNT_TOKENS_ERROR =
+                    a.NEGATIVE_ETH_ERROR =
+                    a.MIN_GAS_TOTAL =
+                    a.MIN_GAS_PRICE_HEX =
+                    a.MIN_GAS_PRICE_GWEI =
+                    a.MIN_GAS_PRICE_DEC =
+                    a.MIN_GAS_LIMIT_DEC =
+                    a.MAX_GAS_LIMIT_DEC =
+                    a.KNOWN_RECIPIENT_ADDRESS_WARNING =
+                    a.INVALID_RECIPIENT_ADDRESS_ERROR =
+                    a.INVALID_HEX_DATA_ERROR =
+                    a.INSUFFICIENT_TOKENS_ERROR =
+                    a.INSUFFICIENT_FUNDS_FOR_GAS_ERROR =
+                    a.INSUFFICIENT_FUNDS_ERROR =
+                    a.HIGH_FEE_WARNING_MULTIPLIER =
+                    a.FLOAT_TOKENS_ERROR =
+                    a.ENS_UNKNOWN_ERROR =
+                    a.CONTRACT_ADDRESS_ERROR =
+                    a.CONFUSING_ENS_ERROR =
+                      void 0);
+                var n = e('../../../../shared/constants/gas'),
+                  s = e('../../../../shared/modules/Numeric'),
+                  r = e('../../../../shared/constants/common');
+                const o = (a.MIN_GAS_PRICE_DEC = '0'),
+                  i = (a.MIN_GAS_PRICE_HEX = parseInt(o, 10).toString(16));
+                (a.MIN_GAS_LIMIT_DEC = new s.Numeric('21000', 10)),
+                  (a.MAX_GAS_LIMIT_DEC = '30000000'),
+                  (a.HIGH_FEE_WARNING_MULTIPLIER = 1.5),
+                  (a.MIN_GAS_PRICE_GWEI = new s.Numeric(i, 16, r.EtherDenomination.WEI)
+                    .toDenomination(r.EtherDenomination.GWEI)
+                    .round(1)
+                    .toPrefixedHexString()),
+                  (a.MIN_GAS_TOTAL = new s.Numeric(n.MIN_GAS_LIMIT_HEX, 16)
+                    .times(new s.Numeric(i, 16, r.EtherDenomination.WEI))
+                    .toPrefixedHexString()),
+                  (a.TOKEN_TRANSFER_FUNCTION_SIGNATURE = '0xa9059cbb'),
+                  (a.NFT_TRANSFER_FROM_FUNCTION_SIGNATURE = '0x23b872dd'),
+                  (a.NFT_SAFE_TRANSFER_FROM_FUNCTION_SIGNATURE = '0xf242432a'),
+                  (a.INSUFFICIENT_FUNDS_ERROR = 'insufficientFunds'),
+                  (a.INSUFFICIENT_FUNDS_FOR_GAS_ERROR = 'insufficientFundsForGas'),
+                  (a.INSUFFICIENT_TOKENS_ERROR = 'insufficientTokens'),
+                  (a.NEGATIVE_ETH_ERROR = 'negativeETH'),
+                  (a.NEGATIVE_OR_ZERO_AMOUNT_TOKENS_ERROR = 'negativeOrZeroAmountToken'),
+                  (a.FLOAT_TOKENS_ERROR = 'floatAmountToken'),
+                  (a.INVALID_RECIPIENT_ADDRESS_ERROR = 'invalidAddressRecipient'),
+                  (a.REQUIRED_ERROR = 'required'),
+                  (a.KNOWN_RECIPIENT_ADDRESS_WARNING = 'knownAddressRecipient'),
+                  (a.CONTRACT_ADDRESS_ERROR = 'contractAddressError'),
+                  (a.CONFUSING_ENS_ERROR = 'confusingEnsDomain'),
+                  (a.ENS_UNKNOWN_ERROR = 'ensUnknownError'),
+                  (a.NO_RESOLUTION_FOR_DOMAIN = 'noDomainResolution'),
+                  (a.SWAPS_NO_QUOTES = 'swapQuotesNotAvailableErrorTitle'),
+                  (a.SWAPS_QUOTES_ERROR = 'swapFetchingQuotesErrorTitle'),
+                  (a.INVALID_HEX_DATA_ERROR = 'invalidHexDataError'),
+                  (a.RECIPIENT_TYPES = {
+                    SMART_CONTRACT: 'SMART_CONTRACT',
+                    NON_CONTRACT: 'NON_CONTRACT',
+                  });
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/send/send.constants.js' },
+    ],
+    [
+      7362,
+      {
+        '../../../../app/scripts/lib/util': 204,
+        '../../../../shared/constants/transaction': 5819,
+        '../../../../shared/modules/Numeric': 5853,
+        './send.constants': 7361,
+        '@metamask/abi-utils': 1274,
+        '@metamask/utils': 2995,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.addGasBuffer = function (e, t, a = 1.5) {
+                    const n = new i.Numeric(e, 16),
+                      s = new i.Numeric(t, 16).times(new i.Numeric(0.9, 10)).round(0),
+                      r = n.times(new i.Numeric(a, 10)).round(0);
+                    if (n.greaterThanOrEqualTo(s)) return e;
+                    if (r.lessThan(s)) return r.toString();
+                    return s.toString();
+                  }),
+                  (a.ellipsify = function (e, t = 6, a = 4) {
+                    if (!e) return '';
+                    return `${e.slice(0, t)}...${e.slice(-a)}`;
+                  }),
+                  (a.generateERC1155TransferData = d),
+                  (a.generateERC20TransferData = u),
+                  (a.generateERC721TransferData = l),
+                  (a.getAssetTransferData = function ({
+                    sendToken: e,
+                    fromAddress: t,
+                    toAddress: a,
+                    amount: n,
+                  }) {
+                    switch (e.standard) {
+                      case o.TokenStandard.ERC721:
+                        return l({ toAddress: a, fromAddress: t, tokenId: e.tokenId });
+                      case o.TokenStandard.ERC1155:
+                        return d({ toAddress: a, fromAddress: t, tokenId: e.tokenId });
+                      case o.TokenStandard.ERC20:
+                      default:
+                        return u({ toAddress: a, amount: n, sendToken: e });
+                    }
+                  }),
+                  (a.isBalanceSufficient = function ({
+                    amount: e = '0x0',
+                    balance: t = '0x0',
+                    conversionRate: a = 1,
+                    gasTotal: n = '0x0',
+                    primaryCurrency: r = undefined,
+                  }) {
+                    let o = new i.Numeric(e, 16).add(new i.Numeric(n, 16)),
+                      c = new i.Numeric(t, (0, s.isHexString)(t) ? 16 : 10);
+                    null != r && ((o = o.applyConversionRate(a)), (c = c.applyConversionRate(a)));
+                    return c.greaterThanOrEqualTo(o);
+                  }),
+                  (a.isERC1155BalanceSufficient = function ({ amount: e = '0', tokenBalance: t }) {
+                    const a = new i.Numeric(e, 16);
+                    return new i.Numeric(t, 10).greaterThanOrEqualTo(a);
+                  }),
+                  (a.isTokenBalanceSufficient = function ({
+                    amount: e = '0x0',
+                    tokenBalance: t,
+                    decimals: a,
+                  }) {
+                    const n = new i.Numeric(e, 16).shiftedBy(a);
+                    return new i.Numeric(t, 16).greaterThanOrEqualTo(n);
+                  });
+                var n = e('@metamask/abi-utils'),
+                  s = e('@metamask/utils'),
+                  r = e('../../../../app/scripts/lib/util'),
+                  o = e('../../../../shared/constants/transaction'),
+                  i = e('../../../../shared/modules/Numeric'),
+                  c = e('./send.constants');
+                function u({ toAddress: e = '0x0', amount: t = '0x0', sendToken: a }) {
+                  return a
+                    ? c.TOKEN_TRANSFER_FUNCTION_SIGNATURE +
+                        Array.prototype.map
+                          .call(
+                            (0, n.encode)(
+                              ['address', 'uint256'],
+                              [(0, r.addHexPrefix)(e), (0, r.addHexPrefix)(t)]
+                            ),
+                            e => `00${e.toString(16)}`.slice(-2)
+                          )
+                          .join('')
+                    : undefined;
+                }
+                function l({ toAddress: e = '0x0', fromAddress: t = '0x0', tokenId: a }) {
+                  return a
+                    ? c.NFT_TRANSFER_FROM_FUNCTION_SIGNATURE +
+                        Array.prototype.map
+                          .call(
+                            (0, n.encode)(
+                              ['address', 'address', 'uint256'],
+                              [(0, r.addHexPrefix)(t), (0, r.addHexPrefix)(e), BigInt(a)]
+                            ),
+                            e => `00${e.toString(16)}`.slice(-2)
+                          )
+                          .join('')
+                    : undefined;
+                }
+                function d({
+                  toAddress: e = '0x0',
+                  fromAddress: t = '0x0',
+                  tokenId: a,
+                  amount: s = '1',
+                  data: o = '0',
+                }) {
+                  return a
+                    ? c.NFT_SAFE_TRANSFER_FROM_FUNCTION_SIGNATURE +
+                        Array.prototype.map
+                          .call(
+                            (0, n.encode)(
+                              ['address', 'address', 'uint256', 'uint256', 'bytes'],
+                              [
+                                (0, r.addHexPrefix)(t),
+                                (0, r.addHexPrefix)(e),
+                                BigInt(a),
+                                (0, r.addHexPrefix)(s),
+                                (0, r.addHexPrefix)(o),
+                              ]
+                            ),
+                            e => `00${e.toString(16)}`.slice(-2)
+                          )
+                          .join('')
+                    : undefined;
+                }
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/send/send.utils.js' },
+    ],
+    [
+      7363,
+      {
+        '../../../../shared/constants/signatures': 5812,
+        '../../../../shared/modules/transaction.utils': 5880,
+        '../../../helpers/utils/util': 6921,
+        '../constants': 7293,
+        '@metamask/transaction-controller': 2946,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.toPunycodeURL =
+                    a.parseSanitizeTypedDataMessage =
+                    a.isValidASCIIURL =
+                    a.isSignatureTransactionType =
+                    a.isSIWESignatureRequest =
+                    a.isPermitSignatureRequest =
+                    a.isOrderSignatureRequest =
+                    a.SIGNATURE_TRANSACTION_TYPES =
+                      void 0);
+                var n = e('@metamask/transaction-controller'),
+                  s = e('../../../../shared/constants/signatures'),
+                  r = e('../../../../shared/modules/transaction.utils'),
+                  o = e('../../../helpers/utils/util'),
+                  i = e('../constants');
+                const c = (a.SIGNATURE_TRANSACTION_TYPES = [
+                    n.TransactionType.personalSign,
+                    n.TransactionType.signTypedData,
+                  ]),
+                  u = e => e && c.includes(e.type);
+                a.isSignatureTransactionType = u;
+                a.parseSanitizeTypedDataMessage = e => {
+                  const { message: t, primaryType: a, types: n } = (0, r.parseTypedDataMessage)(e);
+                  return { sanitizedMessage: (0, o.sanitizeMessage)(t, a, n), primaryType: a };
+                };
+                a.isSIWESignatureRequest = e => {
+                  var t;
+                  return Boolean(
+                    null == e ||
+                      null === (t = e.msgParams) ||
+                      void 0 === t ||
+                      null === (t = t.siwe) ||
+                      void 0 === t
+                      ? void 0
+                      : t.isSIWEMessage
+                  );
+                };
+                a.isOrderSignatureRequest = e => {
+                  var t, a;
+                  if (
+                    !e ||
+                    !u(e) ||
+                    'eth_signTypedData' !== e.type ||
+                    (null === (t = e.msgParams) ||
+                    void 0 === t ||
+                    null === (t = t.version) ||
+                    void 0 === t
+                      ? void 0
+                      : t.toUpperCase()) === i.TYPED_SIGNATURE_VERSIONS.V1
+                  )
+                    return !1;
+                  const { primaryType: n } = (0, r.parseTypedDataMessage)(
+                    null === (a = e.msgParams) || void 0 === a ? void 0 : a.data
+                  );
+                  return s.PRIMARY_TYPES_ORDER.includes(n);
+                };
+                a.isPermitSignatureRequest = e => {
+                  var t, a;
+                  if (
+                    !e ||
+                    !u(e) ||
+                    'eth_signTypedData' !== e.type ||
+                    (null === (t = e.msgParams) ||
+                    void 0 === t ||
+                    null === (t = t.version) ||
+                    void 0 === t
+                      ? void 0
+                      : t.toUpperCase()) === i.TYPED_SIGNATURE_VERSIONS.V1
+                  )
+                    return !1;
+                  const { primaryType: n } = (0, r.parseTypedDataMessage)(
+                    null === (a = e.msgParams) || void 0 === a ? void 0 : a.data
+                  );
+                  return s.PRIMARY_TYPES_PERMIT.includes(n);
+                };
+                a.isValidASCIIURL = e => {
+                  try {
+                    return !(!e || 0 === e.length) && e.includes(new URL(e).host);
+                  } catch (t) {
+                    return (
+                      console.error(
+                        `Failed to detect if URL hostname contains non-ASCII characters: ${e}. Error: ${t}`
+                      ),
+                      !1
+                    );
+                  }
+                };
+                a.toPunycodeURL = e => {
+                  try {
+                    const t = new URL(e);
+                    return '/' === t.pathname && !e.endsWith('/') ? t.href.slice(0, -1) : t.href;
+                  } catch (e) {
+                    return console.error(`Failed to convert URL to Punycode: ${e}`), undefined;
+                  }
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/confirmations/utils/confirm.ts' },
+    ],
+    [
+      7582,
+      { '../../store/background-connection': 7620 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.estimateGasFee = function (e) {
+                    return (0, n.submitRequestToBackground)('estimateGasFee', [e]);
+                  });
+                var n = e('../../store/background-connection');
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/swaps/swaps.util.gas.ts' },
+    ],
+    [
+      7583,
+      {
+        '../../../shared/constants/common': 5791,
+        '../../../shared/constants/network': 5804,
+        '../../../shared/constants/swaps': 5815,
+        '../../../shared/lib/fetch-with-cache': 5834,
+        '../../../shared/lib/swaps-utils': 5846,
+        '../../../shared/lib/transactions-controller-utils': 5851,
+        '../../../shared/modules/conversion.utils': 5858,
+        '../../../shared/modules/hexstring-utils': 5864,
+        '../../../shared/modules/swaps.utils': 5879,
+        '../../helpers/utils/confirm-tx.util': 6899,
+        './swaps.util.gas': 7582,
+        'bignumber.js': 4030,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.countDecimals = a.TOKEN_VALIDATORS = a.StxErrorTypes = void 0),
+                  (a.fetchAggregatorMetadata = async function (e) {
+                    const t = (0, p.getBaseApi)('aggregatorMetadata', e),
+                      a = await (0, u.default)({
+                        url: t,
+                        fetchOptions: { method: 'GET', headers: h },
+                        cacheOptions: { cacheRefreshTime: f },
+                        functionName: 'fetchAggregatorMetadata',
+                      }),
+                      n = {};
+                    for (const e in a) (0, p.validateData)(v, a[e], t) && (n[e] = a[e]);
+                    return n;
+                  }),
+                  (a.fetchBlockedTokens = async function (e) {
+                    const t = (0, p.getBaseApi)('blockedTokens', e);
+                    return await (0, u.default)({
+                      url: `${t}`,
+                      fetchOptions: { method: 'GET', headers: h },
+                      cacheOptions: { cacheRefreshTime: f },
+                      functionName: 'fetchBlockedTokens',
+                    });
+                  }),
+                  (a.fetchSwapsFeatureFlags = async function () {
+                    const e = r.SWAPS_API_V2_BASE_URL;
+                    return await (0, u.default)({
+                      url: `${e}/featureFlags`,
+                      fetchOptions: { method: 'GET', headers: h },
+                      cacheOptions: { cacheRefreshTime: 6e5 },
+                      functionName: 'fetchSwapsFeatureFlags',
+                    });
+                  }),
+                  (a.fetchSwapsGasPrices = async function (e) {
+                    const t = (0, p.getBaseApi)('gasPrices', e),
+                      a = await (0, u.default)({
+                        url: t,
+                        fetchOptions: { method: 'GET', headers: h },
+                        cacheOptions: { cacheRefreshTime: 3e4 },
+                        functionName: 'fetchSwapsGasPrices',
+                      });
+                    if (!(0, p.validateData)(I, a, t)) throw new Error(`${t} response is invalid`);
+                    const { SafeGasPrice: n, ProposeGasPrice: s, FastGasPrice: r } = a;
+                    return { safeLow: n, average: s, fast: r };
+                  }),
+                  (a.fetchToken = async function (e, t) {
+                    const a = (0, p.getBaseApi)('token', t);
+                    return await (0, u.default)({
+                      url: `${a}?address=${e}`,
+                      fetchOptions: { method: 'GET', headers: h },
+                      cacheOptions: { cacheRefreshTime: f },
+                      functionName: 'fetchToken',
+                    });
+                  }),
+                  (a.fetchTokenPrice = async function (e) {
+                    var t;
+                    const a = `spot-prices?tokenAddresses=${e}&vsCurrency=eth&includeMarketData=false`,
+                      n = await (0, u.default)({
+                        url: `https://price.api.cx.metamask.io/v2/chains/1/${a}`,
+                        fetchOptions: { method: 'GET' },
+                        cacheOptions: { cacheRefreshTime: 6e4 },
+                        functionName: 'fetchTokenPrice',
+                      });
+                    return null == n || null === (t = n[e]) || void 0 === t ? void 0 : t.eth;
+                  }),
+                  (a.fetchTokens = async function (e) {
+                    const t = (0, p.getBaseApi)('tokens', e),
+                      a = await (0, u.default)({
+                        url: t,
+                        fetchOptions: { method: 'GET', headers: h },
+                        cacheOptions: { cacheRefreshTime: f },
+                        functionName: 'fetchTokens',
+                      });
+                    return [
+                      r.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[e] || null,
+                      ...a.filter(
+                        a =>
+                          (0, p.validateData)(E, a, t, false) &&
+                          !(
+                            (0, o.isSwapsDefaultTokenSymbol)(a.symbol, e) ||
+                            (0, o.isSwapsDefaultTokenAddress)(a.address, e)
+                          )
+                      ),
+                    ];
+                  }),
+                  (a.fetchTopAssets = async function (e) {
+                    const t = await y(e);
+                    return t.reduce((e, t, a) => ({ ...e, [t.address]: { index: String(a) } }), {});
+                  }),
+                  (a.fetchTopAssetsList = y),
+                  (a.formatSwapsValueForDisplay = R),
+                  (a.getNetworkNameByChainId =
+                    a.getFeeForSmartTransaction =
+                    a.getClassNameForCharLength =
+                      void 0),
+                  (a.getRenderableNetworkFeesForQuote = N),
+                  (a.getSwapsLivenessForNetwork = a.getSwap1559GasFeeEstimates = void 0),
+                  (a.getTransaction1559GasFeeEstimates = O),
+                  (a.parseSmartTransactionsError =
+                    a.isContractAddressValid =
+                    a.getTranslatedStxErrorMessage =
+                      void 0),
+                  (a.quotesToRenderableData = function ({
+                    quotes: e,
+                    gasPriceTrade: t,
+                    gasPriceApprove: a,
+                    conversionRate: n,
+                    currentCurrency: r,
+                    approveGas: i,
+                    tokenConversionRates: c,
+                    chainId: u,
+                    smartTransactionEstimatedGas: l,
+                    nativeCurrencySymbol: p,
+                    multiLayerL1ApprovalFeeTotal: g,
+                  }) {
+                    return Object.values(e).map(e => {
+                      const {
+                        destinationAmount: T = 0,
+                        sourceAmount: f = 0,
+                        sourceTokenInfo: S,
+                        destinationTokenInfo: h,
+                        slippage: E,
+                        aggType: A,
+                        aggregator: v,
+                        gasEstimateWithRefund: _,
+                        averageGas: I,
+                        fee: y,
+                        trade: k,
+                        multiLayerL1TradeFeeTotal: C,
+                      } = e;
+                      let O = null;
+                      null !== C && null !== g
+                        ? (O = (0, m.sumHexes)(C || '0x0', g || '0x0'))
+                        : null !== C && (O = C);
+                      const P = (0, d.calcTokenAmount)(f, S.decimals).toString(10),
+                        M = (0, d.calcTokenAmount)(T, h.decimals).toPrecision(8);
+                      let b = null,
+                        F = null,
+                        D = null,
+                        x = null;
+                      ({
+                        feeInFiat: b,
+                        feeInEth: F,
+                        rawNetworkFees: D,
+                        rawEthFee: x,
+                      } = N({
+                        tradeGas: _ || (0, m.decimalToHex)(I || 8e5),
+                        approveGas: i,
+                        gasPriceTrade: t,
+                        gasPriceApprove: a,
+                        currentCurrency: r,
+                        conversionRate: n,
+                        tradeValue: k.value,
+                        sourceSymbol: S.symbol,
+                        sourceAmount: f,
+                        chainId: u,
+                        multiLayerL1FeeTotal: O,
+                      })),
+                        l &&
+                          ({ feeInFiat: b, feeInEth: F } = w({
+                            chainId: u,
+                            currentCurrency: r,
+                            conversionRate: n,
+                            nativeCurrencySymbol: p,
+                            feeInWeiDec: l.feeEstimate,
+                          }));
+                      const L = new s.BigNumber(100 - E).div(100),
+                        U = new s.BigNumber(M).times(L).toFixed(6),
+                        G = c[h.address],
+                        H = (0, o.isSwapsDefaultTokenSymbol)(h.symbol, u)
+                          ? (0, d.calcTokenAmount)(T, h.decimals).minus(x, 10)
+                          : new s.BigNumber(G || 0, 10)
+                              .times((0, d.calcTokenAmount)(T, h.decimals), 10)
+                              .minus(x, 10);
+                      let B,
+                        W = E;
+                      return (
+                        'AGG' === A
+                          ? (B = 'swapAggregator')
+                          : 'RFQ' === A
+                            ? ((B = 'swapRequestForQuotation'), (W = 0))
+                            : (B =
+                                'DEX' === A
+                                  ? 'swapDecentralizedExchange'
+                                  : 'CONTRACT' === A
+                                    ? 'swapDirectContract'
+                                    : 'swapUnknown'),
+                        {
+                          aggId: v,
+                          amountReceiving: `${M} ${h.symbol}`,
+                          destinationTokenDecimals: h.decimals,
+                          destinationTokenSymbol: h.symbol,
+                          destinationTokenValue: R(M),
+                          destinationIconUrl: h.iconUrl,
+                          isBestQuote: e.isBestQuote,
+                          liquiditySourceKey: B,
+                          feeInEth: F,
+                          detailedNetworkFees: `${F} (${b})`,
+                          networkFees: b,
+                          quoteSource: A,
+                          rawNetworkFees: D,
+                          slippage: W,
+                          sourceTokenDecimals: S.decimals,
+                          sourceTokenSymbol: S.symbol,
+                          sourceTokenValue: P,
+                          sourceTokenIconUrl: S.iconUrl,
+                          ethValueOfTrade: H,
+                          minimumAmountReceived: U,
+                          metaMaskFee: y,
+                        }
+                      );
+                    });
+                  }),
+                  (a.showRemainingTimeInMinAndSec = void 0);
+                var n,
+                  s = e('bignumber.js'),
+                  r = e('../../../shared/constants/swaps'),
+                  o = e('../../../shared/modules/swaps.utils'),
+                  i = e('../../../shared/constants/network'),
+                  c = e('../../helpers/utils/confirm-tx.util'),
+                  u =
+                    (n = e('../../../shared/lib/fetch-with-cache')) && n.__esModule
+                      ? n
+                      : { default: n },
+                  l = e('../../../shared/modules/hexstring-utils'),
+                  d = e('../../../shared/lib/transactions-controller-utils'),
+                  p = e('../../../shared/lib/swaps-utils'),
+                  m = e('../../../shared/modules/conversion.utils'),
+                  g = e('../../../shared/constants/common'),
+                  T = e('./swaps.util.gas');
+                const f = 3e5,
+                  S = 'usd',
+                  h = { 'X-Client-Id': r.SWAPS_CLIENT_ID },
+                  E = (a.TOKEN_VALIDATORS = [
+                    {
+                      property: 'address',
+                      type: 'string',
+                      validator: e => (0, l.isValidHexAddress)(e, { allowNonPrefixed: !1 }),
+                    },
+                    {
+                      property: 'symbol',
+                      type: 'string',
+                      validator: e => (0, p.truthyString)(e) && e.length <= 12,
+                    },
+                    {
+                      property: 'decimals',
+                      type: 'string|number',
+                      validator: e => Number(e) >= 0 && Number(e) <= 36,
+                    },
+                  ]),
+                  A = E.slice(0, 2),
+                  v = [
+                    {
+                      property: 'color',
+                      type: 'string',
+                      validator: e => Boolean(e.match(/^#[A-Fa-f0-9]+$/u)),
+                    },
+                    { property: 'title', type: 'string', validator: p.truthyString },
+                    {
+                      property: 'icon',
+                      type: 'string',
+                      validator: e => Boolean(e.match(/^data:image/u)),
+                    },
+                  ],
+                  _ = e => !isNaN(e) && e.match(/^[.0-9]+$/u) && !isNaN(parseFloat(e)),
+                  I = [
+                    { property: 'SafeGasPrice', type: 'string', validator: _ },
+                    { property: 'ProposeGasPrice', type: 'string', validator: _ },
+                    { property: 'FastGasPrice', type: 'string', validator: _ },
+                  ];
+                async function y(e) {
+                  const t = (0, p.getBaseApi)('topAssets', e);
+                  return (
+                    (await (0, u.default)({
+                      url: t,
+                      functionName: 'fetchTopAssets',
+                      fetchOptions: { method: 'GET', headers: h },
+                      cacheOptions: { cacheRefreshTime: f },
+                    })) || []
+                  ).filter(e => (0, p.validateData)(A, e, t));
+                }
+                const w = ({
+                  chainId: e,
+                  currentCurrency: t,
+                  conversionRate: a,
+                  USDConversionRate: n,
+                  nativeCurrencySymbol: s,
+                  feeInWeiDec: o,
+                }) => {
+                  var i;
+                  const u = (0, m.decimalToHex)(o),
+                    l = (0, m.getValueFromWeiHex)({
+                      value: u,
+                      toDenomination: g.EtherDenomination.ETH,
+                      numberOfDecimals: 5,
+                    }),
+                    d = (0, m.getValueFromWeiHex)({
+                      value: u,
+                      toCurrency: t,
+                      conversionRate: a,
+                      numberOfDecimals: 2,
+                    });
+                  let p;
+                  p =
+                    t === S
+                      ? d
+                      : (0, m.getValueFromWeiHex)({
+                          value: u,
+                          toCurrency: S,
+                          conversionRate: n,
+                          numberOfDecimals: 2,
+                        });
+                  return {
+                    rawNetworkFees: d,
+                    feeInUsd: p,
+                    feeInFiat: (0, c.formatCurrency)(d, t),
+                    feeInEth: `${l} ${s || (null === (i = r.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[e]) || void 0 === i ? void 0 : i.symbol)}`,
+                    rawEthFee: l,
+                  };
+                };
+                function N({
+                  tradeGas: e,
+                  approveGas: t,
+                  gasPriceTrade: a,
+                  gasPriceApprove: n,
+                  currentCurrency: i,
+                  conversionRate: u,
+                  USDConversionRate: l,
+                  tradeValue: p,
+                  sourceSymbol: T,
+                  sourceAmount: f,
+                  chainId: h,
+                  nativeCurrencySymbol: E,
+                  multiLayerL1FeeTotal: A,
+                }) {
+                  const v = (0, d.calcGasTotal)(e, a),
+                    _ = t ? (0, d.calcGasTotal)(t, n) : '0x0',
+                    I = (0, m.sumHexes)(v, _, A || '0x0'),
+                    y = new s.BigNumber(p, 16)
+                      .minus((0, o.isSwapsDefaultTokenSymbol)(T, h) ? f : 0, 10)
+                      .toString(16),
+                    w = new s.BigNumber(I, 16).plus(y, 16).toString(16),
+                    N = (0, m.getValueFromWeiHex)({
+                      value: w,
+                      toDenomination: g.EtherDenomination.ETH,
+                      numberOfDecimals: 5,
+                    }),
+                    R = (0, m.getValueFromWeiHex)({
+                      value: w,
+                      toCurrency: i,
+                      conversionRate: u,
+                      numberOfDecimals: 2,
+                    }),
+                    k = (0, c.formatCurrency)(R, i);
+                  let C;
+                  C =
+                    i === S
+                      ? R
+                      : (0, m.getValueFromWeiHex)({
+                          value: w,
+                          toCurrency: S,
+                          conversionRate: l,
+                          numberOfDecimals: 2,
+                        });
+                  return {
+                    rawNetworkFees: R,
+                    feeInUsd: C,
+                    rawEthFee: N,
+                    feeInFiat: k,
+                    feeInEth: `${N} ${E || r.SWAPS_CHAINID_DEFAULT_TOKEN_MAP[h].symbol}`,
+                    nonGasFee: y,
+                  };
+                }
+                function R(e) {
+                  let t;
+                  return (
+                    (t =
+                      'string' == typeof e && e.includes('...')
+                        ? e
+                        : (0, d.toPrecisionWithoutTrailingZeros)(e, 12)),
+                    t.match(/e[+-]/u) && (t = new s.BigNumber(t).toFixed()),
+                    t
+                  );
+                }
+                a.getFeeForSmartTransaction = w;
+                a.getClassNameForCharLength = (e, t) => {
+                  let a;
+                  return (
+                    (a =
+                      !e || e.length <= 10 ? 'lg' : e.length > 10 && e.length <= 13 ? 'md' : 'sm'),
+                    `${t}--${a}`
+                  );
+                };
+                a.isContractAddressValid = (e, t) =>
+                  !(!e || !r.ALLOWED_CONTRACT_ADDRESSES[t]) &&
+                  r.ALLOWED_CONTRACT_ADDRESSES[t].some(t => e.toLowerCase() === t.toLowerCase());
+                const k = e => {
+                  switch (e) {
+                    case i.CHAIN_IDS.MAINNET:
+                      return r.ETHEREUM;
+                    case i.CHAIN_IDS.BSC:
+                      return r.BSC;
+                    case i.CHAIN_IDS.POLYGON:
+                      return r.POLYGON;
+                    case i.CHAIN_IDS.GOERLI:
+                      return r.GOERLI;
+                    case i.CHAIN_IDS.AVALANCHE:
+                      return r.AVALANCHE;
+                    case i.CHAIN_IDS.OPTIMISM:
+                      return r.OPTIMISM;
+                    case i.CHAIN_IDS.ARBITRUM:
+                      return r.ARBITRUM;
+                    case i.CHAIN_IDS.ZKSYNC_ERA:
+                      return r.ZKSYNC_ERA;
+                    case i.CHAIN_IDS.LINEA_MAINNET:
+                      return r.LINEA;
+                    case i.CHAIN_IDS.BASE:
+                      return r.BASE;
+                    default:
+                      return '';
+                  }
+                };
+                a.getNetworkNameByChainId = k;
+                a.getSwapsLivenessForNetwork = (e, t = {}) => {
+                  const a = k(e);
+                  if ([i.CHAIN_IDS.LOCALHOST, i.CHAIN_IDS.GOERLI].includes(e))
+                    return { swapsFeatureIsLive: !0 };
+                  if (!t[a]) return { swapsFeatureIsLive: !1 };
+                  return t[a].extensionActive
+                    ? { swapsFeatureIsLive: !0 }
+                    : { swapsFeatureIsLive: t[a].fallbackToV1 };
+                };
+                a.countDecimals = e => {
+                  var t;
+                  return (
+                    (e &&
+                      Math.floor(e) !== e &&
+                      (null === (t = e.toString().split('.')[1]) || void 0 === t
+                        ? void 0
+                        : t.length)) ||
+                    0
+                  );
+                };
+                a.showRemainingTimeInMinAndSec = e => {
+                  if (!Number.isInteger(e)) return '0:00';
+                  return `${Math.floor(e / 60)}:${(e % 60).toString().padStart(2, '0')}`;
+                };
+                let C = (a.StxErrorTypes = (function (e) {
+                  return (
+                    (e.unavailable = 'unavailable'),
+                    (e.notEnoughFunds = 'not_enough_funds'),
+                    (e.regularTxPending = 'regular_tx_pending'),
+                    e
+                  );
+                })({}));
+                a.getTranslatedStxErrorMessage = (e, t) => {
+                  switch (e) {
+                    case C.unavailable:
+                    case C.regularTxPending:
+                      return t('smartSwapsErrorUnavailable');
+                    case C.notEnoughFunds:
+                      return t('smartSwapsErrorNotEnoughFunds');
+                    default:
+                      return t('smartSwapsErrorUnavailable');
+                  }
+                };
+                a.parseSmartTransactionsError = e => {
+                  const t = e.slice(12);
+                  return JSON.parse(t.trim());
+                };
+                async function O(e, t, a) {
+                  const n = await (0, T.estimateGasFee)({ transactionParams: e, chainId: a }),
+                    s = null == n ? void 0 : n.estimates,
+                    { maxFeePerGas: r } = (null == s ? void 0 : s.high) ?? {},
+                    { maxPriorityFeePerGas: o } = (null == s ? void 0 : s.high) ?? {};
+                  return {
+                    baseAndPriorityFeePerGas: o ? (0, m.addHexes)(t, o) : undefined,
+                    maxFeePerGas: r,
+                    maxPriorityFeePerGas: o,
+                  };
+                }
+                a.getSwap1559GasFeeEstimates = async (e, t, a, n) => {
+                  const s = (0, m.decGWEIToHexWEI)(a);
+                  return {
+                    tradeGasFeeEstimates: await O(e, s, n),
+                    approveGasFeeEstimates: t ? await O(t, s, n) : undefined,
+                    estimatedBaseFee: s,
+                  };
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/pages/swaps/swaps.util.ts' },
+    ],
+    [
+      7592,
+      {
+        '../../shared/lib/multichain/accounts': 5839,
+        '../../shared/modules/selectors/util': 5877,
+        '../../shared/modules/string-utils': 5878,
+        '@metamask/keyring-api': 2014,
+        reselect: 5353,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getMemoizedInternalAccountByAddress = a.getInternalAccounts = void 0),
+                  (a.getSelectedInternalAccount = d),
+                  (a.hasCreatedBtcMainnetAccount = function (e) {
+                    return p(e, r.isBtcMainnetAddress);
+                  }),
+                  (a.hasCreatedBtcTestnetAccount = function (e) {
+                    return p(e, r.isBtcTestnetAddress);
+                  }),
+                  (a.hasCreatedSolanaAccount = function (e) {
+                    return l(e).some(e => u(e));
+                  }),
+                  (a.isNonEvmAccount = function (e) {
+                    const { P2wpkh: t } = n.BtcAccountType,
+                      { DataAccount: a } = n.SolAccountType;
+                    return Boolean(e && (e.type === t || e.type === a));
+                  }),
+                  (a.isSelectedInternalAccountBtc = function (e) {
+                    return c(d(e));
+                  }),
+                  (a.isSelectedInternalAccountEth = function (e) {
+                    const t = d(e),
+                      { Eoa: a, Erc4337: s } = n.EthAccountType;
+                    return Boolean(t && (t.type === a || t.type === s));
+                  }),
+                  (a.isSelectedInternalAccountSolana = function (e) {
+                    return u(d(e));
+                  }),
+                  (a.isSolanaAccount = u);
+                var n = e('@metamask/keyring-api'),
+                  s = e('reselect'),
+                  r = e('../../shared/lib/multichain/accounts'),
+                  o = e('../../shared/modules/selectors/util'),
+                  i = e('../../shared/modules/string-utils');
+                function c(e) {
+                  const { P2wpkh: t } = n.BtcAccountType;
+                  return Boolean(e && e.type === t);
+                }
+                function u(e) {
+                  const { DataAccount: t } = n.SolAccountType;
+                  return Boolean(e && e.type === t);
+                }
+                const l = (a.getInternalAccounts = (0, s.createSelector)(
+                  e => Object.values(e.metamask.internalAccounts.accounts),
+                  e => e
+                ));
+                a.getMemoizedInternalAccountByAddress = (0, o.createDeepEqualSelector)(
+                  [l, (e, t) => t],
+                  (e, t) => e.find(e => (0, i.isEqualCaseInsensitive)(e.address, t))
+                );
+                function d(e) {
+                  const t = e.metamask.internalAccounts.selectedAccount;
+                  return e.metamask.internalAccounts.accounts[t];
+                }
+                function p(e, t) {
+                  return l(e).some(e => c(e) && t(e.address));
+                }
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/accounts.ts' },
+    ],
+    [
+      7594,
+      {
+        '../../shared/modules/selectors/util': 5877,
+        '@metamask/controller-utils': 1515,
+        reselect: 5353,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getApprovalFlows = function (e) {
+                    return e.metamask.approvalFlows;
+                  }),
+                  (a.getApprovalsByOrigin = a.getApprovalRequestsByType = void 0),
+                  (a.getPendingApprovals = o),
+                  (a.hasPendingApprovals = function (e, t, a) {
+                    const n = Object.values(e.metamask.pendingApprovals).filter(({ type: e }) =>
+                      t.includes(e)
+                    );
+                    if (a) return n.some(a);
+                    return n.length > 0;
+                  }),
+                  (a.pendingApprovalsSortedSelector = i),
+                  (a.selectPendingApprovalsForNavigation = a.selectPendingApproval = void 0);
+                var n = e('@metamask/controller-utils'),
+                  s = e('reselect'),
+                  r = e('../../shared/modules/selectors/util');
+                function o(e) {
+                  return Object.values(e.metamask.pendingApprovals ?? {});
+                }
+                function i(e) {
+                  return o(e).sort((e, t) => e.time - t.time);
+                }
+                a.getApprovalRequestsByType = (e, t, a) => {
+                  const n = Object.values(e.metamask.pendingApprovals).filter(
+                    ({ type: e }) => e === t
+                  );
+                  return a ? n.filter(a) : n;
+                };
+                a.selectPendingApprovalsForNavigation = (0, r.createDeepEqualSelector)(i, e =>
+                  e.filter(
+                    (t, a) => (!l(t) || e.findIndex(l) === a) && (!u(t) || e.findIndex(u) === a)
+                  )
+                );
+                const c = (0, s.createSelector)(
+                  o,
+                  (e, t) => t,
+                  (e, t) => e.find(({ id: e }) => e === t)
+                );
+                a.selectPendingApproval = (0, r.createDeepEqualSelector)(c, e => e);
+                function u(e) {
+                  var t;
+                  const a =
+                    null === (t = e.requestData) ||
+                    void 0 === t ||
+                    null === (t = t.asset) ||
+                    void 0 === t
+                      ? void 0
+                      : t.tokenId;
+                  return e.type === n.ApprovalType.WatchAsset && !a;
+                }
+                function l(e) {
+                  var t;
+                  const a =
+                    null === (t = e.requestData) ||
+                    void 0 === t ||
+                    null === (t = t.asset) ||
+                    void 0 === t
+                      ? void 0
+                      : t.tokenId;
+                  return e.type === n.ApprovalType.WatchAsset && Boolean(a);
+                }
+                a.getApprovalsByOrigin = (e, t) => {
+                  const a = o(e);
+                  return null == a ? void 0 : a.filter(e => e.origin === t);
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/approvals.ts' },
+    ],
+    [
+      7596,
+      {
+        '../../shared/constants/gas': 5795,
+        '../../shared/modules/conversion.utils': 5858,
+        '../../shared/modules/gas.utils': 5863,
+        '../../shared/modules/selectors/networks': 5875,
+        '../ducks/metamask/metamask': 6860,
+        '../helpers/utils/confirm-tx.util': 6899,
+        '../helpers/utils/tx-helper': 6920,
+        './custom-gas': 7597,
+        './selectors': 7611,
+        './transactions': 7617,
+        '@metamask/transaction-controller': 2946,
+        reselect: 5353,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.currentCurrencySelector = a.conversionRateSelector = void 0),
+                  (a.selectIsMaxValueEnabled = y),
+                  (a.selectMaxValue = void 0),
+                  (a.selectMaxValueModeForTransaction = function (e, t) {
+                    return N(e)[t];
+                  }),
+                  (a.selectTransactionAvailableBalance = I),
+                  (a.selectTransactionFeeById = _),
+                  (a.use4ByteResolutionSelector =
+                    a.unconfirmedTransactionsListSelector =
+                    a.unconfirmedTransactionsHashSelector =
+                    a.unconfirmedMessagesHashSelector =
+                    a.txDataSelector =
+                    a.transactionFeeSelector =
+                    a.tokenAddressSelector =
+                    a.selectTransactionValue =
+                      void 0);
+                var n,
+                  s = e('reselect'),
+                  r = e('@metamask/transaction-controller'),
+                  o = (n = e('../helpers/utils/tx-helper')) && n.__esModule ? n : { default: n },
+                  i = e('../helpers/utils/confirm-tx.util'),
+                  c = e('../ducks/metamask/metamask'),
+                  u = e('../../shared/constants/gas'),
+                  l = e('../../shared/modules/gas.utils'),
+                  d = e('../../shared/modules/conversion.utils'),
+                  p = e('../../shared/modules/selectors/networks'),
+                  m = e('./custom-gas'),
+                  g = e('./selectors'),
+                  T = e('./transactions');
+                const f = e => (0, T.getUnapprovedTransactions)(e);
+                (a.unconfirmedTransactionsListSelector = (0, s.createSelector)(
+                  f,
+                  T.unapprovedPersonalMsgsSelector,
+                  T.unapprovedDecryptMsgsSelector,
+                  T.unapprovedEncryptionPublicKeyMsgsSelector,
+                  T.unapprovedTypedMessagesSelector,
+                  (e = {}, t = {}, a = {}, n = {}, s = {}) => (0, o.default)(e, t, a, n, s) || []
+                )),
+                  (a.unconfirmedTransactionsHashSelector = (0, s.createSelector)(
+                    f,
+                    T.unapprovedPersonalMsgsSelector,
+                    T.unapprovedDecryptMsgsSelector,
+                    T.unapprovedEncryptionPublicKeyMsgsSelector,
+                    T.unapprovedTypedMessagesSelector,
+                    (e = {}, t = {}, a = {}, n = {}, s = {}) => ({ ...e, ...t, ...a, ...n, ...s })
+                  )),
+                  (a.unconfirmedMessagesHashSelector = (0, s.createSelector)(
+                    T.unapprovedPersonalMsgsSelector,
+                    T.unapprovedDecryptMsgsSelector,
+                    T.unapprovedEncryptionPublicKeyMsgsSelector,
+                    T.unapprovedTypedMessagesSelector,
+                    (e = {}, t = {}, a = {}, n = {}) => ({ ...e, ...t, ...a, ...n })
+                  ));
+                a.use4ByteResolutionSelector = e => e.metamask.use4ByteResolution;
+                const S = e => e.metamask.currentCurrency;
+                a.currentCurrencySelector = S;
+                const h = e => {
+                  var t;
+                  return null ===
+                    (t = e.metamask.currencyRates[(0, p.getProviderConfig)(e).ticker]) ||
+                    void 0 === t
+                    ? void 0
+                    : t.conversionRate;
+                };
+                a.conversionRateSelector = h;
+                const E = e => e.confirmTransaction.txData;
+                a.txDataSelector = E;
+                const A = (0, s.createSelector)(E, e => (e && e.txParams) || {}),
+                  v =
+                    ((a.tokenAddressSelector = (0, s.createSelector)(A, e => e && e.to)),
+                    function (e, t) {
+                      var a, n, s, o;
+                      const p = S(e),
+                        T = h(e),
+                        f = (0, c.getNativeCurrency)(e),
+                        E = (0, c.getGasFeeEstimates)(e) || {},
+                        A = (0, c.getGasEstimateType)(e),
+                        v = (0, g.checkNetworkAndAccountSupports1559)(e),
+                        _ = {
+                          gasLimit:
+                            (null === (a = t.txParams) || void 0 === a ? void 0 : a.gas) ?? '0x0',
+                          gasLimitNoBuffer: t.gasLimitNoBuffer,
+                        };
+                      if (v) {
+                        var I;
+                        const { gasPrice: e = '0' } = E,
+                          a = E[t.userFeeLevel] || {};
+                        if (
+                          (null === (I = t.txParams) || void 0 === I ? void 0 : I.type) ===
+                          r.TransactionEnvelopeType.legacy
+                        ) {
+                          var y;
+                          _.gasPrice =
+                            (null === (y = t.txParams) || void 0 === y ? void 0 : y.gasPrice) ??
+                            (0, d.decGWEIToHexWEI)(e);
+                        } else {
+                          var w, N, R, k;
+                          const { suggestedMaxPriorityFeePerGas: n, suggestedMaxFeePerGas: s } = a;
+                          (_.maxFeePerGas =
+                            null === (w = t.txParams) ||
+                            void 0 === w ||
+                            !w.maxFeePerGas ||
+                            (t.userFeeLevel !== u.CUSTOM_GAS_ESTIMATE && s)
+                              ? (0, d.decGWEIToHexWEI)(s || e)
+                              : null === (N = t.txParams) || void 0 === N
+                                ? void 0
+                                : N.maxFeePerGas),
+                            (_.maxPriorityFeePerGas =
+                              null === (R = t.txParams) ||
+                              void 0 === R ||
+                              !R.maxPriorityFeePerGas ||
+                              (t.userFeeLevel !== u.CUSTOM_GAS_ESTIMATE && n)
+                                ? (n && (0, d.decGWEIToHexWEI)(n)) || _.maxFeePerGas
+                                : null === (k = t.txParams) || void 0 === k
+                                  ? void 0
+                                  : k.maxPriorityFeePerGas),
+                            (_.baseFeePerGas = (0, d.decGWEIToHexWEI)(E.estimatedBaseFee));
+                        }
+                      } else
+                        switch (A) {
+                          case u.GasEstimateTypes.feeMarket:
+                          case u.GasEstimateTypes.none:
+                            _.gasPrice =
+                              (null === (n = t.txParams) || void 0 === n ? void 0 : n.gasPrice) ??
+                              '0x0';
+                            break;
+                          case u.GasEstimateTypes.ethGasPrice:
+                            _.gasPrice =
+                              (null === (s = t.txParams) || void 0 === s ? void 0 : s.gasPrice) ??
+                              (0, d.decGWEIToHexWEI)(E.gasPrice);
+                            break;
+                          case u.GasEstimateTypes.legacy:
+                            _.gasPrice =
+                              (null === (o = t.txParams) || void 0 === o ? void 0 : o.gasPrice) ??
+                              (0, m.getAveragePriceEstimateInHexWEI)(e);
+                        }
+                      const { txParams: { value: C = '0x0' } = {} } = t,
+                        O = (0, d.getValueFromWeiHex)({
+                          value: C,
+                          fromCurrency: f,
+                          toCurrency: p,
+                          conversionRate: T,
+                          numberOfDecimals: 2,
+                        }),
+                        P = (0, d.getValueFromWeiHex)({
+                          value: C,
+                          fromCurrency: f,
+                          toCurrency: f,
+                          conversionRate: T,
+                          numberOfDecimals: 6,
+                        }),
+                        M = (0, l.getMinimumGasTotalInHexWei)(_),
+                        b = (0, l.getMaximumGasTotalInHexWei)(_),
+                        F = (0, i.getTransactionFee)({
+                          value: M,
+                          fromCurrency: f,
+                          toCurrency: p,
+                          numberOfDecimals: 2,
+                          conversionRate: T,
+                        }),
+                        D = (0, i.getTransactionFee)({
+                          value: b,
+                          fromCurrency: f,
+                          toCurrency: p,
+                          numberOfDecimals: 2,
+                          conversionRate: T,
+                        }),
+                        x = (0, i.getTransactionFee)({
+                          value: M,
+                          fromCurrency: f,
+                          toCurrency: f,
+                          numberOfDecimals: 6,
+                          conversionRate: T,
+                        });
+                      return {
+                        hexTransactionAmount: C,
+                        fiatTransactionAmount: O,
+                        ethTransactionAmount: P,
+                        hexMinimumTransactionFee: M,
+                        fiatMinimumTransactionFee: F,
+                        hexMaximumTransactionFee: b,
+                        fiatMaximumTransactionFee: D,
+                        ethTransactionFee: x,
+                        fiatTransactionTotal: (0, i.addFiat)(F, O),
+                        ethTransactionTotal: (0, i.addEth)(x, P),
+                        hexTransactionTotal: (0, d.sumHexes)(C, M),
+                        gasEstimationObject: _,
+                      };
+                    });
+                function _(e, t) {
+                  const a = (0, T.selectTransactionMetadata)(e, t);
+                  return v(e, a ?? {});
+                }
+                function I(e, t, a) {
+                  var n;
+                  return null ===
+                    (n = (0, g.getMetaMaskAccounts)(e, a)[(0, T.selectTransactionSender)(e, t)]) ||
+                    void 0 === n
+                    ? void 0
+                    : n.balance;
+                }
+                function y(e, t) {
+                  var a;
+                  return (
+                    (null === (a = e.confirmTransaction.maxValueMode) || void 0 === a
+                      ? void 0
+                      : a[t]) ?? !1
+                  );
+                }
+                a.transactionFeeSelector = v;
+                const w = (a.selectMaxValue = (0, s.createSelector)(_, I, (e, t) =>
+                    t && e.hexMaximumTransactionFee
+                      ? (0, d.subtractHexes)(t, e.hexMaximumTransactionFee)
+                      : undefined
+                  )),
+                  N =
+                    ((a.selectTransactionValue = (0, s.createSelector)(
+                      y,
+                      w,
+                      T.selectTransactionMetadata,
+                      (e, t, a) => {
+                        var n;
+                        return e
+                          ? t
+                          : null == a || null === (n = a.txParams) || void 0 === n
+                            ? void 0
+                            : n.value;
+                      }
+                    )),
+                    e => e.confirmTransaction.maxValueMode);
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/confirm-transaction.js' },
+    ],
+    [
+      7597,
+      {
+        '../../app/scripts/lib/util': 204,
+        '../../shared/constants/common': 5791,
+        '../../shared/constants/gas': 5795,
+        '../../shared/lib/transactions-controller-utils': 5851,
+        '../../shared/modules/Numeric': 5853,
+        '../../shared/modules/conversion.utils': 5858,
+        '../ducks/metamask/metamask': 6860,
+        '../ducks/send': 6865,
+        '../helpers/utils/confirm-tx.util': 6899,
+        '../helpers/utils/formatters': 6901,
+        './selectors': 7611,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.basicPriceEstimateToETHTotal = h),
+                  (a.getAverageEstimate = f),
+                  (a.getAveragePriceEstimateInHexWEI = function (e) {
+                    return A(f(e));
+                  }),
+                  (a.getBasicGasEstimateLoadingStatus = function (e) {
+                    return !1 === v(e);
+                  }),
+                  (a.getCustomGasLimit = function (e) {
+                    return e.gas.customData.limit;
+                  }),
+                  (a.getCustomGasPrice = g),
+                  (a.getDefaultActiveButtonIndex = function (e, t, a) {
+                    return e
+                      .map(({ priceInHexWei: e }) => e)
+                      .lastIndexOf((0, n.addHexPrefix)(t || a));
+                  }),
+                  (a.getFastPriceEstimate = S),
+                  (a.getFastPriceEstimateInHexWEI = function (e) {
+                    return A(S(e) || '0x0');
+                  }),
+                  (a.getGasPriceInHexWei = A),
+                  (a.getIsCustomNetworkGasPriceFetched = function (e) {
+                    return (
+                      (0, u.getGasEstimateType)(e) === c.GasEstimateTypes.ethGasPrice &&
+                      !(0, m.getIsMainnet)(e)
+                    );
+                  }),
+                  (a.getIsGasEstimatesFetched = v),
+                  (a.getNoGasPriceFetched = function (e) {
+                    return (0, u.getGasEstimateType)(e) === c.GasEstimateTypes.none;
+                  }),
+                  (a.getRenderableConvertedCurrencyFee = function (e, t, a, n) {
+                    const o = h(new d.Numeric(e, 10).toBase(16).toString(), t),
+                      i = (0, s.decEthToConvertedCurrency)(o, a, n);
+                    return (0, r.formatCurrency)(i, a);
+                  }),
+                  (a.getRenderableEthFee = function (e, t, a = 9, n = 'ETH') {
+                    const s = h(new d.Numeric(e, 10).toBase(16).toString(), t, a);
+                    return (0, o.formatETHFee)(s, n);
+                  }),
+                  (a.getSafeLowEstimate = T),
+                  (a.isCustomPriceExcessive = function (e, t = !1) {
+                    const a = t ? (0, i.getGasPrice)(e) : g(e),
+                      n = S(e);
+                    if (!a || !n) return !1;
+                    return new d.Numeric(a, 16, p.EtherDenomination.WEI)
+                      .toDenomination(p.EtherDenomination.GWEI)
+                      .greaterThan(Math.floor(1.5 * n), 10);
+                  }),
+                  (a.isCustomPriceSafe = function (e) {
+                    const t = T(e),
+                      a = g(e);
+                    if (!a) return !0;
+                    if (!t) return !1;
+                    return new d.Numeric(a, 16, p.EtherDenomination.WEI)
+                      .toDenomination(p.EtherDenomination.GWEI)
+                      .greaterThan(t, 10);
+                  }),
+                  (a.isCustomPriceSafeForCustomNetwork = function (e) {
+                    const t = f(e),
+                      a = g(e);
+                    if (!a) return !0;
+                    if (!t) return !1;
+                    return new d.Numeric(a, 16, p.EtherDenomination.WEI)
+                      .toDenomination(p.EtherDenomination.GWEI)
+                      .greaterThan(t, 10);
+                  }),
+                  (a.priceEstimateToWei = E);
+                var n = e('../../app/scripts/lib/util'),
+                  s = e('../../shared/modules/conversion.utils'),
+                  r = e('../helpers/utils/confirm-tx.util'),
+                  o = e('../helpers/utils/formatters'),
+                  i = e('../ducks/send'),
+                  c = e('../../shared/constants/gas'),
+                  u = e('../ducks/metamask/metamask'),
+                  l = e('../../shared/lib/transactions-controller-utils'),
+                  d = e('../../shared/modules/Numeric'),
+                  p = e('../../shared/constants/common'),
+                  m = e('./selectors');
+                function g(e) {
+                  return e.gas.customData.price;
+                }
+                function T(e) {
+                  const t = (0, u.getGasFeeEstimates)(e);
+                  return (0, u.getGasEstimateType)(e) === c.GasEstimateTypes.legacy
+                    ? null == t
+                      ? void 0
+                      : t.low
+                    : null;
+                }
+                function f(e) {
+                  const t = (0, u.getGasFeeEstimates)(e);
+                  return (0, u.getGasEstimateType)(e) === c.GasEstimateTypes.legacy
+                    ? null == t
+                      ? void 0
+                      : t.medium
+                    : null;
+                }
+                function S(e) {
+                  const t = (0, u.getGasFeeEstimates)(e);
+                  return (0, u.getGasEstimateType)(e) === c.GasEstimateTypes.legacy
+                    ? null == t
+                      ? void 0
+                      : t.high
+                    : null;
+                }
+                function h(e, t, a = 9) {
+                  return new d.Numeric((0, l.calcGasTotal)(t, e), 16, p.EtherDenomination.GWEI)
+                    .round(a)
+                    .toBase(10)
+                    .toString();
+                }
+                function E(e) {
+                  return new d.Numeric(e, 16, p.EtherDenomination.GWEI)
+                    .toDenomination(p.EtherDenomination.WEI)
+                    .round(9)
+                    .toString();
+                }
+                function A(e) {
+                  const t = new d.Numeric(e, 10).toBase(16).toString();
+                  return (0, n.addHexPrefix)(E(t));
+                }
+                function v(e) {
+                  const t = (0, u.getGasEstimateType)(e);
+                  return !(0, u.isEIP1559Network)(e) && t !== c.GasEstimateTypes.none;
+                }
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/custom-gas.js' },
+    ],
+    [
+      7598,
+      { '../../shared/constants/onboarding': 5807, '../helpers/constants/routes': 6878 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getFirstTimeFlowType = void 0),
+                  (a.getFirstTimeFlowTypeRouteAfterMetaMetricsOptIn = function (e) {
+                    const { firstTimeFlowType: t } = e.metamask;
+                    if (t === n.FirstTimeFlowType.create) return s.ONBOARDING_CREATE_PASSWORD_ROUTE;
+                    if (t === n.FirstTimeFlowType.import) return s.ONBOARDING_IMPORT_WITH_SRP_ROUTE;
+                    if (t === n.FirstTimeFlowType.restore)
+                      return s.ONBOARDING_SECURE_YOUR_WALLET_ROUTE;
+                    return s.DEFAULT_ROUTE;
+                  }),
+                  (a.getFirstTimeFlowTypeRouteAfterUnlock = function (e) {
+                    const { firstTimeFlowType: t } = e.metamask;
+                    if (t === n.FirstTimeFlowType.create) return s.ONBOARDING_CREATE_PASSWORD_ROUTE;
+                    if (t === n.FirstTimeFlowType.import) return s.ONBOARDING_IMPORT_WITH_SRP_ROUTE;
+                    if (t === n.FirstTimeFlowType.restore) return s.ONBOARDING_METAMETRICS;
+                    return s.DEFAULT_ROUTE;
+                  }),
+                  (a.getOnboardingInitiator = void 0);
+                var n = e('../../shared/constants/onboarding'),
+                  s = e('../helpers/constants/routes');
+                a.getFirstTimeFlowType = e => e.metamask.firstTimeFlowType;
+                a.getOnboardingInitiator = e => {
+                  const { onboardingTabs: t } = e.metamask;
+                  if (!t || 1 !== Object.keys(t).length) return null;
+                  const a = Object.keys(t)[0];
+                  return { location: a, tabId: t[a] };
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/first-time-flow.js' },
+    ],
+    [
+      7601,
+      {
+        '../pages/confirmations/selectors/confirm': 7356,
+        './accounts': 7592,
+        './approvals': 7594,
+        './confirm-transaction': 7596,
+        './custom-gas': 7597,
+        './first-time-flow': 7598,
+        './metametrics': 7603,
+        './multichain/networks': 7606,
+        './origin-throttling': 7608,
+        './remote-feature-flags': 7609,
+        './selectors': 7611,
+        './transactions': 7617,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 });
+                var n = e('../pages/confirmations/selectors/confirm');
+                Object.keys(n).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === n[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return n[e];
+                        },
+                      }));
+                });
+                var s = e('./confirm-transaction');
+                Object.keys(s).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === s[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return s[e];
+                        },
+                      }));
+                });
+                var r = e('./custom-gas');
+                Object.keys(r).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === r[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return r[e];
+                        },
+                      }));
+                });
+                var o = e('./first-time-flow');
+                Object.keys(o).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === o[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return o[e];
+                        },
+                      }));
+                });
+                var i = e('./metametrics');
+                Object.keys(i).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === i[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return i[e];
+                        },
+                      }));
+                });
+                var c = e('./selectors');
+                Object.keys(c).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === c[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return c[e];
+                        },
+                      }));
+                });
+                var u = e('./transactions');
+                Object.keys(u).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === u[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return u[e];
+                        },
+                      }));
+                });
+                var l = e('./approvals');
+                Object.keys(l).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === l[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return l[e];
+                        },
+                      }));
+                });
+                var d = e('./accounts');
+                Object.keys(d).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === d[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return d[e];
+                        },
+                      }));
+                });
+                var p = e('./remote-feature-flags');
+                Object.keys(p).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === p[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return p[e];
+                        },
+                      }));
+                });
+                var m = e('./origin-throttling');
+                Object.keys(m).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === m[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return m[e];
+                        },
+                      }));
+                });
+                var g = e('./multichain/networks');
+                Object.keys(g).forEach(function (e) {
+                  'default' !== e &&
+                    '__esModule' !== e &&
+                    ((e in a && a[e] === g[e]) ||
+                      Object.defineProperty(a, e, {
+                        enumerable: !0,
+                        get: function () {
+                          return g[e];
+                        },
+                      }));
+                });
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/index.js' },
+    ],
+    [
+      7603,
+      { reselect: 5353 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.selectMatchingFragment =
+                    a.selectFragments =
+                    a.selectFragmentBySuccessEvent =
+                    a.selectFragmentById =
+                    a.getParticipateInMetaMetrics =
+                    a.getLatestMetricsEventTimestamp =
+                    a.getDataCollectionForMarketing =
+                      void 0);
+                var n = e('reselect');
+                const s = e => e.metamask.fragments;
+                a.selectFragments = s;
+                a.getDataCollectionForMarketing = e => e.metamask.dataCollectionForMarketing;
+                a.getParticipateInMetaMetrics = e => Boolean(e.metamask.participateInMetaMetrics);
+                a.getLatestMetricsEventTimestamp = e => e.metamask.latestNonAnonymousEventTimestamp;
+                const r = (a.selectFragmentBySuccessEvent = (0, n.createSelector)(
+                    s,
+                    (e, t) => t,
+                    (e, t) =>
+                      t.persist
+                        ? Object.values(e).find(e => e.successEvent === t.successEvent)
+                        : undefined
+                  )),
+                  o = (a.selectFragmentById = (0, n.createSelector)(
+                    s,
+                    (e, t) => t,
+                    (e, t) => (t && null != e && e[t] ? e[t] : undefined)
+                  ));
+                a.selectMatchingFragment = (0, n.createSelector)(
+                  (e, t) => r(e, t.fragmentOptions),
+                  (e, t) => o(e, t.existingId),
+                  (e, t) => t ?? e
+                );
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/metametrics.js' },
+    ],
+    [
+      7605,
+      {
+        '../../app/scripts/lib/util': 204,
+        '../../shared/constants/multichain/assets': 5802,
+        '../../shared/constants/multichain/networks': 5803,
+        '../../shared/constants/network': 5804,
+        '../../shared/modules/Numeric': 5853,
+        '../../shared/modules/selectors/networks': 5875,
+        '../../shared/modules/selectors/util': 5877,
+        '../ducks/metamask/metamask': 6860,
+        './accounts': 7592,
+        './multichain/networks': 7606,
+        './selectors': 7611,
+        '@metamask/keyring-api': 2014,
+        '@metamask/network-controller': 2202,
+        '@metamask/utils': 2995,
+        'prop-types': 5082,
+        reselect: 5353,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.MultichainNetworkPropType = a.InternalAccountPropType = void 0),
+                  (a.getImageForChainId = function (e) {
+                    return {
+                      ...m.CHAIN_ID_TO_NETWORK_IMAGE_URL_MAP,
+                      ...u.MULTICHAIN_TOKEN_IMAGE_MAP,
+                    }[e];
+                  }),
+                  (a.getLastSelectedNonEvmAccount = function (e) {
+                    const t = (0, S.getInternalAccounts)(e)
+                      .filter(e => !(0, s.isEvmAccountType)(e.type))
+                      .sort(
+                        (e, t) => (t.metadata.lastSelected ?? 0) - (e.metadata.lastSelected ?? 0)
+                      );
+                    return t.length > 0 ? t[0] : undefined;
+                  }),
+                  (a.getLastSelectedSolanaAccount = function (e) {
+                    const t = (0, S.getInternalAccounts)(e)
+                      .filter(e => (0, S.isSolanaAccount)(e))
+                      .sort(
+                        (e, t) => (t.metadata.lastSelected ?? 0) - (e.metadata.lastSelected ?? 0)
+                      );
+                    return t.length > 0 ? t[0] : undefined;
+                  }),
+                  (a.getMemoizedMultichainNetworkConfigurationsByChainId = void 0),
+                  (a.getMultichainBalances = R),
+                  (a.getMultichainCoinRates = void 0),
+                  (a.getMultichainConversionRate = function (e, t) {
+                    var a;
+                    const { conversionRates: n } = e.metamask,
+                      { chainId: s } = v(e, t),
+                      r =
+                        null ===
+                          (a = (0, T.getConversionRatesForNativeAsset)({
+                            conversionRates: n,
+                            chainId: s,
+                          })) || void 0 === a
+                          ? void 0
+                          : a.rate;
+                    return _(e, t) ? (0, d.getConversionRate)(e) : r;
+                  }),
+                  (a.getMultichainCurrencyImage = y),
+                  (a.getMultichainCurrentChainId = function (e) {
+                    const { chainId: t } = I(e);
+                    return t;
+                  }),
+                  (a.getMultichainCurrentCurrency = function (e) {
+                    return (0, d.getCurrentCurrency)(e);
+                  }),
+                  (a.getMultichainCurrentNetwork = function (e, t) {
+                    return I(e, t);
+                  }),
+                  (a.getMultichainDefaultToken = w),
+                  (a.getMultichainIsBitcoin = function (e, t) {
+                    const a = _(e, t),
+                      { symbol: n } = w(e, t);
+                    return !a && 'BTC' === n;
+                  }),
+                  (a.getMultichainIsEvm = _),
+                  (a.getMultichainIsMainnet = function (e, t) {
+                    const a = t ?? (0, S.getSelectedInternalAccount)(e),
+                      n = I(e, a);
+                    if (_(e, t)) return (0, h.getIsMainnet)(e);
+                    const s = u.MULTICHAIN_ACCOUNT_TYPE_TO_MAINNET[a.type];
+                    return n.chainId === s ?? !1;
+                  }),
+                  (a.getMultichainIsSolana = function (e, t) {
+                    const a = _(e, t),
+                      { symbol: n } = w(e, t);
+                    return !a && 'SOL' === n;
+                  }),
+                  (a.getMultichainIsTestnet = N),
+                  (a.getMultichainNativeCurrency = function (e, t) {
+                    return _(e, t) ? (0, d.getNativeCurrency)(e) : I(e, t).ticker;
+                  }),
+                  (a.getMultichainNativeCurrencyImage = function (e, t) {
+                    return y(e, t);
+                  }),
+                  (a.getMultichainNetwork = v),
+                  (a.getMultichainNetworkConfigurationsByChainId = void 0),
+                  (a.getMultichainNetworkProviders = A),
+                  (a.getMultichainProviderConfig = I),
+                  (a.getMultichainSelectedAccountCachedBalance = k),
+                  (a.getMultichainSelectedAccountCachedBalanceIsZero = void 0),
+                  (a.getMultichainShouldShowFiat = function (e, t) {
+                    const a = t ?? (0, S.getSelectedInternalAccount)(e),
+                      n = N(e, a),
+                      s = !n;
+                    return _(e, a)
+                      ? (0, h.getShouldShowFiat)(e)
+                      : s || (n && (0, h.getShowFiatInTestnets)(e));
+                  }),
+                  (a.getMultichainTransactions = function (e) {
+                    return e.metamask.nonEvmTransactions;
+                  }),
+                  (a.getSelectedAccountMultichainTransactions = function (e) {
+                    const t = (0, S.getSelectedInternalAccount)(e);
+                    if ((0, s.isEvmAccountType)(t.type)) return undefined;
+                    return e.metamask.nonEvmTransactions[t.id];
+                  }),
+                  (a.isChainIdMainnet = function (e) {
+                    return e === m.CHAIN_IDS.MAINNET;
+                  });
+                var n,
+                  s = e('@metamask/keyring-api'),
+                  r = e('@metamask/network-controller'),
+                  o = e('@metamask/utils'),
+                  i = (n = e('prop-types')) && n.__esModule ? n : { default: n },
+                  c = e('reselect'),
+                  u = e('../../shared/constants/multichain/networks'),
+                  l = e('../../shared/modules/Numeric'),
+                  d = e('../ducks/metamask/metamask'),
+                  p = e('../../shared/constants/multichain/assets'),
+                  m = e('../../shared/constants/network'),
+                  g = e('../../shared/modules/selectors/networks'),
+                  T = e('../../app/scripts/lib/util'),
+                  f = e('../../shared/modules/selectors/util'),
+                  S = e('./accounts'),
+                  h = e('./selectors'),
+                  E = e('./multichain/networks');
+                (a.MultichainNetworkPropType = i.default.shape({
+                  nickname: i.default.string.isRequired,
+                  isEvmNetwork: i.default.bool.isRequired,
+                  chainId: i.default.string,
+                  network: i.default.oneOfType([
+                    i.default.shape({
+                      rpcUrl: i.default.string,
+                      type: i.default.string.isRequired,
+                      chainId: i.default.string.isRequired,
+                      ticker: i.default.string.isRequired,
+                      rpcPrefs: i.default.shape({
+                        blockExplorerUrl: i.default.string,
+                        imageUrl: i.default.string,
+                      }),
+                      nickname: i.default.string,
+                      id: i.default.string,
+                    }),
+                    i.default.shape({
+                      chainId: i.default.string.isRequired,
+                      ticker: i.default.string.isRequired,
+                      rpcPrefs: i.default.shape({
+                        blockExplorerUrl: i.default.string,
+                        imageUrl: i.default.string,
+                      }),
+                    }),
+                  ]).isRequired,
+                })),
+                  (a.InternalAccountPropType = i.default.shape({
+                    id: i.default.string.isRequired,
+                    address: i.default.string.isRequired,
+                    metadata: i.default.shape({
+                      name: i.default.string.isRequired,
+                      snap: i.default.shape({
+                        id: i.default.string.isRequired,
+                        name: i.default.string,
+                        enabled: i.default.bool,
+                      }),
+                      keyring: i.default.shape({ type: i.default.string.isRequired }).isRequired,
+                    }).isRequired,
+                    type: i.default.string.isRequired,
+                  }));
+                function A(e) {
+                  return Object.values(u.MULTICHAIN_PROVIDER_CONFIGS);
+                }
+                function v(e, t) {
+                  if (_(e, t)) {
+                    var a;
+                    const t = (0, g.getCurrentChainId)(e),
+                      n = (0, g.getProviderConfig)(e),
+                      s = t;
+                    n.rpcPrefs = {
+                      ...n.rpcPrefs,
+                      imageUrl: m.CHAIN_ID_TO_NETWORK_IMAGE_URL_MAP[s],
+                    };
+                    return {
+                      nickname:
+                        (null === (a = (0, g.getNetworkConfigurationsByChainId)(e)[t]) ||
+                        void 0 === a
+                          ? void 0
+                          : a.name) ?? n.rpcUrl,
+                      isEvmNetwork: !0,
+                      chainId: `${o.KnownCaipNamespace.Eip155}:${Number(t)}`,
+                      network: n,
+                    };
+                  }
+                  const n = t ?? (0, S.getSelectedInternalAccount)(e),
+                    s = A().find(e => e.isAddressCompatible(n.address));
+                  if (!s)
+                    throw new Error(
+                      'Could not find non-EVM provider for the current configuration. This should never happen.'
+                    );
+                  return {
+                    nickname: s.nickname,
+                    isEvmNetwork: !1,
+                    chainId: null == s ? void 0 : s.chainId,
+                    network: s,
+                  };
+                }
+                function _(e, t) {
+                  const a = (0, d.getCompletedOnboarding)(e),
+                    n = t ?? (0, h.getMaybeSelectedInternalAccount)(e);
+                  return !a || !n || (0, s.isEvmAccountType)(n.type);
+                }
+                function I(e, t) {
+                  return v(e, t).network;
+                }
+                function y(e, t) {
+                  var a;
+                  if (_(e, t)) return (0, h.getNativeCurrencyImage)(e);
+                  return null === (a = I(e, t).rpcPrefs) || void 0 === a ? void 0 : a.imageUrl;
+                }
+                function w(e, t) {
+                  var a;
+                  return {
+                    symbol: _(e, t)
+                      ? ((null === (a = (0, g.getProviderConfig)(e)) || void 0 === a
+                          ? void 0
+                          : a.ticker) ?? 'ETH')
+                      : I(e, t).ticker,
+                  };
+                }
+                function N(e, t) {
+                  const a = I(e, t ?? (0, S.getSelectedInternalAccount)(e));
+                  return _(e, t)
+                    ? m.TEST_NETWORK_IDS.includes(a.chainId)
+                    : [
+                        u.MultichainNetworks.BITCOIN_TESTNET,
+                        u.MultichainNetworks.SOLANA_DEVNET,
+                        u.MultichainNetworks.SOLANA_TESTNET,
+                      ].includes(a.chainId);
+                }
+                function R(e) {
+                  return e.metamask.balances;
+                }
+                function k(e) {
+                  return _(e)
+                    ? (0, h.getSelectedAccountCachedBalance)(e)
+                    : (function (e, t) {
+                        var a;
+                        const n = R(e),
+                          s = t ?? (0, S.getSelectedInternalAccount)(e),
+                          r = (0, E.getSelectedMultichainNetworkConfiguration)(e),
+                          o =
+                            null === (a = p.MULTICHAIN_NETWORK_TO_ASSET_TYPES[r.chainId]) ||
+                            void 0 === a
+                              ? void 0
+                              : a[0];
+                        o || console.warn('Could not find asset type for network:', r);
+                        const i = null == n ? void 0 : n[s.id];
+                        i || console.warn('Could not find balances for account:', s);
+                        const c = null == i ? void 0 : i[o];
+                        return (
+                          c || console.warn('Could not find balance for asset:', o),
+                          (null == c ? void 0 : c.amount) ?? 0
+                        );
+                      })(e);
+                }
+                a.getMultichainCoinRates = e => e.metamask.rates;
+                a.getMultichainSelectedAccountCachedBalanceIsZero = (0, c.createSelector)(
+                  [_, k],
+                  (e, t) => {
+                    const a = e ? 16 : 10;
+                    return new l.Numeric(t, a).isZero();
+                  }
+                );
+                const C = e => ({
+                  ...(0, g.getNetworkConfigurationsByChainId)(e),
+                  [u.MultichainNetworks.SOLANA]: {
+                    ...u.MULTICHAIN_PROVIDER_CONFIGS[u.MultichainNetworks.SOLANA],
+                    blockExplorerUrls: [],
+                    name: u.MULTICHAIN_PROVIDER_CONFIGS[u.MultichainNetworks.SOLANA].nickname ?? '',
+                    nativeCurrency: 'sol',
+                    rpcEndpoints: [
+                      { url: '', type: r.RpcEndpointType.Custom, networkClientId: '' },
+                    ],
+                    defaultRpcEndpointIndex: 0,
+                    chainId: u.MultichainNetworks.SOLANA,
+                  },
+                });
+                a.getMultichainNetworkConfigurationsByChainId = C;
+                a.getMemoizedMultichainNetworkConfigurationsByChainId = (0,
+                f.createDeepEqualSelector)([C], e => e);
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/multichain.ts' },
+    ],
+    [
+      7606,
+      {
+        '../../../shared/modules/selectors/networks': 5875,
+        '../../../shared/modules/selectors/util': 5877,
+        '../accounts': 7592,
+        '../selectors': 7611,
+        '@metamask/keyring-api': 2014,
+        '@metamask/multichain-network-controller': 2141,
+      },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getSelectedMultichainNetworkConfiguration =
+                    a.getSelectedMultichainNetworkChainId =
+                    a.getNonEvmMultichainNetworkConfigurationsByChainId =
+                    a.getMultichainNetworkConfigurationsByChainId =
+                    a.getIsNonEvmNetworksEnabled =
+                    a.getIsEvmMultichainNetworkSelected =
+                      void 0);
+                var n = e('@metamask/multichain-network-controller'),
+                  s = e('@metamask/keyring-api'),
+                  r = e('../../../shared/modules/selectors/networks'),
+                  o = e('../../../shared/modules/selectors/util'),
+                  i = e('../selectors'),
+                  c = e('../accounts');
+                const u = e => e.metamask.multichainNetworkConfigurationsByChainId;
+                a.getNonEvmMultichainNetworkConfigurationsByChainId = u;
+                const l = (a.getIsNonEvmNetworksEnabled = (0, o.createDeepEqualSelector)(
+                    i.getIsBitcoinSupportEnabled,
+                    i.getIsSolanaSupportEnabled,
+                    c.getInternalAccounts,
+                    (e, t, a) => {
+                      if (e && t) return { bitcoinEnabled: !0, solanaEnabled: !0 };
+                      let n = e,
+                        r = t;
+                      for (const { scopes: e } of a)
+                        if (
+                          (null != e && e.includes(s.BtcScope.Mainnet) && (n = !0),
+                          null != e && e.includes(s.SolScope.Mainnet) && (r = !0),
+                          n && r)
+                        )
+                          break;
+                      return { bitcoinEnabled: n, solanaEnabled: r };
+                    }
+                  )),
+                  d = (a.getMultichainNetworkConfigurationsByChainId = (0,
+                  o.createDeepEqualSelector)(
+                    l,
+                    u,
+                    r.getNetworkConfigurationsByChainId,
+                    (e, t, a) => {
+                      const r = {},
+                        { bitcoinEnabled: o, solanaEnabled: i } = e;
+                      o &&
+                        ((r[s.BtcScope.Mainnet] = t[s.BtcScope.Mainnet]),
+                        (r[s.BtcScope.Testnet] = t[s.BtcScope.Testnet]),
+                        (r[s.BtcScope.Signet] = t[s.BtcScope.Signet])),
+                        i &&
+                          ((r[s.SolScope.Mainnet] = t[s.SolScope.Mainnet]),
+                          (r[s.SolScope.Devnet] = t[s.SolScope.Devnet]));
+                      const c = Object.entries(a).reduce(
+                        (e, [, t]) => ({
+                          ...e,
+                          [(0, n.toEvmCaipChainId)(t.chainId)]: {
+                            ...(0, n.toMultichainNetworkConfiguration)(t),
+                            name: t.name || t.rpcEndpoints[t.defaultRpcEndpointIndex].url,
+                          },
+                        }),
+                        {}
+                      );
+                      return [{ ...r, ...c }, a];
+                    }
+                  )),
+                  p = e => e.metamask.isEvmSelected;
+                a.getIsEvmMultichainNetworkSelected = p;
+                const m = e => {
+                  if (p(e)) {
+                    const t = (0, r.getProviderConfig)(e);
+                    return (0, n.toEvmCaipChainId)(t.chainId);
+                  }
+                  return e.metamask.selectedMultichainNetworkChainId;
+                };
+                a.getSelectedMultichainNetworkChainId = m;
+                a.getSelectedMultichainNetworkConfiguration = e => {
+                  const t = m(e),
+                    [a] = d(e);
+                  return a[t];
+                };
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/multichain/networks.ts' },
+    ],
+    [
+      7608,
+      {},
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.selectThrottledOrigins = void 0);
+                a.selectThrottledOrigins = e => e.metamask.throttledOrigins;
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/origin-throttling.ts' },
+    ],
+    [
+      7609,
+      { '../../shared/lib/manifestFlags': 5837, 'lodash/merge': 4922 },
+      function () {
+        with (this.scopeTerminator)
+          with (this.globalThis)
+            return function () {
+              'use strict';
+              return function (e, t, a) {
+                Object.defineProperty(a, '__esModule', { value: !0 }),
+                  (a.getRemoteFeatureFlags = function (e) {
+                    const t = (0, r.getManifestFlags)().remoteFeatureFlags,
+                      a = e.metamask.remoteFeatureFlags;
+                    return (0, s.default)({}, a, t);
+                  });
+                var n,
+                  s = (n = e('lodash/merge')) && n.__esModule ? n : { default: n },
+                  r = e('../../shared/lib/manifestFlags');
+              };
+            };
+      },
+      { package: '$root$', file: 'ui/selectors/remote-feature-flags.ts' },
+    ],
+  ],
+  [],
+  {}
+);
