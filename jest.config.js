@@ -33,7 +33,6 @@ export default {
   verbose: true,
 
   // Use ESM for tests
-  extensionsToTreatAsEsm: ['.js'],
 
   // Setup files to run before each test
   setupFiles: [],
