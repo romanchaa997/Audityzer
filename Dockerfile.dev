@@ -36,4 +36,4 @@ COPY . .
 
 RUN npx playwright install --with-deps chromium
 
-CMD ["npm", "pnpm", "run", "dev"]
+CMD ["pnpm", "start"]
