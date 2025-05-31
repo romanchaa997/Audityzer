@@ -38,6 +38,10 @@
   "devDependencies": {
     "eslint": "^8.55.0",
     "jest": "^29.7.0",
+    "babel-jest": "^29.7.0",
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.27.1",
+    "@babel/plugin-transform-modules-commonjs": "^7.22.0",
     "nodemon": "^3.0.2",
     "supertest": "^6.3.3"
   },
