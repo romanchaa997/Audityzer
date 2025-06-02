@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Unhandled provider errors test using Playwright with mocked provider failures
 const { test, expect } = require('@playwright/test');
 

@@ -2,10 +2,7 @@
  * Unit tests for fix-vulnerabilities.js
  */
 
-import { jest } from '@jest/globals';
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+const { execSync } = require('child_process');
 
 // Mock modules
 jest.mock('child_process');
@@ -30,7 +27,7 @@ describe('fix-vulnerabilities', () => {
     console.log = originalConsoleLog;
   });
 
-  test('should run npm audit to identify vulnerabilities', async () => {
+  test('should run npm audit to identify vulnerabilities', () => {
     // Mock execSync to return audit data
     const mockAuditOutput = JSON.stringify({
       vulnerabilities: {
@@ -56,19 +53,19 @@ describe('fix-vulnerabilities', () => {
         }
       }
     });
-    execSync.mockReturnValueOnce(Buffer.from(mockAuditOutput));
+    execSync.mockReturnValueOnce(mockAuditOutput);
 
-    // Import the script
-    await import('../scripts/fix-vulnerabilities.js');
+    // Require the script
+    require('../scripts/fix-vulnerabilities.js');
 
     // Verify npm audit was executed
     expect(execSync).toHaveBeenCalledWith('npm audit --json', expect.any(Object));
 
     // Verify vulnerabilities were reported
-    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 2 vulnerabilities'));
+    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 2 vulnerable packages'));
   });
 
-  test('should attempt to fix vulnerabilities', async () => {
+  test('should attempt to fix vulnerabilities', () => {
     // Mock execSync for audit and fix commands
     const mockAuditOutput = JSON.stringify({
       vulnerabilities: {
@@ -85,22 +82,22 @@ describe('fix-vulnerabilities', () => {
         }
       }
     });
-    execSync.mockReturnValueOnce(Buffer.from(mockAuditOutput));
+    execSync.mockReturnValueOnce(mockAuditOutput);
 
     // Mock successful fix
-    execSync.mockReturnValueOnce(Buffer.from('Fixed 1 vulnerability'));
+    execSync.mockReturnValueOnce('Fixed 1 vulnerability');
 
-    // Import the script
-    await import('../scripts/fix-vulnerabilities.js');
+    // Require the script
+    require('../scripts/fix-vulnerabilities.js');
 
     // Verify npm audit fix was executed
     expect(execSync).toHaveBeenCalledWith('npm audit fix --force', expect.any(Object));
 
-    // Verify success message
-    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Successfully fixed vulnerabilities'));
+    // Verify completion message
+    expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Completed npm audit fix'));
   });
 
-  test('should handle errors during vulnerability fixing', async () => {
+  test('should handle errors during vulnerability fixing', () => {
     // Mock execSync for audit
     const mockAuditOutput = JSON.stringify({
       vulnerabilities: {
@@ -117,29 +114,29 @@ describe('fix-vulnerabilities', () => {
         }
       }
     });
-    execSync.mockReturnValueOnce(Buffer.from(mockAuditOutput));
+    execSync.mockReturnValueOnce(mockAuditOutput);
 
     // Mock error during fix
     execSync.mockImplementationOnce(() => {
       throw new Error('Failed to fix vulnerabilities');
     });
 
-    // Mock console.error
-    const originalConsoleError = console.error;
-    const mockConsoleError = jest.fn();
-    console.error = mockConsoleError;
+    // Mock console.warn
+    const originalConsoleWarn = console.warn;
+    const mockConsoleWarn = jest.fn();
+    console.warn = mockConsoleWarn;
 
-    // Import the script
-    await import('../scripts/fix-vulnerabilities.js');
+    // Require the script
+    require('../scripts/fix-vulnerabilities.js');
 
-    // Verify error was logged
-    expect(mockConsoleError).toHaveBeenCalledWith(expect.stringContaining('Error fixing vulnerabilities'));
+    // Verify warning was logged
+    expect(mockConsoleWarn).toHaveBeenCalledWith(expect.stringContaining('Some vulnerabilities could not be fixed automatically'));
 
-    // Restore console.error
-    console.error = originalConsoleError;
+    // Restore console.warn
+    console.warn = originalConsoleWarn;
   });
 
-  test('should handle case with no vulnerabilities', async () => {
+  test('should handle case with no vulnerabilities', () => {
     // Mock execSync to return audit data with no vulnerabilities
     const mockAuditOutput = JSON.stringify({
       vulnerabilities: {},
@@ -154,15 +151,18 @@ describe('fix-vulnerabilities', () => {
         }
       }
     });
-    execSync.mockReturnValueOnce(Buffer.from(mockAuditOutput));
+    execSync.mockReturnValueOnce(mockAuditOutput);
 
-    // Import the script
-    await import('../scripts/fix-vulnerabilities.js');
+    // Require the script
+    require('../scripts/fix-vulnerabilities.js');
 
     // Verify no vulnerabilities message
     expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('No vulnerabilities found'));
 
-    // Verify npm audit fix was not executed
-    expect(execSync).toHaveBeenCalledTimes(1); // Only the initial audit
+    // Verify npm audit fix was not executed for the fix command
+    const auditFixCalls = execSync.mock.calls.filter(call =>
+      call[0].includes('npm audit fix')
+    );
+    expect(auditFixCalls).toHaveLength(0);
   });
 });

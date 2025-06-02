@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Cross-Wallet Connection Switching Test
 const { test, expect } = require('@playwright/test');
 const {

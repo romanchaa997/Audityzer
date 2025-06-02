@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * Test case description: Network Switch Race Condition Test
  * Vulnerability/edge case: Race conditions during rapid network switching that could lead to transaction on wrong networks

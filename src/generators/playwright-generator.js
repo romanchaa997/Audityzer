@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 function generatePlaywrightScript(options) {
     const { url, wallet, tests } = options;
 

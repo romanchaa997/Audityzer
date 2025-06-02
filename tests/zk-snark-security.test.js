@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * ZK-SNARK Security Test Suite
  * This test suite focuses on advanced ZK-SNARK attack vectors:

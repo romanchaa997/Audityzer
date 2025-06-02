@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * MetaMask Wallet Connection Tests
  * Tests basic wallet connection functionality using MetaMask

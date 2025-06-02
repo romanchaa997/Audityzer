@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * Test case description: Front-running detection and prevention for Web3 applications
  * Vulnerability: Smart contract front-running vulnerability detection

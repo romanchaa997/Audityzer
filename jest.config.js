@@ -1,44 +1,81 @@
 /**
  * Jest configuration for Audityzer tests
+ * Fixed configuration to avoid preset conflicts
  */
 
-export default {
-  // Indicates whether the coverage information should be collected
-  collectCoverage: true,
-
-  // The directory where Jest should output its coverage files
-  coverageDirectory: 'coverage',
-
-  // Indicates which provider should be used to instrument code for coverage
-  coverageProvider: 'v8',
-
-  // A list of paths to directories that Jest should use to search for files in
-  roots: ['<rootDir>/test'],
-
-  // The test environment that will be used for testing
+const config = {
+  // Test environment
   testEnvironment: 'node',
 
-  // The glob patterns Jest uses to detect test files
-  testMatch: ['**/__tests__/**/*.js', '**/?(*.)+(spec|test).js'],
+  // Test file patterns
+  testMatch: [
+    '**/test/**/*.test.js',
+    '**/tests/**/*.test.js',
+    '**/__tests__/**/*.js',
+    '**/?(*.)+(spec|test).js'
+  ],
 
-  // An array of regexp pattern strings that are matched against all test paths
-  testPathIgnorePatterns: ['/node_modules/'],
+  // Ignore patterns
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/dist/',
+    '/build/',
+    '/coverage/'
+  ],
 
-  // Transform configuration for ESM
+  // Coverage settings
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageProvider: 'v8',
+
+  // Coverage collection patterns
+  collectCoverageFrom: [
+    'src/**/*.js',
+    '!src/**/*.test.js',
+    '!src/**/*.spec.js'
+  ],
+
+  // Transform settings - using babel-jest as transformer, not preset
   transform: {
-    '^.+\.js$': ['babel-jest', { configFile: './babel.config.json' }]
+    '\\.[jt]sx?$': 'babel-jest'
   },
 
-  // Indicates whether each individual test should be reported during the run
+  // Module file extensions
+  moduleFileExtensions: ['js', 'json'],
+
+  // Verbose output
   verbose: true,
 
-  // Use ESM for tests
+  // Root directories
+  roots: ['<rootDir>/test', '<rootDir>/tests', '<rootDir>/src'],
 
-  // Setup files to run before each test
-  setupFiles: [],
-
-  // Mock all .js files to use ESM
-  moduleNameMapper: {
-    '^(\.{1,2}/.*)\.js$': '$1'
+  // Coverage thresholds
+  coverageThreshold: {
+    global: {
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50
+    }
   },
+
+  // Clear mocks between tests
+  clearMocks: true,
+
+  // Automatically restore mock state between every test
+  restoreMocks: true,
+
+  // Test timeout (30 seconds for AI operations)
+  testTimeout: 30000,
+
+  // Setup files
+  setupFilesAfterEnv: [],
+
+  // Handle ES modules and CommonJS
+  extensionsToTreatAsEsm: [],
+
+  // Error handling
+  errorOnDeprecated: false
 };
+
+module.exports = config;

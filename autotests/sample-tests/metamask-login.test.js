@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // MetaMask login test using Playwright with mocked MetaMask functionality
 const { test, expect } = require('@playwright/test');
 

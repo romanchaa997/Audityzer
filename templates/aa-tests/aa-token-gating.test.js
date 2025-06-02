@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * ERC-4337 Token Gating Tests
  * Tests for token-gated operations in Account Abstraction wallets

@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Modified wallet snapshot test with a more robust approach
 const { test, expect } = require('@playwright/test');
 const {

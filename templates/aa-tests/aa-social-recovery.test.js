@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * Social Recovery Test for Account Abstraction Wallets
  * 

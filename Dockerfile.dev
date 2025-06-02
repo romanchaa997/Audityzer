@@ -1,14 +1,15 @@
-FROM node:20
+FROM node:20-slim
 
+# 1) Встановлюємо pnpm глобально
 RUN npm install -g pnpm
 
-# Установка залежностей для Playwright
+# 2) Встановлюємо системні бібліотеки (Playwright-залежності)
 RUN apt-get update && apt-get install -y \
     libwoff1 \
     libopus0 \
-    libwebp7 \      
+    libwebp7 \
     libwebpdemux2 \
-    libenchant-2-2 \   
+    libenchant-2-2 \
     libgudev-1.0-0 \
     libsecret-1-0 \
     libhyphen0 \
@@ -18,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     libxslt1.1 \
     libevent-2.1-7 \
     libgles2 \
-    libvpx7 \      
+    libvpx7 \
     libxcomposite1 \
     libatk1.0-0 \
     libatk-bridge2.0-0 \
@@ -28,12 +29,19 @@ RUN apt-get update && apt-get install -y \
     libxshmfence1 \
     && rm -rf /var/lib/apt/lists/*
 
+# 3) Створюємо робочий каталог
 WORKDIR /app
-COPY package*.json ./
-RUN npm install --legacy-peer-deps --no-audit --no-fund
 
+# 4) Копіюємо package-файли і встановлюємо залежності через pnpm
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# 5) Копіюємо решту проєкту
 COPY . .
 
+# 6) Завантажуємо браузерні залежності для Playwright
 RUN npx playwright install --with-deps chromium
 
+# 7) За замовчуванням стартуємо Dev-сервер
 CMD ["pnpm", "start"]

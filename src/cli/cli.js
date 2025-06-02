@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 #!/usr/bin/env node
 // src/cli.js
 import { program } from 'commander';

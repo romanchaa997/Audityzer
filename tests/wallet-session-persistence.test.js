@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Wallet Session Persistence Test
 const { test, expect } = require('@playwright/test');
 const { saveWalletState, restoreWalletState } = require('./utils/wallet-snapshot');

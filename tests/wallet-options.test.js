@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Multi-wallet support test examples
 const { test, expect } = require('@playwright/test');
 

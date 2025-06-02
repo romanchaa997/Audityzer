@@ -18,6 +18,24 @@ jest.mock('commander', () => ({
   }
 }));
 
++ // Оголошуємо змінні-моки поза фабрикою:
+  + const mockVersion = jest.fn().mockReturnThis();
++ const mockDescription = jest.fn().mockReturnThis();
++ const mockCommand = jest.fn().mockReturnThis();
++ const mockOption = jest.fn().mockReturnThis();
++ // (додай інші методи, якщо потребуєш, за аналогією)
+
+  + // А тепер передаємо ці змінні у фабрику:  
+  + jest.mock('commander', () => ({
++ program: {
++ version: mockVersion,
+    +     description: mockDescription,
+    +     command: mockCommand,
+    +     option: mockOption,
+    +     // …
+    +   }
+    + }));
+
 jest.mock('chalk', () => ({
   blue: jest.fn(text => text),
   green: jest.fn(text => text),

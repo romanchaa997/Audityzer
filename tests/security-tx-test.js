@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // MetaMask transaction test
 const { test, expect } = require('@playwright/test');
 

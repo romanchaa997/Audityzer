@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * Test case description: MetaMask transaction signature tampering vulnerability detection
  * Vulnerability/edge case: Tests if a malicious dApp can manipulate transaction data after user signature

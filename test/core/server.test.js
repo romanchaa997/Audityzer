@@ -4,18 +4,20 @@
 
 import { jest } from '@jest/globals';
 import http from 'http';
-import fs from 'fs-extra';
-import chalk from 'chalk';
 import { startServer, stopServer, restartServer, getServerStatus } from '../../src/core/server.js';
 
-// Mock modules
+import fsExtra from 'fs-extra';     // якщо тобі потрібен реальний імпорт для типів або перевірок
+import chalk from 'chalk';
+
+const mockFsExtra = jest.fn();
+const mockChalkGreen = jest.fn(text => text);
+const mockChalkYellow = jest.fn(text => text);
+
 jest.mock('http');
-jest.mock('fs-extra');
+jest.mock('fs-extra', () => mockFsExtra);
 jest.mock('chalk', () => ({
-  green: jest.fn(text => text),
-  yellow: jest.fn(text => text),
-  blue: jest.fn(text => text),
-  red: jest.fn(text => text)
+  green: mockChalkGreen,
+  yellow: mockChalkYellow,
 }));
 
 describe('Server Module', () => {

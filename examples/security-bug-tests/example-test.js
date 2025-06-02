@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // @ts-check
 import { test, expect } from '@playwright/test';
 

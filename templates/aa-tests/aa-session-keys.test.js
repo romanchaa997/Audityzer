@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * ERC-4337 Session Key Tests
  * Tests for session key functionality in Account Abstraction wallets
