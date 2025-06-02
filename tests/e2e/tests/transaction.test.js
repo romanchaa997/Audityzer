@@ -3,11 +3,11 @@ const { test, expect } = require('@playwright/test');
 const path = require('path');
 
 // Test configuration
-// eslint-disable-next-line no-unused-vars
+ 
 const WALLET_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
 const RECIPIENT_ADDRESS = '0xabcdef1234567890abcdef1234567890abcdef12';
 const TRANSACTION_AMOUNT = '0.1';
-// eslint-disable-next-line no-unused-vars
+ 
 const NETWORK_NAME = 'Ethereum';
 
 test.describe('MetaMask Transaction Test', () => {

@@ -11,7 +11,7 @@ test.describe('Unhandled Provider Errors Test', () => {
     // Mock the ethereum provider with purposeful errors
     await page.addInitScript(() => {
       // Mock wallet address
-      // eslint-disable-next-line no-unused-vars
+       
       const WALLET_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
 
       // Common error types in web3 providers

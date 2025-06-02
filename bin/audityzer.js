@@ -5,7 +5,7 @@
  * Cross-chain DeFi fuzzing toolkit for security researchers
  */
 
-const { runCLI } = require('../src/cli');
+import { runCLI } from '../src/cli/index.js';
 
 // Execute the CLI
 runCLI(process.argv); 

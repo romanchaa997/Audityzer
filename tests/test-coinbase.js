@@ -2,11 +2,11 @@
 const { test, expect } = require('@playwright/test');
 
 // Test configuration
-// eslint-disable-next-line no-unused-vars
+ 
 const WALLET_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
-// eslint-disable-next-line no-unused-vars
+ 
 const WALLET_NAME = 'Test Wallet';
-// eslint-disable-next-line no-unused-vars
+ 
 const NETWORK_NAME = 'Ethereum';
 
 test.describe('Coinbase Wallet Connection Test', () => {

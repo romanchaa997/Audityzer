@@ -2,7 +2,7 @@ import { test, expect, chromium, BrowserContext, Page } from '@playwright/test';
 import path from 'path';
 
 // Configuration
-// eslint-disable-next-line no-unused-vars
+ 
 const WALLET_ADDRESS = '{{wallet}}';
 const METAMASK_EXTENSION_PATH = path.join(__dirname, '../extensions/metamask'); // Update this path
 const DAPP_URL = 'https://your-dapp-url.com'; // Replace with your dApp URL

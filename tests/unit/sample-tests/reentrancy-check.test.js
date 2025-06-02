@@ -20,7 +20,7 @@ test.describe('Reentrancy Vulnerability Test', () => {
     // Mock the ethereum provider and contract interaction
     await page.addInitScript(() => {
       // Mock wallet address
-      // eslint-disable-next-line no-unused-vars
+       
       const WALLET_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
       // Mock contract address
       const CONTRACT_ADDRESS = '0xabcdef1234567890abcdef1234567890abcdef12';

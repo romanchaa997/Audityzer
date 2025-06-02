@@ -3,10 +3,10 @@ import { test, expect } from '@playwright/test';
 import { EthereumProvider } from '../utils/types';
 
 // Test configuration
-// eslint-disable-next-line no-unused-vars
+ 
 const WALLET_ADDRESS: string = '0x1234567890abcdef1234567890abcdef12345678';
 const MESSAGE_TO_SIGN: string = 'Hello Web3 World!';
-// eslint-disable-next-line no-unused-vars
+ 
 const NETWORK_NAME: string = 'Ethereum';
 
 interface EthereumProvider {

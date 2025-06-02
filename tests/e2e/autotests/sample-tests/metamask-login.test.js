@@ -2,7 +2,7 @@
 const { test, expect } = require('@playwright/test');
 
 // Mock wallet address that will be used in the test
-// eslint-disable-next-line no-unused-vars
+ 
 const MOCK_WALLET_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
 
 test.describe('MetaMask Login Test (Mocked)', () => {

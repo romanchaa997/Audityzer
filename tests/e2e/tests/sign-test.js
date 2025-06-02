@@ -2,10 +2,10 @@
 const { test, expect } = require('@playwright/test');
 
 // Test configuration
-// eslint-disable-next-line no-unused-vars
+ 
 const WALLET_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678';
 const MESSAGE_TO_SIGN = 'Hello Web3 World!';
-// eslint-disable-next-line no-unused-vars
+ 
 const NETWORK_NAME = 'Ethereum';
 
 test.describe('MetaMask Signing Test', () => {
