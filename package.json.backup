@@ -1,8 +1,8 @@
 {
   "name": "audityzer",
   "version": "1.1.2",
-  "description": "Comprehensive Web3 security testing toolkit for DeFi applications and smart contracts",
-  "main": "src/index.js",
+  "description": "Intelligent development server with auto port management for web3 security testing",
+  "main": "src/core/index.js",
   "bin": {
     "audityzer": "bin/audityzer.js"
   },
@@ -181,6 +181,5 @@
         }
       }
     }
-  },
-  "types": "src/types/index.d.ts"
+  }
 }

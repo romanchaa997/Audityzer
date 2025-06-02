@@ -103,10 +103,10 @@ jobs:
       - name: Verify CLI help
         run: |
           if [ "${{ matrix.package_manager }}" = "pnpm" ]; then
-            pnpx devforge --help
+            pnpx audityzer --help
           elif [ "${{ matrix.package_manager }}" = "yarn" ]; then
-            yarn dlx devforge --help || yarn exec devforge --help
+            yarn dlx audityzer --help || yarn exec audityzer --help
           else
-            npx devforge --help
+            npx audityzer --help
           fi
         shell: bash 

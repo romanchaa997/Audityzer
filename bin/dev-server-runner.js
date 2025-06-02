@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * DevForge - Intelligent Development Server for Web3
+ * Audityzer - Intelligent Development Server for Web3
  * 
  * A cross-platform development server manager with smart port management, 
  * process tracking, and health monitoring capabilities. Built specifically
@@ -28,7 +28,7 @@ const scriptsDir = path.join(__dirname, '..', 'scripts');
 // Configure CLI
 program
   .version(version)
-  .description('DevForge: Intelligent development server for Web3 security testing');
+  .description('Audityzer: Intelligent development server for Web3 security testing');
 
 // Start command
 program
