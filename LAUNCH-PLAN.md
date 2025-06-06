@@ -1,10 +1,10 @@
-# DevForge Launch Plan
+# Audityzer Launch Plan
 
-This document outlines the strategy for launching DevForge, an intelligent development server for Web3 security testing.
+This document outlines the strategy for launching Audityzer, an intelligent development server for Web3 security testing.
 
 ## Pre-Launch Checklist
 
-- [x] Rename package from dev-server-runner to DevForge
+- [x] Rename package from dev-server-runner to Audityzer
 - [x] Update all relevant documentation
 - [x] Create landing page
 - [x] Prepare demo GIF/video
@@ -88,7 +88,7 @@ This document outlines the strategy for launching DevForge, an intelligent devel
 ## Key Messages
 
 ### Primary Value Proposition
-DevForge eliminates port conflicts and simplifies development server management for Web3 security testing.
+Audityzer eliminates port conflicts and simplifies development server management for Web3 security testing.
 
 ### Key Differentiators
 1. Built specifically for Web3 security testing workflows
@@ -105,19 +105,19 @@ DevForge eliminates port conflicts and simplifies development server management 
 ## Content Strategy
 
 ### Blog Posts
-1. "Introducing DevForge: The Development Server Built for Web3 Security Testing"
-2. "How DevForge Eliminates Common Web3 Development Pain Points"
-3. "A Deep Dive into DevForge's Health Monitoring API"
-4. "Using DevForge in Your CI/CD Pipeline for Web3 Projects"
+1. "Introducing Audityzer: The Development Server Built for Web3 Security Testing"
+2. "How Audityzer Eliminates Common Web3 Development Pain Points"
+3. "A Deep Dive into Audityzer's Health Monitoring API"
+4. "Using Audityzer in Your CI/CD Pipeline for Web3 Projects"
 
 ### Tutorials
-1. "Setting Up a Web3 Security Testing Environment with DevForge"
-2. "Testing Flash Loan Vulnerabilities with DevForge"
-3. "Integrating DevForge into Your Existing Web3 Project"
+1. "Setting Up a Web3 Security Testing Environment with Audityzer"
+2. "Testing Flash Loan Vulnerabilities with Audityzer"
+3. "Integrating Audityzer into Your Existing Web3 Project"
 
 ### Case Studies (Future)
-1. "How [Web3 Project] Improved Their Testing Workflow with DevForge"
-2. "Reducing CI/CD Pipeline Failures with DevForge's Port Management"
+1. "How [Web3 Project] Improved Their Testing Workflow with Audityzer"
+2. "Reducing CI/CD Pipeline Failures with Audityzer's Port Management"
 
 ## Community Engagement Strategy
 
@@ -175,9 +175,9 @@ Update the GitHub username placeholders with your actual username
 ## Next Steps After Launch
 
 1. Build additional integrations with Web3 security tools
-2. Develop a VS Code extension for DevForge
+2. Develop a VS Code extension for Audityzer
 3. Create a hosted dashboard for remote monitoring
 4. Explore partnerships with Web3 development frameworks
-5. Consider expanding to a full DevForge suite of Web3 security tools 
+5. Consider expanding to a full Audityzer suite of Web3 security tools 
 
 

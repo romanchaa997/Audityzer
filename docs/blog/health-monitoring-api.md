@@ -1,10 +1,10 @@
-# A Deep Dive into DevForge's Health Monitoring API
+# A Deep Dive into Audityzer's Health Monitoring API
 
 *May 17, 2025 · 6 min read*
 
-![DevForge Health Monitoring](../../assets/img/health-api.png)
+![Audityzer Health Monitoring](../../assets/img/health-api.png)
 
-Monitoring the health of your development servers is critical when conducting security tests on Web3 applications. Traditional development servers typically don't provide much visibility into their operational state, forcing developers to implement custom monitoring solutions. DevForge, however, comes with a built-in health monitoring API that gives you real-time insights into your server's performance and status.
+Monitoring the health of your development servers is critical when conducting security tests on Web3 applications. Traditional development servers typically don't provide much visibility into their operational state, forcing developers to implement custom monitoring solutions. Audityzer, however, comes with a built-in health monitoring API that gives you real-time insights into your server's performance and status.
 
 ## Why Health Monitoring Matters in Web3 Development
 
@@ -17,9 +17,9 @@ Web3 development presents unique challenges for server monitoring:
 
 Without proper monitoring, diagnosing issues in Web3 applications becomes significantly harder. Was that failed transaction due to a blockchain problem, a network issue, or your development server silently crashing?
 
-## The DevForge Health API
+## The Audityzer Health API
 
-Every DevForge server automatically creates a health endpoint that provides detailed metadata about the running server. This endpoint is accessible at `http://localhost:<port+1>/health`, where `<port+1>` is the next port after your main server port.
+Every Audityzer server automatically creates a health endpoint that provides detailed metadata about the running server. This endpoint is accessible at `http://localhost:<port+1>/health`, where `<port+1>` is the next port after your main server port.
 
 For example, if your server runs on port 5050, the health endpoint will be at:
 
@@ -83,11 +83,11 @@ async function checkServerHealth() {
 }
 ```
 
-#### Using the DevForge API
+#### Using the Audityzer API
 
 ```javascript
-const devforge = require('devforge');
-const status = devforge.getStatus();
+const audityzer = require('audityzer');
+const status = audityzer.getStatus();
 console.log(status);
 ```
 
@@ -103,7 +103,7 @@ const { spawn } = require('child_process');
 
 async function runTests() {
   // Start the server
-  spawn('devforge', ['start']);
+  spawn('audityzer', ['start']);
   
   // Wait for server to be ready
   let serverReady = false;
@@ -192,11 +192,11 @@ async function monitorDuringSecurityTest() {
 
 ## Customizing the Health Endpoint
 
-DevForge allows you to customize the health endpoint for your specific needs:
+Audityzer allows you to customize the health endpoint for your specific needs:
 
 ```javascript
 // Start server with custom health metadata
-devforge.start({
+audityzer.start({
   port: 5050,
   healthEndpoint: {
     customMetadata: {
@@ -234,7 +234,7 @@ The health endpoint is designed to be lightweight and non-intrusive. It runs on 
 By default, the health endpoint is only accessible from localhost for security reasons. If you need to access it from other machines (not recommended for development servers), you can configure it when starting the server:
 
 ```javascript
-devforge.start({
+audityzer.start({
   port: 5050,
   healthEndpoint: {
     allowRemoteAccess: true
@@ -244,7 +244,7 @@ devforge.start({
 
 ## Conclusion
 
-DevForge's built-in health monitoring API provides invaluable insights into your development server's state, solving a common pain point for Web3 developers. Whether you're running complex security tests, orchestrating multi-environment testing, or simply want better visibility into your development environment, the health monitoring API gives you the information you need without requiring custom monitoring solutions.
+Audityzer's built-in health monitoring API provides invaluable insights into your development server's state, solving a common pain point for Web3 developers. Whether you're running complex security tests, orchestrating multi-environment testing, or simply want better visibility into your development environment, the health monitoring API gives you the information you need without requiring custom monitoring solutions.
 
 In Web3 development, where reliable server state can make the difference between a successful test and a frustrating debugging session, this feature alone can save you hours of troubleshooting time.
 
@@ -252,4 +252,4 @@ Try it out and see how it transforms your development workflow!
 
 ---
 
-*Want to learn more about DevForge? Check out our [GitHub repository](https://github.com/YourUser/devforge) or our other articles on DevForge features.* 
+*Want to learn more about Audityzer? Check out our [GitHub repository](https://github.com/YourUser/audityzer) or our other articles on Audityzer features.* 

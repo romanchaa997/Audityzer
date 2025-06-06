@@ -47,7 +47,7 @@ If `sentencepiece` wheels are not available for your sub-architecture, install *
 ---
 ## 3. Using from Node.js
 
-Once vLLM is running on port 8000 you can query it directly from DevForge:
+Once vLLM is running on port 8000 you can query it directly from Audityzer:
 
 ```javascript
 import axios from 'axios';
