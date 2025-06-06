@@ -1,0 +1,76 @@
+
+version: '3.8'
+
+services:
+  discourse:
+    image: discourse/discourse:latest
+    container_name: audityzer-discourse
+    ports:
+      - "8080:80"
+    environment:
+      DISCOURSE_HOSTNAME: forum.audityzer.com
+      DISCOURSE_DEVELOPER_EMAILS: admin@audityzer.com
+      DISCOURSE_SMTP_ADDRESS: smtp.gmail.com
+      DISCOURSE_SMTP_PORT: 587
+      DISCOURSE_SMTP_USER_NAME: ${SMTP_USERNAME}
+      DISCOURSE_SMTP_PASSWORD: ${SMTP_PASSWORD}
+      DISCOURSE_SMTP_ENABLE_START_TLS: true
+      POSTGRES_DB: discourse
+      POSTGRES_USER: discourse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - discourse_data:/var/www/discourse
+      - ./forum/uploads:/var/www/discourse/public/uploads
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - forum
+
+  postgres:
+    image: postgres:13
+    container_name: audityzer-postgres
+    environment:
+      POSTGRES_DB: discourse
+      POSTGRES_USER: discourse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - forum
+
+  redis:
+    image: redis:7-alpine
+    container_name: audityzer-redis
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - forum
+
+  nginx:
+    image: nginx:alpine
+    container_name: audityzer-forum-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./forum/nginx.conf:/etc/nginx/nginx.conf
+      - ./forum/ssl:/etc/nginx/ssl
+    depends_on:
+      - discourse
+    restart: unless-stopped
+    networks:
+      - forum
+
+volumes:
+  discourse_data:
+  postgres_data:
+  redis_data:
+
+networks:
+  forum:
+    driver: bridge
