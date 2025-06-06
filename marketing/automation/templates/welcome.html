@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Audityzer</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Welcome to Audityzer!</h1>
+            <p>Your journey to smart contract security starts here</p>
+        </div>
+        
+        <div class="content">
+            <h2>Hi {{name}},</h2>
+            
+            <p>Welcome to Audityzer, the leading platform for smart contract security auditing! We're thrilled to have you join our community of security-conscious developers and auditors.</p>
+            
+            <h3>🚀 What's Next?</h3>
+            <ul>
+                <li><strong>Start Your First Audit:</strong> Upload your smart contract and get instant security insights</li>
+                <li><strong>Explore Our Tools:</strong> Discover our comprehensive suite of security analysis tools</li>
+                <li><strong>Join the Community:</strong> Connect with other developers and security experts</li>
+                <li><strong>Learn & Grow:</strong> Access our extensive library of security resources</li>
+            </ul>
+            
+            <div style="text-align: center;">
+                <a href="https://audityzer.com/dashboard" class="button">Get Started Now</a>
+            </div>
+            
+            <h3>🎯 Quick Tips for Success:</h3>
+            <ol>
+                <li>Start with our guided tutorial to understand the platform</li>
+                <li>Use our automated scanning tools for quick vulnerability detection</li>
+                <li>Review our best practices guide for secure smart contract development</li>
+                <li>Join our Discord community for real-time support and discussions</li>
+            </ol>
+            
+            <p>If you have any questions or need assistance, our support team is here to help. Simply reply to this email or visit our <a href="https://audityzer.com/support">support center</a>.</p>
+            
+            <p>Happy auditing!</p>
+            <p><strong>The Audityzer Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>You're receiving this email because you signed up for Audityzer.</p>
+            <p><a href="{{unsubscribe_url}}">Unsubscribe</a> | <a href="https://audityzer.com/privacy">Privacy Policy</a></p>
+            <p>© 2025 Audityzer. All rights reserved.</p>
+        </div>
+    </div>
+    {{tracking_pixel}}
+</body>
+</html>
