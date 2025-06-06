@@ -1,6 +1,6 @@
-# Contributing to DevForge
+# Contributing to Audityzer
 
-We love your input! We want to make contributing to DevForge as easy and transparent as possible, whether it's:
+We love your input! We want to make contributing to Audityzer as easy and transparent as possible, whether it's:
 
 - Reporting a bug
 - Discussing the current state of the code
@@ -53,7 +53,7 @@ Keep the documentation up to date. If you introduce new features or change exist
    ```
 3. Run the server in development mode:
    ```bash
-   npm run devforge:start
+   npm run audityzer:start
    ```
 
 ## Code Style

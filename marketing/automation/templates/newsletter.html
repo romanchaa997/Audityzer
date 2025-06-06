@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audityzer Weekly Newsletter</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .article { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #667eea; }
+        .stats { display: flex; justify-content: space-around; background: white; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .stat { text-align: center; }
+        .stat-number { font-size: 24px; font-weight: bold; color: #667eea; }
+        .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 10px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Audityzer Weekly</h1>
+            <p>Your weekly dose of smart contract security insights</p>
+            <p>Week of {{date}}</p>
+        </div>
+        
+        <div class="content">
+            <h2>Hi {{name}},</h2>
+            
+            <p>Here's what's been happening in the world of smart contract security this week:</p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">247</div>
+                    <div>Audits Completed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">89</div>
+                    <div>Vulnerabilities Found</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">$12M</div>
+                    <div>Value Secured</div>
+                </div>
+            </div>
+            
+            <div class="article">
+                <h3>🔍 Featured Security Analysis</h3>
+                <p><strong>Critical Vulnerability Discovered in Popular DeFi Protocol</strong></p>
+                <p>Our automated scanning tools identified a critical reentrancy vulnerability in a major DeFi protocol, potentially saving millions in user funds. The issue was promptly reported and fixed.</p>
+                <a href="https://audityzer.com/blog/defi-reentrancy-case-study" class="button">Read Case Study</a>
+            </div>
+            
+            <div class="article">
+                <h3>🛠️ New Feature Spotlight</h3>
+                <p><strong>Enhanced Gas Optimization Analysis</strong></p>
+                <p>We've upgraded our gas optimization detection to identify more opportunities for reducing transaction costs. Early users report average gas savings of 15-25%.</p>
+                <a href="https://audityzer.com/features/gas-optimization" class="button">Learn More</a>
+            </div>
+            
+            <div class="article">
+                <h3>📚 Educational Content</h3>
+                <p><strong>Smart Contract Security Best Practices Guide</strong></p>
+                <p>Our comprehensive guide covers the top 10 security practices every smart contract developer should follow. Includes code examples and real-world case studies.</p>
+                <a href="https://audityzer.com/guides/security-best-practices" class="button">Read Guide</a>
+            </div>
+            
+            <div class="article">
+                <h3>🏆 Community Highlights</h3>
+                <ul>
+                    <li><strong>Bug Bounty Winner:</strong> @SecurityExpert found a subtle overflow vulnerability and earned $5,000</li>
+                    <li><strong>Community Contribution:</strong> New Vyper language support added by community member</li>
+                    <li><strong>Discord Milestone:</strong> We've reached 10,000 members in our Discord community!</li>
+                </ul>
+                <a href="https://discord.gg/audityzer" class="button">Join Discord</a>
+            </div>
+            
+            <div class="article">
+                <h3>📅 Upcoming Events</h3>
+                <ul>
+                    <li><strong>Webinar:</strong> "Advanced Audit Techniques" - Thursday, 2 PM EST</li>
+                    <li><strong>AMA Session:</strong> Ask our security experts anything - Friday, 3 PM EST</li>
+                    <li><strong>Hackathon:</strong> Secure DeFi Challenge - Next weekend</li>
+                </ul>
+            </div>
+            
+            <p>That's all for this week! Keep building securely, and don't hesitate to reach out if you need any assistance.</p>
+            
+            <p>Best regards,<br><strong>The Audityzer Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>You're receiving this newsletter because you're subscribed to Audityzer updates.</p>
+            <p><a href="{{unsubscribe_url}}">Unsubscribe</a> | <a href="https://audityzer.com/privacy">Privacy Policy</a></p>
+            <p>© 2025 Audityzer. All rights reserved.</p>
+        </div>
+    </div>
+    {{tracking_pixel}}
+</body>
+</html>

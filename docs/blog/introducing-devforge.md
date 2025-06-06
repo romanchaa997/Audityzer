@@ -1,10 +1,10 @@
-# Introducing DevForge: The Development Server Built for Web3 Security Testing
+# Introducing Audityzer: The Development Server Built for Web3 Security Testing
 
 *May 13, 2025 · 5 min read*
 
-![DevForge Logo](../../assets/img/devforge-logo.svg)
+![Audityzer Logo](../../assets/img/audityzer-logo.svg)
 
-Today, I'm excited to announce the release of **DevForge**, an intelligent development server specifically designed for Web3 security testing. If you've ever struggled with port conflicts, server monitoring, or cross-platform compatibility while testing Web3 applications, DevForge was built to solve these exact pain points.
+Today, I'm excited to announce the release of **Audityzer**, an intelligent development server specifically designed for Web3 security testing. If you've ever struggled with port conflicts, server monitoring, or cross-platform compatibility while testing Web3 applications, Audityzer was built to solve these exact pain points.
 
 ## The Problem
 
@@ -17,17 +17,17 @@ As Web3 security researchers, we often run into a common set of frustrating issu
 
 These might seem like small issues individually, but they compound to slow down security testing workflows significantly. And when you're investigating time-sensitive vulnerabilities, these minutes matter.
 
-## Enter DevForge
+## Enter Audityzer
 
-DevForge is a cross-platform development server built with Web3 security testing as its primary focus. Here's what makes it different:
+Audityzer is a cross-platform development server built with Web3 security testing as its primary focus. Here's what makes it different:
 
 ### Automatic Port Management
 
-No more `EADDRINUSE` errors. DevForge automatically finds an available port if your preferred one is occupied:
+No more `EADDRINUSE` errors. Audityzer automatically finds an available port if your preferred one is occupied:
 
 ```bash
 # When port 5050 is already in use
-$ devforge start -p 5050
+$ audityzer start -p 5050
 
 Finding available port starting from 5050...
 Port 5050 is already in use, trying 5051...
@@ -58,32 +58,32 @@ This is invaluable when you're running complex test suites and need to know exac
 
 ### Cross-Platform Support
 
-DevForge works consistently across Windows, macOS, and Linux. We've thoroughly tested process management, path handling, and port detection on all three platforms to ensure a smooth experience regardless of your development environment.
+Audityzer works consistently across Windows, macOS, and Linux. We've thoroughly tested process management, path handling, and port detection on all three platforms to ensure a smooth experience regardless of your development environment.
 
 ### Simple API
 
-DevForge can be used both from the command line and programmatically:
+Audityzer can be used both from the command line and programmatically:
 
 ```javascript
-const devforge = require('devforge');
+const audityzer = require('audityzer');
 
 // Start a server
-devforge.start({
+audityzer.start({
   port: 5050,
   directory: './public'
 });
 
 // Get server status
-const status = devforge.getStatus();
+const status = audityzer.getStatus();
 console.log(status);
 
 // Stop server
-devforge.stop();
+audityzer.stop();
 ```
 
 ## Web3 Security Testing Use Cases
 
-Here are a few ways DevForge is helping security researchers:
+Here are a few ways Audityzer is helping security researchers:
 
 1. **Running multiple test environments** - Test against different chains and configurations simultaneously without port conflicts
 2. **CI/CD integration** - Reliable server management in continuous integration environments
@@ -96,34 +96,34 @@ Installation is simple:
 
 ```bash
 # Global installation
-npm install -g devforge
+npm install -g audityzer
 
 # Project installation
-npm install --save-dev devforge
+npm install --save-dev audityzer
 ```
 
 Basic usage:
 
 ```bash
 # Start a server
-devforge start
+audityzer start
 
 # Check status
-devforge status
+audityzer status
 
 # Stop server
-devforge stop
+audityzer stop
 ```
 
 ## Open Source & Community Driven
 
-DevForge is fully open source under the MIT license. We're actively seeking contributions, bug reports, feature requests, and general feedback from the Web3 security community.
+Audityzer is fully open source under the MIT license. We're actively seeking contributions, bug reports, feature requests, and general feedback from the Web3 security community.
 
-Visit our [GitHub repository](https://github.com/YourUser/devforge) to get involved!
+Visit our [GitHub repository](https://github.com/YourUser/audityzer) to get involved!
 
 ## What's Next?
 
-This is just the beginning for DevForge. Our roadmap includes:
+This is just the beginning for Audityzer. Our roadmap includes:
 
 1. VS Code extension for server management
 2. Integration with popular Web3 testing frameworks
@@ -136,4 +136,4 @@ Happy testing!
 
 ---
 
-*DevForge is created and maintained by the Web3 Security Test Kit team. If you find it useful, please consider supporting our work via GitHub Sponsors.* 
+*Audityzer is created and maintained by the Web3 Security Test Kit team. If you find it useful, please consider supporting our work via GitHub Sponsors.* 
