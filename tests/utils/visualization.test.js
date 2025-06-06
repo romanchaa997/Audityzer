@@ -6,7 +6,7 @@
 const { describe, it, expect } = require('jest');
 const fs = require('fs-extra');
 const path = require('path');
-const { AADashboardGenerator } = require('../../src/core/visualization/aa-dashboard');
+const { AADashboardGenerator } = require("../src/core/visualization/aa-dashboard');
 
 // Mock sample test results
 const mockResults = {

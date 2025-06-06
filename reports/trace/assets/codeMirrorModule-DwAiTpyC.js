@@ -1518,7 +1518,7 @@ b`.split(/\n/).length != 3
             }
           }
           function is(e, t) {
-            if (e.length > 1 && !/  /.test(e)) return e;
+            if (e.length > 1 && !/ {2}/.test(e)) return e;
             for (var n = t, r = '', i = 0; i < e.length; i++) {
               var o = e.charAt(i);
               o == ' ' && n && (i == e.length - 1 || e.charCodeAt(i + 1) == 32) && (o = ' '),
