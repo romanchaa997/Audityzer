@@ -1,94 +1,109 @@
-# Contributing to DevForge
+# Contributing to Audityzer
 
-We love your input! We want to make contributing to DevForge as easy and transparent as possible, whether it's:
+## Branching Strategy
 
-- Reporting a bug
-- Discussing the current state of the code
-- Submitting a fix
-- Proposing new features
-- Becoming a maintainer
+We follow a GitFlow-inspired branching model:
 
-## Development Process
+### Main Branches
+- **`main`** - Production-ready code, protected branch
+- **`develop`** - Integration branch for features, protected branch
 
-We use GitHub to host code, to track issues and feature requests, as well as accept pull requests.
+### Supporting Branches
+- **`feature/*`** - New features and enhancements
+- **`hotfix/*`** - Critical fixes for production
+- **`release/*`** - Release preparation
 
-### Pull Requests
+## Branch Protection Rules
 
-1. Fork the repository to your GitHub account
-2. Clone the forked repository to your local machine
-3. Create a new branch for your feature (`git checkout -b feature/amazing-feature`)
-4. Implement your changes
-5. Commit your changes (`git commit -m 'Add some amazing feature'`)
-6. Push to your branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request on the original repository
+### Main Branch Protection
+- Require pull request reviews (minimum 1)
+- Require status checks to pass
+- Require branches to be up to date
+- Restrict pushes to admins only
+- Require linear history
 
-### Pull Request Requirements
+### Develop Branch Protection
+- Require pull request reviews (minimum 1)
+- Require status checks to pass
+- Allow force pushes for maintainers
 
-- Update the README.md with details of changes to the interface, if applicable
-- Update the documentation with any new commands or features
-- The PR should work across Windows, macOS, and Linux
-- Include tests for new functionality
-- Maintain the existing coding style
+## Workflow
 
-## Testing
-
-Before submitting your PR, make sure to run the tests:
-
-```bash
-npm test
-```
-
-The tests should pass on all three major operating systems (Windows, macOS, and Linux).
-
-## Documentation
-
-Keep the documentation up to date. If you introduce new features or change existing ones, update the relevant documentation.
-
-## Development Setup
-
-1. Clone the repository
-2. Install dependencies:
+1. **Feature Development**
    ```bash
-   npm install
-   ```
-3. Run the server in development mode:
-   ```bash
-   npm run devforge:start
+   git checkout develop
+   git pull origin develop
+   git checkout -b feature/your-feature-name
+   # Make changes
+   git commit -m "feat: your feature description"
+   git push origin feature/your-feature-name
+   # Create PR to develop
    ```
 
-## Code Style
+2. **Release Process**
+   ```bash
+   git checkout develop
+   git checkout -b release/v1.x.x
+   # Update version numbers, changelog
+   git commit -m "chore: prepare release v1.x.x"
+   # Create PR to main
+   # After merge, tag the release
+   ```
 
-We use ESLint and Prettier for code formatting. Please ensure your code follows these standards:
+3. **Hotfixes**
+   ```bash
+   git checkout main
+   git checkout -b hotfix/critical-fix
+   # Make fix
+   git commit -m "fix: critical issue description"
+   # Create PR to main and develop
+   ```
 
-```bash
-# Check code style
-npm run lint
+## Current Active Branches
 
-# Fix code style issues
-npm run lint:fix
-```
+- `main` - Latest stable version with all improvements
+- `develop` - Development integration branch
+- `feature/production-environment` - Production deployment setup
+- `feature/monitoring-setup` - Monitoring and analytics
+- `feature/community-portal` - Community platform setup
+- `feature/marketing-automation` - Marketing and growth tracking
 
-## Commit Messages
+## Code Quality Standards
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification. This makes it easier to review changes and generate changelogs.
+- All code must pass ESLint and Prettier checks
+- Unit tests required for new features
+- Integration tests for API changes
+- Security scans must pass
+- Performance benchmarks maintained
 
-Types of commits:
+## Pull Request Guidelines
 
-- `feat:` A new feature
-- `fix:` A bug fix
-- `docs:` Documentation changes
-- `style:` Changes that don't affect the code's meaning (formatting, etc.)
-- `refactor:` Code changes that neither fix bugs nor add features
-- `perf:` Performance improvements
-- `test:` Adding or fixing tests
-- `chore:` Changes to the build process, auxiliary tools, etc.
+1. Use descriptive titles and descriptions
+2. Link related issues
+3. Include screenshots for UI changes
+4. Update documentation as needed
+5. Ensure CI/CD passes
+6. Request appropriate reviewers
 
-Example:
+## Commit Message Convention
 
-```
-feat: add support for custom health endpoints
-```
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-## License
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation changes
+- `style:` - Code style changes
+- `refactor:` - Code refactoring
+- `test:` - Test additions/changes
+- `chore:` - Maintenance tasks
 
-By contributing, you agree that your contributions will be licensed under the project's MIT License. 
+## Getting Started
+
+1. Fork the repository
+2. Clone your fork
+3. Set up development environment
+4. Create feature branch
+5. Make changes and test
+6. Submit pull request
+
+For questions, please open an issue or contact the maintainers.

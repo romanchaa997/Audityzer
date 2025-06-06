@@ -98,8 +98,7 @@ jobs:
           npx @Audityzer/cli generate-report $ARGS --output security-report.md --format markdown
 
       - name: Upload security report
-        uses: actions/upload-artifact@v3
-        with:
+        uses: actions/upload-artifact@v3.1.3        with:
           name: security-report
           path: |
             security-report.md

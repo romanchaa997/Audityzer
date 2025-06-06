@@ -197,8 +197,8 @@ test.describe('Signature Replay Attack Vulnerability Detection', () => {
           const result = await originalRequest(args);
           
           if (args.method === 'personal_sign' || args.method === 'eth_sign') {
-            let message = args.params[0];
-            let signature = result;
+            const message = args.params[0];
+            const signature = result;
             
             // If hex encoded, try to decode for inspection
             if (message.startsWith('0x')) {
@@ -271,7 +271,7 @@ test.describe('Signature Replay Attack Vulnerability Detection', () => {
           const result = await originalRequest(args);
           
           if (args.method === 'personal_sign') {
-            let message = args.params[0];
+            const message = args.params[0];
             
             if (message.startsWith('0x')) {
               try {
@@ -305,7 +305,7 @@ test.describe('Signature Replay Attack Vulnerability Detection', () => {
     await page.waitForTimeout(500);
     
     // Check if our messages have proper protections
-    let hasProperProtections = false;
+    const hasProperProtections = false;
     
     // Analyze the captured messages
     await page.evaluate(() => {

@@ -1,55 +1,85 @@
-FROM node:18-slim
+<<<<<<< HEAD
 
-# Install basic dependencies
-RUN apt-get update && apt-get install -y \
-    git \
+# Multi-stage build for Audityzer
+FROM node:20-alpine AS builder
+
+# Set working directory
+=======
+FROM node:20-slim as builder
+
+>>>>>>> 9fcef16aa3870634216e27d04154ec98e4c712a8
+WORKDIR /app
+COPY package*.json ./
+<<<<<<< HEAD
+COPY tsconfig.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/ ./src/
+COPY bin/ ./bin/
+COPY templates/ ./templates/
+COPY lib/ ./lib/
+
+# Build the application
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine AS production
+
+# Install security updates
+RUN apk update && apk upgrade && apk add --no-cache \
+    dumb-init \
     curl \
-    lsof \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/cache/apk/*
 
-# Install Playwright dependencies
-RUN apt-get update && apt-get install -y \
-    libwoff1 \
-    libopus0 \
-    libwebp6 \
-    libwebpdemux2 \
-    libenchant1c2a \
-    libgudev-1.0-0 \
-    libsecret-1-0 \
-    libhyphen0 \
-    libgdk-pixbuf2.0-0 \
-    libegl1 \
-    libnotify4 \
-    libxslt1.1 \
-    libevent-2.1-7 \
-    libgles2 \
-    libvpx6 \
-    libxcomposite1 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libepoxy0 \
-    libgtk-3-0 \
-    libharfbuzz-icu0 \
-    libxshmfence1 \
-    && rm -rf /var/lib/apt/lists/*
+# Create non-root user
+RUN addgroup -g 1001 -S audityzer && \
+    adduser -S audityzer -u 1001
 
-# Create app directory
+# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy built application from builder stage
+COPY --from=builder --chown=audityzer:audityzer /app/node_modules ./node_modules
+COPY --from=builder --chown=audityzer:audityzer /app/dist ./dist
+COPY --from=builder --chown=audityzer:audityzer /app/bin ./bin
+COPY --from=builder --chown=audityzer:audityzer /app/package*.json ./
 
-# Install dependencies with legacy peer deps to handle conflicts
-RUN npm install --legacy-peer-deps
+# Copy additional runtime files
+COPY --chown=audityzer:audityzer templates/ ./templates/
+COPY --chown=audityzer:audityzer lib/ ./lib/
+COPY --chown=audityzer:audityzer scripts/healthcheck.sh ./scripts/
+COPY --chown=audityzer:audityzer scripts/start.sh ./scripts/
 
-# Install Playwright browsers
-RUN npx playwright install chromium
+# Make scripts executable
+RUN chmod +x ./scripts/*.sh
 
-# Copy app source
-COPY . .
+# Switch to non-root user
+USER audityzer
 
-# Expose the port the app runs on
+# Expose port
 EXPOSE 5000
 
-# Start command with development server
-CMD ["npm", "run", "dev:serve", "--", "--host", "0.0.0.0"] 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD ./scripts/healthcheck.sh
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["./scripts/start.sh"]
+=======
+RUN npm install
+COPY . .
+RUN npm run build
+
+FROM node:20-slim
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+RUN npm ci --omit=dev
+
+CMD ["node", "dist/cli.js"]
+>>>>>>> 9fcef16aa3870634216e27d04154ec98e4c712a8

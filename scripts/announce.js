@@ -2,7 +2,7 @@
 
 /* announce.js
  * Sends a message to a Discord webhook channel specified in config/discord_webhooks.json.
- * Usage: node scripts/announce.js --channel launch --message "DevForge v1 is live!"
+ * Usage: node scripts/announce.js --channel launch --message "Audityzer v1 is live!"
  */
 
 const fs = require('fs');
@@ -28,7 +28,7 @@ function parseArgs() {
 
 (async () => {
   try {
-    const { channel = 'launch', message = '🚀 DevForge update' } = parseArgs();
+    const { channel = 'launch', message = '🚀 Audityzer update' } = parseArgs();
     const cfgPath = path.resolve(__dirname, '..', 'config', 'discord_webhooks.json');
     if (!fs.existsSync(cfgPath)) {
       console.error('config/discord_webhooks.json not found. Please create it with your webhook URLs.');

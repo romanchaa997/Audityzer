@@ -208,8 +208,8 @@ export class BridgeBountyAdapter {
  */
 
 import { test, expect } from '@playwright/test';
-import { LayerZeroTestHarness, LayerZeroChainId } from '../../src/core/bridge-testing/layerzero-test-harness';
-import { createWalletAdapter } from '../../src/core/wallet-adapter';
+import { LayerZeroTestHarness, LayerZeroChainId } from "../src/core/bridge-testing/layerzero-test-harness';
+import { createWalletAdapter } from "../src/core/wallet-adapter';
 
 test.describe('${report.protocol} Bridge Vulnerability Test - ${report.id}', () => {
   let harness: LayerZeroTestHarness;

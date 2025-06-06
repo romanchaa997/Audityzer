@@ -311,7 +311,7 @@ jobs:
       - name: Run security tests
         run: npx Audityzer ci-run
       - name: Upload results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: security-report
           path: ./test-results

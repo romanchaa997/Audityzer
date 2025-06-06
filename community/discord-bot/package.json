@@ -1,0 +1,32 @@
+
+{
+  "name": "audityzer-discord-bot",
+  "version": "1.0.0",
+  "description": "Official Audityzer Discord bot for community engagement",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "nodemon bot.js",
+    "deploy-commands": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "@discordjs/rest": "^2.2.0",
+    "discord-api-types": "^0.37.61",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "audityzer",
+    "smart-contracts",
+    "security",
+    "web3"
+  ],
+  "author": "Audityzer Team",
+  "license": "MIT"
+}

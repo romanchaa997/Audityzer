@@ -1,0 +1,18 @@
+FROM node:20
+
+# Установка залежностей для Playwright
+RUN apt-get update && apt-get install -y \
+    git curl lsof \
+    libwoff1 libopus0 libwebp7 libwebpdemux2 libenchant-2-2 libgdk-pixbuf-2.0-0 \
+    libsecret-1-0 libhyphen0 libgl1 libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --legacy-peer-deps --no-audit --no-fund
+
+COPY . .
+
+RUN npx playwright install --with-deps chromium
+
+CMD ["npm", "run", "dev"]

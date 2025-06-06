@@ -10,7 +10,7 @@
 
 const { test, expect } = require('@playwright/test');
 const { ethers } = require('ethers');
-const { SocialRecoveryTester } = require('../../src/core/account-abstraction');
+const { SocialRecoveryTester } = require("../src/core/account-abstraction');
 
 // Configuration - modify as needed
 const CONFIG = {

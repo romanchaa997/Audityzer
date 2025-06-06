@@ -191,7 +191,7 @@ test.describe('Front-running Vulnerability Detection', () => {
     await page.waitForTimeout(500);
 
     // Check for vulnerabilities in the transaction data
-    let vulnerabilitiesFound = [];
+    const vulnerabilitiesFound = [];
 
     for (const tx of transactions) {
       if (tx.SWAP_DATA) {
@@ -251,7 +251,7 @@ test.describe('Front-running Vulnerability Detection', () => {
 
     // Verify security measures in the transaction data
     let isSecure = true;
-    let securityMeasuresFound = [];
+    const securityMeasuresFound = [];
 
     for (const data of secureTransactions) {
       if (data.slippage !== null && data.slippage > 0) {

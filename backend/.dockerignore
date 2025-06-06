@@ -1,0 +1,11 @@
+node_modules
+dist
+tests
+.vscode
+coverage
+*.log
+*.tsbuildinfo
+.env
+pnpm-lock.yaml
+docker-compose*
+Dockerfile*

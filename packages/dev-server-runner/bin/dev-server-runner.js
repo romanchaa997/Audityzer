@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * devforge
+ * audityzer
  * Intelligent development server with auto port management for Web3 security testing, process tracking,
  * and health monitoring capabilities.
  */

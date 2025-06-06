@@ -1,0 +1,28 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: audityzer-config
+  namespace: audityzer
+data:
+  config.json: |
+    {
+      "server": {
+        "port": 5000,
+        "host": "0.0.0.0"
+      },
+      "security": {
+        "rules": ["security", "performance", "accessibility"],
+        "timeout": 30000,
+        "retries": 3
+      },
+      "logging": {
+        "level": "info",
+        "format": "json"
+      },
+      "features": {
+        "mcp": true,
+        "ai": true,
+        "reporting": true
+      }
+    }

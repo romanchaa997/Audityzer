@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * DevForge Rename Script
+ * Audityzer Rename Script
  * 
- * This script automates the process of renaming the package from devforge to DevForge,
+ * This script automates the process of renaming the package from audityzer to Audityzer,
  * updating relevant file references and configuration.
  */
 
@@ -14,8 +14,8 @@ const util = require('util');
 const execPromise = util.promisify(exec);
 
 // Configuration
-const oldName = 'devforge';
-const newName = 'devforge';
+const oldName = 'audityzer';
+const newName = 'audityzer';
 const oldDescription = 'Intelligent development server with auto port management for Web3 security testing';
 const newDescription = 'Intelligent development server with auto port management for Web3 security testing';
 
@@ -25,7 +25,7 @@ const filesToUpdate = [
   'package-lock.json',
   'README.md',
   '.github/workflows/ci-cd.yml',
-  'bin/devforge.js'
+  'bin/audityzer.js'
 ];
 
 // Directories to search recursively for references
@@ -50,8 +50,8 @@ async function updateFile(filePath) {
     let updatedContent = content
       .replace(new RegExp(oldName, 'g'), newName)
       .replace(new RegExp(oldDescription, 'g'), newDescription)
-      .replace(/devforge/g, 'devforge')
-      .replace(/DevForge/gi, 'DevForge');
+      .replace(/audityzer/g, 'audityzer')
+      .replace(/Audityzer/gi, 'Audityzer');
       
     // Special handling for package.json
     if (filePath.endsWith('package.json')) {
@@ -135,8 +135,8 @@ async function renamePackage() {
   }
   
   // Rename main binary file if needed
-  const oldBinPath = path.join('bin', 'devforge.js');
-  const newBinPath = path.join('bin', 'devforge.js');
+  const oldBinPath = path.join('bin', 'audityzer.js');
+  const newBinPath = path.join('bin', 'audityzer.js');
   
   if (fs.existsSync(oldBinPath) && !fs.existsSync(newBinPath)) {
     try {
@@ -146,7 +146,7 @@ async function renamePackage() {
       
       // Update shebang line
       let binContent = fs.readFileSync(newBinPath, 'utf8');
-      binContent = binContent.replace(/devforge/g, 'devforge');
+      binContent = binContent.replace(/audityzer/g, 'audityzer');
       fs.writeFileSync(newBinPath, binContent);
     } catch (error) {
       console.error('Error creating binary symlink:', error.message);
