@@ -27,7 +27,7 @@ Check out our [Hall of Fame](./HALL_OF_FAME.md) to see contributors who have sub
 ### Installation
 
 ```bash
-git clone https://github.com/your-org/Audityzer-community-tests.git
+git clone https://github.com/romanchaa997/Audityzer-community-tests.git
 cd Audityzer-community-tests
 npm install
 ```
@@ -47,7 +47,7 @@ npm run test:transaction-flow
 
 We welcome contributions from the community! Here's how you can contribute:
 
-1. **Submit a Test Idea**: [Open an issue](https://github.com/your-org/Audityzer-community-tests/issues/new?template=fuzz-idea.md) with the "Fuzz Idea" template
+1. **Submit a Test Idea**: [Open an issue](https://github.com/romanchaa997/Audityzer-community-tests/issues/new?template=fuzz-idea.md) with the "Fuzz Idea" template
 2. **Contribute a Test**: Fork the repo, add your test case, and submit a PR
 3. **Improve Existing Tests**: Enhance test coverage or improve existing test cases
 

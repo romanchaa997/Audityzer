@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="60" viewBox="0 0 240 60">
+  <g fill="none" fillRule="evenodd">
+    <path fill="#3A86FF" d="M40 55a30 30 0 1 0 0-50 30 30 0 0 0 0 50zm0 5a35 35 0 1 1 0-60 35 35 0 0 1 0 60z" />
+    <path fill="#121212" d="M40 50a25 25 0 1 0 0-40 25 25 0 0 0 0 40z" />
+    <path stroke="#3A86FF" strokeWidth="3" d="M20 30l10-10h20l10 10-10 10H30z" />
+    <path stroke="#3A86FF" strokeWidth="3" d="M30 40v-10m10 0v10m10 0v-10" />
+    <path stroke="#13C3FF" strokeWidth="3" d="M35 40h10" />
+    <text x="90" y="40" fontSize="24" fontWeight="bold" fill="#FFFFFF" fontFamily="Inter, Arial, sans-serif">Audityzer</text>
+  </g>
+</svg>

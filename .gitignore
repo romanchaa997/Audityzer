@@ -50,9 +50,14 @@ test-user-data-dir/
 extensions/metamask/
 darkforest-v0.6/
 trace/
+.buildx-cache
 
 # Package outputs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+node_modules
+dist
+.env

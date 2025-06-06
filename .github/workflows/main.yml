@@ -45,7 +45,7 @@ jobs:
         run: codecovcli upload-process
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: build-artifacts
           path: |
@@ -134,7 +134,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: playwright-report
           path: playwright-report/
