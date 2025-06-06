@@ -1,3 +1,4 @@
+
 version: '3.8'
 
 services:
@@ -5,59 +6,82 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: audityzer
+      target: production
+    container_name: audityzer-app
     ports:
       - "5000:5000"
-    volumes:
-      - .:/app
-      - /app/node_modules
     environment:
-      - NODE_ENV=development
-      - MOCK_MODE=true
+      - NODE_ENV=production
+      - PORT=5000
+      - LOG_LEVEL=info
+    volumes:
+      - ./config:/app/config:ro
+      - ./reports:/app/reports
+      - audityzer-data:/app/data
+    networks:
+      - audityzer-network
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      test: ["CMD", "./scripts/healthcheck.sh"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
-    restart: unless-stopped
+      start_period: 40s
 
-  # Optional ElasticSearch for report storage and full-text search
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
-    container_name: elasticsearch
-    environment:
-      - node.name=elasticsearch
-      - cluster.name=web3-security-es-cluster
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: audityzer-mcp
     ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
-    restart: unless-stopped
-    profiles:
-      - full
-
-  # Optional Kibana for visualization
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.14.0
-    container_name: kibana
+      - "8080:8080"
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
+      - NODE_ENV=production
+      - MCP_PORT=8080
+      - AUDITYZER_URL=http://audityzer:5000
+    networks:
+      - audityzer-network
     depends_on:
-      - elasticsearch
+      - audityzer
     restart: unless-stopped
-    profiles:
-      - full
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: audityzer-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - audityzer-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  nginx:
+    image: nginx:alpine
+    container_name: audityzer-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - audityzer-network
+    depends_on:
+      - audityzer
+      - mcp-server
+    restart: unless-stopped
 
 volumes:
-  elasticsearch-data:
-    driver: local 
+  audityzer-data:
+  redis-data:
+
+networks:
+  audityzer-network:
+    driver: bridge
