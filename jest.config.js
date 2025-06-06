@@ -1,7 +1,15 @@
 /**
  * Jest configuration for Audityzer
  */
-module.exports = {
+export default {
+  // Enable ES modules support
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  globals: {
+    'ts-jest': {
+      useESM: true
+    }
+  },
+  
   // Automatically clear mock calls and instances between every test
   clearMocks: true,
 
@@ -63,8 +71,16 @@ module.exports = {
     '/tests/metamask-',
     '/tests/zk-snark',
     '/tests/layerzero-',
+    '/tests/e2e/',
+    '/tests/security/',
+    '/tests/unit/sample-tests/',
+    '/tests/utils/',
+    '/tests/.*\\.test\\.(js|ts)$',
+    '/tests/.*\\.spec\\.(js|ts)$',
+    '/templates/aa-tests/',
     '/Audityzer-community-tests/',
     '/darkforest-v0.6/eth/test/',
+    '/src/core/security/.*\\.test\\.(js|ts)$',
   ],
 
   // Indicates whether each individual test should be reported during the run

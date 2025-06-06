@@ -1,55 +1,69 @@
-FROM node:18-slim
 
-# Install basic dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    lsof \
-    && rm -rf /var/lib/apt/lists/*
+# Multi-stage build for Audityzer
+FROM node:20-alpine AS builder
 
-# Install Playwright dependencies
-RUN apt-get update && apt-get install -y \
-    libwoff1 \
-    libopus0 \
-    libwebp6 \
-    libwebpdemux2 \
-    libenchant1c2a \
-    libgudev-1.0-0 \
-    libsecret-1-0 \
-    libhyphen0 \
-    libgdk-pixbuf2.0-0 \
-    libegl1 \
-    libnotify4 \
-    libxslt1.1 \
-    libevent-2.1-7 \
-    libgles2 \
-    libvpx6 \
-    libxcomposite1 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libepoxy0 \
-    libgtk-3-0 \
-    libharfbuzz-icu0 \
-    libxshmfence1 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create app directory
+# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+COPY tsconfig.json ./
 
-# Install dependencies with legacy peer deps to handle conflicts
-RUN npm install --legacy-peer-deps
+# Install dependencies
+RUN npm ci --only=production
 
-# Install Playwright browsers
-RUN npx playwright install chromium
+# Copy source code
+COPY src/ ./src/
+COPY bin/ ./bin/
+COPY templates/ ./templates/
+COPY lib/ ./lib/
 
-# Copy app source
-COPY . .
+# Build the application
+RUN npm run build
 
-# Expose the port the app runs on
+# Production stage
+FROM node:20-alpine AS production
+
+# Install security updates
+RUN apk update && apk upgrade && apk add --no-cache \
+    dumb-init \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user
+RUN addgroup -g 1001 -S audityzer && \
+    adduser -S audityzer -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application from builder stage
+COPY --from=builder --chown=audityzer:audityzer /app/node_modules ./node_modules
+COPY --from=builder --chown=audityzer:audityzer /app/dist ./dist
+COPY --from=builder --chown=audityzer:audityzer /app/bin ./bin
+COPY --from=builder --chown=audityzer:audityzer /app/package*.json ./
+
+# Copy additional runtime files
+COPY --chown=audityzer:audityzer templates/ ./templates/
+COPY --chown=audityzer:audityzer lib/ ./lib/
+COPY --chown=audityzer:audityzer scripts/healthcheck.sh ./scripts/
+COPY --chown=audityzer:audityzer scripts/start.sh ./scripts/
+
+# Make scripts executable
+RUN chmod +x ./scripts/*.sh
+
+# Switch to non-root user
+USER audityzer
+
+# Expose port
 EXPOSE 5000
 
-# Start command with development server
-CMD ["npm", "run", "dev:serve", "--", "--host", "0.0.0.0"] 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD ./scripts/healthcheck.sh
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["./scripts/start.sh"]
