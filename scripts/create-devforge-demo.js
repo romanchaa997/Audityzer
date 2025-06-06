@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * DevForge Demo Generator
+ * Audityzer Demo Generator
  * 
- * This script automates the creation of a demo GIF for DevForge
+ * This script automates the creation of a demo GIF for Audityzer
  * using Puppeteer to capture browser interactions.
  */
 
@@ -16,7 +16,7 @@ const exec = util.promisify(childProcess.exec);
 
 // Configure demo settings
 const outputDir = path.join(__dirname, '..', 'assets', 'demo');
-const outputFile = path.join(outputDir, 'devforge-demo.gif');
+const outputFile = path.join(outputDir, 'audityzer-demo.gif');
 const frameDir = path.join(outputDir, 'frames');
 
 // Ensure directories exist
@@ -25,7 +25,7 @@ if (!fs.existsSync(frameDir)) fs.mkdirSync(frameDir, { recursive: true });
 
 // Demo steps
 async function createDemo() {
-  console.log('Starting DevForge demo creation...');
+  console.log('Starting Audityzer demo creation...');
   
   // Step 1: Launch browser
   const browser = await puppeteer.launch({
@@ -45,7 +45,7 @@ async function createDemo() {
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>DevForge Demo</title>
+      <title>Audityzer Demo</title>
       <style>
         body {
           margin: 0;
@@ -139,10 +139,10 @@ async function createDemo() {
             <div class="dot yellow"></div>
             <div class="dot green"></div>
           </div>
-          <div class="title">Terminal - DevForge Demo</div>
+          <div class="title">Terminal - Audityzer Demo</div>
         </div>
         <div class="output" id="output">
-          <span class="prompt">user@devforge:~$</span> <span class="cursor" id="cursor"></span>
+          <span class="prompt">user@audityzer:~$</span> <span class="cursor" id="cursor"></span>
         </div>
       </div>
       <script>
@@ -151,19 +151,19 @@ async function createDemo() {
         
         // Animation steps
         const steps = [
-          { action: 'type', text: 'devforge start', delay: 1000 },
+          { action: 'type', text: 'audityzer start', delay: 1000 },
           { action: 'enter', delay: 500 },
           { action: 'response', text: '\\nFinding available port starting from 5050...\\nServer started with PID: 10324 on port 5050\\nHealth endpoint available at: http://localhost:5051/health\\n\\n--- SERVER INFO ---\\nStatus: Running\\nUptime: 0.5s\\nMemory: 24.8MB\\nOS: Windows\\nNode: v16.14.0\\n', delay: 2000 },
           { action: 'type', text: 'curl http://localhost:5051/health', delay: 1000 },
           { action: 'enter', delay: 500 },
           { action: 'response', text: '\\n{\\n  "status": "running",\\n  "uptime": 12.4,\\n  "pid": 10324,\\n  "port": 5050,\\n  "memory": "24.8MB",\\n  "os": "windows",\\n  "node": "v16.14.0",\\n  "timestamp": "2025-05-13T03:05:48.000Z"\\n}\\n', delay: 2000 },
-          { action: 'type', text: 'devforge status', delay: 1000 },
+          { action: 'type', text: 'audityzer status', delay: 1000 },
           { action: 'enter', delay: 500 },
           { action: 'response', text: '\\nStatus: Running\\nPID: 10324\\nPort: 5050\\nHealth endpoint: http://localhost:5051/health\\nStart time: 2025-05-13T03:05:48.000Z\\nUptime: 25.42 seconds\\n', delay: 2000 },
-          { action: 'type', text: 'devforge restart', delay: 1000 },
+          { action: 'type', text: 'audityzer restart', delay: 1000 },
           { action: 'enter', delay: 500 },
           { action: 'response', text: '\\nStopping server with PID 10324...\\nServer stopped successfully\\nFinding available port starting from 5050...\\nPort 5050 is already in use, trying 5052...\\nServer started with PID: 10428 on port 5052\\nHealth endpoint available at: http://localhost:5053/health\\n', delay: 1000 },
-          { action: 'type', text: 'devforge stop', delay: 1000 },
+          { action: 'type', text: 'audityzer stop', delay: 1000 },
           { action: 'enter', delay: 500 },
           { action: 'response', text: '\\nStopping server with PID 10428...\\nServer stopped successfully\\n', delay: 1000 }
         ];
@@ -212,7 +212,7 @@ async function createDemo() {
             
             // Add new prompt
             const newLine = document.createElement('div');
-            newLine.innerHTML = '<span class="prompt">user@devforge:~$</span> ';
+            newLine.innerHTML = '<span class="prompt">user@audityzer:~$</span> ';
             output.appendChild(newLine);
             newLine.appendChild(cursor);
             
