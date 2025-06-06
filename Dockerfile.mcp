@@ -1,0 +1,37 @@
+
+# MCP Server Dockerfile
+FROM node:20-alpine
+
+# Install dependencies
+RUN apk add --no-cache curl
+
+# Set working directory
+WORKDIR /app
+
+# Copy MCP server files
+COPY package*.json ./
+COPY src/mcp/ ./src/mcp/
+COPY scripts/mcp-server.js ./scripts/
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Create non-root user
+RUN addgroup -g 1001 -S mcp && \
+    adduser -S mcp -u 1001
+
+# Change ownership
+RUN chown -R mcp:mcp /app
+
+# Switch to non-root user
+USER mcp
+
+# Expose MCP port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Start MCP server
+CMD ["node", "scripts/mcp-server.js"]

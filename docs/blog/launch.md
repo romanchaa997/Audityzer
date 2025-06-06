@@ -1,19 +1,19 @@
 ---
-slug: devforge-launch
-title: 🚀 Introducing DevForge v1.0.0
+slug: audityzer-launch
+title: 🚀 Introducing Audityzer v1.0.0
 authors: YourName
 publish_date: 2025-05-13
 ---
 
-> DevForge is an intelligent development server built for modern Web3 security testing workflows. Today we are thrilled to release **v1.0.0**.
+> Audityzer is an intelligent development server built for modern Web3 security testing workflows. Today we are thrilled to release **v1.0.0**.
 
-## Why DevForge?
+## Why Audityzer?
 
-Traditional dev-servers make you babysit ports, SSL, and build steps. DevForge automates all of that and adds security-first instrumentation: smart port allocation, integrated Playwright & Lighthouse drivers, and first-class support for EVM tool-chains.
+Traditional dev-servers make you babysit ports, SSL, and build steps. Audityzer automates all of that and adds security-first instrumentation: smart port allocation, integrated Playwright & Lighthouse drivers, and first-class support for EVM tool-chains.
 
 ## Key Features
 
-- ⚡ **One-command start**: `npx devforge dev` starts a ready-to-hack environment.
+- ⚡ **One-command start**: `npx audityzer dev` starts a ready-to-hack environment.
 - 🛡️ **Security tests on save**: vulnerability suites run automatically.
 - 🌐 **Cross-platform**: works on Windows, macOS, Linux & Docker.
 - 📈 **Lighthouse CI**: built-in Lighthouse regression.
@@ -21,10 +21,10 @@ Traditional dev-servers make you babysit ports, SSL, and build steps. DevForge a
 ## Quickstart
 
 ```bash
-npm install --global devforge
+npm install --global audityzer
 
 # Launch demo project
-npx devforge dev
+npx audityzer dev
 ```
 
 ## What's next

@@ -1,0 +1,32 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: audityzer-service
+  namespace: audityzer
+  labels:
+    app: audityzer
+spec:
+  selector:
+    app: audityzer
+  ports:
+  - name: http
+    port: 5000
+    targetPort: 5000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audityzer-mcp-service
+  namespace: audityzer
+  labels:
+    app: audityzer-mcp
+spec:
+  selector:
+    app: audityzer-mcp
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP

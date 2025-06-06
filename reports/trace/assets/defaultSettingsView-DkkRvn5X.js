@@ -12055,7 +12055,7 @@ const mm = [
   aS = new RegExp(`^(~~)${oa}\\1`),
   cS = /^\\([^0-9A-Za-z\s])/,
   vu = /\\([^0-9A-Za-z\s])/g,
-  uS = /^([\s\S](?:(?!  |[0-9]\.)[^*_~\-\n<`\\\[!])*)/,
+  uS = /^([\s\S](?:(?! {2}|[0-9]\.)[^*_~\-\n<`\\\[!])*)/,
   fS = /^\n+/,
   dS = /^([ \t]*)/,
   hS = /\\([^\\])/g,
@@ -12155,7 +12155,7 @@ const wS = new RegExp(
   ),
   xS = /^!\[(.*?)\]\( *((?:\([^)]*\)|[^() ])*) *"?([^)"]*)?"?\)/,
   ty = [Fg, zg, Bg, Ug, Hg, qg, Wg, Zg, ey],
-  SS = [...ty, /^[^\n]+(?:  \n|\n{2,})/, Gu, Vg, Xu];
+  SS = [...ty, /^[^\n]+(?: {2}\n|\n{2,})/, Gu, Vg, Xu];
 function Gi(t) {
   let e = t.length;
   for (; e > 0 && t[e - 1] <= ' '; ) e--;
@@ -13611,7 +13611,7 @@ const Ju = {
           km[h] = !0;
           const y = h.endsWith('.css'),
             v = y ? '[rel="stylesheet"]' : '';
-          if (!!s)
+          if (s)
             for (let S = c.length - 1; S >= 0; S--) {
               const _ = c[S];
               if (_.href === h && (!y || _.rel === 'stylesheet')) return;
@@ -19515,13 +19515,13 @@ class rv {
   _createHasEngine() {
     return {
       queryAll: (n, s) =>
-        n.nodeType !== 1 ? [] : !!this.querySelector(s.parsed, n, !1) ? [n] : [],
+        n.nodeType !== 1 ? [] : this.querySelector(s.parsed, n, !1) ? [n] : [],
     };
   }
   _createHasNotEngine() {
     return {
       queryAll: (n, s) =>
-        n.nodeType !== 1 ? [] : !!this.querySelector(s.parsed, n, !1) ? [] : [n],
+        n.nodeType !== 1 ? [] : this.querySelector(s.parsed, n, !1) ? [] : [n],
     };
   }
   _createVisibleEngine() {

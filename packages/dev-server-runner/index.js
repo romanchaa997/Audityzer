@@ -1,5 +1,5 @@
 /**
- * DevForge
+ * Audityzer
  * Intelligent development server with auto port management for Web3 security testing, process tracking,
  * and health monitoring capabilities.
  */

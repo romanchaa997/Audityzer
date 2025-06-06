@@ -1,16 +1,16 @@
-# DevForge
+# Audityzer
 
-[![npm version](https://img.shields.io/npm/v/devforge.svg)](https://www.npmjs.com/package/devforge)
+[![npm version](https://img.shields.io/npm/v/audityzer.svg)](https://www.npmjs.com/package/audityzer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 <p align="center">
-  <img src="https://github.com/YourUser/devforge/raw/main/assets/img/devforge-logo.png" width="300" alt="DevForge Logo">
+  <img src="https://github.com/YourUser/audityzer/raw/main/assets/img/audityzer-logo.png" width="300" alt="Audityzer Logo">
 </p>
 
 **Intelligent development server for Web3 security testing**
 
-DevForge is a powerful development server manager built specifically for Web3 security testing environments. It automatically resolves port conflicts, provides health monitoring endpoints, and delivers robust process management across all platforms.
+Audityzer is a powerful development server manager built specifically for Web3 security testing environments. It automatically resolves port conflicts, provides health monitoring endpoints, and delivers robust process management across all platforms.
 
 ## Features
 
@@ -24,42 +24,42 @@ DevForge is a powerful development server manager built specifically for Web3 se
 ## Installation
 
 ```bash
-npm install -g devforge
+npm install -g audityzer
 ```
 
 Or add to your project:
 
 ```bash
-npm install devforge --save-dev
+npm install audityzer --save-dev
 ```
 
 ## Quick Start
 
 ```bash
 # Start a development server on the default port (5050)
-devforge start
+audityzer start
 
 # Start with a specific port (will find next available if occupied)
-devforge start -p 3000
+audityzer start -p 3000
 
 # Start with a custom directory to serve
-devforge start -d ./public
+audityzer start -d ./public
 
 # Check server status
-devforge status
+audityzer status
 
 # Restart the server
-devforge restart
+audityzer restart
 
 # Stop the server
-devforge stop
+audityzer stop
 ```
 
 ## Command Options
 
 ### Start Command
 ```bash
-devforge start [options]
+audityzer start [options]
 ```
 
 Options:
@@ -70,23 +70,23 @@ Options:
 
 ### Restart Command
 ```bash
-devforge restart [options]
+audityzer restart [options]
 ```
 Supports all the same options as start.
 
 ### Stop Command
 ```bash
-devforge stop
+audityzer stop
 ```
 
 ### Status Command
 ```bash
-devforge status
+audityzer status
 ```
 
 ## Health Endpoint
 
-DevForge creates a health endpoint at `http://localhost:<port+1>/health` that returns server metadata in JSON format:
+Audityzer creates a health endpoint at `http://localhost:<port+1>/health` that returns server metadata in JSON format:
 
 ```json
 {
@@ -103,13 +103,13 @@ DevForge creates a health endpoint at `http://localhost:<port+1>/health` that re
 
 ## API Usage
 
-You can also use DevForge programmatically in your Node.js applications:
+You can also use Audityzer programmatically in your Node.js applications:
 
 ```javascript
-const devforge = require('devforge');
+const audityzer = require('audityzer');
 
 // Start a server
-devforge.start({
+audityzer.start({
   port: 5050,
   directory: './public',
   configPath: './config.json',
@@ -117,16 +117,16 @@ devforge.start({
 });
 
 // Get server status
-const status = devforge.getStatus();
+const status = audityzer.getStatus();
 console.log(status);
 
 // Stop server
-devforge.stop();
+audityzer.stop();
 ```
 
 ## Environment Variables
 
-DevForge respects the following environment variables:
+Audityzer respects the following environment variables:
 
 - `SERVER_PORT`: Default port to use (falls back to 5050)
 - `PUBLIC_DIR`: Directory to serve (falls back to './public')
@@ -138,7 +138,7 @@ DevForge respects the following environment variables:
 ### Web3 Security Testing
 ```bash
 # Start server for DApp testing
-devforge start -p 8545
+audityzer start -p 8545
 
 # Run security tests against server
 npm run test:security
@@ -146,14 +146,14 @@ npm run test:security
 
 ### CI/CD Pipeline Integration
 ```yaml
-- name: Start DevForge Server
-  run: npx devforge start -p 5000
+- name: Start Audityzer Server
+  run: npx audityzer start -p 5000
   
 - name: Run Tests
   run: npm test
   
-- name: Stop DevForge Server
-  run: npx devforge stop
+- name: Stop Audityzer Server
+  run: npx audityzer stop
 ```
 
 ## Contributing
