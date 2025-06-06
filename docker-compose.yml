@@ -2,86 +2,240 @@
 version: '3.8'
 
 services:
-  audityzer:
+  # Main Audityzer Application
+  audityzer-app:
     build:
       context: .
       dockerfile: Dockerfile
       target: production
     container_name: audityzer-app
+    restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "3000:3000"
     environment:
       - NODE_ENV=production
-      - PORT=5000
-      - LOG_LEVEL=info
-    volumes:
-      - ./config:/app/config:ro
-      - ./reports:/app/reports
-      - audityzer-data:/app/data
+      - DATABASE_URL=postgresql://audityzer:${DB_PASSWORD}@postgres:5432/audityzer
+      - REDIS_URL=redis://redis:6379
+      - MCP_SERVER_URL=http://mcp-server:8080
+      - JWT_SECRET=${JWT_SECRET}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
+    depends_on:
+      - postgres
+      - redis
+      - mcp-server
     networks:
       - audityzer-network
-    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
     healthcheck:
-      test: ["CMD", "./scripts/healthcheck.sh"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
 
+  # MCP Server for AI Integration
   mcp-server:
     build:
       context: .
       dockerfile: Dockerfile.mcp
     container_name: audityzer-mcp
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
       - NODE_ENV=production
-      - MCP_PORT=8080
-      - AUDITYZER_URL=http://audityzer:5000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DATABASE_URL=postgresql://audityzer:${DB_PASSWORD}@postgres:5432/audityzer
+    depends_on:
+      - postgres
     networks:
       - audityzer-network
-    depends_on:
-      - audityzer
-    restart: unless-stopped
+    volumes:
+      - ./ai-models:/app/models
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
 
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: audityzer-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=audityzer
+      - POSTGRES_USER=audityzer
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - audityzer-network
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U audityzer -d audityzer"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: audityzer-redis
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
-      - redis-data:/data
+      - redis_data:/data
     networks:
       - audityzer-network
-    restart: unless-stopped
-    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
+  # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
     container_name: audityzer-nginx
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - audityzer-app
+    networks:
+      - audityzer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: audityzer-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - audityzer-network
+
+  # Grafana for Visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: audityzer-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - audityzer-network
+
+  # Node Exporter for System Metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: audityzer-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - audityzer-network
+
+  # Community Bot
+  community-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    container_name: audityzer-community-bot
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DISCORD_GUILD_ID=${DISCORD_GUILD_ID}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
+    volumes:
+      - ./logs:/app/logs
     networks:
       - audityzer-network
     depends_on:
-      - audityzer
-      - mcp-server
-    restart: unless-stopped
+      - audityzer-app
 
-volumes:
-  audityzer-data:
-  redis-data:
+  # Growth Tracker (Scheduled Job)
+  growth-tracker:
+    build:
+      context: .
+      dockerfile: Dockerfile.tracker
+    container_name: audityzer-growth-tracker
+    restart: unless-stopped
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - ANALYTICS_KEY=${ANALYTICS_KEY}
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
+      - DATABASE_URL=postgresql://audityzer:${DB_PASSWORD}@postgres:5432/audityzer
+    volumes:
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+    networks:
+      - audityzer-network
+    depends_on:
+      - postgres
 
 networks:
   audityzer-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local

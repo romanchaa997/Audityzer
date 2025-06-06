@@ -1,5 +1,4 @@
 
-#!/usr/bin/env node
 /**
  * Build Script for Audityzer
  * Handles compilation and bundling of the application
