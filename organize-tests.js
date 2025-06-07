@@ -1,5 +1,6 @@
-const fs = require('fs');
-const path = require('path');
+/* global describe, it, expect, beforeEach, afterEach, jest */
+import fs from 'fs';
+import path from 'path';
 
 // Create playwright-tests directory if it doesn't exist
 const playwrightDir = path.join(__dirname, 'playwright-tests');
@@ -34,37 +35,37 @@ dirsToSearch.forEach(dir => {
 function scanDir(dir) {
   try {
     const files = fs.readdirSync(dir);
-    
+
     files.forEach(file => {
       const fullPath = path.join(dir, file);
-      
+
       if (fs.statSync(fullPath).isDirectory()) {
         scanDir(fullPath);
         return;
       }
-      
+
       // Only check JS/TS files
       if (!(file.endsWith('.js') || file.endsWith('.ts'))) {
         return;
       }
-      
+
       try {
         const content = fs.readFileSync(fullPath, 'utf8');
-        
+
         // Check if file contains Playwright patterns
         if (playwrightPatterns.some(pattern => content.includes(pattern))) {
           // Create target directory with same structure
           const relativePath = path.relative(__dirname, dir);
           const targetDir = path.join(playwrightDir, relativePath);
-          
+
           if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
           }
-          
+
           // Copy file to new location
           const targetPath = path.join(targetDir, file);
           fs.copyFileSync(fullPath, targetPath);
-          
+
           console.log(`Copied Playwright test: ${fullPath} -> ${targetPath}`);
         }
       } catch (err) {

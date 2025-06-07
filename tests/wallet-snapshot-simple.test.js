@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Wallet State Snapshot Simple Test
 const { test, expect } = require('@playwright/test');
 const {

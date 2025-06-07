@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * MetaMask Fuzzer Browser Test
  *

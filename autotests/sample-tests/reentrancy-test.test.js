@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Reentrancy Test using Playwright with mocked Ethereum contract
 const { test, expect } = require('@playwright/test');
 

@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * Test case description: MetaMask permissions bypass vulnerability detection
  * Vulnerability/edge case: Tests if a dApp can obtain unauthorized permissions through various attack vectors

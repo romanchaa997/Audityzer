@@ -1,13 +1,42 @@
-import js from "@eslint/js";
-import globals from "globals";
-import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
-import { defineConfig } from "eslint/config";
+import globals from "globals";
+import eslintPluginTS from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
+import pluginReact from "eslint-plugin-react";
 
-
-export default defineConfig([
-  { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"], plugins: { js }, extends: ["js/recommended"] },
-  { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"], languageOptions: { globals: globals.browser } },
-  tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-]);
+export default [
+  {
+    ignores: ["dist/**"]
+  },
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: "module",
+        project: "./tsconfig.json",
+        tsconfigRootDir: __dirname,
+      },
+      globals: globals.node,
+    },
+    plugins: {
+      "@typescript-eslint": eslintPluginTS,
+    },
+    rules: {
+      "@typescript-eslint/no-unused-vars": "warn",
+    },
+  },
+  {
+    files: ["**/*.jsx", "**/*.tsx"],
+    plugins: {
+      react: pluginReact,
+    },
+    settings: {
+      react: { version: "detect" },
+    },
+    rules: {
+      "react/react-in-jsx-scope": "off",
+    },
+  },
+];

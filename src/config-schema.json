@@ -1,108 +1,109 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Audityzer Configuration",
-  "description": "Configuration schema for Audityzer testing framework",
   "type": "object",
+  "required": ["version"],
   "properties": {
-    "wallet": {
+    "version": {
       "type": "string",
-      "description": "Wallet provider to use",
-      "enum": ["metamask", "walletconnect", "rabby", "coinbase"]
+      "description": "Audityzer version"
     },
-    "provider": {
-      "type": "string",
-      "description": "Provider to use (alias for wallet)",
-      "enum": ["metamask", "walletconnect", "rabby", "coinbase"]
+    "testing": {
+      "type": "object",
+      "properties": {
+        "mockMode": {
+          "type": "boolean",
+          "description": "Whether to run tests in mock mode"
+        },
+        "defaultWallet": {
+          "type": "string",
+          "enum": ["metamask", "coinbase", "walletconnect", "phantom"],
+          "description": "Default wallet to use for testing"
+        },
+        "defaultChain": {
+          "type": "string",
+          "enum": ["ethereum", "polygon", "optimism", "arbitrum", "base", "solana"],
+          "description": "Default blockchain to use for testing"
+        }
+      }
     },
-    "dapp_url": {
-      "type": "string",
-      "description": "URL of the dApp to test"
+    "security": {
+      "type": "object",
+      "properties": {
+        "riskThreshold": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Risk threshold for security checks"
+        },
+        "enableFuzzing": {
+          "type": "boolean",
+          "description": "Whether to enable fuzzing during security tests"
+        },
+        "vulnerabilityTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "reentrancy",
+              "overflow",
+              "frontrunning",
+              "accessControl",
+              "oracleManipulation",
+              "flashloanAttack",
+              "uncheckedReturn",
+              "dos",
+              "gasOptimization",
+              "timestampDependence",
+              "weakRandomness",
+              "signatureReplay"
+            ]
+          },
+          "description": "Types of vulnerabilities to check for"
+        }
+      }
     },
-    "lang": {
-      "type": "string",
-      "description": "Language to use for generated tests",
-      "enum": ["js", "ts"]
+    "accountAbstraction": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether to enable account abstraction features"
+        },
+        "pimlicoMode": {
+          "type": "boolean",
+          "description": "Whether to use Pimlico for account abstraction"
+        },
+        "bundlerUrl": {
+          "type": "string",
+          "description": "URL of the bundler service"
+        },
+        "addons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["social-recovery", "session-keys", "gas-sponsoring", "batched-transactions"]
+          },
+          "description": "Account abstraction addons to enable"
+        }
+      }
     },
-    "address": {
-      "type": "string",
-      "description": "Wallet address to use"
-    },
-    "walletName": {
-      "type": "string",
-      "description": "Name of the wallet"
-    },
-    "recipient": {
-      "type": "string",
-      "description": "Recipient address for transactions"
-    },
-    "amount": {
-      "type": "string",
-      "description": "Amount for transactions"
-    },
-    "network": {
-      "type": "string",
-      "description": "Network to use"
-    },
-    "chain_id": {
-      "type": "string",
-      "description": "Chain ID"
-    },
-    "connect_button_selector": {
-      "type": "string",
-      "description": "CSS selector for the connect wallet button"
-    },
-    "wallet_info_selector": {
-      "type": "string",
-      "description": "CSS selector for wallet info"
-    },
-    "wallet_address_selector": {
-      "type": "string",
-      "description": "CSS selector for wallet address display"
-    },
-    "recipient_field_selector": {
-      "type": "string",
-      "description": "CSS selector for recipient field"
-    },
-    "amount_field_selector": {
-      "type": "string",
-      "description": "CSS selector for amount field"
-    },
-    "send_button_selector": {
-      "type": "string",
-      "description": "CSS selector for send button"
-    },
-    "tx_confirmation_selector": {
-      "type": "string",
-      "description": "CSS selector for transaction confirmation"
-    },
-    "tx_hash_selector": {
-      "type": "string",
-      "description": "CSS selector for transaction hash"
-    },
-    "sign_button_selector": {
-      "type": "string",
-      "description": "CSS selector for sign button"
-    },
-    "signature_confirmation_selector": {
-      "type": "string",
-      "description": "CSS selector for signature confirmation"
-    },
-    "signature_selector": {
-      "type": "string",
-      "description": "CSS selector for signature"
-    },
-    "out": {
-      "type": "string",
-      "description": "Output file path"
-    },
-    "fuzz": {
-      "type": "boolean",
-      "description": "Enable fuzzing"
-    },
-    "lint": {
-      "type": "boolean",
-      "description": "Enable linting"
+    "reporting": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": ["html", "json", "md", "sarif"],
+          "description": "Report format"
+        },
+        "outputDir": {
+          "type": "string",
+          "description": "Directory to output reports to"
+        },
+        "uploadToDashboard": {
+          "type": "boolean",
+          "description": "Whether to upload reports to the dashboard"
+        }
+      }
     }
-  },
-  "additionalProperties": true
+  }
 }

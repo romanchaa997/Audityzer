@@ -1,72 +1,81 @@
 /**
- * Jest configuration for Audityzer
+ * Jest configuration for Audityzer tests
+ * Fixed configuration to avoid preset conflicts
  */
-module.exports = {
-  // Automatically clear mock calls and instances between every test
-  clearMocks: true,
 
-  // Indicates whether the coverage information should be collected while executing the test
-  collectCoverage: true,
-
-  // The directory where Jest should output its coverage files
-  coverageDirectory: 'coverage',
-
-  // Coverage reporters to use
-  coverageReporters: ['json', 'lcov', 'text', 'clover'],
-
-  // Directories to exclude from coverage collection
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
-    '/build/',
-    '/examples/',
-    '/docs/',
-    '/docs-site/',
-    '/test-results/',
-    '/tests/utils/',
-  ],
-
-  // A list of reporter names that Jest uses when writing coverage reports
-  reporters: [
-    'default',
-    [
-      'jest-junit',
-      {
-        outputDirectory: './test-results',
-        outputName: 'junit.xml',
-      },
-    ],
-  ],
-
-  // The test environment that will be used for testing
+const config = {
+  // Test environment
   testEnvironment: 'node',
 
-  // A preset that is used as a base for Jest's configuration
-  preset: 'ts-jest',
+  // Test file patterns
+  testMatch: [
+    '**/test/**/*.test.js',
+    '**/tests/**/*.test.js',
+    '**/__tests__/**/*.js',
+    '**/?(*.)+(spec|test).js'
+  ],
 
-  // The pattern or patterns Jest uses to detect test files
-  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
-
-  // IMPORTANT: Exclude Playwright tests from Jest runs
+  // Ignore patterns
   testPathIgnorePatterns: [
     '/node_modules/',
     '/dist/',
     '/build/',
-    '/examples/',
-    '/autotests/',
-    '/playwright-tests/',
-    '/tests/wallet-',
-    '/tests/connection',
-    '/tests/transaction',
-    '/tests/custom',
-    '/tests/test.js',
-    '/tests/metamask-',
-    '/tests/zk-snark',
-    '/tests/layerzero-',
-    '/Audityzer-community-tests/',
-    '/darkforest-v0.6/eth/test/',
+    '/coverage/'
   ],
 
-  // Indicates whether each individual test should be reported during the run
+  // Coverage settings
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageProvider: 'v8',
+
+  // Coverage collection patterns
+  collectCoverageFrom: [
+    'src/**/*.js',
+    '!src/**/*.test.js',
+    '!src/**/*.spec.js'
+  ],
+
+  // Transform settings - using babel-jest as transformer, not preset
+  transform: {
+    '\\.[jt]sx?$': 'babel-jest'
+  },
+
+  // Module file extensions
+  moduleFileExtensions: ['js', 'json'],
+
+  // Verbose output
   verbose: true,
+
+  // Root directories
+  roots: ['<rootDir>/test', '<rootDir>/tests', '<rootDir>/src'],
+
+  // Coverage thresholds
+  coverageThreshold: {
+    global: {
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50
+    }
+  },
+
+  // Clear mocks between tests
+  clearMocks: true,
+
+  // Automatically restore mock state between every test
+  restoreMocks: true,
+
+  // Test timeout (30 seconds for AI operations)
+  testTimeout: 30000,
+
+  // Setup files
+  setupFilesAfterEnv: [],
+
+  // Handle ES modules and CommonJS
+  extensionsToTreatAsEsm: [],
+
+  // Error handling
+  errorOnDeprecated: false
 };
+
+module.exports = config;

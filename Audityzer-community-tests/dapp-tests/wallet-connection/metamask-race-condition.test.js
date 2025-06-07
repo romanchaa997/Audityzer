@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * Test case description: MetaMask connection race condition vulnerability
  * Vulnerability/edge case: Race condition in wallet connection flow that can lead to approval bypassing

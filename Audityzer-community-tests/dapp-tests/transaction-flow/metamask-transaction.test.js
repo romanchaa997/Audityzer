@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * MetaMask Transaction Flow Tests
  * Tests the transaction approval and rejection flow with MetaMask

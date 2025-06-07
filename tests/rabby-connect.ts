@@ -1,6 +1,6 @@
 // Rabby connection test with TypeScript (currently uses MetaMask under the hood)
 import { test, expect, type Page, type Browser } from '@playwright/test';
-import { EthereumProvider } from '../utils/types';
+import { EthereumProvider } from '../utils/types.js';
 
 // Test configuration
 // eslint-disable-next-line no-unused-vars

@@ -7,7 +7,7 @@ import {
   switchNetwork,
   disconnectWallet,
   sendTransaction,
-} from './utils/walletMock';
+} from './utils/walletMock.js';
 
 test.describe('Wallet connection tests', () => {
   test.beforeEach(async ({ page }) => {

@@ -17,10 +17,19 @@
  * @version 1.0.0
  */
 
-const { program } = require('commander');
-const path = require('path');
-const fs = require('fs');
+import { program } from 'commander';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+
+// Create require function for importing JSON
+const require = createRequire(import.meta.url);
 const { version } = require('../package.json');
+
+// Get the directory name in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Helper to resolve the scripts directory
 const scriptsDir = path.join(__dirname, '..', 'scripts');
@@ -44,9 +53,9 @@ program
     if (options.dir) process.env.PUBLIC_DIR = options.dir;
     if (options.logLevel) process.env.LOG_LEVEL = options.logLevel;
     if (options.config) process.env.CONFIG_PATH = options.config;
-    
+
     // Execute start script
-    require(path.join(scriptsDir, 'start-server.js'));
+    import(path.join(scriptsDir, 'start-server.js'));
   });
 
 // Stop command
@@ -54,7 +63,7 @@ program
   .command('stop')
   .description('Stop the running development server')
   .action(() => {
-    require(path.join(scriptsDir, 'stop-server.js'));
+    import(path.join(scriptsDir, 'stop-server.js'));
   });
 
 // Status command
@@ -63,7 +72,7 @@ program
   .description('Check development server status')
   .action(() => {
     const pidFile = path.join(__dirname, '..', '.server-pid');
-    
+
     try {
       if (fs.existsSync(pidFile)) {
         try {
@@ -72,11 +81,11 @@ program
           const port = data.port;
           const startTime = data.startTime;
           const uptime = (Date.now() - startTime) / 1000; // seconds
-          
+
           console.log('Status: Running');
           console.log(`PID: ${pid}`);
           console.log(`Port: ${port}`);
-          console.log(`Health endpoint: http://localhost:${parseInt(port)+1}/health`);
+          console.log(`Health endpoint: http://localhost:${parseInt(port) + 1}/health`);
           console.log(`Start time: ${new Date(startTime).toISOString()}`);
           console.log(`Uptime: ${uptime.toFixed(2)} seconds`);
         } catch (err) {
@@ -109,16 +118,84 @@ program
     if (options.dir) process.env.PUBLIC_DIR = options.dir;
     if (options.logLevel) process.env.LOG_LEVEL = options.logLevel;
     if (options.config) process.env.CONFIG_PATH = options.config;
-    
+
     // Stop any running server first
-    require(path.join(scriptsDir, 'stop-server.js'));
-    
-    // Small delay to ensure port is released
-    setTimeout(() => {
-      // Start new server
-      require(path.join(scriptsDir, 'start-server.js'));
-    }, 1000);
+    import(path.join(scriptsDir, 'stop-server.js'))
+      .then(() => {
+        // Small delay to ensure port is released
+        setTimeout(() => {
+          // Start new server
+          import(path.join(scriptsDir, 'start-server.js'));
+        }, 1000);
+      });
   });
+
+// Export functions for programmatic use
+export default {
+  start: (options) => {
+    // Set environment variables
+    if (options?.port) process.env.SERVER_PORT = options.port;
+    if (options?.dir) process.env.PUBLIC_DIR = options.dir;
+    if (options?.logLevel) process.env.LOG_LEVEL = options.logLevel;
+    if (options?.config) process.env.CONFIG_PATH = options.config;
+
+    // Execute start script
+    import(path.join(scriptsDir, 'start-server.js'));
+  },
+  stop: () => {
+    import(path.join(scriptsDir, 'stop-server.js'));
+  },
+  restart: (options) => {
+    // Set environment variables
+    if (options?.port) process.env.SERVER_PORT = options.port;
+    if (options?.dir) process.env.PUBLIC_DIR = options.dir;
+    if (options?.logLevel) process.env.LOG_LEVEL = options.logLevel;
+    if (options?.config) process.env.CONFIG_PATH = options.config;
+
+    // Stop any running server first
+    import(path.join(scriptsDir, 'stop-server.js'))
+      .then(() => {
+        // Small delay to ensure port is released
+        setTimeout(() => {
+          // Start new server
+          import(path.join(scriptsDir, 'start-server.js'));
+        }, 1000);
+      });
+  },
+  status: () => {
+    const pidFile = path.join(__dirname, '..', '.server-pid');
+
+    try {
+      if (fs.existsSync(pidFile)) {
+        try {
+          const data = JSON.parse(fs.readFileSync(pidFile, 'utf8').trim());
+          const pid = data.pid;
+          const port = data.port;
+          const startTime = data.startTime;
+          const uptime = (Date.now() - startTime) / 1000; // seconds
+
+          console.log('Status: Running');
+          console.log(`PID: ${pid}`);
+          console.log(`Port: ${port}`);
+          console.log(`Health endpoint: http://localhost:${parseInt(port) + 1}/health`);
+          console.log(`Start time: ${new Date(startTime).toISOString()}`);
+          console.log(`Uptime: ${uptime.toFixed(2)} seconds`);
+        } catch (err) {
+          // Handle old format or corrupted file
+          const pid = fs.readFileSync(pidFile, 'utf8').trim();
+          console.log('Status: Running (legacy format)');
+          console.log(`PID: ${pid}`);
+          console.log('Note: Server is running with an older version of the runner');
+        }
+      } else {
+        console.log('Status: Not running');
+      }
+    } catch (err) {
+      console.error('Error checking server status:', err.message);
+      process.exit(1);
+    }
+  }
+};
 
 // Parse args
 program.parse(process.argv);

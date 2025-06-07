@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * Test case description: Transaction parameter fuzzing for Web3 applications
  * Vulnerability/edge case: Manipulating transaction parameters to exploit edge cases

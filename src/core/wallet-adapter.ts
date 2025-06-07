@@ -5,8 +5,8 @@
  * wallet providers (MetaMask, WalletConnect, Coinbase Wallet) using a common API.
  */
 
-import { MetaMaskAdapter } from './adapters/metamask-adapter';
-import { WalletAdapter, WalletAdapterOptions } from '../types/provider';
+import { MetaMaskAdapter } from './adapters/metamask-adapter.js';
+import { WalletAdapter, WalletAdapterOptions } from '../types/provider.js';
 
 // We'll implement these adapters separately
 // Placeholder imports for future implementation

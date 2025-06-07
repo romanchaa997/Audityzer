@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * MetaMask Extension Security Test Suite
  * This automated test suite analyzes the MetaMask browser extension for security vulnerabilities.

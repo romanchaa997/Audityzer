@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Uniswap dApp Security Test Suite using Audityzer
 const { test, expect } = require('@playwright/test');
 

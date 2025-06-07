@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Coinbase Wallet transaction test
 const { test, expect } = require('@playwright/test');
 

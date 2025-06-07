@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
 

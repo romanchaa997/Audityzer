@@ -149,7 +149,7 @@ jobs:
 
       # Upload security report as artifact
       - name: Upload Security Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: security-report
           path: |

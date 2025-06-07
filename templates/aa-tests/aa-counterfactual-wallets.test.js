@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * ERC-4337 Counterfactual Wallet Tests
  * Tests for create2-based counterfactual wallet deployments

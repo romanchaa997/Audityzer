@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * LayerZero Cross-Chain Fuzz Test Suite
  *

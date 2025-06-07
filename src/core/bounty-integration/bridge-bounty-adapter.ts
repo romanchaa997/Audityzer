@@ -8,7 +8,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { LayerZeroTestHarness } from '../bridge-testing/layerzero-test-harness';
+import { LayerZeroTestHarness } from '../bridge-testing/layerzero-test-harness.js';
 
 /**
  * Interface for a vulnerability report from a bounty platform

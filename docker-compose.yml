@@ -1,63 +1,18 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  audityzer:
+  backend:
     build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: audityzer
+      context: ./backend
     ports:
-      - "5000:5000"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - MOCK_MODE=true
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+      - "3001:3001"
     restart: unless-stopped
+    env_file:
+      - .env
 
-  # Optional ElasticSearch for report storage and full-text search
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
-    container_name: elasticsearch
-    environment:
-      - node.name=elasticsearch
-      - cluster.name=web3-security-es-cluster
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+  frontend:
+    build:
+      context: ./frontend
     ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+      - "80:80"
     restart: unless-stopped
-    profiles:
-      - full
-
-  # Optional Kibana for visualization
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.14.0
-    container_name: kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-    restart: unless-stopped
-    profiles:
-      - full
-
-volumes:
-  elasticsearch-data:
-    driver: local 

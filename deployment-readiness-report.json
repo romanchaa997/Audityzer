@@ -1,0 +1,142 @@
+{
+  "timestamp": "2025-06-06T17:05:34.703Z",
+  "score": 21,
+  "maxScore": 23,
+  "percentage": 91,
+  "grade": "A+",
+  "checks": {
+    "environment": [
+      {
+        "name": "Node.js Version",
+        "pass": true,
+        "details": "v20.19.1"
+      },
+      {
+        "name": "npm Version",
+        "pass": true,
+        "details": "11.4.1"
+      },
+      {
+        "name": "Dependencies Installed",
+        "pass": true,
+        "details": "Installed"
+      },
+      {
+        "name": "Package.json Valid",
+        "pass": true,
+        "details": "audityzer-mcp@1.0.0"
+      }
+    ],
+    "security": [
+      {
+        "name": "Environment Variables",
+        "pass": true,
+        "details": "Template available"
+      },
+      {
+        "name": "Security Dependencies",
+        "pass": true,
+        "details": "3/3 security deps"
+      },
+      {
+        "name": "Input Validation",
+        "pass": true,
+        "details": "Validation middleware exists"
+      },
+      {
+        "name": "Error Handling",
+        "pass": true,
+        "details": "Error handler exists"
+      }
+    ],
+    "performance": [
+      {
+        "name": "Memory Usage",
+        "pass": true,
+        "details": "5MB heap used"
+      },
+      {
+        "name": "Compression Middleware",
+        "pass": true,
+        "details": "Compression available"
+      },
+      {
+        "name": "Caching Strategy",
+        "pass": false,
+        "details": "No caching found"
+      }
+    ],
+    "documentation": [
+      {
+        "name": "README.md",
+        "pass": true,
+        "details": "12820 chars, install: true, usage: true"
+      },
+      {
+        "name": "API Documentation",
+        "pass": true,
+        "details": "API docs available"
+      },
+      {
+        "name": "Examples",
+        "pass": true,
+        "details": "Examples available"
+      },
+      {
+        "name": "Contributing Guide",
+        "pass": true,
+        "details": "Contributing guide exists"
+      }
+    ],
+    "configuration": [
+      {
+        "name": "Docker Configuration",
+        "pass": true,
+        "details": "Dockerfile: true, Compose: true"
+      },
+      {
+        "name": "Production Config",
+        "pass": true,
+        "details": "Prod env: true, Prod compose: true"
+      },
+      {
+        "name": "Server Configuration",
+        "pass": true,
+        "details": "Server config exists"
+      },
+      {
+        "name": "Build Scripts",
+        "pass": true,
+        "details": "Build/start scripts available"
+      }
+    ],
+    "testing": [
+      {
+        "name": "Test Framework",
+        "pass": true,
+        "details": "Jest ^29.7.0"
+      },
+      {
+        "name": "Test Coverage",
+        "pass": false,
+        "details": "Tests failing"
+      },
+      {
+        "name": "AI Component Tests",
+        "pass": true,
+        "details": "AI tests available"
+      },
+      {
+        "name": "Integration Tests",
+        "pass": true,
+        "details": "Integration tests exist"
+      }
+    ]
+  },
+  "recommendations": [
+    "Set up production monitoring",
+    "Configure automated backups",
+    "Implement CI/CD pipeline",
+    "Set up error tracking"
+  ]
+}

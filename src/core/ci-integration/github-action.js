@@ -8,7 +8,15 @@
 const fs = require('fs-extra');
 const path = require('path');
 const yaml = require('js-yaml');
-const chalk = require('chalk');
+// Simple console colors fallback (chalk v5+ is ES module only)
+const chalk = {
+  blue: (text) => `\x1b[34m${text}\x1b[0m`,
+  green: (text) => `\x1b[32m${text}\x1b[0m`,
+  red: (text) => `\x1b[31m${text}\x1b[0m`,
+  yellow: (text) => `\x1b[33m${text}\x1b[0m`,
+  gray: (text) => `\x1b[90m${text}\x1b[0m`,
+  cyan: (text) => `\x1b[36m${text}\x1b[0m`
+};
 
 class GitHubActionIntegration {
   /**
@@ -127,7 +135,7 @@ class GitHubActionIntegration {
               },
               {
                 name: 'Archive security reports',
-                uses: 'actions/upload-artifact@v3',
+                uses: 'actions/upload-artifact@v3.1.3',
                 with: {
                   name: 'security-reports',
                   path: ['reports/', 'test-results/security/'].join('\n'),
@@ -168,7 +176,7 @@ class GitHubActionIntegration {
             },
             {
               name: 'Archive deployment reports',
-              uses: 'actions/upload-artifact@v3',
+              uses: 'actions/upload-artifact@v3.1.3',
               with: {
                 name: 'deployment-reports',
                 path: 'test-results/deployment/',
@@ -222,7 +230,7 @@ class GitHubActionIntegration {
             },
             {
               name: 'Archive bounty submissions',
-              uses: 'actions/upload-artifact@v3',
+              uses: 'actions/upload-artifact@v3.1.3',
               with: {
                 name: 'bounty-submissions',
                 path: ['test-results/bounty-submissions/', 'reports/bounty-*/'].join('\n'),
@@ -333,7 +341,7 @@ class GitHubActionIntegration {
               },
               {
                 name: 'Archive deployment reports',
-                uses: 'actions/upload-artifact@v3',
+                uses: 'actions/upload-artifact@v3.1.3',
                 with: {
                   name: 'deployment-reports',
                   path: 'test-results/deployment/',
@@ -509,7 +517,7 @@ class GitHubActionIntegration {
       // Add artifact upload step
       workflowConfig.jobs['bounty-package'].steps.push({
         name: 'Archive bounty submissions',
-        uses: 'actions/upload-artifact@v3',
+        uses: 'actions/upload-artifact@v3.1.3',
         with: {
           name: 'bounty-submissions',
           path: [
@@ -668,7 +676,7 @@ class GitHubActionIntegration {
               },
               {
                 name: 'Archive L2 validation results',
-                uses: 'actions/upload-artifact@v3',
+                uses: 'actions/upload-artifact@v3.1.3',
                 with: {
                   name: 'l2-validation-${{ matrix.l2_chain }}',
                   path: [
@@ -720,7 +728,7 @@ class GitHubActionIntegration {
             },
             {
               name: 'Archive performance test results',
-              uses: 'actions/upload-artifact@v3',
+              uses: 'actions/upload-artifact@v3.1.3',
               with: {
                 name: 'l2-performance-tests',
                 path: ['l2-performance-tests.json', 'test-results/l2-performance/**'].join('\n'),

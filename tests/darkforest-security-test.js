@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Dark Forest Game Security Test Suite using Audityzer
 const { test, expect } = require('@playwright/test');
 

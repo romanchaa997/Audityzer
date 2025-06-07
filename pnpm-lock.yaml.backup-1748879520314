@@ -1,0 +1,7 @@
+# REMOVED: This file was causing package manager conflicts
+# The project now uses npm exclusively as specified in package.json
+# Original content backed up in pnpm-lock.yaml.backup
+# To restore: rename pnpm-lock.yaml.backup to pnpm-lock.yaml
+
+# This file is intentionally minimal to prevent package manager conflicts
+# while preserving the filename for potential future use

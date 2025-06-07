@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Basic MetaMask Test
 // This test checks if MetaMask is installed and functional
 

@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 /**
  * Test case description: Reentrancy attack simulation for Web3 applications
  * Vulnerability: Smart contract reentrancy vulnerability detection

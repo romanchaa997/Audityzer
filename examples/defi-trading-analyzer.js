@@ -7,7 +7,15 @@
  * to check DeFi trading strategies for security vulnerabilities.
  */
 
-const chalk = require('chalk');
+// Simple console colors fallback (chalk v5+ is ES module only)
+const chalk = {
+  blue: (text) => `\x1b[34m${text}\x1b[0m`,
+  green: (text) => `\x1b[32m${text}\x1b[0m`,
+  red: (text) => `\x1b[31m${text}\x1b[0m`,
+  yellow: (text) => `\x1b[33m${text}\x1b[0m`,
+  gray: (text) => `\x1b[90m${text}\x1b[0m`,
+  cyan: (text) => `\x1b[36m${text}\x1b[0m`
+};
 const path = require('path');
 const { spawn } = require('child_process');
 

@@ -1,0 +1,4 @@
+azure-functions
+requests
+numpy
+# Add other dependencies here

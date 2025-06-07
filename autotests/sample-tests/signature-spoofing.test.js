@@ -1,3 +1,4 @@
+/* global describe, it, expect, beforeEach, afterEach, jest */
 // Signature spoofing vulnerability test using Playwright with mocked contract functionality
 const { test, expect } = require('@playwright/test');
 
