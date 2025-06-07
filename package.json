@@ -7,9 +7,13 @@
     "start": "node src/mcp/server.js",
     "dev": "nodemon src/mcp/server.js",
     "mcp:start": "node src/mcp/server.js",
+    "mcp:start-optimized": "node scripts/mcp-optimized-start.js",
     "mcp:status": "node scripts/mcp-status.js",
     "mcp:stop": "node scripts/mcp-stop.js",
     "mcp:restart": "npm run mcp:stop && npm run mcp:start",
+    "mcp:monitor": "node scripts/mcp-performance-monitor.js",
+    "mcp:report": "node scripts/mcp-performance-monitor.js --report",
+    "mcp:optimize": "npm run mcp:stop && npm run mcp:start-optimized",
     "lint": "eslint .",
     "test": "jest",
     "test:basic": "jest test/basic.test.js",
@@ -44,7 +48,11 @@
     "final-check": "node scripts/final-status-check.js",
     "summary": "node scripts/project-summary.js",
     "cleanup": "node scripts/cleanup-lockfiles.js",
-    "postinstall": "npm run cleanup"
+    "postinstall": "npm run cleanup",
+    "execute-plan": "node execute-development-plan.js",
+    "deployment-check": "node deployment-readiness-checker.js",
+    "final-status": "node final-status-checker.js",
+    "quick-start": "node quick-start.js"
   },
   "keywords": [
     "mcp",
