@@ -1,86 +1,55 @@
+
 # Security Policy
 
-## Dependency Security Management
+## Supported Versions
 
-This project has implemented several layers of protection to manage and mitigate security vulnerabilities in dependencies:
+We actively support the following versions of Audityzer:
 
-### Automated Vulnerability Fixes
+| Version | Supported          |
+| ------- | ------------------ |
+| 1.x.x   | :white_check_mark: |
+| < 1.0   | :x:                |
 
-When you install dependencies with `npm install`, our post-install scripts automatically:
+## Reporting a Vulnerability
 
-1. Resolve dependency conflicts that could cause compatibility issues
-2. Fix known security vulnerabilities by upgrading affected packages to safe versions
-3. Configure npm to ignore low/moderate severity issues that only affect development dependencies
+We take security vulnerabilities seriously. If you discover a security vulnerability, please follow these steps:
 
-### Running Security Audits
+1. **Do not** create a public GitHub issue for the vulnerability
+2. Email us directly at: security@audityzer.com (or create a private security advisory)
+3. Include the following information:
+   - Description of the vulnerability
+   - Steps to reproduce
+   - Potential impact
+   - Suggested fix (if any)
 
-To check for security vulnerabilities:
+## Response Timeline
 
-```bash
-# Regular audit (may show known dev dependency issues)
-npm audit
-
-# Production-only audit (ignores dev dependencies)
-npm audit --production
-
-# Audit only for critical issues
-npm run audit:all
-
-# Fix critical vulnerabilities (be careful with breaking changes)
-npm run fix:vulnerabilities
-```
-
-### Handling Known Issues
-
-Some development dependencies (like testing tools) may have vulnerabilities that don't affect production code. These are tracked and managed through:
-
-1. Package resolutions in `package.json`
-2. Specific settings in `.npmrc`
-3. CI-specific configuration in `.npmrc-ci`
-4. Acknowledged exceptions in `.nsprc`
-
-#### Known Development Dependencies with Vulnerabilities
-
-The following development dependencies have vulnerabilities that don't affect production code:
-
-1. **lodash.set** - Has a prototype pollution vulnerability (GHSA-p6mc-m468-83gw)
-   - Used by: lighthouse in @lhci/cli (development testing tool)
-   - Mitigation: Overridden in package.json, exceptions tracked in .nsprc
-   - Production impact: None (not included in production builds)
-
-2. **cookie** - Accept cookie with out of bounds characters (GHSA-pxg6-pf52-xh8x)
-   - Used by: raven in lighthouse in @lhci/cli (development testing tool)
-   - Mitigation: Overridden in package.json, exceptions tracked in .nsprc
-   - Production impact: None (not included in production builds)
-
-### CI Security Checking
-
-Our GitHub workflow automatically checks for security issues on:
-- Every push to main branches
-- Pull requests to protected branches
-- Weekly scheduled scans
-
-### Reporting New Vulnerabilities
-
-If you discover a security vulnerability in this project, please report it by:
-
-1. **DO NOT** create a public GitHub issue
-2. Send details to [security@example.com](mailto:security@example.com)
-3. Include steps to reproduce and potential impact
+- **Initial Response**: Within 24 hours
+- **Status Update**: Within 72 hours
+- **Fix Timeline**: Depends on severity
+  - Critical: Within 7 days
+  - High: Within 14 days
+  - Medium: Within 30 days
+  - Low: Next scheduled release
 
 ## Security Best Practices
 
-When working with this codebase:
+When contributing to Audityzer:
 
-1. Keep all dependencies updated
-2. Run security audits before deploying
-3. Never expose sensitive credentials in code
-4. Follow the security patterns established in the codebase
+1. Never commit sensitive information (API keys, passwords, etc.)
+2. Use environment variables for configuration
+3. Follow secure coding practices
+4. Keep dependencies updated
+5. Run security scans before submitting PRs
 
-## Responsible Disclosure
+## Disclosure Policy
 
-We follow responsible disclosure practices and will:
-- Acknowledge receipt within 48 hours
-- Provide regular updates on progress
-- Credit discoverers (if desired)
-- Publish details after fixes are available 
+We follow responsible disclosure practices:
+
+1. We will acknowledge receipt of your report
+2. We will investigate and validate the vulnerability
+3. We will develop and test a fix
+4. We will release the fix and publicly disclose the vulnerability
+5. We will credit you for the discovery (if desired)
+
+Thank you for helping keep Audityzer secure!

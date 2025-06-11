@@ -1,56 +1,33 @@
+
 ---
 name: Bug report
-about: Create a report to help us improve Audityzer
+about: Create a report to help us improve
 title: '[BUG] '
 labels: bug
-assignees: ''
+assignees: romanchaa997
+
 ---
 
-## Bug Description
-
+**Describe the bug**
 A clear and concise description of what the bug is.
 
-## Steps To Reproduce
-
+**To Reproduce**
 Steps to reproduce the behavior:
-
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-## Expected Behavior
-
+**Expected behavior**
 A clear and concise description of what you expected to happen.
 
-## Actual Behavior
-
-What actually happened instead.
-
-## Screenshots
-
+**Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-## Environment
+**Environment (please complete the following information):**
+ - OS: [e.g. iOS]
+ - Browser [e.g. chrome, safari]
+ - Version [e.g. 22]
 
-- Operating System: [e.g. Windows 10, macOS Monterey, Ubuntu 22.04]
-- Browser: [e.g. Chrome 105, Firefox 104, Safari 15.6]
-- Node.js version: [e.g. 16.17.0]
-- NPM version: [e.g. 8.15.0]
-- Audityzer version: [e.g. 1.1.0]
-
-## Target Blockchain Environment
-
-- Chain: [e.g. Ethereum, Polygon, BSC]
-- Network: [e.g. Mainnet, Testnet]
-- Wallet Used: [e.g. MetaMask, Coinbase Wallet]
-
-## Logs
-
-```
-Paste any relevant error logs or console output here
-```
-
-## Additional Context
-
-Add any other context about the problem here. For example, does this happen with a specific wallet or only on certain networks?
+**Additional context**
+Add any other context about the problem here.
