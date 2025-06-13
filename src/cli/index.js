@@ -90,8 +90,9 @@ function setupProgram() {
   program
     .command('init')
     .description('Initialize a new test project')
-    .option('-t, --template <template>', 'Template to use (wallet, bridge, defi, aa)', 'defi')
+    .option('-t, --template <template>', 'Template to use (wallet, bridge, defi, aa)')
     .option('--addon <addon>', 'Add specialized tests for AA features (social-recovery, counterfactual, session-keys, token-gating)')
+    .option('--no-interactive', 'Skip interactive wizard and use defaults')
     .action(initProject);
 
   // AA-specific commands
@@ -711,9 +712,17 @@ async function submitResults(file, options) {
 
 // Implementation of init command
 async function initProject(options) {
-  console.log(chalk.blue(`🚀 Initializing new project with ${chalk.bold(options.template)} template...`));
-  
   try {
+    // If no template specified or interactive mode requested, run the wizard
+    if (!options.template || options.interactive !== false) {
+      const AudityzerInitWizard = require('../../scripts/init-wizard');
+      const wizard = new AudityzerInitWizard();
+      await wizard.start();
+      return;
+    }
+    
+    console.log(chalk.blue(`🚀 Initializing new project with ${chalk.bold(options.template)} template...`));
+    
     // Special handling for AA template
     if (options.template === 'aa') {
       const templateOptions = {};
