@@ -1,74 +1,31 @@
-/**
- * Jest configuration for Audityzer
- */
 module.exports = {
-  // Automatically clear mock calls and instances between every test
-  clearMocks: true,
-
-  // Indicates whether the coverage information should be collected while executing the test
-  collectCoverage: true,
-
-  // The directory where Jest should output its coverage files
-  coverageDirectory: 'coverage',
-
-  // Coverage reporters to use
-  coverageReporters: ['json', 'lcov', 'text', 'clover'],
-
-  // Directories to exclude from coverage collection
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
-    '/build/',
-    '/examples/',
-    '/docs/',
-    '/docs-site/',
-    '/test-results/',
-    '/tests/utils/',
-  ],
-
-  // A list of reporter names that Jest uses when writing coverage reports
-  reporters: ['default'],
-
-  // The test environment that will be used for testing
+  preset: 'ts-jest',
   testEnvironment: 'node',
-
-  // Transform configuration for different file types
-  transform: {
-    '^.+\\.jsx?$': 'babel-jest',
-  },
-
-  // The pattern or patterns Jest uses to detect test files
-  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
-
-  // IMPORTANT: Exclude Playwright tests from Jest runs
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
-    '/build/',
-    '/examples/',
-    '/autotests/',
-    '/playwright-tests/',
-    '/tests/wallet-',
-    '/tests/connection',
-    '/tests/transaction',
-    '/tests/custom',
-    '/tests/test.js',
-    '/tests/metamask-',
-    '/tests/zk-snark',
-    '/tests/layerzero-',
-    '/Audityzer-community-tests/',
-    '/darkforest-v0.6/eth/test/',
-    // Exclude Playwright test files
-    '\\.spec\\.(ts|js)$',
-    'tests/bridge-transfer\\.test\\.ts$',
-    'tests/demo-flow\\.spec\\.ts$',
-    'tests/walletconnect-tx\\.test\\.js$',
-    'templates/aa-tests/',
-    // Exclude tests that require missing dependencies
-    'src/core/defi-testing/',
-    'tests/utils/visualization\\.test\\.js$',
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  testMatch: [
+    '**/__tests__/**/*.+(ts|tsx|js)',
+    '**/*.(test|spec).+(ts|tsx|js)'
   ],
-
-  // Indicates whether each individual test should be reported during the run
-  verbose: true,
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest'
+  },
+  collectCoverageFrom: [
+    'src/**/*.{js,ts}',
+    '!src/**/*.d.ts',
+    '!src/**/*.test.{js,ts}',
+    '!src/**/index.{js,ts}'
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  },
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+  testTimeout: 30000,
+  verbose: true
 };
