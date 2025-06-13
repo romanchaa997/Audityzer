@@ -1,6 +1,6 @@
 {
   "name": "audityzer",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Intelligent development server with auto port management for web3 security testing",
   "main": "src/core/index.js",
   "bin": {
