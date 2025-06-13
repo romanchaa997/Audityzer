@@ -1,0 +1,213 @@
+
+{
+  "server_name": "Audityzer Community",
+  "server_description": "Revolutionary cross-chain security testing platform - Building the future of Web3 security together",
+  "categories": [
+    {
+      "name": "📢 ANNOUNCEMENTS",
+      "channels": [
+        {
+          "name": "announcements",
+          "type": "text",
+          "description": "Major updates, releases, and important news",
+          "permissions": "read_only_for_members"
+        },
+        {
+          "name": "community-news",
+          "type": "text", 
+          "description": "Community highlights and achievements"
+        }
+      ]
+    },
+    {
+      "name": "💬 GENERAL",
+      "channels": [
+        {
+          "name": "general-chat",
+          "type": "text",
+          "description": "Open discussions about Web3 security and Audityzer"
+        },
+        {
+          "name": "introductions",
+          "type": "text",
+          "description": "Introduce yourself to the community"
+        },
+        {
+          "name": "random",
+          "type": "text",
+          "description": "Off-topic conversations and casual chat"
+        }
+      ]
+    },
+    {
+      "name": "🔧 DEVELOPMENT",
+      "channels": [
+        {
+          "name": "development",
+          "type": "text",
+          "description": "Technical discussions and code reviews"
+        },
+        {
+          "name": "feature-requests",
+          "type": "text",
+          "description": "Suggest new features and improvements"
+        },
+        {
+          "name": "bug-reports",
+          "type": "text",
+          "description": "Report issues and bugs"
+        },
+        {
+          "name": "testing",
+          "type": "text",
+          "description": "Beta testing and feedback"
+        },
+        {
+          "name": "code-review",
+          "type": "text",
+          "description": "Peer code reviews and technical feedback"
+        }
+      ]
+    },
+    {
+      "name": "🎯 SPECIALIZED",
+      "channels": [
+        {
+          "name": "cross-chain-security",
+          "type": "text",
+          "description": "Bridge testing and cross-chain security discussions"
+        },
+        {
+          "name": "visualization",
+          "type": "text",
+          "description": "Dashboard and UI/UX feedback"
+        },
+        {
+          "name": "integrations",
+          "type": "text",
+          "description": "CI/CD and third-party integrations"
+        },
+        {
+          "name": "research",
+          "type": "text",
+          "description": "Security research and vulnerability analysis"
+        }
+      ]
+    },
+    {
+      "name": "🤝 COMMUNITY",
+      "channels": [
+        {
+          "name": "showcase",
+          "type": "text",
+          "description": "Share your projects using Audityzer"
+        },
+        {
+          "name": "jobs-and-opportunities",
+          "type": "text",
+          "description": "Career opportunities in Web3 security"
+        },
+        {
+          "name": "events",
+          "type": "text",
+          "description": "Community events and meetups"
+        },
+        {
+          "name": "feedback",
+          "type": "text",
+          "description": "General feedback and suggestions"
+        }
+      ]
+    },
+    {
+      "name": "🎙️ VOICE",
+      "channels": [
+        {
+          "name": "General Voice",
+          "type": "voice",
+          "description": "General voice chat"
+        },
+        {
+          "name": "Development Calls",
+          "type": "voice",
+          "description": "Development discussions and pair programming"
+        },
+        {
+          "name": "Community Meetups",
+          "type": "voice",
+          "description": "Community events and presentations"
+        }
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "name": "🔥 Core Team",
+      "color": "#ff6b6b",
+      "permissions": "administrator",
+      "description": "Audityzer development team"
+    },
+    {
+      "name": "⭐ Contributors",
+      "color": "#4ecdc4",
+      "permissions": "elevated",
+      "description": "Active code contributors"
+    },
+    {
+      "name": "🛡️ Security Researchers",
+      "color": "#45b7d1",
+      "permissions": "elevated",
+      "description": "Security experts and researchers"
+    },
+    {
+      "name": "🎨 Designers",
+      "color": "#f9ca24",
+      "permissions": "standard",
+      "description": "UI/UX and visual contributors"
+    },
+    {
+      "name": "📝 Documentation",
+      "color": "#6c5ce7",
+      "permissions": "standard",
+      "description": "Documentation contributors"
+    },
+    {
+      "name": "🌟 Community Champions",
+      "color": "#a29bfe",
+      "permissions": "standard",
+      "description": "Active community members"
+    },
+    {
+      "name": "🤖 Bots",
+      "color": "#636e72",
+      "permissions": "bot",
+      "description": "Automated bots and integrations"
+    }
+  ],
+  "welcome_message": {
+    "title": "Welcome to Audityzer Community! 🚀",
+    "description": "We're building the future of Web3 security testing. Read our welcome guide and introduce yourself!",
+    "rules_channel": "rules",
+    "intro_channel": "introductions"
+  },
+  "moderation": {
+    "auto_mod": true,
+    "spam_protection": true,
+    "link_filtering": true,
+    "profanity_filter": false
+  },
+  "integrations": [
+    {
+      "name": "GitHub",
+      "description": "Repository updates and notifications"
+    },
+    {
+      "name": "Twitter",
+      "description": "Social media updates"
+    },
+    {
+      "name": "Analytics Bot",
+      "description": "Community growth tracking"
+    }
+  ]
+}
