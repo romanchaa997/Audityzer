@@ -1,0 +1,139 @@
+
+name: Security Quality Gates
+
+on:
+  push:
+    branches: [ main, develop, safe-improvements ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scanning
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run security audit
+      run: npm audit --audit-level=moderate
+
+    - name: CodeQL Analysis
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
+    - name: SAST Scan with Semgrep
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: >-
+          p/security-audit
+          p/secrets
+          p/owasp-top-ten
+
+    - name: Dependency Check
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: 'Audityzer'
+        path: '.'
+        format: 'ALL'
+
+    - name: Upload security results
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-scan-results
+        path: reports/
+
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality Check
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run ESLint
+      run: npm run lint
+
+    - name: Run tests with coverage
+      run: npm run test:coverage
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  security-policy-check:
+    runs-on: ubuntu-latest
+    name: Security Policy Validation
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check security policy compliance
+      run: |
+        echo "Validating security policies..."
+        # Check for required security files
+        test -f SECURITY.md || exit 1
+        test -f .github/SECURITY.md || exit 1
+        
+        # Validate security configuration
+        test -f .github/dependabot.yml || exit 1
+        
+        # Check for security headers in web configs
+        grep -r "Content-Security-Policy" . || echo "Warning: CSP headers not found"
+        
+        echo "Security policy validation completed"
+
+  vulnerability-assessment:
+    runs-on: ubuntu-latest
+    name: Vulnerability Assessment
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run Snyk vulnerability scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+
+    - name: OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.10.0
+      with:
+        target: 'http://localhost:3000'
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'

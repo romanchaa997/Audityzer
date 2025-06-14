@@ -1,0 +1,136 @@
+name: Protocol Testing Workflow
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - lending
+          - amm
+          - staking
+          - nft
+          - l2
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  protocol-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set up test environment
+        run: |
+          # Create necessary directories
+          mkdir -p test-results/lending
+          mkdir -p test-results/amm
+          mkdir -p test-results/staking
+          mkdir -p test-results/nft
+          mkdir -p test-results/l2
+
+      - name: Configure RPC endpoint
+        run: |
+          # Default public endpoint if secret is not available
+          DEFAULT_RPC="https://eth-mainnet.public.blastapi.io"
+          echo "Using RPC endpoint for tests"
+          echo "RPC_ENDPOINT=$DEFAULT_RPC" >> $GITHUB_ENV
+
+      - name: Run Lending Protocol Tests
+        if: ${{ github.event.inputs.test_type == 'lending' || github.event.inputs.test_type == 'all' || github.event.inputs.test_type == '' }}
+        run: |
+          echo "Running lending protocol tests..."
+          node src/core/defi-testing/cli.js lending-suite Aave --rpc "$RPC_ENDPOINT"
+        continue-on-error: true
+
+      - name: Run AMM Protocol Tests
+        if: ${{ github.event.inputs.test_type == 'amm' || github.event.inputs.test_type == 'all' || github.event.inputs.test_type == '' }}
+        run: |
+          echo "Running AMM protocol tests..."
+          node src/core/defi-testing/cli.js amm-suite Uniswap --rpc "$RPC_ENDPOINT"
+        continue-on-error: true
+
+      - name: Run Staking Protocol Tests
+        if: ${{ github.event.inputs.test_type == 'staking' || github.event.inputs.test_type == 'all' || github.event.inputs.test_type == '' }}
+        run: |
+          echo "Running staking protocol tests..."
+          node src/core/defi-testing/cli.js staking-suite Lido --rpc "$RPC_ENDPOINT"
+        continue-on-error: true
+
+      - name: Run NFT Marketplace Tests
+        if: ${{ github.event.inputs.test_type == 'nft' || github.event.inputs.test_type == 'all' || github.event.inputs.test_type == '' }}
+        run: |
+          echo "Running NFT marketplace tests..."
+          node src/core/defi-testing/cli.js nft-suite seaport --rpc "$RPC_ENDPOINT" --collection 0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d --token-id 1
+        continue-on-error: true
+
+      - name: Run L2 Network Tests
+        if: ${{ github.event.inputs.test_type == 'l2' || github.event.inputs.test_type == 'all' || github.event.inputs.test_type == '' }}
+        run: |
+          echo "Running L2 network tests..."
+          node src/core/defi-testing/cli.js l2-suite all --rpc "$RPC_ENDPOINT"
+        continue-on-error: true
+
+      - name: Generate Comprehensive Report
+        run: |
+          echo "Generating comprehensive report..."
+          node src/core/defi-testing/cli.js generate-report --output test-results
+        continue-on-error: true
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: protocol-test-results
+          path: test-results/
+
+      - name: Create Summary Report
+        if: always()
+        run: |
+          echo "## Protocol Testing Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if ls test-results/comprehensive_report_*.json >/dev/null 2>&1; then
+            echo "✅ Comprehensive report was generated successfully." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Comprehensive report generation may have failed." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Tested Protocols" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Lending: Aave" >> $GITHUB_STEP_SUMMARY
+          echo "- AMM: Uniswap" >> $GITHUB_STEP_SUMMARY
+          echo "- Staking: Lido" >> $GITHUB_STEP_SUMMARY
+          echo "- NFT Marketplace: OpenSea (Seaport)" >> $GITHUB_STEP_SUMMARY
+          echo "- L2 Networks: zkSync Era, Linea, Base, Polygon zkEVM" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See artifacts for detailed reports." >> $GITHUB_STEP_SUMMARY
