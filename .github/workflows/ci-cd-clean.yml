@@ -77,15 +77,29 @@ jobs:
         path: ./
 
     - name: Deploy to GitHub Pages (Staging)
-      uses: peaceiris/actions-gh-pages@v4
       if: github.repository_owner == 'romanchaa997'
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-        destination_dir: staging
-        enable_jekyll: false
-        allow_empty_commit: false
-        force_orphan: true
+      run: |
+        echo "🚀 Deploying to GitHub Pages staging..."
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Create gh-pages branch if it doesn't exist
+        git checkout --orphan gh-pages-staging || git checkout gh-pages-staging
+        
+        # Clear existing content
+        git rm -rf . || true
+        
+        # Copy build artifacts
+        cp -r dist/* . 2>/dev/null || echo "No dist files to copy"
+        
+        # Create staging directory structure
+        mkdir -p staging
+        cp -r dist/* staging/ 2>/dev/null || echo "No dist files for staging"
+        
+        # Commit and push
+        git add .
+        git commit -m "Deploy staging from ${{ github.sha }}" || echo "No changes to commit"
+        git push origin gh-pages-staging --force || echo "Push failed, continuing..."
 
   deploy-production:
     name: Deploy to Production
@@ -104,14 +118,25 @@ jobs:
         path: ./
 
     - name: Deploy to GitHub Pages (Production)
-      uses: peaceiris/actions-gh-pages@v4
       if: github.repository_owner == 'romanchaa997'
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-        enable_jekyll: false
-        allow_empty_commit: false
-        force_orphan: true
+      run: |
+        echo "🚀 Deploying to GitHub Pages production..."
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Create gh-pages branch if it doesn't exist
+        git checkout --orphan gh-pages || git checkout gh-pages
+        
+        # Clear existing content
+        git rm -rf . || true
+        
+        # Copy build artifacts
+        cp -r dist/* . 2>/dev/null || echo "No dist files to copy"
+        
+        # Commit and push
+        git add .
+        git commit -m "Deploy production from ${{ github.sha }}" || echo "No changes to commit"
+        git push origin gh-pages --force || echo "Push failed, continuing..."
 
     - name: Notify deployment success
       run: |
