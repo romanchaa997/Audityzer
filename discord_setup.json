@@ -1,0 +1,20 @@
+{
+  "name": "Audityzer Security Research",
+  "description": "Community for Web3 security researchers and auditors",
+  "channels": [
+    {"name": "welcome", "type": "text", "category": "General"},
+    {"name": "announcements", "type": "text", "category": "General"},
+    {"name": "general-discussion", "type": "text", "category": "General"},
+    {"name": "security-research", "type": "text", "category": "Research"},
+    {"name": "vulnerability-reports", "type": "text", "category": "Research"},
+    {"name": "bounty-program", "type": "text", "category": "Research"},
+    {"name": "tool-development", "type": "text", "category": "Development"},
+    {"name": "code-review", "type": "text", "category": "Development"},
+    {"name": "voice-general", "type": "voice", "category": "Voice Channels"}
+  ],
+  "roles": [
+    {"name": "Security Researcher", "color": "#ff6b6b", "permissions": ["read", "write"]},
+    {"name": "Core Contributor", "color": "#4ecdc4", "permissions": ["read", "write", "manage"]},
+    {"name": "Moderator", "color": "#45b7d1", "permissions": ["read", "write", "manage", "moderate"]}
+  ]
+}
