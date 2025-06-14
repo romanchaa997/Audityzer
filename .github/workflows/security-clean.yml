@@ -58,7 +58,16 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci --legacy-peer-deps
+      run: |
+        echo "🔧 Installing dependencies for security scan..."
+        if npm ci --legacy-peer-deps --force; then
+          echo "✅ npm ci succeeded"
+        elif npm install --legacy-peer-deps --force; then
+          echo "✅ npm install succeeded"
+        else
+          echo "⚠️ Standard install failed, trying with --no-optional"
+          npm install --legacy-peer-deps --force --no-optional
+        fi
 
     - name: Run npm audit
       run: npm audit --audit-level=moderate
