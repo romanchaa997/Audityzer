@@ -1,0 +1,344 @@
+name: Audityzer Security Analysis
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Analysis mode (standard, advanced, full)'
+        required: true
+        default: 'standard'
+      scan_contracts:
+        description: 'Scan smart contracts'
+        required: false
+        default: 'true'
+      test_coverage:
+        description: 'Run test coverage'
+        required: false
+        default: 'true'
+      fail_on_critical:
+        description: 'Fail CI on critical vulnerabilities'
+        required: false
+        default: 'true'
+
+jobs:
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      # Required for uploading SARIF results to GitHub Security
+      security-events: write
+      # Required for PR comments
+      pull-requests: write
+      # Required for issues
+      issues: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Important for proper history analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Set up Python for SARIF processing
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install SARIF tools
+        run: pip install sarif-tools
+
+      # Run standard security scan
+      - name: Run AI Security Scan
+        id: ai-scan
+        run: |
+          # Use workflow_dispatch input or default to standard
+          SCAN_MODE="${{ github.event.inputs.mode || 'standard' }}"
+          echo "Running AI Security Analysis in $SCAN_MODE mode"
+
+          # Check if OpenAI API key is available
+          if [ -n "$OPENAI_API_KEY" ]; then
+            echo "Using OpenAI API for enhanced analysis"
+            npm run ai-scan:$SCAN_MODE -- --output-sarif=security-scan-results.sarif
+          else
+            echo "OpenAI API key not available, running in basic mode"
+            npm run ai-scan:basic -- --no-ai --output-sarif=security-scan-results.sarif
+          fi
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      # Run smart contract security scan if enabled
+      - name: Scan Smart Contracts
+        if: ${{ github.event.inputs.scan_contracts != 'false' }}
+        id: contract-scan
+        run: |
+          npm run security-scan -- --report-format=sarif --output=contract-scan-results.sarif
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      # Merge SARIF reports if both scans were run
+      - name: Merge SARIF reports
+        if: ${{ github.event.inputs.scan_contracts != 'false' }}
+        run: |
+          python -c "
+          import json
+          from sarif.sarif_file import SarifFile
+
+          # Load SARIF files
+          ai_sarif = SarifFile.from_json_file('security-scan-results.sarif')
+          contract_sarif = SarifFile.from_json_file('contract-scan-results.sarif')
+
+          # Merge results
+          ai_sarif.merge(contract_sarif)
+
+          # Save merged result
+          with open('merged-security-results.sarif', 'w') as f:
+              json.dump(ai_sarif.to_dict(), f, indent=2)
+          "
+
+          # Use the merged file for further steps
+          mv merged-security-results.sarif security-scan-results.sarif
+
+      # Check for critical vulnerabilities
+      - name: Check for Critical Vulnerabilities
+        id: check-critical
+        run: |
+          # Check if any critical vulnerabilities are present
+          CRITICAL_COUNT=$(jq '.runs[].results | map(select(.level == "error")) | length' security-scan-results.sarif || echo "0")
+          echo "Critical vulnerabilities found: $CRITICAL_COUNT"
+          echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
+
+          # If critical vulnerabilities are found and fail_on_critical is true, set status for later step
+          if [ "$CRITICAL_COUNT" -gt 0 ] && [ "${{ github.event.inputs.fail_on_critical }}" == "true" ]; then
+            echo "has_critical_vulns=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_critical_vulns=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Upload SARIF file to GitHub Security
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: security-scan-results.sarif
+          category: web3-security
+
+      # Generate HTML report
+      - name: Generate HTML Security Report
+        run: |
+          npm run viz:report -- --input=security-scan-results.sarif --output=security-report.html
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      # Upload security report as artifact
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          name: security-report
+          path: |
+            security-report.html
+            security-scan-results.sarif
+
+      # Add security summary to PR if this is a pull request
+      - name: Add PR Comment with Security Summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const sarif = JSON.parse(fs.readFileSync('security-scan-results.sarif', 'utf8'));
+
+            // Extract results from SARIF file
+            const results = sarif.runs.flatMap(run => run.results || []);
+
+            // Count vulnerabilities by severity
+            const criticalCount = results.filter(r => r.level === 'error').length;
+            const highCount = results.filter(r => r.level === 'warning' && r.properties?.severity === 'high').length;
+            const mediumCount = results.filter(r => r.level === 'warning' && r.properties?.severity === 'medium').length;
+            const lowCount = results.filter(r => r.level === 'note').length;
+            const totalCount = results.length;
+
+            // Create severity indicators
+            const criticalIndicator = criticalCount > 0 ? '🔴' : '✅';
+            const highIndicator = highCount > 0 ? '🟠' : '✅';
+            const mediumIndicator = mediumCount > 0 ? '🟡' : '✅';
+            const lowIndicator = lowCount > 0 ? '🟢' : '✅';
+
+            // Generate comment body
+            let body = `## Web3 Security Analysis Results\n\n`;
+            body += `| Severity | Count | Status |\n`;
+            body += `|----------|-------|--------|\n`;
+            body += `| Critical | ${criticalCount} | ${criticalIndicator} |\n`;
+            body += `| High | ${highCount} | ${highIndicator} |\n`;
+            body += `| Medium | ${mediumCount} | ${mediumIndicator} |\n`;
+            body += `| Low | ${lowCount} | ${lowIndicator} |\n`;
+            body += `| **Total** | **${totalCount}** | |\n\n`;
+
+            // Add top issues if any exist
+            if (totalCount > 0) {
+              body += `### Top Issues\n\n`;
+              
+              // Get top 5 highest severity issues
+              const topIssues = [...results]
+                .sort((a, b) => {
+                  // Sort by severity (error > warning > note)
+                  const severityOrder = { error: 3, warning: 2, note: 1 };
+                  return severityOrder[b.level] - severityOrder[a.level];
+                })
+                .slice(0, 5);
+                
+              topIssues.forEach(issue => {
+                const severity = issue.level === 'error' ? 'Critical' : 
+                                 issue.level === 'warning' ? (issue.properties?.severity === 'high' ? 'High' : 'Medium') : 
+                                 'Low';
+                                 
+                const location = issue.locations?.[0]?.physicalLocation?.artifactLocation?.uri || 'Unknown location';
+                body += `- **${severity}**: ${issue.message?.text} in \`${location}\`\n`;
+              });
+              
+              body += `\n`;
+            }
+
+            body += `[View full security report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
+
+            // Add comment to PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            // Check if we already have a comment from this workflow
+            const botComment = comments.find(comment => comment.body.includes('Web3 Security Analysis Results'));
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      # Run test coverage if enabled
+      - name: Run Test Coverage
+        if: ${{ github.event.inputs.test_coverage != 'false' }}
+        run: npm run test:coverage
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      # Upload coverage report
+      - name: Upload Coverage Report
+        if: ${{ github.event.inputs.test_coverage != 'false' }}
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          name: coverage-report
+          path: coverage
+
+      # Fail the workflow if critical vulnerabilities were found and fail_on_critical is true
+      - name: Fail on Critical Vulnerabilities
+        if: steps.check-critical.outputs.has_critical_vulns == 'true'
+        run: |
+          echo "❌ Critical vulnerabilities detected: ${CRITICAL_COUNT}"
+          echo "Please fix critical security issues before merging"
+          exit 1
+        env:
+          CRITICAL_COUNT: ${{ steps.check-critical.outputs.critical_count }}
+
+  # Add a separate job for testing bridges if this is a full scan
+  bridge-security:
+    name: Bridge Security Testing
+    needs: security-scan
+    if: ${{ github.event.inputs.mode == 'full' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Run Bridge Security Tests
+        run: npm run test-bridge:all -- --report=bridge-security.json
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Upload Bridge Test Results
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          name: bridge-security-report
+          path: bridge-security.json
+
+  # Add a separate job for DeFi protocol testing if this is a full scan
+  defi-security:
+    name: DeFi Protocol Testing
+    needs: security-scan
+    if: ${{ github.event.inputs.mode == 'full' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Run DeFi Security Tests
+        run: npm run defi:all -- --report=defi-security.json
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Upload DeFi Test Results
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          name: defi-security-report
+          path: defi-security.json

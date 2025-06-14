@@ -1,0 +1,112 @@
+name: Cross-Platform Tests
+
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+  push:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    name: Unit & Integration Tests (${{ matrix.os }} - ${{ matrix.package_manager }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        package_manager: [npm, pnpm, yarn]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ matrix.package_manager }}" = "pnpm" ]; then
+            corepack enable pnpm
+            pnpm install --frozen-lockfile
+          elif [ "${{ matrix.package_manager }}" = "yarn" ]; then
+            corepack enable yarn
+            yarn install --immutable
+          else
+            npm ci
+          fi
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
+      - name: Run unit tests
+        run: |
+          if [ "${{ matrix.package_manager }}" = "pnpm" ]; then
+            pnpm test
+          elif [ "${{ matrix.package_manager }}" = "yarn" ]; then
+            yarn test
+          else
+            npm test
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.package_manager }}
+          path: |
+            test-results/
+            playwright-report/
+
+  npm_install:
+    name: NPM Pack & Install (${{ matrix.os }} - ${{ matrix.package_manager }})
+    runs-on: ${{ matrix.os }}
+    needs: test
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        package_manager: [npm, pnpm, yarn]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Pack project
+        run: npm pack
+
+      - name: Install packed tarball
+        run: |
+          TAR=$(ls *.tgz | head -n1)
+          if [ "${{ matrix.package_manager }}" = "pnpm" ]; then
+            corepack enable pnpm
+            pnpm init -y
+            pnpm add "$TAR"
+          elif [ "${{ matrix.package_manager }}" = "yarn" ]; then
+            corepack enable yarn
+            yarn init -y
+            yarn add "$TAR"
+          else
+            mkdir test-install && cd test-install
+            npm init -y
+            npm i "../$TAR"
+            cd ..
+          fi
+
+      - name: Verify CLI help
+        run: |
+          if [ "${{ matrix.package_manager }}" = "pnpm" ]; then
+            pnpx audityzer --help
+          elif [ "${{ matrix.package_manager }}" = "yarn" ]; then
+            yarn dlx audityzer --help || yarn exec audityzer --help
+          else
+            npx audityzer --help
+          fi
+        shell: bash 
