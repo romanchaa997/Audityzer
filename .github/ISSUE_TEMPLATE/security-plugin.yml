@@ -1,0 +1,88 @@
+
+name: Security Plugin Submission
+description: Submit a new security plugin for the Audityzer platform
+title: "[PLUGIN] "
+labels: ["security-plugin", "community-contribution"]
+assignees:
+  - romanchaa997
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing to Audityzer! Please fill out this template to submit your security plugin.
+
+  - type: input
+    id: plugin-name
+    attributes:
+      label: Plugin Name
+      description: What is the name of your security plugin?
+      placeholder: e.g., "SQL Injection Scanner"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: security-category
+    attributes:
+      label: Security Category
+      description: Which security category does your plugin address?
+      options:
+        - Web Application Security
+        - Network Security
+        - Cryptography
+        - Authentication & Authorization
+        - Data Protection
+        - Infrastructure Security
+        - Mobile Security
+        - IoT Security
+        - Blockchain Security
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Plugin Description
+      description: Provide a detailed description of what your plugin does
+      placeholder: Describe the security vulnerabilities or issues your plugin detects/prevents
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-details
+    attributes:
+      label: Technical Implementation
+      description: Describe the technical approach and implementation details
+      placeholder: Include algorithms, detection methods, or security techniques used
+    validations:
+      required: true
+
+  - type: input
+    id: repository
+    attributes:
+      label: Plugin Repository
+      description: Link to your plugin's repository (if available)
+      placeholder: https://github.com/username/plugin-repo
+
+  - type: checkboxes
+    id: requirements
+    attributes:
+      label: Plugin Requirements
+      description: Please confirm your plugin meets these requirements
+      options:
+        - label: Plugin follows Audityzer security standards
+          required: true
+        - label: Code is well-documented and tested
+          required: true
+        - label: Plugin includes security impact assessment
+          required: true
+        - label: I agree to the Audityzer plugin licensing terms
+          required: true
+
+  - type: textarea
+    id: bounty-info
+    attributes:
+      label: Bounty Program Information
+      description: If submitting for bounty consideration, provide additional details
+      placeholder: Include severity assessment, proof-of-concept, and impact analysis
