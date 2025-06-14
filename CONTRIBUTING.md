@@ -1,357 +1,271 @@
 
-# Contributing to Audityzer
+# Contributing to Audityzer - Security Auditing Platform
 
-Thank you for your interest in contributing to Audityzer! This guide will help you understand our development process, branching strategy, and how to submit contributions effectively.
+Welcome to Audityzer, a comprehensive security auditing, analyzing, and fuzzing platform! We're building the next generation of security testing tools and welcome contributions from security researchers, developers, and auditing professionals.
 
-## 🌟 Getting Started
+## 🔒 Project Focus: Security Auditing & Fuzzing
+
+Audityzer is a **security auditing platform** that provides:
+- **Vulnerability Detection**: Advanced scanning and analysis tools
+- **Security Fuzzing**: Comprehensive fuzzing frameworks for security testing
+- **Plugin Architecture**: Extensible security auditing plugin system
+- **Automated Analysis**: AI-powered security analysis and reporting
+- **Community Bounty Program**: Rewards for security plugin development
+
+## 🚀 Quick Start for Security Contributors
 
 ### Prerequisites
-- Node.js >= 16.0.0
-- Git
-- Basic understanding of Web3/blockchain concepts
-- Familiarity with JavaScript/TypeScript
+- Node.js 18+ for plugin development
+- Python 3.8+ for security analysis tools
+- Docker for containerized security testing
+- Git with signed commits enabled
 
-### Development Environment Setup
+### Development Setup
 ```bash
-# 1. Fork the repository on GitHub
-# 2. Clone your fork
-git clone https://github.com/your-username/audityzer.git
+# Clone the repository
+git clone https://github.com/your-org/audityzer.git
 cd audityzer
 
-# 3. Add upstream remote
-git remote add upstream https://github.com/Audityzer/audityzer.git
-
-# 4. Install dependencies
+# Install dependencies
 npm install
 
-# 5. Run setup wizard
-npm run setup
+# Set up security development environment
+npm run setup:security-dev
 
-# 6. Start development server
-npm run dev
-```
-
-## 🔄 Branching Strategy
-
-### Branch Hierarchy
-```
-main (production)
-├── unified-main (stable + latest features)
-├── safe-improvements (stability focus)
-├── roadmap-exec (cutting-edge features)
-└── develop (feature integration)
-    ├── feature/bridge-testing
-    ├── feature/ai-improvements
-    └── feature/dashboard-updates
-```
-
-### Branch Descriptions
-
-#### `main`
-- **Purpose**: Production-ready, stable releases
-- **Protection**: Requires PR approval and CI/CD passing
-- **Merge Source**: `unified-main` only
-- **Release**: Tagged releases for npm/Docker
-
-#### `unified-main`
-- **Purpose**: Latest stable features combined with reliability
-- **Protection**: Requires PR approval and comprehensive testing
-- **Merge Source**: `safe-improvements` + `roadmap-exec`
-- **Testing**: Full test suite + security audits
-
-#### `safe-improvements`
-- **Purpose**: Stability-focused improvements and bug fixes
-- **Protection**: Requires PR approval
-- **Merge Source**: `develop` + hotfixes
-- **Focus**: Performance, reliability, security patches
-
-#### `roadmap-exec`
-- **Purpose**: Latest features and experimental capabilities
-- **Protection**: Requires PR approval
-- **Merge Source**: `develop` + feature branches
-- **Focus**: Innovation, new features, cutting-edge tech
-
-#### `develop`
-- **Purpose**: Integration branch for feature development
-- **Protection**: Basic CI/CD checks
-- **Merge Source**: Feature branches
-- **Testing**: Unit tests + integration tests
-
-### Feature Branches
-- **Naming**: `feature/description-of-feature`
-- **Source**: Branch from `develop`
-- **Merge Target**: `develop`
-- **Lifecycle**: Delete after merge
-
-## 🚀 Development Workflow
-
-### 1. Creating a Feature Branch
-```bash
-# Update your local repository
-git checkout develop
-git pull upstream develop
-
-# Create and switch to feature branch
-git checkout -b feature/your-feature-name
-
-# Push branch to your fork
-git push -u origin feature/your-feature-name
-```
-
-### 2. Development Process
-```bash
-# Make your changes
-# Write tests for new functionality
-# Update documentation
-
-# Run tests locally
-npm test
+# Run security plugin tests
 npm run test:security
-npm run lint
-
-# Commit changes with conventional commits
-git add .
-git commit -m "feat: add cross-chain bridge testing for Arbitrum"
 ```
 
-### 3. Submitting a Pull Request
+## 🛡️ Security Plugin Development
+
+### Plugin Types
+1. **Vulnerability Scanners**: Detect security weaknesses in applications
+2. **Fuzzing Engines**: Generate test cases for security testing
+3. **Analysis Tools**: Static and dynamic security analysis
+4. **Reporting Modules**: Security audit report generation
+5. **Integration Plugins**: Connect with security tools and platforms
+
+### Creating a Security Plugin
 ```bash
-# Push your changes
-git push origin feature/your-feature-name
+# Generate new security plugin template
+npm run create:security-plugin --name=vulnerability-scanner
 
-# Create PR on GitHub targeting 'develop' branch
-# Fill out the PR template completely
-# Request review from maintainers
+# Plugin structure
+src/
+├── scanners/          # Vulnerability detection logic
+├── fuzzers/          # Fuzzing implementations
+├── analyzers/        # Security analysis tools
+├── reporters/        # Security report generators
+└── tests/           # Security-focused test suites
 ```
 
-## 📝 Commit Message Convention
-
-We use [Conventional Commits](https://www.conventionalcommits.org/) for clear commit history:
-
-### Format
+### Security Plugin API
+```typescript
+interface SecurityPlugin {
+  name: string;
+  version: string;
+  type: 'scanner' | 'fuzzer' | 'analyzer' | 'reporter';
+  
+  // Core security functions
+  scan(target: SecurityTarget): Promise<VulnerabilityReport>;
+  fuzz(target: FuzzTarget): Promise<FuzzResults>;
+  analyze(data: SecurityData): Promise<AnalysisReport>;
+}
 ```
-<type>[optional scope]: <description>
 
-[optional body]
+## 🌟 Contribution Workflow
 
-[optional footer(s)]
-```
+### Trunk-Based Development
+We use a trunk-based development workflow optimized for security development:
 
-### Types
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-- `perf`: Performance improvements
-- `ci`: CI/CD changes
+1. **Main Branch**: `safe-improvements` (our trunk)
+2. **Feature Branches**: Short-lived (max 72 hours)
+3. **Security Focus**: All contributions undergo security review
 
-### Examples
+### Step-by-Step Process
+
+#### 1. Create Feature Branch
 ```bash
-feat(bridge): add LayerZero cross-chain testing support
-fix(ai): resolve vulnerability detection false positives
-docs(api): update bridge testing documentation
-test(security): add comprehensive DeFi protocol tests
+# Always start from trunk
+git checkout safe-improvements
+git pull origin safe-improvements
+
+# Create security-focused feature branch
+git checkout -b feature/security-[component]-[description]
+# Examples:
+# feature/security-plugin-sql-injection-scanner
+# feature/security-fuzzer-web-api
+# feature/security-analyzer-dependency-check
 ```
 
-## 🧪 Testing Guidelines
+#### 2. Develop Security Features
+- **Atomic Commits**: Small, focused changes
+- **Security Context**: Clear security implications in commit messages
+- **Testing**: Comprehensive security testing before push
 
-### Test Categories
-1. **Unit Tests**: Individual function/module testing
-2. **Integration Tests**: Component interaction testing
-3. **E2E Tests**: Full application workflow testing
-4. **Security Tests**: Vulnerability and exploit testing
-
-### Running Tests
 ```bash
-# All tests
-npm test
+# Example commit messages
+git commit -m "feat(security): implement SQL injection detection engine"
+git commit -m "fix(security): resolve false positive in XSS scanner"
+git commit -m "test(security): add fuzzing tests for API endpoints"
+```
 
-# Specific categories
-npm run test:unit
-npm run test:integration
-npm run test:e2e
+#### 3. Security Testing
+```bash
+# Run security-specific tests
 npm run test:security
+npm run test:vulnerability-detection
+npm run test:fuzzing
 
-# With coverage
-npm run test:coverage
-
-# Watch mode for development
-npm run test:watch
+# Local security scanning
+npm run scan:security-local
 ```
 
-### Writing Tests
-```javascript
-// Example unit test
-describe('Bridge Testing', () => {
-  test('should validate LayerZero bridge configuration', async () => {
-    const config = {
-      sourceChain: 'ethereum',
-      targetChain: 'polygon',
-      protocol: 'layerzero'
-    };
-    
-    const result = await validateBridgeConfig(config);
-    expect(result.isValid).toBe(true);
-  });
-});
+#### 4. Submit Pull Request
+- **Title**: Clear security focus (e.g., "Security Plugin: Advanced SQL Injection Scanner")
+- **Description**: Security implications and testing performed
+- **Documentation**: Update security plugin documentation
 
-// Example security test
-describe('Security Tests', () => {
-  test('should detect reentrancy vulnerability', async () => {
-    const contractCode = `
-      // Vulnerable contract code
-    `;
-    
-    const vulnerabilities = await auditContract(contractCode);
-    expect(vulnerabilities).toContainEqual(
-      expect.objectContaining({
-        type: 'reentrancy',
-        severity: 'high'
-      })
-    );
-  });
-});
+### Automated Security Checks
+Every contribution undergoes:
+- **SAST Scanning**: Static Application Security Testing
+- **Dependency Check**: Vulnerability scanning of dependencies
+- **Plugin Validation**: Security plugin compatibility testing
+- **Fuzzing Tests**: Basic fuzzing validation
+- **Code Review**: Security-focused peer review
+
+## 🎯 Security Plugin Bounty Program
+
+### Reward Tiers
+- **Tier 1**: Basic security plugins (vulnerability scanners) - $100-500
+- **Tier 2**: Advanced fuzzing engines - $500-1500
+- **Tier 3**: AI-powered security analyzers - $1500-5000
+- **Tier 4**: Critical security infrastructure - $5000+
+
+### Qualifying Contributions
+1. **Novel Security Plugins**: New vulnerability detection capabilities
+2. **Fuzzing Innovations**: Advanced fuzzing techniques and engines
+3. **Analysis Improvements**: Enhanced security analysis algorithms
+4. **Integration Plugins**: Connections to popular security tools
+5. **Performance Optimizations**: Faster security scanning and analysis
+
+### Submission Requirements
+- Comprehensive security testing and validation
+- Documentation of security implications
+- Example usage and test cases
+- Performance benchmarks
+- Security impact assessment
+
+## 🔧 Development Guidelines
+
+### Security Best Practices
+1. **Input Validation**: Strict validation for all security plugin inputs
+2. **Sandboxing**: Isolate security testing in controlled environments
+3. **Error Handling**: Secure error handling without information disclosure
+4. **Logging**: Security-aware logging without sensitive data exposure
+5. **Dependencies**: Regular security updates and vulnerability scanning
+
+### Code Quality Standards
+- **TypeScript**: Strongly typed security plugin development
+- **ESLint**: Security-focused linting rules
+- **Prettier**: Consistent code formatting
+- **Jest**: Comprehensive testing including security test cases
+- **Documentation**: JSDoc with security considerations
+
+### Testing Requirements
+```bash
+# Security plugin test structure
+tests/
+├── unit/              # Unit tests for security functions
+├── integration/       # Integration tests with security tools
+├── security/          # Security-specific test suites
+├── fuzzing/          # Fuzzing test cases
+└── performance/      # Performance impact tests
 ```
 
 ## 📚 Documentation Standards
 
-### Code Documentation
-- Use JSDoc for function documentation
-- Include examples for complex functions
-- Document API endpoints with OpenAPI/Swagger
-- Keep README files updated
+### Security Plugin Documentation
+Each security plugin must include:
+1. **Security Impact**: What vulnerabilities it detects/prevents
+2. **Usage Examples**: Real-world security testing scenarios
+3. **Configuration**: Security-relevant configuration options
+4. **Limitations**: Known limitations and false positive rates
+5. **Integration**: How to integrate with existing security workflows
 
-### Example JSDoc
-```javascript
-/**
- * Performs security audit on a smart contract
- * @param {string} contractAddress - The contract address to audit
- * @param {Object} options - Audit configuration options
- * @param {string[]} options.networks - Networks to test on
- * @param {boolean} options.deepScan - Enable deep vulnerability scanning
- * @returns {Promise<AuditResult>} Audit results with vulnerabilities
- * @example
- * const result = await auditContract('0x123...', {
- *   networks: ['ethereum', 'polygon'],
- *   deepScan: true
- * });
- */
-async function auditContract(contractAddress, options = {}) {
-  // Implementation
-}
-```
+### API Documentation
+- **Security Endpoints**: Clear documentation of security-related APIs
+- **Authentication**: Security requirements and authentication methods
+- **Rate Limiting**: Security-related rate limiting and throttling
+- **Error Responses**: Security-aware error response documentation
 
-## 🔒 Security Guidelines
+## 🤝 Community Guidelines
 
-### Security-First Development
-- Never commit sensitive data (API keys, private keys)
-- Use environment variables for configuration
-- Validate all inputs and sanitize outputs
-- Follow OWASP security guidelines
-- Regular dependency updates
-
-### Security Testing
-- All security-related features must include tests
-- Test for common Web3 vulnerabilities
-- Include fuzzing tests for critical components
-- Document security assumptions
-
-## 🎯 Feature Development Guidelines
-
-### Cross-Chain Bridge Features
-- Support multiple bridge protocols
-- Include comprehensive testing
-- Document integration steps
-- Provide example configurations
-
-### AI/ML Features
-- Include model validation
-- Document training data requirements
-- Provide accuracy metrics
-- Include fallback mechanisms
-
-### Dashboard Features
-- Ensure responsive design
-- Include accessibility features
-- Test across browsers
-- Optimize for performance
-
-## 📋 Pull Request Process
-
-### PR Requirements
-1. **Description**: Clear description of changes
-2. **Testing**: All tests passing
-3. **Documentation**: Updated documentation
-4. **Security**: Security review if applicable
-5. **Performance**: No performance regressions
-
-### PR Template
-```markdown
-## Description
-Brief description of changes
-
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
-
-## Testing
-- [ ] Unit tests added/updated
-- [ ] Integration tests added/updated
-- [ ] Manual testing completed
-
-## Security
-- [ ] Security review completed
-- [ ] No sensitive data exposed
-- [ ] Input validation implemented
-
-## Documentation
-- [ ] Code comments updated
-- [ ] README updated
-- [ ] API documentation updated
-```
-
-### Review Process
-1. **Automated Checks**: CI/CD pipeline must pass
-2. **Code Review**: At least one maintainer approval
-3. **Security Review**: Required for security-related changes
-4. **Testing**: Comprehensive test coverage
-5. **Documentation**: Updated documentation
-
-## 🏆 Recognition
-
-### Contributor Levels
-- **Community Contributor**: First-time contributors
-- **Regular Contributor**: Multiple merged PRs
-- **Core Contributor**: Significant ongoing contributions
-- **Maintainer**: Repository maintenance privileges
-
-### Hall of Fame
-Outstanding contributors are recognized in our [Hall of Fame](tests/security/HALL_OF_FAME.md).
-
-## 🆘 Getting Help
+### Security Research Ethics
+- **Responsible Disclosure**: Follow responsible vulnerability disclosure
+- **No Malicious Code**: Contributions must not contain malicious functionality
+- **Privacy Respect**: Respect privacy in security testing and analysis
+- **Legal Compliance**: Ensure all security testing complies with applicable laws
 
 ### Communication Channels
-- **Discord**: [Join our Discord](https://discord.gg/audityzer)
-- **GitHub Issues**: For bug reports and feature requests
-- **GitHub Discussions**: For questions and community discussion
-- **Email**: maintainers@audityzer.com
+- **GitHub Issues**: Bug reports and feature requests
+- **Security Discussions**: GitHub Discussions for security-related topics
+- **Discord**: Real-time chat for security researchers and developers
+- **Security Advisories**: Private channel for security vulnerability reports
+
+## 🏆 Recognition Program
+
+### Contributor Levels
+1. **Security Contributor**: First accepted security plugin
+2. **Security Developer**: 5+ security plugins or major contributions
+3. **Security Architect**: Significant platform architecture contributions
+4. **Security Maintainer**: Ongoing maintenance and review responsibilities
+
+### Benefits
+- **Public Recognition**: Contributor profiles and achievements
+- **Early Access**: Beta access to new security features
+- **Conference Opportunities**: Speaking opportunities at security conferences
+- **Networking**: Access to security professional network
+- **Bounty Bonuses**: Additional rewards for exceptional contributions
+
+## 📋 Submission Checklist
+
+Before submitting your security plugin contribution:
+
+- [ ] **Security Testing**: Comprehensive security testing completed
+- [ ] **Documentation**: Security plugin documentation updated
+- [ ] **Tests**: All security tests passing
+- [ ] **Code Review**: Self-review for security implications
+- [ ] **Performance**: Performance impact assessed
+- [ ] **Integration**: Compatibility with existing security plugins verified
+- [ ] **Examples**: Usage examples and test cases provided
+- [ ] **Changelog**: Security-relevant changes documented
+
+## 🚨 Security Vulnerability Reporting
+
+If you discover a security vulnerability in Audityzer:
+
+1. **Do NOT** create a public issue
+2. **Email**: security@audityzer.com with details
+3. **Include**: Steps to reproduce, impact assessment, suggested fixes
+4. **Response**: We'll respond within 24 hours
+5. **Disclosure**: Coordinated disclosure after fix deployment
+
+## 📞 Getting Help
+
+### Support Channels
+- **GitHub Issues**: General questions and bug reports
+- **Discord**: Real-time community support
+- **Documentation**: Comprehensive guides and API references
+- **Security Team**: Direct contact for security-related questions
 
 ### Mentorship Program
-New contributors can request mentorship through our Discord community.
-
-## 📜 Code of Conduct
-
-Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
-
-## 🎉 Thank You!
-
-Your contributions make Audityzer better for everyone. We appreciate your time and effort in improving Web3 security!
+New contributors can request mentorship for:
+- Security plugin development guidance
+- Code review and best practices
+- Security testing methodologies
+- Platform architecture understanding
 
 ---
 
-**Happy Contributing! 🚀**
+Thank you for contributing to Audityzer! Together, we're building the future of security auditing and making the digital world more secure. 🔒✨

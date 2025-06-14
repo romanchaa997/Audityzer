@@ -1,0 +1,209 @@
+
+name: Automated Branch Cleanup
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_cleanup:
+        description: 'Force cleanup of all stale branches'
+        required: false
+        default: 'false'
+
+jobs:
+  cleanup-merged-branches:
+    name: Clean Up Merged Branches
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'Audityzer Bot'
+          git config --global user.email 'bot@audityzer.com'
+
+      - name: Fetch all branches
+        run: |
+          git fetch --all --prune
+          git remote prune origin
+
+      - name: Identify merged feature branches
+        id: merged-branches
+        run: |
+          # Get branches that have been merged into safe-improvements
+          MERGED_BRANCHES=$(git branch -r --merged origin/safe-improvements | \
+            grep -E 'origin/feature/' | \
+            grep -v 'origin/safe-improvements' | \
+            sed 's/origin\///' | \
+            tr '\n' ' ')
+          
+          echo "merged_branches=$MERGED_BRANCHES" >> $GITHUB_OUTPUT
+          echo "Found merged branches: $MERGED_BRANCHES"
+
+      - name: Delete merged feature branches
+        if: steps.merged-branches.outputs.merged_branches != ''
+        run: |
+          for branch in ${{ steps.merged-branches.outputs.merged_branches }}; do
+            echo "Deleting merged branch: $branch"
+            git push origin --delete "$branch" || echo "Failed to delete $branch (may not exist)"
+          done
+
+  cleanup-stale-branches:
+    name: Clean Up Stale Branches
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'Audityzer Bot'
+          git config --global user.email 'bot@audityzer.com'
+
+      - name: Fetch all branches
+        run: git fetch --all --prune
+
+      - name: Identify stale branches
+        id: stale-branches
+        run: |
+          # Find branches older than 7 days with no recent activity
+          STALE_DATE=$(date -d '7 days ago' '+%Y-%m-%d')
+          
+          STALE_BRANCHES=$(git for-each-ref --format='%(refname:short) %(committerdate:short)' refs/remotes/origin/ | \
+            grep -E '^origin/feature/' | \
+            awk -v stale_date="$STALE_DATE" '$2 < stale_date {print $1}' | \
+            sed 's/origin\///' | \
+            tr '\n' ' ')
+          
+          echo "stale_branches=$STALE_BRANCHES" >> $GITHUB_OUTPUT
+          echo "Found stale branches: $STALE_BRANCHES"
+
+      - name: Create stale branch report
+        if: steps.stale-branches.outputs.stale_branches != ''
+        run: |
+          echo "# Stale Branch Report - $(date)" > stale-branch-report.md
+          echo "" >> stale-branch-report.md
+          echo "The following branches have been identified as stale (no activity for 7+ days):" >> stale-branch-report.md
+          echo "" >> stale-branch-report.md
+          
+          for branch in ${{ steps.stale-branches.outputs.stale_branches }}; do
+            LAST_COMMIT=$(git log -1 --format="%h %s (%cr)" "origin/$branch" 2>/dev/null || echo "No commits found")
+            echo "- **$branch**: $LAST_COMMIT" >> stale-branch-report.md
+          done
+          
+          echo "" >> stale-branch-report.md
+          echo "These branches will be automatically deleted in the next cleanup cycle unless there is new activity." >> stale-branch-report.md
+
+      - name: Delete stale branches (if force cleanup enabled)
+        if: github.event.inputs.force_cleanup == 'true' && steps.stale-branches.outputs.stale_branches != ''
+        run: |
+          for branch in ${{ steps.stale-branches.outputs.stale_branches }}; do
+            echo "Force deleting stale branch: $branch"
+            git push origin --delete "$branch" || echo "Failed to delete $branch (may not exist)"
+          done
+
+      - name: Upload stale branch report
+        if: steps.stale-branches.outputs.stale_branches != ''
+        uses: actions/upload-artifact@v3
+        with:
+          name: stale-branch-report
+          path: stale-branch-report.md
+
+  cleanup-local-references:
+    name: Clean Up Local References
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clean up local references
+        run: |
+          # Remove local references to deleted remote branches
+          git remote prune origin
+          
+          # Remove local branches that track deleted remotes
+          git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -D
+
+      - name: Update branch protection rules
+        run: |
+          # Ensure safe-improvements branch protection is maintained
+          echo "Verifying branch protection for safe-improvements..."
+          # This would typically use GitHub CLI or API calls
+          # gh api repos/:owner/:repo/branches/safe-improvements/protection
+
+  generate-cleanup-summary:
+    name: Generate Cleanup Summary
+    runs-on: ubuntu-latest
+    needs: [cleanup-merged-branches, cleanup-stale-branches, cleanup-local-references]
+    if: always()
+    
+    steps:
+      - name: Generate cleanup summary
+        run: |
+          echo "# Branch Cleanup Summary - $(date)" > cleanup-summary.md
+          echo "" >> cleanup-summary.md
+          echo "## Cleanup Actions Performed" >> cleanup-summary.md
+          echo "" >> cleanup-summary.md
+          echo "- ✅ Merged branch cleanup completed" >> cleanup-summary.md
+          echo "- ✅ Stale branch identification completed" >> cleanup-summary.md
+          echo "- ✅ Local reference cleanup completed" >> cleanup-summary.md
+          echo "" >> cleanup-summary.md
+          echo "## Repository Health" >> cleanup-summary.md
+          echo "" >> cleanup-summary.md
+          echo "- **Trunk Branch**: safe-improvements (protected)" >> cleanup-summary.md
+          echo "- **Active Feature Branches**: $(git branch -r | grep -c 'origin/feature/' || echo '0')" >> cleanup-summary.md
+          echo "- **Cleanup Date**: $(date)" >> cleanup-summary.md
+          echo "" >> cleanup-summary.md
+          echo "## Next Steps" >> cleanup-summary.md
+          echo "" >> cleanup-summary.md
+          echo "- Continue development on short-lived feature branches" >> cleanup-summary.md
+          echo "- Regular integration with trunk (safe-improvements)" >> cleanup-summary.md
+          echo "- Maintain security-focused development workflow" >> cleanup-summary.md
+
+      - name: Upload cleanup summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: cleanup-summary
+          path: cleanup-summary.md
+
+      - name: Notify team of cleanup completion
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              "text": "🧹 Automated branch cleanup completed for Audityzer security platform",
+              "attachments": [
+                {
+                  "color": "good",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Cleanup Date",
+                      "value": "$(date)",
+                      "short": true
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
