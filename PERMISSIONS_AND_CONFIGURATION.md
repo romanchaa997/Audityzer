@@ -1,266 +1,209 @@
-# GitHub Actions Permissions and Repository Configuration
+# GitHub Actions Permissions and Configuration Guide
 
-This document provides the necessary commands and configuration for setting up proper permissions and repository settings for the Audityzer GitHub Actions workflows.
-
-## Repository Settings Configuration
+## Repository Settings Required
 
 ### 1. GitHub Actions Permissions
+Navigate to: `Settings > Actions > General`
 
-#### Enable GitHub Actions (if not already enabled)
-```bash
-# Using GitHub CLI
-gh api repos/:owner/:repo --method PATCH --field allow_actions=true
-```
+**Workflow permissions:**
+- ✅ Read and write permissions
+- ✅ Allow GitHub Actions to create and approve pull requests
 
-#### Set Actions Permissions
-```bash
-# Allow all actions and reusable workflows
-gh api repos/:owner/:repo/actions/permissions --method PUT --field enabled=true --field allowed_actions=all
-```
+**Fork pull request workflows:**
+- ✅ Run workflows from fork pull requests
 
 ### 2. GitHub Pages Configuration
+Navigate to: `Settings > Pages`
 
-#### Enable GitHub Pages with Actions
+**Source:**
+- ✅ Deploy from a branch
+- ✅ Branch: `gh-pages` (will be created automatically)
+- ✅ Folder: `/ (root)`
+
+**Custom domain (optional):**
+- Set to your preferred domain or leave blank for default GitHub Pages URL
+
+### 3. Environment Configuration
+Navigate to: `Settings > Environments`
+
+Create the following environments (optional but recommended):
+- `staging` - for develop branch deployments
+- `production` - for main branch deployments
+
+### 4. Required Secrets
+Navigate to: `Settings > Secrets and variables > Actions`
+
+**Required secrets:**
+- `GITHUB_TOKEN` - Automatically provided by GitHub (no action needed)
+
+**Optional secrets (for enhanced functionality):**
+- `SNYK_TOKEN` - For Snyk security scanning
+- `SEMGREP_APP_TOKEN` - For Semgrep SAST scanning
+- `NPM_TOKEN` - For NPM package publishing (if needed)
+
+## Workflow Configuration
+
+### Current Clean Workflows
+
+1. **CI/CD Pipeline** (`ci-cd-clean.yml`)
+   - Triggers: Push to main/develop, PRs to main
+   - Features: Test, build, deploy to GitHub Pages
+   - Permissions: Contents read, Pages write
+
+2. **Security Scanning** (`security-clean.yml`)
+   - Triggers: Push to main/develop, PRs to main, weekly schedule
+   - Features: CodeQL, dependency scan, SAST
+   - Permissions: Security events write
+
+3. **Automated Release** (`release-clean.yml`)
+   - Triggers: Push to main, manual dispatch
+   - Features: Semantic release, asset creation
+   - Permissions: Contents write, Issues write, PRs write
+
+## Troubleshooting Common Issues
+
+### Startup Failures
+If workflows show "startup_failure":
+
+1. **Check repository permissions:**
+   ```bash
+   # Verify Actions are enabled
+   curl -H "Authorization: token YOUR_TOKEN" \
+        https://api.github.com/repos/OWNER/REPO/actions/permissions
+   ```
+
+2. **Verify branch protection rules:**
+   - Ensure workflows can run on target branches
+   - Check if required status checks are blocking
+
+3. **Environment setup:**
+   - Ensure environments exist if referenced in workflows
+   - Check environment protection rules
+
+### Permission Errors
+If you see permission-related errors:
+
+1. **Update workflow permissions:**
+   ```yaml
+   permissions:
+     contents: read
+     pages: write
+     id-token: write
+   ```
+
+2. **Check token scopes:**
+   - GITHUB_TOKEN has appropriate permissions
+   - Custom tokens have required scopes
+
+### Deployment Issues
+For GitHub Pages deployment problems:
+
+1. **Enable GitHub Pages:**
+   - Go to Settings > Pages
+   - Select source as "GitHub Actions"
+
+2. **Check build artifacts:**
+   - Ensure `dist/` or `build/` directory exists
+   - Verify artifact upload/download steps
+
+## Manual Configuration Commands
+
+### Using GitHub CLI
 ```bash
-# Enable GitHub Pages with GitHub Actions as source
-gh api repos/:owner/:repo/pages --method POST \
-  --field source='{"branch":"gh-pages","path":"/"}' \
-  --field build_type="workflow"
-```
-
-#### Alternative: Configure via Web Interface
-1. Go to repository **Settings** > **Pages**
-2. Under **Source**, select **GitHub Actions**
-3. Save the configuration
-
-### 3. Branch Protection Rules
-
-#### Protect Main Branch
-```bash
-# Create branch protection rule for main branch
-gh api repos/:owner/:repo/branches/main/protection --method PUT \
-  --field required_status_checks='{"strict":true,"contexts":["CI/CD Pipeline","Security Scanning"]}' \
-  --field enforce_admins=false \
-  --field required_pull_request_reviews='{"required_approving_review_count":1,"dismiss_stale_reviews":true}' \
-  --field restrictions=null \
-  --field allow_force_pushes=false \
-  --field allow_deletions=false
-```
-
-### 4. Security Settings
-
-#### Enable Dependabot Alerts
-```bash
-# Enable Dependabot vulnerability alerts
-gh api repos/:owner/:repo/vulnerability-alerts --method PUT
-```
-
-#### Enable Dependabot Security Updates
-```bash
-# Enable Dependabot security updates
-gh api repos/:owner/:repo/automated-security-fixes --method PUT
-```
-
-#### Enable Code Scanning
-```bash
-# Enable code scanning (CodeQL will be configured via workflow)
-gh api repos/:owner/:repo/code-scanning/default-setup --method PATCH \
-  --field state="configured"
-```
-
-## Environment Configuration
-
-### 1. Create Environments
-
-#### Production Environment
-```bash
-# Create production environment
-gh api repos/:owner/:repo/environments/production --method PUT \
-  --field wait_timer=0 \
-  --field reviewers='[]' \
-  --field deployment_branch_policy='{"protected_branches":true,"custom_branch_policies":false}'
-```
-
-#### Staging Environment
-```bash
-# Create staging environment
-gh api repos/:owner/:repo/environments/staging --method PUT \
-  --field wait_timer=0 \
-  --field reviewers='[]' \
-  --field deployment_branch_policy='{"protected_branches":false,"custom_branch_policies":true}'
-```
-
-### 2. Environment Protection Rules
-
-#### Add Environment Protection (Optional)
-```bash
-# Add required reviewers for production (replace with actual usernames)
-gh api repos/:owner/:repo/environments/production --method PUT \
-  --field reviewers='[{"type":"User","id":USER_ID}]' \
-  --field wait_timer=300
-```
-
-## Workflow-Specific Permissions
-
-### Required Token Permissions
-Our workflows require the following permissions for `GITHUB_TOKEN`:
-
-```yaml
-permissions:
-  contents: write        # For creating releases and pushing changes
-  security-events: write # For uploading security scan results
-  pages: write          # For GitHub Pages deployment
-  packages: write       # For publishing packages
-  issues: write         # For creating issues from security scans
-  pull-requests: write  # For commenting on PRs
-  actions: read         # For reading workflow information
-```
-
-### Repository Settings via Web Interface
-
-If you prefer using the GitHub web interface:
-
-#### 1. Actions Settings
-- Go to **Settings** > **Actions** > **General**
-- Under **Actions permissions**, select "Allow all actions and reusable workflows"
-- Under **Workflow permissions**, select "Read and write permissions"
-- Check "Allow GitHub Actions to create and approve pull requests"
-
-#### 2. Security Settings
-- Go to **Settings** > **Security & analysis**
-- Enable **Dependency graph**
-- Enable **Dependabot alerts**
-- Enable **Dependabot security updates**
-- Enable **Code scanning** (CodeQL analysis)
-- Enable **Secret scanning**
-
-#### 3. Pages Settings
-- Go to **Settings** > **Pages**
-- Under **Source**, select **GitHub Actions**
-- The workflows will handle deployment automatically
-
-## Monitoring and Maintenance
-
-### 1. Workflow Monitoring Commands
-
-```bash
-# List recent workflow runs
-gh run list --limit 10
-
-# Watch a specific workflow run
-gh run watch <run-id>
-
-# View workflow run logs
-gh run view <run-id> --log
-
-# List workflow runs for specific workflow
-gh run list --workflow="CI/CD Pipeline"
-```
-
-### 2. Security Monitoring
-
-```bash
-# List security alerts
-gh api repos/:owner/:repo/dependabot/alerts
-
-# List code scanning alerts
-gh api repos/:owner/:repo/code-scanning/alerts
-
-# View security advisories
-gh api repos/:owner/:repo/security-advisories
-```
-
-### 3. Repository Health Check
-
-```bash
-# Check repository settings
-gh repo view --json name,description,visibility,defaultBranch,hasIssues,hasWiki,hasPages
-
-# Check branch protection
-gh api repos/:owner/:repo/branches/main/protection
-
-# Check Actions permissions
-gh api repos/:owner/:repo/actions/permissions
-```
-
-## Troubleshooting Commands
-
-### Common Issues and Solutions
-
-#### 1. Workflow Permission Issues
-```bash
-# Check current permissions
-gh api repos/:owner/:repo/actions/permissions
-
-# Fix permissions
-gh api repos/:owner/:repo/actions/permissions --method PUT \
-  --field enabled=true \
-  --field allowed_actions=all
-```
-
-#### 2. Pages Deployment Issues
-```bash
-# Check Pages status
-gh api repos/:owner/:repo/pages
-
-# Re-enable Pages
-gh api repos/:owner/:repo/pages --method POST \
-  --field source='{"branch":"gh-pages","path":"/"}' \
-  --field build_type="workflow"
-```
-
-#### 3. Security Scanning Issues
-```bash
-# Check CodeQL status
-gh api repos/:owner/:repo/code-scanning/analyses
-
-# Re-run security workflows
-gh workflow run "Security Scanning"
-```
-
-## Automated Setup Script
-
-Create a setup script to configure everything at once:
-
-```bash
-#!/bin/bash
-# setup-repository.sh
-
-REPO="owner/repo"  # Replace with your repository
-
-echo "🔧 Configuring repository permissions and settings..."
-
-# Enable Actions
-gh api repos/$REPO/actions/permissions --method PUT \
-  --field enabled=true --field allowed_actions=all
-
-# Enable security features
-gh api repos/$REPO/vulnerability-alerts --method PUT
-gh api repos/$REPO/automated-security-fixes --method PUT
+# Enable GitHub Actions (if disabled)
+gh api repos/:owner/:repo --method PATCH --field has_actions=true
 
 # Configure Pages
-gh api repos/$REPO/pages --method POST \
-  --field build_type="workflow" || echo "Pages already configured"
+gh api repos/:owner/:repo/pages --method POST \
+  --field source.branch=gh-pages \
+  --field source.path=/
 
-# Create environments
-gh api repos/$REPO/environments/production --method PUT \
-  --field deployment_branch_policy='{"protected_branches":true,"custom_branch_policies":false}'
-
-gh api repos/$REPO/environments/staging --method PUT \
-  --field deployment_branch_policy='{"protected_branches":false,"custom_branch_policies":true}'
-
-echo "✅ Repository configuration complete!"
-echo "🚀 Workflows are ready to run!"
+# Set workflow permissions
+gh api repos/:owner/:repo --method PATCH \
+  --field default_workflow_permissions=write \
+  --field can_approve_pull_request_reviews=true
 ```
 
-## Next Steps
+### Repository Settings Checklist
+- [ ] Actions enabled
+- [ ] Workflow permissions set to "Read and write"
+- [ ] Pages configured for GitHub Actions deployment
+- [ ] Required secrets configured
+- [ ] Environment protection rules (if using environments)
+- [ ] Branch protection rules allow workflow runs
 
-1. **Run the setup commands** or use the automated script
-2. **Add required secrets** as documented in `SECURITY_AND_SECRETS.md`
-3. **Test workflows** by pushing a commit or creating a pull request
-4. **Monitor workflow runs** in the Actions tab
-5. **Review security alerts** regularly in the Security tab
+## Monitoring and Alerts
+
+### Workflow Health Monitoring
+Create a monitoring workflow to track failures:
+
+```yaml
+name: Workflow Health Monitor
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Daily at 9 AM UTC
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check workflow status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const workflows = ['ci-cd-clean.yml', 'security-clean.yml', 'release-clean.yml'];
+          for (const workflow of workflows) {
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: workflow,
+              per_page: 5
+            });
+            
+            const failures = runs.data.workflow_runs.filter(run => 
+              run.conclusion === 'failure' || run.conclusion === 'startup_failure'
+            );
+            
+            if (failures.length > 0) {
+              console.log(`⚠️ ${workflow} has ${failures.length} recent failures`);
+            } else {
+              console.log(`✅ ${workflow} is healthy`);
+            }
+          }
+```
+
+## Success Metrics
+
+### Key Performance Indicators
+- **Workflow Success Rate:** >95% successful runs
+- **Build Time:** <10 minutes for CI/CD pipeline
+- **Security Scan Coverage:** 100% of pushes scanned
+- **Deployment Frequency:** Automated on every main branch push
+- **Mean Time to Recovery:** <30 minutes for failed deployments
+
+### Monitoring Dashboard
+Track these metrics in your repository:
+- Total workflow runs per week
+- Success/failure ratio
+- Average build duration
+- Security vulnerabilities detected and resolved
+- Deployment success rate
+
+## Support and Resources
+
+### GitHub Documentation
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [GitHub Pages Documentation](https://docs.github.com/en/pages)
+- [Repository Permissions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features)
+
+### Community Resources
+- [GitHub Actions Marketplace](https://github.com/marketplace?type=actions)
+- [Awesome GitHub Actions](https://github.com/sdras/awesome-actions)
+- [GitHub Community Forum](https://github.community/)
 
 ---
 
-*Last updated: June 14, 2025*
+**Last Updated:** June 14, 2025
+**Version:** 1.0
+**Maintainer:** Audityzer Team
