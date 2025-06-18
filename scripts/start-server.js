@@ -21,7 +21,6 @@ const logger = {
   log: (message) => {
     const timestamp = new Date().toISOString();
     const logMessage = `[${timestamp}] ${message}\n`;
-    console.log(message);
     
     // Append to log file
     try {

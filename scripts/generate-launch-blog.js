@@ -59,4 +59,3 @@ This release would not be possible without our amazing contributors and early te
 `;
 
 fs.writeFileSync(OUT_FILE, content);
-console.log('✔ Launch blog created at', OUT_FILE); 

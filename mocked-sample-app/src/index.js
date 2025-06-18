@@ -22,5 +22,4 @@ app.get('/', (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Mock dApp server running at http://localhost:${port}`);
 });

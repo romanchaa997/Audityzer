@@ -58,7 +58,6 @@ const sampleTestResults = {
  * Demonstrate using Immunefi Submission Generator
  */
 async function demonstrateImmunefi() {
-  console.log('\n--- Immunefi Submission Generator Example ---');
 
   // Create a new instance
   const immunefi = new ImmunefiSubmissionGenerator('./examples/output/immunefi');
@@ -68,15 +67,12 @@ async function demonstrateImmunefi() {
 
   // Generate submissions
   const submissions = immunefi.generateSubmissions();
-  console.log(`Generated ${submissions.length} Immunefi submissions`);
 
   // Save submissions
   const savedFiles = immunefi.saveSubmissions(submissions);
-  console.log(`Saved submissions to: ${savedFiles.join(', ')}`);
 
   // Create summary report
   const summaryPath = immunefi.createSummaryReport(submissions);
-  console.log(`Summary report saved to: ${summaryPath}`);
 
   return submissions;
 }
@@ -85,7 +81,6 @@ async function demonstrateImmunefi() {
  * Demonstrate using Code4rena Integration
  */
 async function demonstrateCode4rena() {
-  console.log('\n--- Code4rena Integration Example ---');
 
   // Create a new instance
   const code4rena = new Code4renaIntegration('example-contest', './examples/output/code4rena');
@@ -95,15 +90,12 @@ async function demonstrateCode4rena() {
 
   // Generate submissions
   const submissions = code4rena.generateSubmissions();
-  console.log(`Generated ${submissions.length} Code4rena submissions`);
 
   // Save submissions
   const savedFiles = code4rena.saveSubmissions(submissions);
-  console.log(`Saved submissions to: ${savedFiles.join(', ')}`);
 
   // Generate metrics
   const metricsPath = code4rena.generateMetricsReport();
-  console.log(`Metrics report saved to: ${metricsPath}`);
 
   return submissions;
 }
@@ -112,7 +104,6 @@ async function demonstrateCode4rena() {
  * Demonstrate using Sherlock Report Formatter
  */
 async function demonstrateSherlock() {
-  console.log('\n--- Sherlock Report Formatter Example ---');
 
   // Create a new instance
   const sherlock = new SherlockReportFormatter(
@@ -126,11 +117,9 @@ async function demonstrateSherlock() {
 
   // Generate submissions
   const submissions = sherlock.generateSubmissions();
-  console.log(`Generated ${submissions.length} Sherlock submissions`);
 
   // Save submissions
   const savedFiles = sherlock.saveSubmissions(submissions);
-  console.log(`Saved submissions to: ${savedFiles.join(', ')}`);
 
   return submissions;
 }
@@ -139,29 +128,23 @@ async function demonstrateSherlock() {
  * Demonstrate using Bridge Bounty Adapter
  */
 async function demonstrateBridgeBounty() {
-  console.log('\n--- Bridge Bounty Adapter Example ---');
 
   // Create a new instance
   const bridgeAdapter = new BridgeBountyAdapter('./examples/output/bridge');
 
   // Fetch vulnerability reports
   const c4Reports = await bridgeAdapter.fetchCode4renaReports(5);
-  console.log(`Fetched ${c4Reports.length} reports from Code4rena`);
 
   const sherlockReports = await bridgeAdapter.fetchSherlockReports(5);
-  console.log(`Fetched ${sherlockReports.length} reports from Sherlock`);
 
   // Generate test templates
   const templates = await bridgeAdapter.generateTestTemplates();
-  console.log(`Generated ${templates.length} test templates`);
 
   // Save templates
   const savedFiles = await bridgeAdapter.saveTestTemplates();
-  console.log(`Saved templates to: ${savedFiles.join(', ')}`);
 
   // Generate report
   const report = bridgeAdapter.generateReport();
-  console.log('Generated bridge vulnerability report');
 
   return templates;
 }
@@ -170,7 +153,6 @@ async function demonstrateBridgeBounty() {
  * Demonstrate using factory function
  */
 async function demonstrateFactory() {
-  console.log('\n--- Bounty Submission Generator Factory Example ---');
 
   // Create generators for different platforms
   const immunefi = createBountySubmissionGenerator('immunefi', {
@@ -192,14 +174,12 @@ async function demonstrateFactory() {
     outputDir: './examples/output/factory/bridge',
   });
 
-  console.log('Successfully created bounty submission generators using factory function');
 
   // Set test results
   immunefi.setTestResults(sampleTestResults);
 
   // Generate submissions
   const submissions = immunefi.generateSubmissions();
-  console.log(`Generated ${submissions.length} submissions using factory-created generator`);
 
   return submissions;
 }
@@ -225,7 +205,6 @@ async function runAllExamples() {
     await demonstrateBridgeBounty();
     await demonstrateFactory();
 
-    console.log('\nAll examples completed successfully!');
   } catch (error) {
     console.error('Error running examples:', error);
   }

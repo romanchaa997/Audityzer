@@ -82,11 +82,11 @@ function registerSteps() {
   Given('I have a test wallet with {float} ETH', async function (ethAmount) {
     // Create a random wallet for testing
     currentWallet = ethers.Wallet.createRandom();
-    console.log(`Created test wallet: ${currentWallet.address}`);
+    // console.log(`Created test wallet: ${currentWallet.address}`);
 
     // If we're on a test network, we could try to get ETH from a faucet
     // For now, just log that this would need to be funded
-    console.log(`Note: Wallet needs to be funded with ${ethAmount} ETH`);
+    // console.log(`Note: Wallet needs to be funded with ${ethAmount} ETH`);
   });
 
   // Network connections
@@ -131,7 +131,7 @@ function registerSteps() {
         await currentContract[method]();
       }
     } catch (error) {
-      console.log(`Warning: Could not verify contract connection: ${error.message}`);
+      // console.log(`Warning: Could not verify contract connection: ${error.message}`);
     }
   });
 

@@ -115,7 +115,6 @@ program
         const outputPath = options.output || path.join(process.cwd(), 'reports', 'debug');
         const title = options.title || 'Debug Session';
 
-        console.log(`Generating debug dashboard from ${options.input}...`);
 
         const tools = debugTools.initialize({ outputDir: outputPath });
         const session = recreateDebugSession(sessionData);
@@ -128,7 +127,6 @@ program
         console.log(`Debug dashboard generated at: ${result.dashboard.path}`);
       } else {
         // Create new debug session
-        console.log('Creating new debug session...');
 
         const outputPath = options.output || path.join(process.cwd(), 'reports', 'debug');
         const tools = debugTools.initialize({ outputDir: outputPath });

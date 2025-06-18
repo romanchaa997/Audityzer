@@ -15,7 +15,6 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-console.log('Running dependency conflict resolution...');
 
 // Function to check if a package is installed
 function isPackageInstalled(packageName) {
@@ -54,12 +53,9 @@ function resolveConflicts() {
       
       // If puppeteer is v23+, it can cause conflicts with mermaid-cli
       if (majorVersion >= 23) {
-        console.log('⚠️ Detected puppeteer v23+ which conflicts with mermaid-cli');
-        console.log('Downgrading puppeteer to v21.10.0 for compatibility...');
         
         try {
           execSync('npm install puppeteer@21.10.0 --save-dev --legacy-peer-deps', { stdio: 'inherit' });
-          console.log('✅ Successfully downgraded puppeteer to v21.10.0');
           hasConflicts = true;
         } catch (err) {
           console.error('❌ Failed to downgrade puppeteer:', err.message);
@@ -77,12 +73,9 @@ function resolveConflicts() {
       
       // If mermaid-cli is v11+, downgrade to v10
       if (majorVersion >= 11) {
-        console.log('⚠️ Detected mermaid-cli v11+ which may cause compatibility issues');
-        console.log('Downgrading mermaid-cli to v10.6.1 for better compatibility...');
         
         try {
           execSync('npm install @mermaid-js/mermaid-cli@10.6.1 --save --legacy-peer-deps', { stdio: 'inherit' });
-          console.log('✅ Successfully downgraded mermaid-cli to v10.6.1');
           hasConflicts = true;
         } catch (err) {
           console.error('❌ Failed to downgrade mermaid-cli:', err.message);
@@ -119,12 +112,9 @@ function fixVulnerablePackages() {
           (currentParts[0] === safeParts[0] && currentParts[1] === safeParts[1] && currentParts[2] < safeParts[2]);
         
         if (needsUpgrade) {
-          console.log(`⚠️ Detected vulnerable ${pkg}@${currentVersion}`);
-          console.log(`Upgrading ${pkg} to ${safeVersion}...`);
           
           try {
             execSync(`npm install ${pkg}@${safeVersion} --save-dev --legacy-peer-deps`, { stdio: 'inherit' });
-            console.log(`✅ Successfully upgraded ${pkg} to ${safeVersion}`);
             fixedCount++;
           } catch (err) {
             console.error(`❌ Failed to upgrade ${pkg}:`, err.message);
@@ -145,7 +135,6 @@ function fixDeepDependencies() {
   const pkgLockPath = path.join(process.cwd(), 'package-lock.json');
   
   if (!fs.existsSync(pkgLockPath)) {
-    console.log('⚠️ package-lock.json not found, skipping deep dependency fixes');
     return;
   }
   
@@ -165,7 +154,6 @@ lodash.set:>=4.3.2
 `;
     
     fs.writeFileSync(npmrcPath, npmrcContent);
-    console.log('✅ Created/updated .npmrc with security overrides');
   } catch (err) {
     console.error('❌ Failed to create/update .npmrc:', err.message);
   }
@@ -190,7 +178,6 @@ lodash.set:>=4.3.2
 `;
     
     fs.writeFileSync(npmrcCiPath, npmrcCiContent);
-    console.log('✅ Created CI-specific .npmrc-ci configuration');
   } catch (err) {
     console.error('❌ Failed to create .npmrc-ci:', err.message);
   }
@@ -202,16 +189,12 @@ try {
   const fixedVulns = fixVulnerablePackages();
   
   if (!conflicts) {
-    console.log('✅ No dependency conflicts detected');
   } else {
-    console.log('ℹ️ Dependency conflicts were resolved');
   }
   
   if (fixedVulns > 0) {
-    console.log(`ℹ️ Fixed ${fixedVulns} vulnerable package(s)`);
   }
   
-  console.log('📦 Post-install dependency fixes completed');
 } catch (err) {
   console.error('❌ Error resolving dependencies:', err.message);
   process.exit(1);

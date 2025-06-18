@@ -288,7 +288,6 @@ class LineaValidator {
     this.logs.push(logEntry);
 
     if (this.config.logLevel === 'debug' || level === 'error') {
-      console.log(`[${logEntry.timestamp}] [Linea] [${level.toUpperCase()}] ${message}`);
     }
   }
 }

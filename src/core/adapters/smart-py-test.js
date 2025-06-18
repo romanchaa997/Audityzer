@@ -70,7 +70,7 @@ class SmartPyTest {
 
       python.on('close', code => {
         if (code === 0) {
-          console.log(`Python detected: ${output.trim()}`);
+          // console.log(`Python detected: ${output.trim()}`);
           resolve(true);
         } else {
           reject(
@@ -87,7 +87,7 @@ class SmartPyTest {
   async _checkSmartPyInstallation() {
     // If SmartPy path doesn't exist, download it
     if (!fs.existsSync(this.config.smartPyPath)) {
-      console.log('SmartPy CLI not found. Downloading...');
+      // console.log('SmartPy CLI not found. Downloading...');
       await this._downloadSmartPy();
     }
 
@@ -109,7 +109,7 @@ class SmartPyTest {
 
       smartpy.on('close', code => {
         if (code === 0) {
-          console.log(`SmartPy detected: ${output.trim()}`);
+          // console.log(`SmartPy detected: ${output.trim()}`);
           resolve(true);
         } else {
           reject(new Error('SmartPy CLI not working correctly. Please check your installation.'));
@@ -146,7 +146,7 @@ class SmartPyTest {
         const installer = spawn('bash', [installerPath, this.config.smartPyPath]);
 
         installer.stdout.on('data', data => {
-          console.log(`SmartPy Installer: ${data.toString().trim()}`);
+          // console.log(`SmartPy Installer: ${data.toString().trim()}`);
         });
 
         installer.stderr.on('data', data => {
@@ -155,7 +155,7 @@ class SmartPyTest {
 
         installer.on('close', code => {
           if (code === 0) {
-            console.log('SmartPy installed successfully');
+            // console.log('SmartPy installed successfully');
             resolve(true);
           } else {
             reject(new Error('Failed to install SmartPy'));
@@ -194,7 +194,7 @@ class SmartPyTest {
       };
     }
 
-    console.log(`Loaded ${Object.keys(this.testScripts).length} test templates`);
+    // console.log(`Loaded ${Object.keys(this.testScripts).length} test templates`);
     return this.testScripts;
   }
 
@@ -468,8 +468,8 @@ def test():
       args.push('--verbose');
     }
 
-    console.log(`Running SmartPy test: ${testName}`);
-    console.log(`Command: ${this.config.pythonPath} ${args.join(' ')}`);
+    // console.log(`Running SmartPy test: ${testName}`);
+    // console.log(`Command: ${this.config.pythonPath} ${args.join(' ')}`);
 
     return new Promise((resolve, reject) => {
       const smartpy = spawn(this.config.pythonPath, args);
@@ -481,7 +481,7 @@ def test():
         const text = data.toString();
         output += text;
         if (this.config.logLevel !== 'quiet') {
-          console.log(`[SmartPyTest] ${text.trim()}`);
+          // console.log(`[SmartPyTest] ${text.trim()}`);
         }
       });
 

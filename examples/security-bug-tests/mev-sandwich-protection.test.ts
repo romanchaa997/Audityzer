@@ -154,7 +154,6 @@ async function createMockDexPage(page: Page) {
               };
               
               // Log for testing
-              console.log('SWAP_TRANSACTION:', JSON.stringify(txData));
               
               // Build transaction based on selected MEV protection
               let txParams = {
@@ -166,17 +165,13 @@ async function createMockDexPage(page: Page) {
               
               // Add MEV protection if selected
               if (mevProtection !== 'none') {
-                console.log('Using MEV protection:', mevProtection);
                 
                 if (mevProtection === 'flashbots') {
                   // Would add Flashbots bundle options in real implementation
-                  console.log('FLASHBOTS: Bundle would be sent to Flashbots RPC');
                 } else if (mevProtection === 'eden') {
                   // Would add Eden Network options
-                  console.log('EDEN: Transaction would include Eden Network gas price priority');
                 } else if (mevProtection === 'cowswap') {
                   // Would use CoW Swap protocol
-                  console.log('COWSWAP: Swap would be executed as a CoW order');
                   txParams.to = '0xCowSwapSettlementAddress';
                 }
               }
@@ -253,7 +248,6 @@ test.describe('MEV/Sandwich Attack Vulnerability Detection', () => {
         const originalRequest = window.ethereum.request.bind(window.ethereum);
         window.ethereum.request = async function(args) {
           if (args.method === 'eth_sendTransaction') {
-            console.log(`TRANSACTION_REQUEST: ${JSON.stringify(args.params)}`);
           }
           return originalRequest(args);
         };
@@ -274,7 +268,6 @@ test.describe('MEV/Sandwich Attack Vulnerability Detection', () => {
           // Failed to parse
         }
       } else if (text.includes('TRANSACTION_REQUEST:')) {
-        console.log('Detected transaction request:', text);
       }
     });
     
@@ -293,7 +286,6 @@ test.describe('MEV/Sandwich Attack Vulnerability Detection', () => {
     expect(transactions[0].slippage).toBe(0);
     
     // Report the vulnerability
-    console.log('VULNERABILITY: Transaction lacks MEV protection and has no slippage tolerance');
     
     // Test with proper protection
     await page.selectOption('#mev-protection', 'flashbots');
@@ -308,7 +300,6 @@ test.describe('MEV/Sandwich Attack Vulnerability Detection', () => {
     expect(transactions[1].mevProtection).toBe('flashbots');
     expect(transactions[1].slippage).toBe(0.5);
     
-    console.log('Protected transaction has MEV protection via Flashbots and 0.5% slippage protection');
   });
   
   test('analyzes swap function for sandwich attack vulnerability', async ({ page }) => {
@@ -365,13 +356,11 @@ test.describe('MEV/Sandwich Attack Vulnerability Detection', () => {
     
     // Assess MEV protection measures
     expect(vulnerableSwaps.length).toBeGreaterThan(0);
-    console.log(`Found ${vulnerableSwaps.length} vulnerable swaps without proper MEV protection`);
     
     const protectedSwaps = swapDetails.filter(swap => 
       swap.mevProtection !== 'none' || swap.slippage >= 0.5
     );
     
-    console.log(`Found ${protectedSwaps.length} swaps with some form of protection`);
     
     // Verify both vulnerable and protected swaps were detected
     expect(vulnerableSwaps.length).toBeGreaterThan(0);

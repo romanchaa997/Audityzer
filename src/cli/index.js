@@ -23,7 +23,6 @@ const args = process.argv.slice(2);
 const aaMode = args.includes('--aa') || args.includes('--pimlico');
 
 if (aaMode) {
-  console.log(chalk.blue('[+] Account Abstraction Test Mode enabled.'));
   
   // Check for addon flag
   const addonIndex = args.indexOf('--addon');
@@ -127,7 +126,6 @@ function setupProgram() {
 // Run tests command function
 async function runTests(target, options) {
   try {
-    console.log(chalk.blue(`🔍 Running tests against ${target}...`));
     
     // Handle AA mode
     if (options.aa || options.pimlico) {
@@ -147,7 +145,6 @@ async function runTests(target, options) {
         debug: true
       });
       
-      console.log(chalk.blue('📡 Connected to Pimlico API'));
       
       // Fetch gas parameters and EntryPoint metadata
       try {
@@ -158,8 +155,6 @@ async function runTests(target, options) {
         
         pimlicoData = { gasParams, entryPointMeta };
         
-        console.log(chalk.blue('⛽ Fetched live gas parameters from Pimlico'));
-        console.log(chalk.blue('📝 Fetched EntryPoint metadata from Pimlico'));
       } catch (error) {
         console.warn(chalk.yellow(`⚠️ Failed to fetch data from Pimlico API: ${error.message}`));
       }
@@ -174,7 +169,6 @@ async function runTests(target, options) {
       if (!validAddons.includes(addon)) {
         console.warn(chalk.yellow(`⚠️ Unknown addon ${addon}. Valid values are: ${validAddons.join(', ')}`));
       } else {
-        console.log(chalk.blue(`🧩 Including specialized AA tests for ${addon}`));
         
         // Map addon to test template
         const addonMap = {
@@ -206,16 +200,10 @@ async function runTests(target, options) {
       pimlicoService
     });
     
-    console.log(chalk.green('✅ Tests completed successfully!'));
-    console.log(chalk.yellow(`Total tests: ${results.summary.total}`));
-    console.log(chalk.green(`Passed: ${results.summary.passed}`));
-    console.log(chalk.red(`Failed: ${results.summary.failed}`));
     
     if (results.summary.vulnerabilities.length) {
-      console.log(chalk.red(`Found ${results.summary.vulnerabilities.length} vulnerabilities:`));
       
       for (const vuln of results.summary.vulnerabilities) {
-        console.log(chalk.red(`  - ${vuln.type}: ${vuln.description}`));
       }
     }
     
@@ -262,7 +250,6 @@ async function runTests(target, options) {
       ciReporter.addTestResults(testResultsForCI);
       const reportPath = await ciReporter.writeReport();
       
-      console.log(chalk.blue(`📋 CI report generated: ${chalk.bold(reportPath)}`));
       ciReporter.printSummary();
     }
     
@@ -301,7 +288,6 @@ async function runTests(target, options) {
           addon: options.addon
         });
         
-        console.log(chalk.blue(`📊 Interactive dashboard generated at ${chalk.bold(dashboard.html)}`));
       } catch (error) {
         console.error(chalk.yellow(`⚠️ Could not generate dashboard: ${error.message}`));
       }
@@ -320,7 +306,6 @@ async function runTests(target, options) {
         await fs.writeFile(outputPath, report);
       }
       
-      console.log(chalk.blue(`📝 Results saved to ${chalk.bold(outputPath)}`));
     }
   } catch (error) {
     console.error(chalk.red(`💥 Error running tests: ${error.message}`));
@@ -331,7 +316,6 @@ async function runTests(target, options) {
 // Run Account Abstraction tests
 async function runAATests(target, options) {
   try {
-    console.log(chalk.blue(`🔍 Running Account Abstraction tests against ${target}...`));
     
     // Check if we need to validate addon value
     if (options.addon) {
@@ -364,26 +348,18 @@ async function runAATests(target, options) {
     
     // Display results
     if (results.success) {
-      console.log(chalk.green(`✅ Account Abstraction tests completed successfully`));
     } else {
-      console.log(chalk.yellow(`⚠️  Account Abstraction tests completed with issues`));
     }
     
     // Show test summary
-    console.log(chalk.cyan('\nTest Summary:'));
     if (results.tests) {
       for (const [testName, testResult] of Object.entries(results.tests)) {
         const statusIcon = testResult.success ? chalk.green('✓') : chalk.red('✗');
-        console.log(`${statusIcon} ${testName}: ${testResult.success ? 'Passed' : 'Failed'}`);
       }
     }
     
     // If tests are run with the --ci flag and results include CI output
     if (options.ci && results.ciOutput) {
-      console.log(chalk.cyan('\nCI Verdict:'));
-      console.log(`Status: ${results.ciOutput.verdict.passed ? chalk.green('PASSED') : chalk.red('FAILED')}`);
-      console.log(`Pass Rate: ${results.ciOutput.verdict.passRate}%`);
-      console.log(`Output: ${results.ciOutput.path}`);
     }
     
     return results;
@@ -396,7 +372,6 @@ async function runAATests(target, options) {
 // Run AA tools
 async function runAATools(options) {
   try {
-    console.log(chalk.blue(`🔧 Running Account Abstraction tools...`));
     
     if (options.addon) {
       return await generateAAAddonTests(options);
@@ -412,11 +387,9 @@ async function runAATools(options) {
           debug: true
         });
         
-        console.log(chalk.blue('📡 Connected to Pimlico API'));
         
         // Generate a full metrics report if no other operation is specified
         if (!options.flow && !options.dashboard && !options.bundlers && !options.addon) {
-          console.log(chalk.blue('📊 Generating Pimlico metrics report...'));
           
           const report = await pimlicoService.generateMetricsReport();
           const outputDir = path.join(options.output, 'pimlico');
@@ -425,7 +398,6 @@ async function runAATools(options) {
           const outputPath = path.join(outputDir, `pimlico-report-${Date.now()}.json`);
           await fs.writeJSON(outputPath, report, { spaces: 2 });
           
-          console.log(chalk.green(`✅ Pimlico metrics report generated: ${outputPath}`));
           
           // Save the data for potential use in other operations
           pimlicoData = {
@@ -440,7 +412,6 @@ async function runAATools(options) {
     
     // Generate a UserOperation flow diagram
     if (options.flow) {
-      console.log(chalk.blue(`🔄 Generating UserOperation flow diagram...`));
       
       try {
         const userOpFile = path.resolve(options.flow);
@@ -454,9 +425,6 @@ async function runAATools(options) {
           fileName: `userop-flow-${Date.now()}`
         });
         
-        console.log(chalk.green(`✅ UserOperation flow diagram generated!`));
-        console.log(chalk.blue(`📊 HTML diagram: ${result.outputs.htmlPath}`));
-        console.log(chalk.blue(`🔍 JSON data: ${result.outputs.jsonPath}`));
         
         // Generate CI report if requested
         if (options.ci) {
@@ -492,7 +460,6 @@ async function runAATools(options) {
           });
           
           const reportPath = await ciReporter.writeReport();
-          console.log(chalk.blue(`📋 CI flow analysis report generated: ${chalk.bold(reportPath)}`));
         }
         
       } catch (error) {
@@ -502,7 +469,6 @@ async function runAATools(options) {
     
     // Generate a dashboard from results
     if (options.dashboard) {
-      console.log(chalk.blue(`📊 Generating AA test dashboard...`));
       
       try {
         const resultsFile = path.resolve(options.dashboard);
@@ -517,8 +483,6 @@ async function runAATools(options) {
           theme: options.theme
         });
         
-        console.log(chalk.green(`✅ AA dashboard generated!`));
-        console.log(chalk.blue(`📊 Dashboard: ${dashboard.html}`));
         
       } catch (error) {
         console.error(chalk.red(`❌ Error generating dashboard: ${error.message}`));
@@ -527,15 +491,12 @@ async function runAATools(options) {
     
     // Compare bundlers
     if (options.bundlers) {
-      console.log(chalk.blue(`🔄 Comparing AA bundlers...`));
       
       try {
         const bundlersFile = path.resolve(options.bundlers);
         const config = await fs.readJSON(bundlersFile);
         
         // This would use the multi-bundler testing functionality
-        console.log(chalk.yellow(`This feature is not yet implemented in the CLI.`));
-        console.log(chalk.yellow(`Please use the templates/aa-tests/aa-multi-bundler.test.js template directly.`));
         
       } catch (error) {
         console.error(chalk.red(`❌ Error comparing bundlers: ${error.message}`));
@@ -544,12 +505,6 @@ async function runAATools(options) {
     
     // Show help if no option was provided
     if (!options.flow && !options.dashboard && !options.bundlers && !options.addon && !options.pimlicoConnect) {
-      console.log(chalk.yellow(`ℹ️ Please specify an AA tool option:`));
-      console.log(chalk.blue(`  --flow <userOpFile>         Generate UserOperation flow diagram`));
-      console.log(chalk.blue(`  --dashboard <resultsFile>   Generate AA test dashboard`));
-      console.log(chalk.blue(`  --bundlers <bundlersFile>   Compare multiple bundlers`));
-      console.log(chalk.blue(`  --addon <addon>             Generate specialized tests (social-recovery, counterfactual, session-keys, token-gating)`));
-      console.log(chalk.blue(`  --pimlico-connect           Connect to Pimlico API for live gas data`));
     }
     
   } catch (error) {
@@ -563,7 +518,6 @@ async function generateAAAddonTests(options) {
   const addon = options.addon;
   const outputDir = options.output || './reports';
   
-  console.log(chalk.blue(`📝 Generating ${addon} tests...`));
   
   // Ensure output directory exists
   await fs.ensureDir(outputDir);
@@ -602,7 +556,6 @@ async function generateAAAddonTests(options) {
     const template = await fs.readFile(templatePath, 'utf8');
     await fs.writeFile(outputPath, template);
     
-    console.log(chalk.green(`✅ Generated ${addon} test at: ${outputPath}`));
     
     return {
       success: true,
@@ -621,7 +574,6 @@ async function generateAAAddonTests(options) {
 // Implementation of benchmark command
 async function runBenchmark(options) {
   if (options.aa) {
-    console.log(chalk.blue(`⏱️ Running Account Abstraction implementation benchmarks...`));
     
     // Set up addon for specialized AA benchmarks if requested
     if (options.addon) {
@@ -631,7 +583,6 @@ async function runBenchmark(options) {
       if (!validAddons.includes(addon)) {
         console.warn(chalk.yellow(`⚠️ Unknown addon ${addon}. Valid values are: ${validAddons.join(', ')}`));
       } else {
-        console.log(chalk.blue(`🧩 Including specialized AA benchmarks for ${addon}`));
         options.aaAddon = addon;
       }
     }
@@ -643,8 +594,6 @@ async function runBenchmark(options) {
         ci: options.ci
       });
       
-      console.log(chalk.green('✅ AA Benchmark completed!'));
-      console.log(chalk.blue(`📊 Results saved to ${options.resultsDir}`));
       
       // Handle CI output if requested
       if (options.ci) {
@@ -670,7 +619,6 @@ async function runBenchmark(options) {
         ciReporter.addTestResults(testResults);
         const reportPath = await ciReporter.writeReport();
         
-        console.log(chalk.blue(`📋 CI benchmark report generated: ${chalk.bold(reportPath)}`));
         ciReporter.printSummary();
       }
       
@@ -681,16 +629,12 @@ async function runBenchmark(options) {
     }
   }
   
-  console.log(chalk.blue(`⏱️ Running benchmark for ${chalk.bold(options.test)}...`));
-  console.log(chalk.yellow(`Iterations: ${options.iterations}`));
   
   // Implementation for benchmarking
-  console.log(chalk.green('✅ Benchmark completed!'));
 }
 
 // Implementation of submit command
 async function submitResults(file, options) {
-  console.log(chalk.blue(`📤 Submitting results from ${chalk.bold(file)} to ${chalk.bold(options.platform)}...`));
   
   try {
     const results = await fs.readJSON(path.resolve(file));
@@ -702,8 +646,6 @@ async function submitResults(file, options) {
       }
     });
     
-    console.log(chalk.green('✅ Results submitted successfully!'));
-    console.log(submission);
   } catch (error) {
     console.error(chalk.red(`❌ Error submitting results: ${error.message}`));
     process.exit(1);
@@ -721,7 +663,6 @@ async function initProject(options) {
       return;
     }
     
-    console.log(chalk.blue(`🚀 Initializing new project with ${chalk.bold(options.template)} template...`));
     
     // Special handling for AA template
     if (options.template === 'aa') {
@@ -733,13 +674,10 @@ async function initProject(options) {
       }
       
       await generateAATestTemplates(templateOptions);
-      console.log(chalk.green('✅ Account Abstraction test templates initialized!'));
       return;
     }
     
     // Implementation for project initialization
-    console.log(chalk.green('✅ Project initialized successfully!'));
-    console.log(chalk.yellow('Run `audityzer run <target>` to start testing!'));
   } catch (error) {
     console.error(chalk.red(`❌ Error initializing project: ${error.message}`));
     process.exit(1);
@@ -749,7 +687,6 @@ async function initProject(options) {
 // Implementation of visualize command
 async function generateVisualization(resultsFile, options) {
   try {
-    console.log(chalk.blue(`🎨 Generating ${options.type} visualization for ${chalk.bold(resultsFile)}...`));
     
     // Ensure output directory exists
     await fs.ensureDir(options.output);
@@ -772,24 +709,18 @@ async function generateVisualization(resultsFile, options) {
         version: packageJson.version
       });
       
-      console.log(chalk.green('✅ Dashboard visualization generated!'));
-      console.log(chalk.blue(`📊 Dashboard: ${chalk.bold(dashboard.html)}`));
       
       // Open the dashboard in the default browser if possible
       try {
         const open = require('open');
         await open(dashboard.html);
-        console.log(chalk.blue('📊 Dashboard opened in your default browser'));
       } catch (err) {
-        console.log(chalk.yellow(`ℹ️ Dashboard can be viewed at: ${dashboard.html}`));
       }
       
     } else if (options.type === 'flow') {
       // This would be for AA flow visualization
-      console.log(chalk.yellow(`Flow visualization is not yet implemented in the CLI.`));
     } else if (options.type === 'comparison') {
       // This would be for comparison visualization
-      console.log(chalk.yellow(`Comparison visualization is not yet implemented in the CLI.`));
     } else {
       console.error(chalk.red(`Unknown visualization type: ${options.type}`));
     }

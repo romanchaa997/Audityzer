@@ -40,7 +40,6 @@ module.exports = {
   main: async () => {
     // Main CLI logic would go here
     console.log('Audityzer - Web3 Security Analysis Toolkit');
-    console.log('Run "audityzer --help" for usage information.');
   }
 };
 

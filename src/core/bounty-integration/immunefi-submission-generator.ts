@@ -289,7 +289,7 @@ export class ImmunefiSubmissionGenerator {
         await this.writeFileAsync(outputPath, markdown);
       }
       
-      console.log(`Submission saved to: ${outputPath}`);
+      logger.info(`Submission saved to: ${outputPath}`);
       return outputPath;
     } catch (error) {
       console.error(`Error saving submission: ${error.message}`);
@@ -335,7 +335,7 @@ export class ImmunefiSubmissionGenerator {
       severityLevels[finding.severity] >= minSeverityLevel
     );
     
-    console.log(`Processing ${filteredFindings.length} findings (from ${findings.length} total)`);
+    logger.info(`Processing ${filteredFindings.length} findings (from ${findings.length} total)`);
     
     for (const finding of filteredFindings) {
       try {
@@ -364,7 +364,7 @@ export class ImmunefiSubmissionGenerator {
         let response: any;
         if (options.autoSubmit) {
           response = await this.submitToImmunefi(submission);
-          console.log(`Submitted finding "${finding.testName}" to Immunefi`);
+          logger.info(`Submitted finding "${finding.testName}" to Immunefi`);
         }
         
         results.push({ finding, submission, response });

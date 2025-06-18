@@ -93,8 +93,6 @@ class CommunityMetrics {
       }
     };
 
-    console.log('Community Metrics Report:');
-    console.log(JSON.stringify(report, null, 2));
     
     return report;
   }

@@ -22,8 +22,6 @@ if (args.some(arg => arg.endsWith('.js') || arg.endsWith('.ts'))) {
   }
 }
 
-console.log('Running tests with MOCK_MODE=true');
-console.log(`Command: npx playwright ${playwrithArgs.join(' ')}`);
 
 const result = spawnSync('npx', ['playwright', ...playwrithArgs], {
   stdio: 'inherit',

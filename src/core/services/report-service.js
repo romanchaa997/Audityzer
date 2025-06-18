@@ -21,7 +21,7 @@ class ReportService {
         timestamp: new Date(),
       });
       
-      console.log(`Report saved with ID: ${docRef.id}`);
+      // console.log(`Report saved with ID: ${docRef.id}`);
       return docRef.id;
     } catch (error) {
       console.error('Error saving report:', error);

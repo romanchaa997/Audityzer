@@ -185,7 +185,6 @@ function App() {
       });
 
       setTxHash(hash as string);
-      console.log('Transaction hash:', hash);
     } catch (err: any) {
       console.error('Transaction error:', err);
       setError(`Transaction failed: ${err?.message || 'Unknown error'}`);

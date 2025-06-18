@@ -81,7 +81,7 @@ class DAppRecorder {
         };
       }
 
-      console.log(`Loaded ${Object.keys(this.recordings).length} recordings`);
+      // console.log(`Loaded ${Object.keys(this.recordings).length} recordings`);
       return this.recordings;
     } catch (error) {
       console.error('Failed to load recordings:', error);
@@ -106,7 +106,7 @@ class DAppRecorder {
       name = `recording_${Date.now()}`;
     }
 
-    console.log(`Starting recording: ${name} at ${url}`);
+    // console.log(`Starting recording: ${name} at ${url}`);
 
     // Initialize browser for recording
     await this._initializeBrowser();
@@ -176,8 +176,8 @@ class DAppRecorder {
       path: filePath,
     };
 
-    console.log(`Recording stopped: ${this.currentRecording.name}`);
-    console.log(
+    // console.log(`Recording stopped: ${this.currentRecording.name}`);
+    // console.log(
       `Recorded ${this.events.length} events in ${this.currentRecording.duration} seconds`
     );
 
@@ -208,7 +208,7 @@ class DAppRecorder {
       throw new Error(`Recording '${recordingName}' not found`);
     }
 
-    console.log(`Replaying: ${recordingName}`);
+    // console.log(`Replaying: ${recordingName}`);
 
     // Initialize browser for replaying
     await this._initializeBrowser();
@@ -237,7 +237,7 @@ class DAppRecorder {
         continue;
       }
 
-      console.log(`Replaying event ${eventIndex + 1}/${recording.events.length}: ${event.type}`);
+      // console.log(`Replaying event ${eventIndex + 1}/${recording.events.length}: ${event.type}`);
 
       try {
         await this._replayEvent(event);
@@ -263,7 +263,7 @@ class DAppRecorder {
       await this._captureScreenshot(`replay_${recordingName}_end`);
     }
 
-    console.log(`Finished replaying: ${recordingName}`);
+    // console.log(`Finished replaying: ${recordingName}`);
 
     // Clean up
     this.isReplaying = false;
@@ -331,7 +331,7 @@ class DAppRecorder {
   _getWalletExtensionPath() {
     // In a real implementation, this would return the path to the wallet extension
     // For demonstration, we just log a message
-    console.log(`Would load ${this.config.walletType} extension for ${this.config.browserType}`);
+    // console.log(`Would load ${this.config.walletType} extension for ${this.config.browserType}`);
 
     // This would typically be a path to the extension directory
     return path.join(process.cwd(), 'extensions', this.config.walletType);
@@ -345,7 +345,7 @@ class DAppRecorder {
     // to listen for Web3-related events like wallet connections, transactions, etc.
 
     // This is a simplified version that just logs a message
-    console.log('Setting up event listeners for recording');
+    // console.log('Setting up event listeners for recording');
   }
 
   /**
@@ -357,7 +357,7 @@ class DAppRecorder {
 
     await this.page.evaluate(() => {
       // This function runs in the browser context
-      console.log('dAppRecorder: Recording script injected');
+      // console.log('dAppRecorder: Recording script injected');
 
       // Create a global object to store the original provider
       window.__dAppRecorder = {
@@ -382,7 +382,7 @@ class DAppRecorder {
               };
 
               window.__dAppRecorder.events.push(event);
-              console.log('dAppRecorder:', event);
+              // console.log('dAppRecorder:', event);
 
               // Call the original method
               try {
@@ -442,7 +442,7 @@ class DAppRecorder {
     // Add to events list
     this.events.push(event);
 
-    console.log(`Recorded event: ${event.type}`);
+    // console.log(`Recorded event: ${event.type}`);
   }
 
   /**
@@ -466,7 +466,7 @@ class DAppRecorder {
         return await this._replayUIInteraction(event);
 
       default:
-        console.log(`Skipping unknown event type: ${event.type}`);
+        // console.log(`Skipping unknown event type: ${event.type}`);
     }
   }
 
@@ -474,7 +474,7 @@ class DAppRecorder {
    * Replay wallet connection event
    */
   async _replayWalletConnect(event) {
-    console.log('Replaying wallet connection');
+    // console.log('Replaying wallet connection');
 
     // In a real implementation, this would interact with the wallet extension
     // to simulate the connection process
@@ -506,7 +506,7 @@ class DAppRecorder {
    * Replay transaction event
    */
   async _replayTransaction(event) {
-    console.log('Replaying transaction submission');
+    // console.log('Replaying transaction submission');
 
     // In a real implementation, this would interact with the wallet extension
     // to simulate transaction signing and submission
@@ -530,7 +530,7 @@ class DAppRecorder {
    * Replay message signing event
    */
   async _replayMessageSign(event) {
-    console.log('Replaying message signing');
+    // console.log('Replaying message signing');
 
     // In a real implementation, this would interact with the wallet extension
     // to simulate message signing
@@ -554,11 +554,11 @@ class DAppRecorder {
    * Replay contract interaction event
    */
   async _replayContractInteraction(event) {
-    console.log('Replaying contract interaction');
+    // console.log('Replaying contract interaction');
 
     // In a real implementation, this would simulate the contract interaction
     // For demonstration, we just log the event
-    console.log(
+    // console.log(
       `Would call contract ${event.contract} method ${event.method} with args:`,
       event.args
     );
@@ -570,7 +570,7 @@ class DAppRecorder {
    * Replay UI interaction event
    */
   async _replayUIInteraction(event) {
-    console.log('Replaying UI interaction');
+    // console.log('Replaying UI interaction');
 
     // Handle different types of UI interactions
     switch (event.action) {
@@ -602,7 +602,7 @@ class DAppRecorder {
         break;
 
       default:
-        console.log(`Unknown UI action: ${event.action}`);
+        // console.log(`Unknown UI action: ${event.action}`);
     }
 
     return true;
@@ -619,7 +619,7 @@ class DAppRecorder {
     try {
       const screenshotPath = path.join(this.config.screenshotsDir, `${name}.png`);
       await this.page.screenshot({ path: screenshotPath, fullPage: true });
-      console.log(`Screenshot saved: ${screenshotPath}`);
+      // console.log(`Screenshot saved: ${screenshotPath}`);
       return screenshotPath;
     } catch (error) {
       console.error('Failed to capture screenshot:', error);
@@ -668,7 +668,7 @@ class DAppRecorder {
     fs.unlinkSync(filePath);
 
     delete this.recordings[name];
-    console.log(`Deleted recording: ${name}`);
+    // console.log(`Deleted recording: ${name}`);
 
     return Object.keys(this.recordings);
   }
@@ -685,7 +685,7 @@ class DAppRecorder {
     const content = fs.readFileSync(filePath, 'utf8');
 
     fs.writeFileSync(outputPath, content);
-    console.log(`Exported recording to ${outputPath}`);
+    // console.log(`Exported recording to ${outputPath}`);
 
     return {
       name,
@@ -712,7 +712,7 @@ class DAppRecorder {
       path: newFilePath,
     };
 
-    console.log(`Imported recording: ${recording.name}`);
+    // console.log(`Imported recording: ${recording.name}`);
 
     return {
       name: recording.name,

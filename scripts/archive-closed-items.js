@@ -106,17 +106,13 @@ async function archiveItem(itemId) {
 
 async function main() {
   try {
-    console.log(`Finding closed items older than ${daysBeforeArchive} days...`);
     const itemsToArchive = await getClosedItems();
 
-    console.log(`Found ${itemsToArchive.length} items to archive`);
 
     for (const item of itemsToArchive) {
-      console.log(`Archiving item: ${item.content.title}`);
       await archiveItem(item.id);
     }
 
-    console.log('Archiving complete!');
   } catch (error) {
     console.error('Error in main process:', error.message);
     process.exit(1);

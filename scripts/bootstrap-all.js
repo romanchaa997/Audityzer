@@ -6,7 +6,6 @@ const packagesDir = path.resolve(__dirname, '../darkforest-v0.6/packages');
 const mainProjectDir = path.resolve(__dirname, '../');
 
 function run(cmd, cwd) {
-  console.log(`\n> Running: ${cmd} in ${cwd}`);
   execSync(cmd, { stdio: 'inherit', cwd });
 }
 
@@ -32,7 +31,6 @@ function bootstrapPackages() {
     run(`npm link ${require(path.join(pkgPath, 'package.json')).name}`, mainProjectDir);
   }
 
-  console.log('\nAll packages bootstrapped, built, and linked!');
 }
 
 bootstrapPackages();

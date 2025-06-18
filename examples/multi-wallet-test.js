@@ -139,7 +139,6 @@ test('wallet matrix: connect with multiple providers sequentially', async ({ pag
 
   // Test each wallet in sequence
   for (const config of walletConfigs) {
-    console.log(`Testing with ${config.type}...`);
 
     // Create wallet adapter
     const walletAdapter = createWalletAdapter(config.type, {

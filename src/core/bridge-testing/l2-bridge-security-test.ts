@@ -68,7 +68,7 @@ async function testImproperWithdrawalVerification(
   originProvider: ethers.providers.JsonRpcProvider,
   destProvider: ethers.providers.JsonRpcProvider
 ) {
-  console.log('Testing for improper withdrawal verification periods...');
+  // logger.info('Testing for improper withdrawal verification periods...');
   
   // Get bridge contract instance
   const bridgeContract = new ethers.Contract(
@@ -89,11 +89,11 @@ async function testImproperWithdrawalVerification(
     if (challengePeriod !== null) {
       // Convert to hours
       const challengePeriodHours = Number(challengePeriod) / 3600;
-      console.log(`Bridge challenge period: ${challengePeriodHours} hours`);
+      // logger.info(`Bridge challenge period: ${challengePeriodHours} hours`);
       
       if (challengePeriodHours < 24) {
-        console.log('SECURITY VULNERABILITY: Short challenge period detected');
-        console.log('Recommendation: Challenge periods should typically be at least 24 hours');
+        // logger.info('SECURITY VULNERABILITY: Short challenge period detected');
+        // logger.info('Recommendation: Challenge periods should typically be at least 24 hours');
       }
     } else {
       // Alternative method: Try to check if withdrawals can be completed immediately
@@ -110,14 +110,14 @@ async function testImproperWithdrawalVerification(
         const currentTimestamp = Math.floor(Date.now() / 1000);
         const timeDifference = currentTimestamp - Number(lastWithdrawalTimestamp);
         
-        console.log(`Time since last withdrawal: ${timeDifference} seconds`);
+        // logger.info(`Time since last withdrawal: ${timeDifference} seconds`);
         if (timeDifference < 86400) { // Less than 24 hours
-          console.log('SECURITY CONCERN: Withdrawals may be processed without sufficient verification time');
+          // logger.info('SECURITY CONCERN: Withdrawals may be processed without sufficient verification time');
         }
       }
     }
   } catch (error) {
-    console.log(`Error testing withdrawal verification: ${error.message}`);
+    // logger.info(`Error testing withdrawal verification: ${error.message}`);
   }
 }
 
@@ -130,7 +130,7 @@ async function testReplayProtection(
   originProvider: ethers.providers.JsonRpcProvider,
   destProvider: ethers.providers.JsonRpcProvider
 ) {
-  console.log('Testing for missing replay protection...');
+  // logger.info('Testing for missing replay protection...');
   
   // Get bridge contract instance
   const bridgeContract = new ethers.Contract(
@@ -156,13 +156,13 @@ async function testReplayProtection(
     const isProcessed = await bridgeContract.processedMessages(messageHash).catch(() => null);
     
     if (isProcessed === null) {
-      console.log('SECURITY VULNERABILITY: Could not verify message replay protection');
-      console.log('Bridge may be vulnerable to replay attacks if it does not track processed messages');
+      // logger.info('SECURITY VULNERABILITY: Could not verify message replay protection');
+      // logger.info('Bridge may be vulnerable to replay attacks if it does not track processed messages');
     } else {
-      console.log('Bridge appears to implement message replay protection');
+      // logger.info('Bridge appears to implement message replay protection');
     }
   } catch (error) {
-    console.log(`Error testing replay protection: ${error.message}`);
+    // logger.info(`Error testing replay protection: ${error.message}`);
   }
 }
 
@@ -175,7 +175,7 @@ async function testChainIdValidation(
   originProvider: ethers.providers.JsonRpcProvider,
   destProvider: ethers.providers.JsonRpcProvider
 ) {
-  console.log('Testing for chain ID validation...');
+  // logger.info('Testing for chain ID validation...');
   
   // Get bridge contract instance
   const bridgeContract = new ethers.Contract(
@@ -193,29 +193,29 @@ async function testChainIdValidation(
     const destinationChainId = await bridgeContract.destinationChainId().catch(() => null);
     
     if (sourceChainId === null || destinationChainId === null) {
-      console.log('SECURITY CONCERN: Could not verify chain ID validation');
-      console.log('Bridge should explicitly validate chain IDs to prevent cross-chain replay attacks');
+      // logger.info('SECURITY CONCERN: Could not verify chain ID validation');
+      // logger.info('Bridge should explicitly validate chain IDs to prevent cross-chain replay attacks');
     } else {
       // Convert to hex for comparison with wallet chain IDs
       const sourceChainIdHex = '0x' + Number(sourceChainId).toString(16);
       const destinationChainIdHex = '0x' + Number(destinationChainId).toString(16);
       
-      console.log(`Bridge source chain ID: ${sourceChainIdHex}`);
-      console.log(`Bridge destination chain ID: ${destinationChainIdHex}`);
+      // logger.info(`Bridge source chain ID: ${sourceChainIdHex}`);
+      // logger.info(`Bridge destination chain ID: ${destinationChainIdHex}`);
       
       // Verify that the configured chain IDs match what's in the contract
       if (sourceChainIdHex.toLowerCase() !== config.originChainId.toLowerCase()) {
-        console.log('SECURITY VULNERABILITY: Bridge source chain ID mismatch');
-        console.log(`Expected: ${config.originChainId}, Found: ${sourceChainIdHex}`);
+        // logger.info('SECURITY VULNERABILITY: Bridge source chain ID mismatch');
+        // logger.info(`Expected: ${config.originChainId}, Found: ${sourceChainIdHex}`);
       }
       
       if (destinationChainIdHex.toLowerCase() !== config.destinationChainId.toLowerCase()) {
-        console.log('SECURITY VULNERABILITY: Bridge destination chain ID mismatch');
-        console.log(`Expected: ${config.destinationChainId}, Found: ${destinationChainIdHex}`);
+        // logger.info('SECURITY VULNERABILITY: Bridge destination chain ID mismatch');
+        // logger.info(`Expected: ${config.destinationChainId}, Found: ${destinationChainIdHex}`);
       }
     }
   } catch (error) {
-    console.log(`Error testing chain ID validation: ${error.message}`);
+    // logger.info(`Error testing chain ID validation: ${error.message}`);
   }
 }
 
@@ -228,7 +228,7 @@ async function testTokenAddressValidation(
   originProvider: ethers.providers.JsonRpcProvider,
   destProvider: ethers.providers.JsonRpcProvider
 ) {
-  console.log('Testing for token address validation...');
+  // logger.info('Testing for token address validation...');
   
   // Get bridge contract instance
   const bridgeContract = new ethers.Contract(
@@ -249,17 +249,17 @@ async function testTokenAddressValidation(
     const l2TokenAddress = await bridgeContract.getL2TokenAddress(usdcL1Address).catch(() => null);
     
     if (l2TokenAddress !== null) {
-      console.log(`L2 token address for USDC: ${l2TokenAddress}`);
+      // logger.info(`L2 token address for USDC: ${l2TokenAddress}`);
       
       // Check if the token pair is considered valid
       const isValidPair = await bridgeContract.validTokenPairs(usdcL1Address, l2TokenAddress)
         .catch(() => null);
       
       if (isValidPair === null) {
-        console.log('SECURITY CONCERN: Could not verify token address validation');
+        // logger.info('SECURITY CONCERN: Could not verify token address validation');
       } else if (isValidPair === false) {
-        console.log('SECURITY VULNERABILITY: Invalid token pair detected');
-        console.log('Bridge may accept deposits for tokens it cannot process on the other chain');
+        // logger.info('SECURITY VULNERABILITY: Invalid token pair detected');
+        // logger.info('Bridge may accept deposits for tokens it cannot process on the other chain');
       }
       
       // Try to get the L1 token address from the L2 token
@@ -268,9 +268,9 @@ async function testTokenAddressValidation(
       if (l1TokenAddress !== null) {
         // Check if the mapping is bi-directional
         if (l1TokenAddress.toLowerCase() !== usdcL1Address.toLowerCase()) {
-          console.log('SECURITY VULNERABILITY: Token address mapping mismatch');
-          console.log(`L1->L2->L1 mapping: ${usdcL1Address} -> ${l2TokenAddress} -> ${l1TokenAddress}`);
-          console.log('This could lead to incorrect token bridging or token theft');
+          // logger.info('SECURITY VULNERABILITY: Token address mapping mismatch');
+          // logger.info(`L1->L2->L1 mapping: ${usdcL1Address} -> ${l2TokenAddress} -> ${l1TokenAddress}`);
+          // logger.info('This could lead to incorrect token bridging or token theft');
         }
       }
     } else {
@@ -282,12 +282,12 @@ async function testTokenAddressValidation(
         .catch(() => null);
       
       if (fakeL2TokenAddress !== null && fakeL2TokenAddress !== '0x0000000000000000000000000000000000000000') {
-        console.log('SECURITY VULNERABILITY: Bridge does not validate token addresses');
-        console.log('Bridge returned an L2 token address for an invalid L1 token');
+        // logger.info('SECURITY VULNERABILITY: Bridge does not validate token addresses');
+        // logger.info('Bridge returned an L2 token address for an invalid L1 token');
       }
     }
   } catch (error) {
-    console.log(`Error testing token address validation: ${error.message}`);
+    // logger.info(`Error testing token address validation: ${error.message}`);
   }
 }
 
@@ -300,7 +300,7 @@ async function testHighValueTransferRisks(
   originProvider: ethers.providers.JsonRpcProvider,
   destProvider: ethers.providers.JsonRpcProvider
 ) {
-  console.log('Testing high-value transfer security...');
+  // logger.info('Testing high-value transfer security...');
   
   // Get bridge contract instance
   const bridgeContract = new ethers.Contract(
@@ -322,11 +322,11 @@ async function testHighValueTransferRisks(
     if (ethDepositLimit !== null) {
       // Convert to ETH
       const ethDepositLimitInEth = ethers.utils.formatEther(ethDepositLimit);
-      console.log(`ETH deposit limit: ${ethDepositLimitInEth} ETH`);
+      // logger.info(`ETH deposit limit: ${ethDepositLimitInEth} ETH`);
       
       if (Number(ethDepositLimitInEth) > 1000) {
-        console.log('SECURITY CONCERN: High ETH deposit limit detected');
-        console.log('Consider implementing stricter limits for high-value assets');
+        // logger.info('SECURITY CONCERN: High ETH deposit limit detected');
+        // logger.info('Consider implementing stricter limits for high-value assets');
       }
       
       // Check daily limits
@@ -335,30 +335,30 @@ async function testHighValueTransferRisks(
       
       if (ethDailyLimit !== null) {
         const ethDailyLimitInEth = ethers.utils.formatEther(ethDailyLimit);
-        console.log(`ETH daily deposit limit: ${ethDailyLimitInEth} ETH`);
+        // logger.info(`ETH daily deposit limit: ${ethDailyLimitInEth} ETH`);
         
         if (Number(ethDailyLimitInEth) > 5000) {
-          console.log('SECURITY CONCERN: High daily ETH deposit limit detected');
+          // logger.info('SECURITY CONCERN: High daily ETH deposit limit detected');
         }
       } else {
-        console.log('SECURITY VULNERABILITY: No daily deposit limits found');
-        console.log('Bridge should implement daily limits to prevent large-scale attacks');
+        // logger.info('SECURITY VULNERABILITY: No daily deposit limits found');
+        // logger.info('Bridge should implement daily limits to prevent large-scale attacks');
       }
     } else {
-      console.log('Could not verify deposit limits for ETH');
+      // logger.info('Could not verify deposit limits for ETH');
     }
     
     // Check if the bridge has emergency pause functionality
     const isPaused = await bridgeContract.paused().catch(() => null);
     
     if (isPaused === null) {
-      console.log('SECURITY CONCERN: No pause functionality detected');
-      console.log('Bridge should implement emergency pause to mitigate active exploits');
+      // logger.info('SECURITY CONCERN: No pause functionality detected');
+      // logger.info('Bridge should implement emergency pause to mitigate active exploits');
     } else {
-      console.log(`Bridge paused status: ${isPaused}`);
+      // logger.info(`Bridge paused status: ${isPaused}`);
     }
   } catch (error) {
-    console.log(`Error testing high-value transfer security: ${error.message}`);
+    // logger.info(`Error testing high-value transfer security: ${error.message}`);
   }
 }
 
@@ -371,7 +371,7 @@ async function testArbitrumSpecificVulnerabilities(
   originProvider: ethers.providers.JsonRpcProvider,
   destProvider: ethers.providers.JsonRpcProvider
 ) {
-  console.log('Testing for Arbitrum-specific vulnerabilities...');
+  // logger.info('Testing for Arbitrum-specific vulnerabilities...');
   
   try {
     // Check for delayed inbox issues
@@ -392,22 +392,22 @@ async function testArbitrumSpecificVulnerabilities(
     const maxLifetime = await delayedInboxContract.maximumLifetime().catch(() => null);
     
     if (maxLifetime !== null) {
-      console.log(`Arbitrum retryable ticket max lifetime: ${Number(maxLifetime) / 86400} days`);
+      // logger.info(`Arbitrum retryable ticket max lifetime: ${Number(maxLifetime) / 86400} days`);
       
       if (Number(maxLifetime) < 604800) { // Less than 7 days
-        console.log('SECURITY CONCERN: Short retryable ticket lifetime');
-        console.log('Recommendation: Ensure applications handle retryable ticket expiration gracefully');
+        // logger.info('SECURITY CONCERN: Short retryable ticket lifetime');
+        // logger.info('Recommendation: Ensure applications handle retryable ticket expiration gracefully');
       }
     }
     
     // Check L2 to L1 message passing
     // This would require analyzing the Arbitrum outbox contract
     // Simplified check:
-    console.log('Warning: Ensure bridge properly handles Arbitrum\'s L2 to L1 message passing system');
-    console.log('L2 to L1 messages should be verified using the outbox contract after the dispute period');
+    // logger.info('Warning: Ensure bridge properly handles Arbitrum\'s L2 to L1 message passing system');
+    // logger.info('L2 to L1 messages should be verified using the outbox contract after the dispute period');
     
   } catch (error) {
-    console.log(`Error testing Arbitrum-specific vulnerabilities: ${error.message}`);
+    // logger.info(`Error testing Arbitrum-specific vulnerabilities: ${error.message}`);
   }
 }
 
@@ -420,7 +420,7 @@ async function testOptimismSpecificVulnerabilities(
   originProvider: ethers.providers.JsonRpcProvider,
   destProvider: ethers.providers.JsonRpcProvider
 ) {
-  console.log('Testing for Optimism-specific vulnerabilities...');
+  // logger.info('Testing for Optimism-specific vulnerabilities...');
   
   try {
     // Check for fault proof window issues
@@ -441,20 +441,20 @@ async function testOptimismSpecificVulnerabilities(
     const finalizationPeriod = await optimismPortalContract.FINALIZATION_PERIOD_SECONDS().catch(() => null);
     
     if (finalizationPeriod !== null) {
-      console.log(`Optimism finalization period: ${Number(finalizationPeriod) / 3600} hours`);
+      // logger.info(`Optimism finalization period: ${Number(finalizationPeriod) / 3600} hours`);
       
       if (Number(finalizationPeriod) < 604800) { // Less than 7 days
-        console.log('SECURITY CONCERN: Short finalization period for withdrawals');
-        console.log('Recommendation: Be aware of the security implications of the finalization period');
+        // logger.info('SECURITY CONCERN: Short finalization period for withdrawals');
+        // logger.info('Recommendation: Be aware of the security implications of the finalization period');
       }
     }
     
     // Check for proper handling of proven withdrawals
-    console.log('Warning: Ensure bridge properly handles Optimism\'s withdrawal proof system');
-    console.log('Withdrawals should only be finalized after the finalization period');
+    // logger.info('Warning: Ensure bridge properly handles Optimism\'s withdrawal proof system');
+    // logger.info('Withdrawals should only be finalized after the finalization period');
     
   } catch (error) {
-    console.log(`Error testing Optimism-specific vulnerabilities: ${error.message}`);
+    // logger.info(`Error testing Optimism-specific vulnerabilities: ${error.message}`);
   }
 }
 
@@ -467,12 +467,12 @@ async function testZkSyncSpecificVulnerabilities(
   originProvider: ethers.providers.JsonRpcProvider,
   destProvider: ethers.providers.JsonRpcProvider
 ) {
-  console.log('Testing for zkSync-specific vulnerabilities...');
+  // logger.info('Testing for zkSync-specific vulnerabilities...');
   
   try {
     // Check for L1 to L2 transaction issues
-    console.log('Warning: Ensure bridge properly handles zkSync\'s priority queue system');
-    console.log('L1 to L2 transactions should be processed in order according to the priority queue');
+    // logger.info('Warning: Ensure bridge properly handles zkSync\'s priority queue system');
+    // logger.info('L1 to L2 transactions should be processed in order according to the priority queue');
     
     // Check for withdrawal verification
     // This would require analyzing the zkSync contract
@@ -492,22 +492,22 @@ async function testZkSyncSpecificVulnerabilities(
     const priorityQueueSize = await zkSyncContract.getPriorityQueueSize().catch(() => null);
     
     if (priorityQueueSize !== null) {
-      console.log(`zkSync priority queue size: ${priorityQueueSize}`);
+      // logger.info(`zkSync priority queue size: ${priorityQueueSize}`);
       
       if (Number(priorityQueueSize) > 100) {
-        console.log('POTENTIAL ISSUE: Large priority queue size detected');
-        console.log('This could indicate congestion in L1 to L2 transaction processing');
+        // logger.info('POTENTIAL ISSUE: Large priority queue size detected');
+        // logger.info('This could indicate congestion in L1 to L2 transaction processing');
       }
     }
     
     // General recommendations for zkSync bridges
-    console.log('Recommendation: For zkSync bridges, ensure proper handling of:');
-    console.log('1. Forced transactions and priority operations');
-    console.log('2. L2 to L1 message verification using Merkle proofs');
-    console.log('3. Token mapping between L1 and L2 (especially for ERC20 tokens)');
+    // logger.info('Recommendation: For zkSync bridges, ensure proper handling of:');
+    // logger.info('1. Forced transactions and priority operations');
+    // logger.info('2. L2 to L1 message verification using Merkle proofs');
+    // logger.info('3. Token mapping between L1 and L2 (especially for ERC20 tokens)');
     
   } catch (error) {
-    console.log(`Error testing zkSync-specific vulnerabilities: ${error.message}`);
+    // logger.info(`Error testing zkSync-specific vulnerabilities: ${error.message}`);
   }
 }
 

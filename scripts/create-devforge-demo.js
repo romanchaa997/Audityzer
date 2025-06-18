@@ -25,7 +25,6 @@ if (!fs.existsSync(frameDir)) fs.mkdirSync(frameDir, { recursive: true });
 
 // Demo steps
 async function createDemo() {
-  console.log('Starting DevForge demo creation...');
   
   // Step 1: Launch browser
   const browser = await puppeteer.launch({
@@ -235,7 +234,6 @@ async function createDemo() {
   await page.goto('file://' + terminalHtml.replace(/\\/g, '/'));
   
   // Step 4: Take screenshots
-  console.log('Capturing frames...');
   
   // Clear any existing frames
   fs.readdirSync(frameDir).forEach(file => {
@@ -253,22 +251,18 @@ async function createDemo() {
   }
   
   // Step 5: Create GIF
-  console.log('Creating GIF...');
   try {
     // Check if ImageMagick is installed
     await exec('convert -version');
     
     // Create GIF using ImageMagick
     await exec(`convert -delay 10 -loop 0 "${frameDir}/frame-*.png" "${outputFile}"`);
-    console.log(`Demo GIF created at: ${outputFile}`);
   } catch (error) {
     console.error('Error creating GIF:', error.message);
-    console.log('Please install ImageMagick to create GIFs, or use a tool like ScreenToGif to convert the frames manually.');
   }
   
   // Cleanup
   await browser.close();
-  console.log('Demo creation completed!');
 }
 
 // Run the demo creation

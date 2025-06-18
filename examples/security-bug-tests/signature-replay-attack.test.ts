@@ -185,7 +185,6 @@ test.describe('Signature Replay Attack Vulnerability Detection', () => {
     page.on('console', async msg => {
       const text = msg.text();
       if (text.includes('personal_sign') || text.includes('eth_sign')) {
-        console.log(`Detected signing: ${text}`);
       }
     });
     
@@ -205,9 +204,7 @@ test.describe('Signature Replay Attack Vulnerability Detection', () => {
               try {
                 const hexStripped = message.slice(2);
                 const decoded = Buffer.from(hexStripped, 'hex').toString();
-                console.log(`Signing method: ${args.method}, Message: ${decoded}, Signature: ${signature}`);
               } catch (e) {
-                console.log(`Signing method: ${args.method}, Message: ${message}, Signature: ${signature}`);
               }
             }
           }
@@ -277,9 +274,7 @@ test.describe('Signature Replay Attack Vulnerability Detection', () => {
               try {
                 const hexStripped = message.slice(2);
                 const decoded = Buffer.from(hexStripped, 'hex').toString();
-                console.log(`SIGNED_MESSAGE_DATA: ${decoded}`);
               } catch (e) {
-                console.log(`SIGNED_MESSAGE_DATA: ${message}`);
               }
             }
           }
@@ -309,7 +304,6 @@ test.describe('Signature Replay Attack Vulnerability Detection', () => {
     
     // Analyze the captured messages
     await page.evaluate(() => {
-      console.log('SIGNED_MESSAGE_DATA: ' + document.getElementById('status').textContent);
     });
     await page.waitForTimeout(100);
     

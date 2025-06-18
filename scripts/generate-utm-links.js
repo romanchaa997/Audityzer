@@ -137,7 +137,6 @@ Replace the bracketed values with your specific parameters.
   }
   
   fs.writeFileSync(path.join(outputDir, 'utm-links.md'), markdown);
-  console.log('UTM links generated successfully in marketing/utm-links.md');
 }
 
 // Run the script

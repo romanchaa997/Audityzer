@@ -42,7 +42,6 @@ function parseArgs() {
     }
 
     await axios.post(url, { content: message });
-    console.log(`✅ Discord message sent to '${channel}'.`);
   } catch (err) {
     console.error('Failed to send Discord announcement:', err.message || err);
     process.exit(1);

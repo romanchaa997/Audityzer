@@ -317,7 +317,6 @@ async function processAndSubmitToImmunefi(testResultsPath, projectMetadata = {})
       timestamp: new Date().toISOString()
     }, null, 2));
     
-    console.log(`Submission log saved to: ${submissionLogPath}`);
     
     return submissionResult;
   } catch (error) {

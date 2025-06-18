@@ -57,7 +57,6 @@ console.log('================================================');
 
 // Confirm submission
 if (!params.confirm) {
-  console.log('\nReview the information above and add --confirm flag to proceed with submission.');
   console.log('Example: npm run submit:immunefi -- --input=./results.json --project="My Project" --confirm');
   process.exit(0);
 }

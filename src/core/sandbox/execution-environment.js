@@ -155,7 +155,6 @@ class SandboxExecutionEnvironment {
     const messageLevel = logLevels[level] || 2;
 
     if (messageLevel <= configLevel) {
-      console.log(logMessage);
 
       // Also write to log file if specified
       if (this.config.logFile) {

@@ -148,7 +148,6 @@ test.describe('Phishing via eth_sign Misuse Detection', () => {
                 method: postData.method,
                 params: postData.params,
               });
-              console.log('Detected eth_sign call with params:', postData.params);
             }
           }
         } catch (e) {
@@ -163,7 +162,6 @@ test.describe('Phishing via eth_sign Misuse Detection', () => {
     page.on('console', msg => {
       const text = msg.text();
       if (text.includes('eth_sign')) {
-        console.log(`Console message: ${text}`);
         try {
           // Try to extract the request details
           const match = text.match(/eth_sign called with params: (.+)/);
@@ -183,7 +181,6 @@ test.describe('Phishing via eth_sign Misuse Detection', () => {
         const originalRequest = window.ethereum.request.bind(window.ethereum);
         window.ethereum.request = async function(args) {
           if (args.method === 'eth_sign') {
-            console.log(`eth_sign called with params: ${JSON.stringify(args.params)}`);
           }
           return originalRequest(args);
         };
@@ -229,9 +226,6 @@ test.describe('Phishing via eth_sign Misuse Detection', () => {
         // Detect potential phishing
         if (!isProperlyPrefixed && containsPhishingPattern) {
           phishingDetected = true;
-          console.log('VULNERABILITY DETECTED: Potential phishing via eth_sign');
-          console.log(`Message: ${messageStr}`);
-          console.log('Improper use of eth_sign without standard prefix');
         }
       }
     }
@@ -263,7 +257,6 @@ test.describe('Phishing via eth_sign Misuse Detection', () => {
             args.method === 'eth_signTypedData' ||
             args.method === 'eth_signTypedData_v4'
           ) {
-            console.log(`SIGN_METHOD: ${args.method} with params: ${JSON.stringify(args.params)}`);
           }
           return originalRequest(args);
         };

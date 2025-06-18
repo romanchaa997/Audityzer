@@ -32,8 +32,6 @@ class AudityzerInitWizard {
   }
 
   async start() {
-    console.log(chalk.blue.bold('\n🚀 Welcome to Audityzer Setup Wizard!\n'));
-    console.log(chalk.gray('This wizard will help you set up your first security testing project.\n'));
 
     try {
       await this.askProjectName();
@@ -67,12 +65,6 @@ class AudityzerInitWizard {
   }
 
   async askTemplate() {
-    console.log(chalk.cyan('\n🎯 What type of security testing do you want to focus on?'));
-    console.log('  1. DeFi Protocol Testing (defi)');
-    console.log('  2. Wallet Integration Testing (wallet)');
-    console.log('  3. Bridge Security Testing (bridge)');
-    console.log('  4. Account Abstraction Testing (aa)');
-    console.log('  5. General Web3 Security (general)');
 
     const answer = await this.question(chalk.cyan('Choose (1-5): '));
     
@@ -89,13 +81,6 @@ class AudityzerInitWizard {
   }
 
   async askChain() {
-    console.log(chalk.cyan('\n⛓️  Which blockchain will you primarily test on?'));
-    console.log('  1. Ethereum Mainnet');
-    console.log('  2. Polygon');
-    console.log('  3. Arbitrum');
-    console.log('  4. Optimism');
-    console.log('  5. Base');
-    console.log('  6. Local/Testnet');
 
     const answer = await this.question(chalk.cyan('Choose (1-6): '));
     
@@ -112,8 +97,6 @@ class AudityzerInitWizard {
   }
 
   async askTestTypes() {
-    console.log(chalk.cyan('\n🧪 Which test types do you want to include? (comma-separated)'));
-    console.log('  Available: reentrancy, oracle, flashloan, access-control, front-running, signature-replay');
     
     const answer = await this.question(chalk.cyan('Test types: ') + chalk.gray('(reentrancy,oracle): '));
     
@@ -125,11 +108,6 @@ class AudityzerInitWizard {
   }
 
   async askWallet() {
-    console.log(chalk.cyan('\n👛 Which wallet will you use for testing?'));
-    console.log('  1. MetaMask');
-    console.log('  2. Coinbase Wallet');
-    console.log('  3. WalletConnect');
-    console.log('  4. Mock/Simulation');
 
     const answer = await this.question(chalk.cyan('Choose (1-4): '));
     
@@ -144,10 +122,6 @@ class AudityzerInitWizard {
   }
 
   async askOutputFormat() {
-    console.log(chalk.cyan('\n📄 Preferred output format for reports?'));
-    console.log('  1. JSON');
-    console.log('  2. HTML');
-    console.log('  3. Markdown');
 
     const answer = await this.question(chalk.cyan('Choose (1-3): '));
     
@@ -175,13 +149,6 @@ class AudityzerInitWizard {
   }
 
   async askAAAddon() {
-    console.log(chalk.cyan('\n🧩 Which Account Abstraction features do you want to test?'));
-    console.log('  1. Social Recovery');
-    console.log('  2. Counterfactual Wallets');
-    console.log('  3. Session Keys');
-    console.log('  4. Token Gating');
-    console.log('  5. All of the above');
-    console.log('  6. None (basic AA only)');
 
     const answer = await this.question(chalk.cyan('Choose (1-6): '));
     
@@ -198,7 +165,6 @@ class AudityzerInitWizard {
   }
 
   async generateProject() {
-    console.log(chalk.blue('\n📦 Generating your project...\n'));
 
     // Create project directory
     const projectDir = path.resolve(this.config.projectName);
@@ -226,7 +192,6 @@ class AudityzerInitWizard {
       await this.setupCI(projectDir);
     }
 
-    console.log(chalk.green('✅ Project generated successfully!'));
   }
 
   async generatePackageJson(projectDir) {
@@ -354,13 +319,11 @@ HACKENPROOF_API_KEY=your_hackenproof_api_key
 test.describe('${this.config.projectName} Security Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Setup test environment
-    console.log('Setting up test environment...');
   });
 
   ${this.config.testTypes.map(testType => `
   test('${testType} vulnerability test', async ({ page }) => {
     // Test for ${testType} vulnerabilities
-    console.log('Testing ${testType} vulnerabilities...');
     
     // Add your test logic here
     expect(true).toBe(true); // Placeholder
@@ -368,7 +331,6 @@ test.describe('${this.config.projectName} Security Tests', () => {
 
   test.afterEach(async ({ page }) => {
     // Cleanup after each test
-    console.log('Cleaning up test environment...');
   });
 });`;
 
@@ -393,26 +355,22 @@ test.describe('${this.config.projectName} Security Tests', () => {
 
 test.describe('Account Abstraction Security Tests', () => {
   test('UserOperation validation test', async ({ page }) => {
-    console.log('Testing UserOperation validation...');
     // Add UserOp validation logic
     expect(true).toBe(true);
   });
 
   test('Paymaster security test', async ({ page }) => {
-    console.log('Testing Paymaster security...');
     // Add Paymaster security logic
     expect(true).toBe(true);
   });
 
   test('Bundler integration test', async ({ page }) => {
-    console.log('Testing Bundler integration...');
     // Add Bundler integration logic
     expect(true).toBe(true);
   });
 
   ${this.config.aaAddon && this.config.aaAddon !== 'all' ? `
   test('${this.config.aaAddon} addon test', async ({ page }) => {
-    console.log('Testing ${this.config.aaAddon} functionality...');
     // Add ${this.config.aaAddon} specific logic
     expect(true).toBe(true);
   });` : ''}
@@ -518,8 +476,6 @@ If you need help, please check the [GitHub Issues](https://github.com/Cyfrin/aud
 
     await fs.writeJSON(path.join(projectDir, '.firebase-config.example.json'), firebaseConfig, { spaces: 2 });
     
-    console.log(chalk.yellow('📝 Firebase configuration template created'));
-    console.log(chalk.gray('   Edit .firebase-config.example.json and rename to .firebase-config.json'));
   }
 
   async setupCI(projectDir) {
@@ -566,58 +522,26 @@ jobs:
 
     await fs.writeFile(path.join(ciDir, 'security-tests.yml'), workflow);
     
-    console.log(chalk.yellow('🔄 GitHub Actions workflow created'));
-    console.log(chalk.gray('   Add your secrets in GitHub repository settings'));
   }
 
   async showNextSteps() {
-    console.log(chalk.green.bold('\n🎉 Project setup complete!\n'));
     
-    console.log(chalk.cyan('📁 Project created at:'), chalk.bold(this.config.projectName));
-    console.log(chalk.cyan('🎯 Template:'), this.config.template);
-    console.log(chalk.cyan('⛓️  Chain:'), this.config.chain);
-    console.log(chalk.cyan('🧪 Test types:'), this.config.testTypes.join(', '));
     
     if (this.config.aaMode) {
-      console.log(chalk.cyan('🧩 AA Mode:'), 'Enabled' + (this.config.aaAddon ? ` (${this.config.aaAddon})` : ''));
     }
 
-    console.log(chalk.blue.bold('\n📋 Next Steps:\n'));
-    console.log(chalk.white('1.'), 'Navigate to your project:');
-    console.log(chalk.gray(`   cd ${this.config.projectName}`));
     
-    console.log(chalk.white('2.'), 'Install dependencies:');
-    console.log(chalk.gray('   npm install'));
     
-    console.log(chalk.white('3.'), 'Configure environment:');
-    console.log(chalk.gray('   cp .env.example .env'));
-    console.log(chalk.gray('   # Edit .env with your configuration'));
     
     if (this.config.setupFirebase) {
-      console.log(chalk.white('4.'), 'Setup Firebase:');
-      console.log(chalk.gray('   cp .firebase-config.example.json .firebase-config.json'));
-      console.log(chalk.gray('   # Edit with your Firebase configuration'));
     }
     
-    console.log(chalk.white(this.config.setupFirebase ? '5.' : '4.'), 'Run your first test:');
-    console.log(chalk.gray('   npm test'));
     
-    console.log(chalk.blue('\n💡 Pro Tips:'));
-    console.log(chalk.gray('• Start with mock mode: npm run test:mock'));
-    console.log(chalk.gray('• Generate reports: npm run report'));
-    console.log(chalk.gray('• Create dashboards: npm run dashboard'));
     
     if (this.config.aaMode) {
-      console.log(chalk.gray('• Test AA features: npm run test:aa'));
-      console.log(chalk.gray('• Use Pimlico: npm run test:aa:pimlico'));
     }
     
-    console.log(chalk.blue('\n📚 Resources:'));
-    console.log(chalk.gray('• Documentation: https://github.com/Cyfrin/audityzer'));
-    console.log(chalk.gray('• Discord: https://discord.gg/audityzer'));
-    console.log(chalk.gray('• Examples: https://github.com/Cyfrin/audityzer/examples'));
     
-    console.log(chalk.green.bold('\nHappy testing! 🚀\n'));
   }
 
   question(prompt) {

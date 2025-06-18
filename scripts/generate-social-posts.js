@@ -31,4 +31,3 @@ fs.writeFileSync(path.join(DIST_DIR, 'twitter-thread.txt'), twitter);
 fs.writeFileSync(path.join(DIST_DIR, 'linkedin.txt'), linkedin);
 fs.writeFileSync(path.join(DIST_DIR, 'reddit.txt'), reddit);
 
-console.log('✔ Social posts created in', DIST_DIR); 

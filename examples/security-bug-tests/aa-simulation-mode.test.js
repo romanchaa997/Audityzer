@@ -498,14 +498,12 @@ test.describe('ERC-4337 End-to-End Simulation (Pimlico Compatible)', () => {
     });
     
     // Step 1: Deploy the account
-    console.log(`Creating deployment UserOp for account: ${account.address}`);
     const deployOp = account.createDeployOp();
     const deployResult = await bundler.sendUserOp(deployOp);
     
     // Verify deployment
     expect(deployResult.result.success).toBe(true);
     expect(account.deployed).toBe(true);
-    console.log(`Account deployed: ${account.address}`);
     
     // Step 2: Execute some transactions
     const transactions = [
@@ -534,20 +532,16 @@ test.describe('ERC-4337 End-to-End Simulation (Pimlico Compatible)', () => {
     // Execute each transaction
     for (let i = 0; i < transactions.length; i++) {
       const tx = transactions[i];
-      console.log(`Creating transaction ${i + 1}/${transactions.length}`);
       const txOp = account.createTransactionOp(tx.to, tx.value, tx.data, tx.usePaymaster);
       const txResult = await bundler.sendUserOp(txOp);
       
       // Log transaction result
-      console.log(`Transaction ${i + 1} result: ${txResult.result.success ? 'Success' : 'Failed'}`);
       if (!txResult.result.success) {
-        console.log(`Error: ${txResult.result.error}`);
       }
     }
     
     // Display final account state
     const accountStatus = account.getStatus();
-    console.log('Final account status:', accountStatus);
     
     // Verify transactions were processed
     expect(account.operations.length).toBe(4); // 1 deployment + 3 transactions
@@ -568,7 +562,6 @@ test.describe('ERC-4337 End-to-End Simulation (Pimlico Compatible)', () => {
     
     // Get initial implementation
     const initialImpl = account.implementation;
-    console.log(`Initial implementation: ${initialImpl}`);
     
     // Create upgrade operation
     const upgradeOp = account.createUpgradeOp(MOCK_ADDRESSES.newImpl);
@@ -577,7 +570,6 @@ test.describe('ERC-4337 End-to-End Simulation (Pimlico Compatible)', () => {
     // Verify upgrade
     expect(upgradeResult.result.success).toBe(true);
     expect(account.implementation).toBe(MOCK_ADDRESSES.newImpl);
-    console.log(`Upgraded implementation to: ${account.implementation}`);
     
     // Execute transaction with upgraded implementation
     const txOp = account.createTransactionOp(
@@ -607,7 +599,6 @@ test.describe('ERC-4337 End-to-End Simulation (Pimlico Compatible)', () => {
     
     // Original owner
     const originalOwner = account.owner;
-    console.log(`Original owner: ${originalOwner}`);
     
     // New owner
     const newOwner = MOCK_ADDRESSES.attacker; // Using attacker address as new owner
@@ -619,7 +610,6 @@ test.describe('ERC-4337 End-to-End Simulation (Pimlico Compatible)', () => {
     // Verify recovery
     expect(recoveryResult.result.success).toBe(true);
     expect(account.owner).toBe(newOwner);
-    console.log(`New owner after recovery: ${account.owner}`);
     
     // Try a transaction with the new owner
     const txOp = account.createTransactionOp(
@@ -703,24 +693,10 @@ test.describe('ERC-4337 End-to-End Simulation (Pimlico Compatible)', () => {
     const typeDistribution = bundler.getOperationTypeDistribution();
     const gasUsageByType = bundler.getGasUsageByType();
     
-    console.log('======== Pimlico Compatible AA Simulation Results ========');
-    console.log(`Total operations: ${stats.totalOps}`);
-    console.log(`Successful operations: ${stats.successOps}`);
-    console.log(`Failed operations: ${stats.failedOps}`);
-    console.log(`Gas metrics:`);
-    console.log(`- Total gas used: ${stats.gasUsed.total}`);
-    console.log(`- Average gas per operation: ${stats.averageGasPerOp}`);
-    console.log(`- Validation gas: ${stats.gasUsed.validation}`);
-    console.log(`- Execution gas: ${stats.gasUsed.execution}`);
-    console.log(`\nOperation type distribution:`);
     for (const [type, count] of Object.entries(typeDistribution)) {
-      console.log(`- ${type}: ${count} operations`);
     }
-    console.log(`\nAverage gas by operation type:`);
     for (const [type, avgGas] of Object.entries(gasUsageByType)) {
-      console.log(`- ${type}: ${avgGas} gas`);
     }
-    console.log('======================================================');
     
     // Verify we have a good mix of operations
     expect(stats.totalOps).toBeGreaterThanOrEqual(18); // 3 deployments + 15 txs + upgrades/recoveries

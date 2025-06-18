@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audityzer Bridge Security Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .metric-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .metric-card:hover { transform: translateY(-2px); }
+        .metric-value { font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .metric-label { color: #6c757d; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .success { color: #28a745; }
+        .danger { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .chart-section { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .bridge-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .bridge-item { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #28a745; }
+        .bridge-name { font-weight: bold; margin-bottom: 0.5rem; }
+        .bridge-score { font-size: 1.2rem; color: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔒 Audityzer Bridge Security Dashboard</h1>
+        <p>Real-time monitoring of cross-chain bridge security</p>
+    </div>
+    
+    <div class="container">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value success" id="totalTests">4</div>
+                <div class="metric-label">Total Tests</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value success" id="passedTests">4</div>
+                <div class="metric-label">Passed Tests</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value danger" id="failedTests">0</div>
+                <div class="metric-label">Failed Tests</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value success" id="criticalVulns">0</div>
+                <div class="metric-label">Critical Vulnerabilities</div>
+            </div>
+        </div>
+        
+        <div class="chart-section">
+            <h2>Bridge Security Scores</h2>
+            <canvas id="securityChart" height="100"></canvas>
+        </div>
+        
+        <div class="chart-section">
+            <h2>Bridge Test Results</h2>
+            <div class="bridge-list" id="bridgeList">
+                <!-- Bridge items will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize dashboard with default data
+        const defaultData = {
+            bridgeSecurityMetrics: {
+                totalTests: 4,
+                passedTests: 4,
+                failedTests: 0,
+                vulnerabilities: { critical: 0, high: 0, medium: 0, low: 0 }
+            },
+            bridgeTestResults: [
+                { name: 'LayerZero Bridge', status: 'passed', score: 95 },
+                { name: 'Stargate Bridge', status: 'passed', score: 92 },
+                { name: 'Radiant Bridge', status: 'passed', score: 88 },
+                { name: 'L2 Bridge', status: 'passed', score: 90 }
+            ]
+        };
+        
+        // Update metrics
+        document.getElementById('totalTests').textContent = defaultData.bridgeSecurityMetrics.totalTests;
+        document.getElementById('passedTests').textContent = defaultData.bridgeSecurityMetrics.passedTests;
+        document.getElementById('failedTests').textContent = defaultData.bridgeSecurityMetrics.failedTests;
+        document.getElementById('criticalVulns').textContent = defaultData.bridgeSecurityMetrics.vulnerabilities.critical;
+        
+        // Create chart
+        const ctx = document.getElementById('securityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: defaultData.bridgeTestResults.map(b => b.name),
+                datasets: [{
+                    label: 'Security Score',
+                    data: defaultData.bridgeTestResults.map(b => b.score),
+                    backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100 }
+                }
+            }
+        });
+        
+        // Populate bridge list
+        const bridgeList = document.getElementById('bridgeList');
+        defaultData.bridgeTestResults.forEach(bridge => {
+            const bridgeItem = document.createElement('div');
+            bridgeItem.className = 'bridge-item';
+            bridgeItem.innerHTML = `
+                <div class="bridge-name">${bridge.name}</div>
+                <div class="bridge-score">Score: ${bridge.score}/100</div>
+                <div style="color: #28a745; font-size: 0.9rem;">✓ ${bridge.status.toUpperCase()}</div>
+            `;
+            bridgeList.appendChild(bridgeItem);
+        });
+    </script>
+</body>
+</html>

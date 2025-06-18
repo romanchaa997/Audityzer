@@ -288,7 +288,6 @@ class ZkSyncValidator {
       (this.config.logLevel === 'warn' && (level === 'warn' || level === 'error')) ||
       (this.config.logLevel === 'error' && level === 'error')
     ) {
-      console.log(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${message}`);
     }
   }
 }

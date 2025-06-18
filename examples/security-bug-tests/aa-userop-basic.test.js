@@ -238,7 +238,6 @@ test.describe('ERC-4337 UserOperation Validation', () => {
     
     // In a real implementation, the second UserOp should fail due to nonce mismatch
     // Here we're just simulating the pattern
-    console.log('Simulating nonce validation: The second UserOp would be rejected in a real implementation');
   });
   
   test('UserOperation with invalid callData', async () => {
@@ -257,7 +256,6 @@ test.describe('ERC-4337 UserOperation Validation', () => {
     
     // In a real implementation, this would validate the callData format
     // Here we're just simulating the pattern
-    console.log('Simulating callData validation: This would be rejected in a real implementation');
   });
   
   test('UserOperation with oversized initCode', async () => {
@@ -296,6 +294,5 @@ test.describe('ERC-4337 UserOperation Validation', () => {
     await bundler.processQueue();
     
     // In a real implementation, this might be rejected if gas limits exceed block gas limit
-    console.log('Simulating gas limit validation: This might be rejected in a real implementation if gas limits are unreasonable');
   });
 }); 

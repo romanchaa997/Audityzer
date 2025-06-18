@@ -51,7 +51,6 @@ function createMockEntryPoint() {
     
     // Mock implementation of handleOps
     async handleOps(userOps, beneficiary) {
-      console.log(`[MockEntryPoint] Handling ${userOps.length} ops for beneficiary ${beneficiary}`);
       
       const results = [];
       for (const userOp of userOps) {
@@ -67,13 +66,11 @@ function createMockEntryPoint() {
           const currentNonce = this._nextNonce.get(userOp.sender) || 0;
           this._nextNonce.set(userOp.sender, currentNonce + 1);
           
-          console.log(`[MockEntryPoint] Op succeeded: ${userOp.sender}`);
         } catch (error) {
           // Track failed op
           this._failedOps.push({ userOp, error: error.message });
           results.push({ success: false, error: error.message, userOp });
           
-          console.log(`[MockEntryPoint] Op failed: ${userOp.sender} - ${error.message}`);
         }
       }
       
@@ -112,7 +109,6 @@ function createMockEntryPoint() {
     async depositTo(account, value) {
       const currentBalance = this._balances.get(account) || 0;
       this._balances.set(account, currentBalance + value);
-      console.log(`[MockEntryPoint] Deposited ${value} to ${account}, new balance: ${currentBalance + value}`);
       return true;
     },
     
@@ -137,7 +133,6 @@ function createMockEntryPoint() {
 async function connectToForkedGoerli(options = {}) {
   const rpcUrl = options.rpcUrl || process.env.FORKED_GOERLI_RPC || 'http://localhost:8545';
   
-  console.log(`Connecting to forked Goerli at ${rpcUrl}...`);
   
   try {
     // Create provider
@@ -145,12 +140,10 @@ async function connectToForkedGoerli(options = {}) {
     
     // Check connection
     const network = await provider.getNetwork();
-    console.log(`Connected to network: ${network.name} (chainId: ${network.chainId})`);
     
     // Create wallet from private key or use a random one
     const privateKey = options.privateKey || process.env.PRIVATE_KEY || ethers.Wallet.createRandom().privateKey;
     const wallet = new ethers.Wallet(privateKey, provider);
-    console.log(`Using wallet: ${wallet.address}`);
     
     // Create EntryPoint contract instance
     const entryPoint = new ethers.Contract(
@@ -218,7 +211,6 @@ function getPimlicoHelpers() {
  */
 async function startForkedNetwork(options = {}) {
   try {
-    console.log('Starting forked Goerli network with Hardhat...');
     
     // Check if hardhat is installed
     try {
@@ -229,7 +221,6 @@ async function startForkedNetwork(options = {}) {
       const configPath = path.join(process.cwd(), 'hardhat.config.js');
       
       if (!fs.existsSync(configPath)) {
-        console.log('Creating temporary hardhat config for forking...');
         const tempConfig = `
 module.exports = {
   solidity: "0.8.17",
@@ -260,12 +251,10 @@ module.exports = {
         rpcUrl: 'http://localhost:8545',
         stop: () => {
           hardhatNode.kill();
-          console.log('Stopped forked network');
         }
       };
     } catch (error) {
       console.error(`Hardhat not found: ${error.message}`);
-      console.log('Please install hardhat with: npm install --save-dev hardhat');
       throw new Error('Hardhat not installed');
     }
   } catch (error) {

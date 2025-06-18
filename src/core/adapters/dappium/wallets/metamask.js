@@ -143,7 +143,7 @@ class MetaMaskWalletSimulator {
         }
       } catch (e) {
         // It's possible there's no account selection screen
-        console.log('No account selection needed');
+        // console.log('No account selection needed');
       }
 
       return true;
@@ -168,7 +168,7 @@ class MetaMaskWalletSimulator {
           await reviewDetailsButton.click();
         }
       } catch (e) {
-        console.log('No review details button found');
+        // console.log('No review details button found');
       }
 
       // Check gas settings and update if needed

@@ -305,7 +305,6 @@ test.describe('Network Switch Race Condition Detection', () => {
 
     // Get initial chain ID
     initialChainId = (await getWalletState(page)).chainId;
-    console.log(`Initial chain ID: ${initialChainId}`);
 
     // Trigger the race condition test
     await page.click('#race-test');
@@ -315,11 +314,9 @@ test.describe('Network Switch Race Condition Detection', () => {
 
     // Get final chain ID
     finalChainId = (await getWalletState(page)).chainId;
-    console.log(`Final chain ID: ${finalChainId}`);
 
     // Retrieve events log
     const eventLog = await page.evaluate(() => window.eventLog);
-    console.log('Event log:', eventLog);
 
     // Analyze the events to detect race condition
     if (eventLog) {
@@ -338,13 +335,10 @@ test.describe('Network Switch Race Condition Detection', () => {
 
         // Check if network was changed during transaction preparation
         if (Math.abs(switchTime - txTime) < 3000) {
-          console.log('Race condition detected: Network changed during transaction preparation');
 
           // Detect which came first
           if (switchTime < txTime) {
-            console.log('Network switched before transaction was sent');
           } else {
-            console.log('Network switched after transaction was initiated but before completion');
           }
         }
       }
@@ -507,7 +501,6 @@ test.describe('Network Switch Race Condition Detection', () => {
     const transactionCancelled = false;
 
     page.on('console', msg => {
-      console.log('Page log:', msg.text());
     });
 
     // Create a race condition scenario
@@ -523,7 +516,6 @@ test.describe('Network Switch Race Condition Detection', () => {
 
     // 4. Check the result
     const resultText = await page.textContent('#result');
-    console.log('Result:', resultText);
 
     // The proper implementation should detect the network change and cancel the transaction
     expect(resultText).toContain('Network changed during transaction preparation');

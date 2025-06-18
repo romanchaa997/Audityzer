@@ -123,7 +123,6 @@ contract VulnerableVault {
                 document.getElementById('result').textContent = 'Deposited 1 ETH. Transaction: ' + txHash;
                 
                 // Log transaction data for analysis
-                console.log('TRANSACTION_DATA:', {
                   type: 'deposit',
                   amount: 1,
                   account,
@@ -157,7 +156,6 @@ contract VulnerableVault {
                 // In this mock, we're simulating the vulnerability pattern
                 
                 // Log the vulnerability
-                console.log('VULNERABILITY_DETECTED:', {
                   type: 'reentrancy',
                   details: 'State updated after external call',
                   severity: 'High',
@@ -183,7 +181,6 @@ contract VulnerableVault {
                 document.getElementById('result').textContent = 'Withdrawn ' + balance + ' ETH. Transaction: ' + txHash;
                 
                 // Log transaction data for analysis
-                console.log('TRANSACTION_DATA:', {
                   type: 'withdraw',
                   amount: balance,
                   account,

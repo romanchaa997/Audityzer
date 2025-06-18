@@ -118,12 +118,12 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
         ],
         // Mock functions to simulate Radiant operations
         deposit: async function (params) {
-          console.log('Simulating Radiant deposit:', params);
+          // logger.info('Simulating Radiant deposit:', params);
 
           const pool = window.radiant.getLendingPoolAddress(params.chain);
           const tokenAddress = window.radiant.getTokenAddress(params.chain, params.token);
 
-          console.log(`Approving ${params.amount} of token ${tokenAddress} to pool ${pool}`);
+          // logger.info(`Approving ${params.amount} of token ${tokenAddress} to pool ${pool}`);
 
           // Generate a mock transaction hash
           const txHash =
@@ -153,7 +153,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
         },
 
         withdraw: async function (params) {
-          console.log('Simulating Radiant withdrawal:', params);
+          // logger.info('Simulating Radiant withdrawal:', params);
 
           // Generate a mock transaction hash
           const txHash =
@@ -184,7 +184,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
         },
 
         borrow: async function (params) {
-          console.log('Simulating Radiant borrow:', params);
+          // logger.info('Simulating Radiant borrow:', params);
 
           // Check if user has sufficient collateral
           const hasCollateral =
@@ -233,7 +233,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
         },
 
         flashLoan: async function (params) {
-          console.log('Simulating Radiant flash loan:', params);
+          // logger.info('Simulating Radiant flash loan:', params);
 
           // Generate a mock transaction hash
           const txHash =
@@ -303,7 +303,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
 
         // Simulate oracle price manipulation
         manipulatePrice: function (chain, token, factor) {
-          console.log(
+          // logger.info(
             `Simulating price manipulation for ${token} on chain ${chain}, factor: ${factor}`
           );
 
@@ -312,7 +312,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
           const basePrice = window.radiant.getAssetPrice(chain, token);
           const manipulatedPrice = String(Math.floor(Number(basePrice) * factor));
 
-          console.log(`Price manipulation: ${basePrice} -> ${manipulatedPrice}`);
+          // logger.info(`Price manipulation: ${basePrice} -> ${manipulatedPrice}`);
 
           // Record the manipulation attempt
           if (!window.radiantVulnerabilities) {
@@ -385,7 +385,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
    * @returns Result of the deposit operation
    */
   async deposit(page: Page, params: RadiantLendingParams): Promise<any> {
-    console.log(`Depositing ${params.amount} ${params.token} on Radiant (${params.chain})`);
+    // logger.info(`Depositing ${params.amount} ${params.token} on Radiant (${params.chain})`);
 
     // Default values for optional parameters
     const useAsCollateral = params.useAsCollateral !== undefined ? params.useAsCollateral : true;
@@ -426,7 +426,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
    * @returns Result of the withdrawal operation
    */
   async withdraw(page: Page, params: RadiantLendingParams): Promise<any> {
-    console.log(`Withdrawing ${params.amount} ${params.token} from Radiant (${params.chain})`);
+    // logger.info(`Withdrawing ${params.amount} ${params.token} from Radiant (${params.chain})`);
 
     // Execute the withdrawal via the page context
     return await page.evaluate(async params => {
@@ -456,7 +456,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
    * @returns Result of the borrow operation
    */
   async borrow(page: Page, params: RadiantLendingParams): Promise<any> {
-    console.log(`Borrowing ${params.amount} ${params.token} from Radiant (${params.chain})`);
+    // logger.info(`Borrowing ${params.amount} ${params.token} from Radiant (${params.chain})`);
 
     // Default values for optional parameters
     const interestRateMode = params.interestRateMode || 'variable';
@@ -497,7 +497,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
    * @returns Result of the flash loan operation
    */
   async flashLoan(page: Page, params: RadiantLendingParams): Promise<any> {
-    console.log(
+    // logger.info(
       `Executing flash loan for ${params.amount} ${params.token} on Radiant (${params.chain})`
     );
 
@@ -551,22 +551,22 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
 
     switch (params.attackType) {
       case 'flashLoan':
-        console.log('Testing flash loan vulnerabilities...');
+        // logger.info('Testing flash loan vulnerabilities...');
         await this.testFlashLoanAttacks(page, params, findings);
         break;
 
       case 'oracleManipulation':
-        console.log('Testing oracle manipulation vulnerabilities...');
+        // logger.info('Testing oracle manipulation vulnerabilities...');
         await this.testOracleManipulation(page, params, findings);
         break;
 
       case 'liquidation':
-        console.log('Testing liquidation vulnerabilities...');
+        // logger.info('Testing liquidation vulnerabilities...');
         await this.testLiquidationVulnerabilities(page, params, findings);
         break;
 
       case 'interestRate':
-        console.log('Testing interest rate manipulation vulnerabilities...');
+        // logger.info('Testing interest rate manipulation vulnerabilities...');
         await this.testInterestRateManipulation(page, params, findings);
         break;
     }
@@ -828,7 +828,7 @@ export class RadiantTestHarness extends LayerZeroTestHarness {
           const beforeRate = Math.random() * 0.05 + 0.02; // Random 2-7% rate
 
           // Simulate deposit (in real test we would actually make the deposit)
-          console.log(`Simulating ${amount} deposit impact on interest rates`);
+          // logger.info(`Simulating ${amount} deposit impact on interest rates`);
 
           // Calculate simulated new interest rate
           // Larger deposits should decrease borrow rates

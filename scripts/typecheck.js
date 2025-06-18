@@ -21,12 +21,10 @@ const colors = {
   white: '\x1b[37m',
 };
 
-console.log(`${colors.cyan}Running TypeScript type check...${colors.reset}`);
 
 try {
   // Run TypeScript compiler in noEmit mode to just check types
   const output = execSync('npx tsc --noEmit', { encoding: 'utf8' });
-  console.log(`${colors.green}TypeScript check passed! No type errors found.${colors.reset}`);
 } catch (error) {
   console.error(`${colors.red}TypeScript check failed with errors:${colors.reset}\n`);
 
@@ -60,29 +58,21 @@ try {
 
   // Display errors grouped by file
   for (const file in fileErrors) {
-    console.log(`\n${colors.yellow}File: ${file}${colors.reset}`);
     for (const error of fileErrors[file]) {
-      console.log(`  ${colors.magenta}Line ${error.line}:${colors.reset} ${error.message}`);
     }
   }
 
   // Display summary
   const totalFiles = Object.keys(fileErrors).length;
   const totalErrors = Object.values(fileErrors).reduce((sum, errors) => sum + errors.length, 0);
-  console.log(`\n${colors.red}Found ${totalErrors} errors in ${totalFiles} files.${colors.reset}`);
 
   // Suggest fixes for common errors
-  console.log(`\n${colors.cyan}Suggested fixes:${colors.reset}`);
-  console.log(
     "1. For 'window.ethereum' type errors: Use '(window.ethereum as any)' to bypass type checking."
   );
-  console.log(
     '2. For incompatible modifiers: Make sure all declarations of the same property use identical modifiers.'
   );
-  console.log(
     "3. For 'Parameter implicitly has an any type': Add explicit type annotations (e.g., 'parameter: any')."
   );
-  console.log(
     '4. For extension interface conflicts: Fix the type definitions in your provider types.'
   );
 

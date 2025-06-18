@@ -167,7 +167,6 @@
    */
   function initializeAnalytics() {
     // Mock analytics implementation
-    console.log('Analytics initialized');
   }
   
   /**

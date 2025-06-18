@@ -27,14 +27,12 @@ function checkDependencies() {
 // Run dependency installation script
 async function installDependencies(packages) {
   return new Promise((resolve, reject) => {
-    console.log(chalk.yellow(`Installing missing dependencies: ${packages.join(', ')}`));
 
     const args = ['run', `install:${packages[0]}`];
     const npmProcess = spawn('npm', args, { stdio: 'inherit' });
 
     npmProcess.on('close', code => {
       if (code === 0) {
-        console.log(chalk.green('Successfully installed dependencies'));
         resolve(true);
       } else {
         console.error(chalk.red(`Failed to install dependencies (exit code: ${code})`));
@@ -61,7 +59,6 @@ async function runWithDependencyCheck() {
       await installDependencies(missingDependencies);
 
       // Re-run this script after installing dependencies
-      console.log(chalk.green('Dependencies installed. Restarting script...'));
       process.exit(0); // Exit with success code to indicate restart needed
     } catch (error) {
       console.error(chalk.red('Failed to install dependencies automatically.'));
@@ -139,10 +136,8 @@ async function runWithDependencyCheck() {
    * Analyze a trading strategy and print results
    */
   async function analyzeStrategy(strategyConfig) {
-    console.log(
       chalk.blue(`\nAnalyzing strategy: ${strategyConfig.name} (${strategyConfig.type})`)
     );
-    console.log(chalk.blue('='.repeat(60)));
 
     try {
       // Create strategy
@@ -175,35 +170,22 @@ async function runWithDependencyCheck() {
       const results = await analyzer.analyzeStrategy(strategyData);
 
       // Print results
-      console.log(chalk.yellow('Results Summary:'));
-      console.log(chalk.cyan(`Risk Score: ${results.riskScore}/100`));
 
       // Print risk level
       if (results.riskScore >= 75) {
-        console.log(chalk.red('Risk Level: HIGH'));
       } else if (results.riskScore >= 40) {
-        console.log(chalk.yellow('Risk Level: MEDIUM'));
       } else {
-        console.log(chalk.green('Risk Level: LOW'));
       }
 
       // Print vulnerabilities
       if (results.vulnerabilities.length === 0) {
-        console.log(chalk.green('\nNo vulnerabilities detected!'));
       } else {
-        console.log(chalk.red(`\nDetected ${results.vulnerabilities.length} vulnerabilities:`));
 
         results.vulnerabilities.forEach((vuln, index) => {
-          console.log(chalk.red(`\n${index + 1}. ${vuln.name} (${vuln.severity})`));
-          console.log(chalk.yellow(`   Description: ${vuln.description}`));
-          console.log(chalk.green(`   Remediation: ${vuln.remediation}`));
-          console.log(chalk.gray(`   Confidence: ${Math.round(vuln.confidence * 100)}%`));
         });
       }
 
-      console.log(chalk.blue('\nRecommendations:'));
       if (results.recommendations.length === 0) {
-        console.log(chalk.green('No recommendations needed.'));
       } else {
         results.recommendations.forEach((rec, index) => {
           const priorityColor =
@@ -213,8 +195,6 @@ async function runWithDependencyCheck() {
                 ? chalk.yellow
                 : chalk.cyan;
 
-          console.log(priorityColor(`${index + 1}. ${rec.title} (${rec.priority})`));
-          console.log(chalk.gray(`   ${rec.description}`));
         });
       }
 
@@ -229,8 +209,6 @@ async function runWithDependencyCheck() {
    * Main function
    */
   async function main() {
-    console.log(chalk.green('DeFi Trading Strategy Analyzer Example'));
-    console.log(chalk.green('======================================'));
 
     // Analyze all strategies and collect results
     const results = [];
@@ -248,22 +226,17 @@ async function runWithDependencyCheck() {
     }
 
     // Print comparison table
-    console.log(chalk.green('\nStrategy Comparison:'));
-    console.log(chalk.green('==================='));
 
-    console.log(
       '\n' +
         chalk.bold(
           'Name'.padEnd(25) + 'Type'.padEnd(20) + 'Risk Score'.padEnd(15) + 'Vulnerabilities'
         )
     );
-    console.log('-'.repeat(75));
 
     results.forEach(result => {
       const scoreColor =
         result.riskScore >= 75 ? chalk.red : result.riskScore >= 40 ? chalk.yellow : chalk.green;
 
-      console.log(
         chalk.white(result.name.padEnd(25)) +
           chalk.cyan(result.type.padEnd(20)) +
           scoreColor(result.riskScore.toString().padEnd(15)) +
@@ -273,7 +246,6 @@ async function runWithDependencyCheck() {
       );
     });
 
-    console.log('\n' + chalk.blue('Analysis completed!'));
   }
 
   // Run the example

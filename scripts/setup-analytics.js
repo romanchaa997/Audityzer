@@ -53,21 +53,17 @@ function ensureDirectoryExists(dirPath) {
 
 // Setup Plausible
 async function setupPlausible() {
-  console.log('\n--- Plausible Analytics Setup ---');
   
   const usePlausible = await askQuestion('Do you want to use Plausible Analytics? (y/n): ');
   if (usePlausible.toLowerCase() === 'y') {
     config.plausible.enabled = true;
     config.plausible.domain = await askQuestion('Enter your domain for Plausible (e.g., audityzer.com): ');
-    console.log('Plausible configuration saved.');
   } else {
-    console.log('Skipping Plausible setup.');
   }
 }
 
 // Setup PostHog
 async function setupPostHog() {
-  console.log('\n--- PostHog Setup ---');
   
   const usePostHog = await askQuestion('Do you want to use PostHog for event tracking and session replay? (y/n): ');
   if (usePostHog.toLowerCase() === 'y') {
@@ -79,30 +75,24 @@ async function setupPostHog() {
       config.posthog.host = await askQuestion('Enter your PostHog host URL: ');
     }
     
-    console.log('PostHog configuration saved.');
   } else {
-    console.log('Skipping PostHog setup.');
   }
 }
 
 // Setup Umami
 async function setupUmami() {
-  console.log('\n--- Umami Setup ---');
   
   const useUmami = await askQuestion('Do you want to use Umami for privacy-focused analytics? (y/n): ');
   if (useUmami.toLowerCase() === 'y') {
     config.umami.enabled = true;
     config.umami.websiteId = await askQuestion('Enter your Umami website ID: ');
     config.umami.host = await askQuestion('Enter your Umami host URL: ');
-    console.log('Umami configuration saved.');
   } else {
-    console.log('Skipping Umami setup.');
   }
 }
 
 // Configure general tracking options
 async function configureGeneralOptions() {
-  console.log('\n--- General Tracking Configuration ---');
   
   const trackUtm = await askQuestion('Track UTM parameters? (y/n): ');
   config.general.trackUtmParameters = trackUtm.toLowerCase() === 'y';
@@ -113,14 +103,12 @@ async function configureGeneralOptions() {
   const trackClicks = await askQuestion('Track click events on buttons and links? (y/n): ');
   config.general.trackClickEvents = trackClicks.toLowerCase() === 'y';
   
-  console.log('General tracking configuration saved.');
 }
 
 // Save configuration to file
 function saveConfiguration() {
   const configPath = path.join(process.cwd(), 'analytics-config.json');
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-  console.log(`\nConfiguration saved to ${configPath}`);
   
   // Update analytics-config.js with the new configuration
   updateAnalyticsScript();
@@ -308,7 +296,6 @@ function updateAnalyticsScript() {
   
   // Write the analytics script
   fs.writeFileSync(analyticsScript, scriptContent);
-  console.log(`Analytics script updated at ${analyticsScript}`);
 }
 
 // Create an analytics dashboard directory
@@ -454,14 +441,10 @@ function createAnalyticsDashboard() {
   `;
   
   fs.writeFileSync(path.join(dashboardDir, 'index.html'), dashboardHtml);
-  console.log(`\nAnalytics dashboard created at ${dashboardDir}/index.html`);
-  console.log(`Run 'npm run analytics:dashboard' to view it.`);
 }
 
 // Main function
 async function main() {
-  console.log('\n=== Audityzer Analytics Setup ===\n');
-  console.log('This script will help you configure analytics for your Audityzer installation.');
   
   await setupPlausible();
   await setupPostHog();
@@ -471,10 +454,6 @@ async function main() {
   saveConfiguration();
   createAnalyticsDashboard();
   
-  console.log('\n=== Setup Complete ===\n');
-  console.log('You can now use the following npm scripts:');
-  console.log('- npm run analytics:dashboard: View your analytics dashboard');
-  console.log('- npm run generate:utm-links: Generate UTM links for marketing campaigns');
   
   rl.close();
 }

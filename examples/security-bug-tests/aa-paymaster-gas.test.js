@@ -245,8 +245,6 @@ test.describe('ERC-4337 Paymaster Abuse Detection', () => {
     const successCount = results.filter(r => r.success).length;
     const failCount = results.filter(r => !r.success).length;
     
-    console.log(`Successful operations: ${successCount}`);
-    console.log(`Failed operations: ${failCount}`);
     
     // Verify that some operations failed due to the usage limit
     expect(failCount).toBeGreaterThan(0);
@@ -307,9 +305,6 @@ test.describe('ERC-4337 Paymaster Abuse Detection', () => {
     const results = await entryPoint.handleOps(userOps, MOCK_ADDRESSES.sender);
     
     // In real conditions, the paymaster might run out of funds or hit rate limits
-    console.log(`Processed ${results.length} operations`);
-    console.log(`Paymaster sponsored gas: ${paymaster.gasSponsored}`);
-    console.log(`Paymaster remaining balance: ${paymaster.balance}`);
     
     // In a real scenario, the test would verify if paymaster properly limits token-backed operations
     expect(paymaster.operationsSponsored).toBeLessThanOrEqual(100);
@@ -330,7 +325,6 @@ test.describe('ERC-4337 Paymaster Abuse Detection', () => {
     const originalValidateContext = paymaster.validateContext;
     paymaster.validateContext = function(paymasterData, userOp) {
       // Simulate context manipulation
-      console.log('Manipulated context validation detected');
       return true; // Always return true, bypassing actual validation
     };
     
@@ -344,9 +338,7 @@ test.describe('ERC-4337 Paymaster Abuse Detection', () => {
     paymaster.validateContext = originalValidateContext;
     
     // In a real implementation, this would be detected through proper post-op validation
-    console.log('In a secure implementation, context manipulation would be detected');
     
     // For the purpose of this test, we simulate a successful detection
-    console.log('Simulating context manipulation detection');
   });
 }); 

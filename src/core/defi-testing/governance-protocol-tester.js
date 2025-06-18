@@ -197,7 +197,6 @@ class GovernanceProtocolTester {
     const messageLevel = logLevels[level] || 2;
 
     if (messageLevel <= configLevel) {
-      console.log(logMessage);
     }
   }
 

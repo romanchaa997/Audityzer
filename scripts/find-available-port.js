@@ -29,7 +29,6 @@ module.exports = findAvailablePort;
 if (require.main === module) {
   findAvailablePort(5050, (port) => {
     if (port) {
-      console.log(`Port ${port} is available`);
       process.exit(0);
     } else {
       console.error('Failed to find an available port');

@@ -48,7 +48,6 @@ test.describe('MetaMask Fuzzer Tests', () => {
     await extensionPage
       .waitForSelector('text="Welcome to MetaMask"', { timeout: 10000 })
       .catch(() => {
-        console.log('MetaMask already initialized. Continuing with test.');
       });
 
     // Close the MetaMask tab, we'll be interacting with it via popups

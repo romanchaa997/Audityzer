@@ -49,10 +49,8 @@ const results = {
 const themes = ['light', 'dark'];
 
 // Generate dashboards
-console.log('Generating visualizations...');
 
 for (const theme of themes) {
-  console.log(`Creating ${theme} theme dashboard...`);
   
   // Color settings based on theme
   const colors = theme === 'dark' 
@@ -197,15 +195,9 @@ for (const theme of themes) {
   const htmlPath = path.join(outputDir, `dashboard-${theme}.html`);
   fs.writeFileSync(htmlPath, html);
   
-  console.log(`Dashboard created: ${htmlPath}`);
 }
 
 // Save the results as JSON
 const jsonPath = path.join(outputDir, 'test-results.json');
 fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2));
-console.log(`Results JSON saved: ${jsonPath}`);
 
-console.log('\nVisualization demo completed successfully!');
-console.log(`You can view the dashboards in: ${outputDir}`);
-console.log('Light theme: ' + path.join(outputDir, 'dashboard-light.html'));
-console.log('Dark theme: ' + path.join(outputDir, 'dashboard-dark.html'));

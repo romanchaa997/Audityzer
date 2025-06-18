@@ -189,7 +189,6 @@ async function createMockBridgePage(page: Page) {
                 timestamp: Date.now()
               };
               
-              console.log('BRIDGE_TRANSACTION:', JSON.stringify(bridgeData));
               
               // Create L2 deposit transaction
               const txData = asset === 'ETH' ? '0x' : '0xdeposit';
@@ -249,7 +248,6 @@ async function createMockBridgePage(page: Page) {
                 nonce: withdrawMode === 'insecure' ? undefined : Math.floor(Math.random() * 1000000)
               };
               
-              console.log('BRIDGE_TRANSACTION:', JSON.stringify(bridgeData));
               
               // Create withdrawal transaction
               const txData = '0xwithdraw';
@@ -321,7 +319,6 @@ test.describe('Layer 2 Bridge Security Vulnerabilities', () => {
           if (dataMatch && dataMatch[1]) {
             const txData = JSON.parse(dataMatch[1]);
             bridgeTransactions.push(txData);
-            console.log('Captured bridge transaction:', JSON.stringify(txData));
           }
         } catch (e) {
           // Failed to parse
@@ -347,11 +344,9 @@ test.describe('Layer 2 Bridge Security Vulnerabilities', () => {
     );
     
     if (insecureWithdrawal) {
-      console.log('VULNERABILITY: Insecure withdrawal mode detected (no challenge period)');
       
       // Check for missing replay protection
       if (insecureWithdrawal.nonce === undefined) {
-        console.log('VULNERABILITY: Missing nonce for replay protection');
       }
     }
     
@@ -365,10 +360,8 @@ test.describe('Layer 2 Bridge Security Vulnerabilities', () => {
     );
     
     if (secureWithdrawal) {
-      console.log('SECURITY FEATURE: Standard withdrawal with proper challenge period');
       
       if (secureWithdrawal.nonce !== undefined) {
-        console.log('SECURITY FEATURE: Proper nonce for replay protection');
       }
     }
   });
@@ -433,8 +426,6 @@ test.describe('Layer 2 Bridge Security Vulnerabilities', () => {
     );
     
     if (lowSecurityDeposit) {
-      console.log('POTENTIAL VULNERABILITY: Low security deposit mode detected');
-      console.log(`Destination network: ${lowSecurityDeposit.toNetwork}`);
     }
     
     const highSecurityDeposit = bridgeTransactions.find(tx => 
@@ -442,22 +433,18 @@ test.describe('Layer 2 Bridge Security Vulnerabilities', () => {
     );
     
     if (highSecurityDeposit) {
-      console.log('SECURITY FEATURE: High security deposit mode detected');
-      console.log(`Destination network: ${highSecurityDeposit.toNetwork}`);
     }
     
     // Check for network-specific vulnerabilities
     const arbitrumDeposit = bridgeTransactions.find(tx => tx.toNetwork === 'arbitrum');
     if (arbitrumDeposit) {
       if (arbitrumDeposit.securityLevel === 'low') {
-        console.log('VULNERABILITY: Arbitrum deposits with low security level may be subject to delayed finality attacks');
       }
     }
     
     const optimismDeposit = bridgeTransactions.find(tx => tx.toNetwork === 'optimism');
     if (optimismDeposit) {
       if (!optimismDeposit.fault_proof_window) {
-        console.log('POTENTIAL VULNERABILITY: Optimism deposit missing fault proof window parameter');
       }
     }
   });
@@ -517,12 +504,9 @@ test.describe('Layer 2 Bridge Security Vulnerabilities', () => {
       // Check for high-value vulnerabilities
       if ((asset === 'ETH' && amount > 5) || 
           ((asset === 'USDC' || asset === 'USDT') && amount > 10000)) {
-        console.log(`POTENTIAL VULNERABILITY: High-value bridge transfer detected (${amount} ${asset})`);
-        console.log(`This could be vulnerable to bridge liquidity attacks or delayed finality attacks`);
         
         // Check for missing security features
         if (tx.securityLevel !== 'high') {
-          console.log(`VULNERABILITY: High-value transfer using insufficient security level: ${tx.securityLevel}`);
         }
       }
     });

@@ -1,0 +1,164 @@
+Dependabot	UNKNOWN STEP	﻿2025-06-16T07:08:37.4921019Z Current runner version: '2.325.0'
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4947479Z ##[group]Operating System
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4948331Z Ubuntu
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4948845Z 24.04.2
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4949403Z LTS
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4949880Z ##[endgroup]
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4950450Z ##[group]Runner Image
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4951077Z Image: ubuntu-24.04
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4951572Z Version: 20250609.1.0
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4952637Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250609.1/images/ubuntu/Ubuntu2404-Readme.md
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4954306Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250609.1
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4955222Z ##[endgroup]
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4955752Z ##[group]Runner Image Provisioner
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4956415Z 2.0.437.1
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4957036Z ##[endgroup]
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4959401Z ##[group]GITHUB_TOKEN Permissions
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4961591Z Actions: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4962421Z Attestations: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4963316Z Checks: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4963824Z Contents: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4964404Z Deployments: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4964982Z Discussions: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4965479Z Issues: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4966056Z Metadata: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4966524Z Models: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4967010Z Packages: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4967625Z Pages: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4968096Z PullRequests: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4968626Z RepositoryProjects: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4969256Z SecurityEvents: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4969785Z Statuses: read
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4970242Z ##[endgroup]
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4972621Z Secret source: None
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.4973863Z Prepare workflow directory
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.5321946Z Prepare all required actions
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.5378227Z Getting action download info
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:37.9564990Z Download action repository 'github/dependabot-action@main' (SHA:4bf3d8960bdc511b4b9cce121d9f6ee7597250a2)
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.6561642Z Complete job name: Dependabot
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7297684Z ##[group]Run mkdir -p  ./dependabot-job-1034603195-1750057708
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7298528Z [36;1mmkdir -p  ./dependabot-job-1034603195-1750057708[0m
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7387824Z shell: /usr/bin/bash -e {0}
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7388601Z ##[endgroup]
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7676142Z ##[group]Run github/dependabot-action@main
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7676746Z env:
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7677139Z   DEPENDABOT_DISABLE_CLEANUP: 1
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7677656Z   DEPENDABOT_ENABLE_CONNECTIVITY_CHECK: 0
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7678433Z   GITHUB_TOKEN: ***
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7679219Z   GITHUB_DEPENDABOT_JOB_TOKEN: ***
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7680095Z   GITHUB_DEPENDABOT_CRED_TOKEN: ***
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:38.7680600Z ##[endgroup]
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:39.0214832Z 🤖 ~ starting update ~
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:39.0232151Z Fetching job details
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:39.6314108Z ##[group]Pulling updater images
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:39.6368392Z Pulling image ghcr.io/dependabot/dependabot-updater-npm:e033caa1eb5eb1cf2f8c1ea17127bd352ff1048d (attempt 1)...
+Dependabot	UNKNOWN STEP	2025-06-16T07:08:39.9012621Z Successfully sent metric (dependabot.action.ghcr_image_pull) to remote API endpoint
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:06.2573650Z Pulled image ghcr.io/dependabot/dependabot-updater-npm:e033caa1eb5eb1cf2f8c1ea17127bd352ff1048d
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:06.2588038Z Pulling image ghcr.io/github/dependabot-update-job-proxy/dependabot-update-job-proxy:v2.0.20250602172812@sha256:0b0d8c67cad11fa0885fcc3fe0add06638c29c19f05a83f80077d5dbb70c2037 (attempt 1)...
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:06.5099027Z Successfully sent metric (dependabot.action.ghcr_image_pull) to remote API endpoint
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:07.6286559Z Pulled image ghcr.io/github/dependabot-update-job-proxy/dependabot-update-job-proxy:v2.0.20250602172812@sha256:0b0d8c67cad11fa0885fcc3fe0add06638c29c19f05a83f80077d5dbb70c2037
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:07.6289086Z ##[endgroup]
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:07.6289547Z Starting update process
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:08.0528999Z Created proxy container: 3c1470552e099ef40c491521dcb7c74f6f0826a2a9aa6c248f3b150e3cb21a9d
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:08.2473972Z Created container: e8ad233effbc343638f9e3a6ac897df073e6efe237617321e0c29750c4bdecf2
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:08.3230598Z   proxy | 2025/06/16 07:09:08 proxy starting, commit: 091b45ad399a23b90b1f7c915310680aaaf9a8a6
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:08.3231707Z   proxy | 2025/06/16 07:09:08 Listening (:1080)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:08.3580327Z updater | Updating certificates in /etc/ssl/certs...
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:09.0875571Z updater | rehash: warning: skipping ca-certificates.crt,it does not contain exactly one certificate or CRL
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:09.1044658Z updater | 1 added, 0 removed; done.
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:09.1045434Z updater | Running hooks in /etc/ca-certificates/update.d...
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:09.1061623Z updater | done.
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.7908748Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Starting job processing
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.7922728Z 2025/06/16 07:09:10 INFO <job_1034603195> Job definition: {"job":{"allowed-updates":[{"dependency-type":"direct","update-type":"all"}],"commit-message-options":{"prefix":"deps","prefix-development":null,"include-scope":true},"credentials-metadata":[{"type":"git_source","host":"github.com"}],"debug":null,"dependencies":null,"dependency-groups":[],"dependency-group-to-refresh":null,"existing-pull-requests":[],"existing-group-pull-requests":[],"experiments":{"record-ecosystem-versions":true,"record-update-job-unknown-error":true,"proxy-cached":true,"move-job-token":true,"dependency-change-validation":true,"nuget-install-dotnet-sdks":true,"nuget-native-analysis":true,"nuget-native-updater":true,"nuget-use-direct-discovery":true,"enable-file-parser-python-local":true,"npm-fallback-version-above-v6":true,"lead-security-dependency":true,"enable-record-ecosystem-meta":true,"enable-shared-helpers-command-timeout":true,"enable-dependabot-setting-up-cronjob":true,"enable-engine-version-detection":true,"avoid-duplicate-updates-package-json":true,"allow-refresh-for-existing-pr-dependencies":true,"allow-refresh-group-with-all-dependencies":true,"exclude-local-composer-packages":true,"enable-enhanced-error-details-for-updater":true,"enable-cooldown-for-python":true,"enable-cooldown-for-uv":true,"enable-cooldown-for-npm-and-yarn":true,"enable-cooldown-for-bun":true,"enable-cooldown-for-bundler":true,"enable-cooldown-for-cargo":true,"enable-cooldown-for-maven":true,"enable-cooldown-for-gomodules":true,"enable-cooldown-metrics-collection":true,"enable-cooldown-for-composer":true,"enable-cooldown-for-gradle":true,"enable-cooldown-for-pub":true,"enable-cooldown-for-gitsubmodules":true,"enable-cooldown-for-elm":true},"ignore-conditions":[],"lockfile-only":false,"max-updater-run-time":2700,"package-manager":"npm_and_yarn","proxy-log-response-body-on-auth-failure":true,"requirements-update-strategy":null,"reject-external-code":false,"security-advisories":[],"security-updates-only":false,"source":{"provider":"github","repo":"romanchaa997/Audityzer","branch":null,"directory":"/.","api-endpoint":"https://api.github.com/","hostname":"github.com"},"updating-a-pull-request":false,"update-subdependencies":false,"vendor-dependencies":false,"enable-beta-ecosystems":false,"repo-private":false,"multi-ecosystem-update":false}}
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.7987172Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Started process PID: 1071 with command: {} git config --global credential.helper '!/home/dependabot/common/lib/dependabot/../../bin/git-credential-store-immutable --file /home/dependabot/dependabot-updater/git.store' {}
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8035463Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Process PID: 1071 completed with status: pid 1071 exit 0
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8036540Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Total execution time: 0.01 seconds
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8044522Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Started process PID: 1079 with command: {} git config --global --replace-all url.https://github.com/.insteadOf ssh://git@github.com/ {}
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8081533Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Process PID: 1079 completed with status: pid 1079 exit 0
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8083788Z 2025/06/16 07:09:10 INFO <job_1034603195> Total execution time: 0.0 seconds
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8095062Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Started process PID: 1086 with command: {} git config --global --add url.https://github.com/.insteadOf ssh://git@github.com: {}
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8137095Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Process PID: 1086 completed with status: pid 1086 exit 0
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8138161Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Total execution time: 0.01 seconds
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8145768Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Started process PID: 1093 with command: {} git config --global --add url.https://github.com/.insteadOf git@github.com: {}
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8189113Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Process PID: 1093 completed with status: pid 1093 exit 0
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8189993Z 2025/06/16 07:09:10 INFO <job_1034603195> Total execution time: 0.01 seconds
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8195463Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Started process PID: 1100 with command: {} git config --global --add url.https://github.com/.insteadOf git@github.com/ {}
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8242692Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Process PID: 1100 completed with status: pid 1100 exit 0
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8244340Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Total execution time: 0.01 seconds
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8249959Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Started process PID: 1107 with command: {} git config --global --add url.https://github.com/.insteadOf git://github.com/ {}
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8296289Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Process PID: 1107 completed with status: pid 1107 exit 0
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8298036Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Total execution time: 0.01 seconds
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.8308091Z updater | 2025/06/16 07:09:10 INFO <job_1034603195> Started process PID: 1114 with command: {} git clone --no-tags --depth 1 --recurse-submodules --shallow-submodules https://github.com/romanchaa997/Audityzer /home/dependabot/dependabot-updater/repo {}
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.9276791Z   proxy | 2025/06/16 07:09:10 [002] GET https://github.com:443/romanchaa997/Audityzer/info/refs?service=git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:10.9278321Z 2025/06/16 07:09:10 [002] * authenticating git server request (host: github.com)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:11.1726285Z   proxy | 2025/06/16 07:09:11 [002] 200 https://github.com:443/romanchaa997/Audityzer/info/refs?service=git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:11.2165023Z   proxy | 2025/06/16 07:09:11 [004] POST https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:11.2166137Z 2025/06/16 07:09:11 [004] * authenticating git server request (host: github.com)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:11.3512594Z   proxy | 2025/06/16 07:09:11 [004] 200 https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:11.3879056Z   proxy | 2025/06/16 07:09:11 [006] POST https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:11.3880034Z 2025/06/16 07:09:11 [006] * authenticating git server request (host: github.com)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:11.7140815Z   proxy | 2025/06/16 07:09:11 [006] 200 https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.2476886Z   proxy | 2025/06/16 07:09:12 [008] GET https://github.com:443/romanchaa997/Audityzer/info/refs?service=git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.2478121Z 2025/06/16 07:09:12 [008] 200 https://github.com:443/romanchaa997/Audityzer/info/refs?service=git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.2781819Z   proxy | 2025/06/16 07:09:12 [010] POST https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.2782715Z 2025/06/16 07:09:12 [010] * authenticating git server request (host: github.com)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.4757397Z   proxy | 2025/06/16 07:09:12 [010] 200 https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.5108416Z   proxy | 2025/06/16 07:09:12 [012] POST https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.5109717Z 2025/06/16 07:09:12 [012] 200 https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.7466509Z   proxy | 2025/06/16 07:09:12 [014] GET https://github.com:443/romanchaa997/Audityzer/info/refs?service=git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.7469318Z 2025/06/16 07:09:12 [014] 200 https://github.com:443/romanchaa997/Audityzer/info/refs?service=git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.7856379Z   proxy | 2025/06/16 07:09:12 [016] POST https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.7857426Z 2025/06/16 07:09:12 [016] * authenticating git server request (host: github.com)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.9375562Z   proxy | 2025/06/16 07:09:12 [016] 200 https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.9715911Z   proxy | 2025/06/16 07:09:12 [018] POST https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:12.9716821Z 2025/06/16 07:09:12 [018] * authenticating git server request (host: github.com)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.1526864Z   proxy | 2025/06/16 07:09:13 [018] 200 https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.2064573Z   proxy | 2025/06/16 07:09:13 [020] GET https://github.com:443/romanchaa997/Audityzer/info/refs?service=git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.2066293Z 2025/06/16 07:09:13 [020] 200 https://github.com:443/romanchaa997/Audityzer/info/refs?service=git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.2387659Z   proxy | 2025/06/16 07:09:13 [022] POST https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.2389707Z 2025/06/16 07:09:13 [022] * authenticating git server request (host: github.com)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.3890656Z   proxy | 2025/06/16 07:09:13 [022] 200 https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.4232742Z   proxy | 2025/06/16 07:09:13 [024] POST https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.4233866Z 2025/06/16 07:09:13 [024] * authenticating git server request (host: github.com)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.5406658Z   proxy | 2025/06/16 07:09:13 [024] 200 https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.5882645Z   proxy | 2025/06/16 07:09:13 [026] POST https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.5884874Z 2025/06/16 07:09:13 [026] * authenticating git server request (host: github.com)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:13.8297502Z   proxy | 2025/06/16 07:09:13 [026] 200 https://github.com:443/romanchaa997/Audityzer/git-upload-pack
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0802401Z updater | 2025/06/16 07:09:14 INFO <job_1034603195> Process PID: 1114 completed with status: pid 1114 exit 1
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0803502Z 2025/06/16 07:09:14 INFO <job_1034603195> Total execution time: 3.25 seconds
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0812510Z updater | 2025/06/16 07:09:14 ERROR <job_1034603195> Error during file fetching; aborting: Cloning into '/home/dependabot/dependabot-updater/repo'...
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0824103Z Submodule 'Audityzer' (https://github.com/romanchaa997/Audityzer) registered for path 'Audityzer'
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0825083Z Cloning into '/home/dependabot/dependabot-updater/repo/Audityzer'...
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0825710Z From https://github.com/romanchaa997/Audityzer
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0826318Z  * branch            587c67c73c63174143387f31cf791d344cf3bffa -> FETCH_HEAD
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0827051Z Submodule path 'Audityzer': checked out '587c67c73c63174143387f31cf791d344cf3bffa'
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0827561Z fatal: No url found for submodule path 'Audityzer/Web3FuzzForge' in .gitmodules
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.0827985Z fatal: Failed to recurse into submodule path 'Audityzer'
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.1579606Z   proxy | 2025/06/16 07:09:14 [028] POST /update_jobs/1034603195/record_update_job_error
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.3976453Z   proxy | 2025/06/16 07:09:14 [028] 204 /update_jobs/1034603195/record_update_job_error
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.4426845Z   proxy | 2025/06/16 07:09:14 [030] PATCH /update_jobs/1034603195/mark_as_processed
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5651447Z   proxy | 2025/06/16 07:09:14 [030] 204 /update_jobs/1034603195/mark_as_processed
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5660273Z updater | 2025/06/16 07:09:14 INFO <job_1034603195> Finished job processing
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5671499Z updater | 2025/06/16 07:09:14 INFO Results:
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5672445Z Dependabot encountered '1' error(s) during execution, please check the logs for more details.
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5674631Z +-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5676728Z |                                                                                                                                                                                                                                                                                                               Errors                                                                                                                                                                                                                                                                                                                |
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5679038Z +--------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5681197Z | Type               | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5683515Z +--------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5685658Z | job_repo_not_found | {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5689848Z |                    |   "message": "Cloning into '/home/dependabot/dependabot-updater/repo'...\nSubmodule 'Audityzer' (https://github.com/romanchaa997/Audityzer) registered for path 'Audityzer'\nCloning into '/home/dependabot/dependabot-updater/repo/Audityzer'...\nFrom https://github.com/romanchaa997/Audityzer\n * branch            587c67c73c63174143387f31cf791d344cf3bffa -> FETCH_HEAD\nSubmodule path 'Audityzer': checked out '587c67c73c63174143387f31cf791d344cf3bffa'\nfatal: No url found for submodule path 'Audityzer/Web3FuzzForge' in .gitmodules\nfatal: Failed to recurse into submodule path 'Audityzer'" |
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5693916Z |                    | }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.5695977Z +--------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.7181800Z Failure running container e8ad233effbc343638f9e3a6ac897df073e6efe237617321e0c29750c4bdecf2
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.7904420Z Cleaned up container e8ad233effbc343638f9e3a6ac897df073e6efe237617321e0c29750c4bdecf2
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.7998506Z   proxy | 2025/06/16 07:09:14 Posting metrics to remote API endpoint
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:14.7999097Z 2025/06/16 07:09:14 4/15 calls cached (26%)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:15.5517491Z ##[error]Dependabot encountered an error performing the update
+Dependabot	UNKNOWN STEP	
+Dependabot	UNKNOWN STEP	Error: The updater encountered one or more errors.
+Dependabot	UNKNOWN STEP	
+Dependabot	UNKNOWN STEP	For more information see: https://github.com/romanchaa997/Audityzer/network/updates/1034603195 (write access to the repository is required to view the log)
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:15.5528439Z 🤖 ~ finished: error reported to Dependabot ~
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:15.5613663Z Post job cleanup.
+Dependabot	UNKNOWN STEP	2025-06-16T07:09:15.7191141Z Cleaning up orphan processes

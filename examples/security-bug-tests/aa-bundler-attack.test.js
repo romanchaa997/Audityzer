@@ -400,14 +400,9 @@ test.describe('ERC-4337 Bundler Queue Poisoning', () => {
     // Process the entire queue and measure stats
     const result = await bundler.processEntireQueue();
     
-    console.log(`Bundler needed ${result.cycles} cycles to process queue`);
-    console.log(`Total operations processed: ${result.totalProcessed}`);
-    console.log(`Peak queue size: ${bundler.stats.peakQueueSize}`);
     
     // Check if reputation system identified the attacker
     const reputationStats = bundler.getReputationStats();
-    console.log(`Total senders: ${reputationStats.totalSenders}`);
-    console.log(`Banned senders: ${reputationStats.bannedSenders}`);
     
     // Verify that the attacker was eventually banned
     expect(bundler.reputation.bannedSenders.has(MOCK_ADDRESSES.attacker)).toBe(true);
@@ -466,9 +461,6 @@ test.describe('ERC-4337 Bundler Queue Poisoning', () => {
     const acceptedLegitimateOps = legitimateResults.filter(r => r.success).length;
     const rejectedLegitimateOps = legitimateResults.filter(r => !r.success).length;
     
-    console.log(`Legitimate ops accepted: ${acceptedLegitimateOps}/${legitimateOps.length}`);
-    console.log(`Legitimate ops rejected: ${rejectedLegitimateOps}/${legitimateOps.length}`);
-    console.log(`Bundler needed ${result.cycles} cycles to process the queue`);
     
     // The vulnerability is demonstrated if a significant number of legitimate ops were rejected
     expect(rejectedLegitimateOps).toBeGreaterThan(0);
@@ -527,11 +519,8 @@ test.describe('ERC-4337 Bundler Queue Poisoning', () => {
     await bundler.processQueueCycle();
     
     // In a real implementation with proper nonce tracking, replays should be rejected
-    console.log(`Accepted replay ops: ${replayResults.filter(r => r.success).length}/${replayOps.length}`);
-    console.log(`Total operations processed: ${bundler.stats.totalOpsProcessed}`);
     
     // Demonstrate bundler behavior with replays (in a proper implementation these would be rejected)
-    console.log('In a production bundler, nonce tracking would prevent these replays');
   });
   
   test('Log how many cycles bundler needed to clear queue under spam', async () => {
@@ -597,16 +586,6 @@ test.describe('ERC-4337 Bundler Queue Poisoning', () => {
     const totalTimeMs = endTime - startTime;
     const opsPerSecond = bundler.stats.totalOpsProcessed / (totalTimeMs / 1000);
     
-    console.log('======== Bundler Performance Under Spam Attack ========');
-    console.log(`Operations submitted: ${submittedCount}/${operations.length}`);
-    console.log(`Operations processed: ${bundler.stats.totalOpsProcessed}`);
-    console.log(`Operations rejected: ${bundler.stats.totalOpsRejected}`);
-    console.log(`Cycles required: ${bundler.stats.cyclesRequired}`);
-    console.log(`Processing time: ${totalTimeMs}ms`);
-    console.log(`Operations per second: ${opsPerSecond.toFixed(2)}`);
-    console.log(`Peak queue size: ${bundler.stats.peakQueueSize}`);
-    console.log(`Priority distribution:`, bundler.stats.opsByPriority);
-    console.log('======================================================');
     
     // Validate that bundler was able to process a significant portion of operations
     expect(bundler.stats.totalOpsProcessed).toBeGreaterThan(operations.length * 0.5);

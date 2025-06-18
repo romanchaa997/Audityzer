@@ -245,7 +245,7 @@ ${issue.recommendation || 'Consider implementing proper validation and access co
       fs.writeFileSync(filePath, submission.markdown);
       savedFiles.push(filePath);
 
-      console.log(`Saved Code4rena submission to ${filePath}`);
+      logger.info(`Saved Code4rena submission to ${filePath}`);
     });
 
     // Create a combined report with all issues
@@ -366,7 +366,7 @@ ${this.generateCategoryBreakdown()}
       this.contestId = contestId;
     }
 
-    console.log(`Generating Code4rena submissions for contest ${this.contestId}...`);
+    logger.info(`Generating Code4rena submissions for contest ${this.contestId}...`);
 
     // Load test results
     const success = this.loadTestResults(resultsFilePath);
@@ -383,8 +383,8 @@ ${this.generateCategoryBreakdown()}
     const metricsPath = this.generateMetricsReport();
     savedFiles.push(metricsPath);
 
-    console.log(`Generated ${submissions.length} Code4rena submissions.`);
-    console.log(`Metrics report saved to ${metricsPath}`);
+    logger.info(`Generated ${submissions.length} Code4rena submissions.`);
+    logger.info(`Metrics report saved to ${metricsPath}`);
 
     return savedFiles;
   }

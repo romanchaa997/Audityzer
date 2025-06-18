@@ -16,15 +16,12 @@ class FirebaseSetup {
   }
 
   async simplifySetup() {
-    console.log(chalk.blue('🔥 Firebase Configuration Helper\n'));
 
     try {
       // Check if config already exists
       if (await fs.pathExists(this.configPath)) {
-        console.log(chalk.yellow('⚠️  Firebase config already exists at .firebase-config.json'));
         const answer = await this.question('Do you want to overwrite it? (y/N): ');
         if (!answer.toLowerCase().startsWith('y')) {
-          console.log(chalk.gray('Setup cancelled.'));
           return;
         }
       }
@@ -35,8 +32,6 @@ class FirebaseSetup {
       // Write config file
       await fs.writeJSON(this.configPath, config, { spaces: 2 });
       
-      console.log(chalk.green('✅ Firebase configuration created!'));
-      console.log(chalk.blue(`📁 Config saved to: ${this.configPath}`));
       
       // Show next steps
       this.showNextSteps();
@@ -48,7 +43,6 @@ class FirebaseSetup {
   }
 
   async createSimplifiedConfig() {
-    console.log(chalk.cyan('Please provide your Firebase project details:\n'));
 
     const projectId = await this.question('Project ID: ');
     const apiKey = await this.question('API Key: ');
@@ -75,23 +69,9 @@ class FirebaseSetup {
   }
 
   showNextSteps() {
-    console.log(chalk.blue.bold('\n📋 Next Steps:\n'));
     
-    console.log(chalk.white('1.'), 'Verify your Firebase project settings in the console');
-    console.log(chalk.white('2.'), 'Enable Firestore Database in your Firebase project');
-    console.log(chalk.white('3.'), 'Set up authentication rules (optional)');
-    console.log(chalk.white('4.'), 'Test the connection:');
-    console.log(chalk.gray('   npm run firebase:test'));
     
-    console.log(chalk.blue('\n💡 Configuration Tips:'));
-    console.log(chalk.gray('• Keep your API key secure and never commit it to public repos'));
-    console.log(chalk.gray('• Use Firebase security rules to protect your data'));
-    console.log(chalk.gray('• Enable auto-upload in config for continuous reporting'));
     
-    console.log(chalk.blue('\n🔧 Audityzer Integration:'));
-    console.log(chalk.gray('• Reports will be stored in the "security-reports" collection'));
-    console.log(chalk.gray('• Use --upload flag to send results to Firebase'));
-    console.log(chalk.gray('• Configure auto-upload in audityzer.config.js'));
   }
 
   question(prompt) {
@@ -128,7 +108,6 @@ class FirebaseSetup {
     const examplePath = path.join(process.cwd(), '.firebase-config.example.json');
     await fs.writeJSON(examplePath, exampleConfig, { spaces: 2 });
     
-    console.log(chalk.blue('📝 Example config created at .firebase-config.example.json'));
   }
 
   // Test Firebase connection
@@ -143,7 +122,6 @@ class FirebaseSetup {
 
       const config = await fs.readJSON(configPath);
       
-      console.log(chalk.blue('🔍 Testing Firebase connection...'));
       
       // Basic validation
       const required = ['projectId', 'apiKey', 'authDomain'];
@@ -154,13 +132,8 @@ class FirebaseSetup {
         return;
       }
 
-      console.log(chalk.green('✅ Firebase configuration is valid'));
-      console.log(chalk.blue(`📁 Project: ${config.projectId}`));
-      console.log(chalk.blue(`🔗 Auth Domain: ${config.authDomain}`));
       
       if (config.audityzer) {
-        console.log(chalk.blue(`📊 Collection: ${config.audityzer.collection}`));
-        console.log(chalk.blue(`🔄 Auto-upload: ${config.audityzer.autoUpload ? 'Enabled' : 'Disabled'}`));
       }
 
     } catch (error) {
@@ -185,11 +158,6 @@ if (require.main === module) {
       FirebaseSetup.testConnection();
       break;
     default:
-      console.log(chalk.blue('Firebase Configuration Helper\n'));
-      console.log('Usage:');
-      console.log('  node firebase-setup.js setup   - Interactive setup');
-      console.log('  node firebase-setup.js example - Create example config');
-      console.log('  node firebase-setup.js test    - Test connection');
   }
 }
 

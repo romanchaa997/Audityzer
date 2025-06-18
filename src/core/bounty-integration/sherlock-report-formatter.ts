@@ -380,7 +380,7 @@ ${issue.recommendation || 'Consider implementing proper validation and access co
           fs.writeFileSync(filePath, submission.markdown);
           savedFiles.push(filePath);
 
-          console.log(`Saved Sherlock issue #${issueCounter} to ${filePath}`);
+          logger.info(`Saved Sherlock issue #${issueCounter} to ${filePath}`);
           issueCounter++;
         });
       }
@@ -398,7 +398,7 @@ ${issue.recommendation || 'Consider implementing proper validation and access co
           fs.writeFileSync(filePath, severityContent);
           savedFiles.push(filePath);
 
-          console.log(`Saved ${issues.length} ${severity} issues to ${filePath}`);
+          logger.info(`Saved ${issues.length} ${severity} issues to ${filePath}`);
         }
       }
     }
@@ -500,7 +500,7 @@ ${issue.recommendation || 'Consider implementing proper validation and access co
       this.contestName = contestName;
     }
 
-    console.log(`Generating Sherlock audit report for ${this.contestName}...`);
+    logger.info(`Generating Sherlock audit report for ${this.contestName}...`);
 
     // Load test results
     const success = this.loadTestResults(resultsFilePath);
@@ -513,7 +513,7 @@ ${issue.recommendation || 'Consider implementing proper validation and access co
     const submissions = this.generateSubmissions();
     const savedFiles = this.saveSubmissions(submissions);
 
-    console.log(`Generated Sherlock audit report with ${submissions.length} issues.`);
+    logger.info(`Generated Sherlock audit report with ${submissions.length} issues.`);
 
     return savedFiles;
   }

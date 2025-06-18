@@ -49,12 +49,10 @@ const bestPractices = {
  * Main function to verify all workflows
  */
 async function verifyWorkflows() {
-  console.log(chalk.blue('=== GitHub Actions Workflow Verification ===\n'));
 
   try {
     // Check if workflows directory exists
     if (!fs.existsSync(WORKFLOWS_DIR)) {
-      console.log(chalk.yellow('Workflows directory not found.'));
       return;
     }
 
@@ -62,10 +60,8 @@ async function verifyWorkflows() {
     const files = fs.readdirSync(WORKFLOWS_DIR);
     const yamlFiles = files.filter(file => file.endsWith('.yml') || file.endsWith('.yaml'));
 
-    console.log(chalk.blue(`Found ${yamlFiles.length} workflow files to verify\n`));
 
     if (yamlFiles.length === 0) {
-      console.log(chalk.yellow('No workflow files found.'));
       return;
     }
 
@@ -79,12 +75,8 @@ async function verifyWorkflows() {
     }
 
     // Print summary
-    console.log(chalk.blue('\n=== Verification Summary ==='));
     if (totalIssues === 0) {
-      console.log(chalk.green('✓ All workflows follow best practices'));
     } else {
-      console.log(chalk.yellow(`! Found ${totalIssues} issues across all workflows`));
-      console.log(chalk.yellow('  Run `npm run fix-actions` to automatically fix common issues'));
     }
   } catch (error) {
     console.error(chalk.red(`Error verifying workflows: ${error.message}`));
@@ -97,7 +89,6 @@ async function verifyWorkflows() {
  */
 function verifyWorkflowFile(filePath) {
   const fileName = path.basename(filePath);
-  console.log(chalk.magenta(`Verifying ${fileName}...`));
 
   try {
     // Read and parse the workflow file
@@ -109,7 +100,6 @@ function verifyWorkflowFile(filePath) {
     // Workflow-level checks
     for (const [checkName, checkFn] of Object.entries(bestPractices.workflowLevel)) {
       if (!checkFn(workflow)) {
-        console.log(chalk.yellow(`  ! Workflow-level issue: ${formatCheckName(checkName)}`));
         issuesCount++;
       }
     }
@@ -120,7 +110,6 @@ function verifyWorkflowFile(filePath) {
         // Job-level checks
         for (const [checkName, checkFn] of Object.entries(bestPractices.jobLevel)) {
           if (!checkFn(job)) {
-            console.log(chalk.yellow(`  ! Job "${jobId}" issue: ${formatCheckName(checkName)}`));
             issuesCount++;
           }
         }
@@ -131,7 +120,6 @@ function verifyWorkflowFile(filePath) {
             for (const [checkName, checkFn] of Object.entries(bestPractices.stepLevel)) {
               if (!checkFn(step)) {
                 const stepName = step.name || `Step #${index + 1}`;
-                console.log(
                   chalk.yellow(`  ! Step "${stepName}" issue: ${formatCheckName(checkName)}`)
                 );
                 issuesCount++;
@@ -146,16 +134,13 @@ function verifyWorkflowFile(filePath) {
     if (fileName === 'security-scan.yml') {
       const securityIssues = checkSecurityScanWorkflow(workflow);
       securityIssues.forEach(issue => {
-        console.log(chalk.yellow(`  ! Security scan issue: ${issue}`));
         issuesCount++;
       });
     }
 
     // Report result for this file
     if (issuesCount === 0) {
-      console.log(chalk.green(`  ✓ ${fileName} follows all best practices`));
     } else {
-      console.log(chalk.yellow(`  ! ${fileName} has ${issuesCount} issues`));
     }
 
     return issuesCount;

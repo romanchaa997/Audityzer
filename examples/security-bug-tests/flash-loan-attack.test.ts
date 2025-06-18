@@ -357,7 +357,6 @@ test.describe('Flash Loan Attack Vulnerability Detection', () => {
     };
     
     // In a real test, we would report these vulnerabilities
-    console.log('Vulnerabilities detected:', vulnerabilitiesFound);
     
     // At least one vulnerability should be detected
     expect(Object.values(vulnerabilitiesFound).some(v => v)).toBeTruthy();
@@ -416,7 +415,6 @@ test.describe('Flash Loan Attack Vulnerability Detection', () => {
     ];
     
     // In a real test, we would report these recommendations
-    console.log('Security recommendations:', securityRecommendations);
     
     // We can check if our protocol has implemented these recommendations
     const implementedMeasures = {

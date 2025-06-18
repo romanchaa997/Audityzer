@@ -110,7 +110,7 @@ export const shouldInitializeFirebase = (): boolean => {
 export const testFirebaseConnection = async (): Promise<boolean> => {
   try {
     if (!shouldInitializeFirebase()) {
-      console.log('Firebase initialization skipped based on environment settings');
+      logger.info('Firebase initialization skipped based on environment settings');
       return false;
     }
 

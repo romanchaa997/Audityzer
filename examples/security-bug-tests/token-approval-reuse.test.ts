@@ -123,7 +123,6 @@ async function createLegitDappPage(page: Page) {
                 window.mockTokenContract._allowances[key] = amount;
                 
                 // Log for testing
-                console.log(\`APPROVAL: \${owner} approved \${spender} to spend \${amount} USDC\`);
                 
                 // Return fake transaction hash
                 return '0x' + Math.random().toString(16).substring(2);
@@ -173,7 +172,6 @@ async function createLegitDappPage(page: Page) {
                   window.mockTokenContract._allowances[key] = (allowanceBN - amountBN).toString();
                 }
                 
-                console.log(\`TRANSFER: \${spender} transferred \${amount} USDC from \${from} to \${to}\`);
                 return true;
               }
             };
@@ -301,7 +299,6 @@ async function createMaliciousDappPage(page: Page) {
             
             // We're checking for existing USDC approvals - this would typically
             // involve calling the USDC contract to check allowances
-            console.log('MALICIOUS: Checking for existing token approvals');
             
             // In this mock, we'll create our token interface to check approvals
             const mockTokenContract = {
@@ -343,7 +340,6 @@ async function createMaliciousDappPage(page: Page) {
             
             try {
               const allowance = await mockTokenContract.allowance(userAddress, legitAppAddress);
-              console.log(\`EXPLOIT: Found allowance of \${allowance} for legitimate app\`);
               
               // If there's an approval, we can exploit it
               if (BigInt(allowance) > 0n) {
@@ -394,7 +390,6 @@ async function createMaliciousDappPage(page: Page) {
                 const userAddress = window.ethereum.selectedAddress;
                 const attackerAddress = '0xAttackerAddress';
                 
-                console.log('EXPLOIT: Attempting to use existing approval to steal tokens');
                 
                 // Try to move all approved tokens or just 10 USDC for the demo
                 const amountToSteal = '10000000'; // 10 USDC
@@ -407,7 +402,6 @@ async function createMaliciousDappPage(page: Page) {
                 );
                 
                 if (success) {
-                  console.log(\`EXPLOIT SUCCESSFUL: Stole \${amountToSteal} tokens from \${userAddress}\`);
                   
                   // To make it less obvious, still show a success message to the user
                   setTimeout(() => {
@@ -467,7 +461,6 @@ test.describe('Token Approval Reuse Vulnerability', () => {
     expect(approvalStatus).toContain('Unlimited approval');
 
     // Log to console for monitoring
-    console.log('Legitimate dApp approval status:', approvalStatus);
 
     // Capture console output to check for approval events
     const approvalEvents: string[] = [];
@@ -475,7 +468,6 @@ test.describe('Token Approval Reuse Vulnerability', () => {
       const text = msg.text();
       if (text.includes('APPROVAL:')) {
         approvalEvents.push(text);
-        console.log('Captured event:', text);
       }
     });
 
@@ -505,13 +497,11 @@ test.describe('Token Approval Reuse Vulnerability', () => {
       const text = msg.text();
       if (text.includes('EXPLOIT:') || text.includes('MALICIOUS:')) {
         exploitEvents.push(text);
-        console.log('Captured exploit:', text);
       }
     });
 
     // This should trigger the approval check
     const maliciousResult = await maliciousPage.textContent('#result');
-    console.log('Malicious dApp initial status:', maliciousResult);
 
     // Trigger the exploit by clicking the claim button
     await maliciousPage.click('#claim-eth');
@@ -534,7 +524,6 @@ test.describe('Token Approval Reuse Vulnerability', () => {
 
     // Check the updated balance
     const tokenBalance = await page.textContent('#token-balance');
-    console.log('Token balance after exploit:', tokenBalance);
 
     // If the exploit was successful, the balance should be less than the initial 100 USDC
     const balanceValue = parseFloat(tokenBalance || '100');
@@ -578,7 +567,6 @@ test.describe('Token Approval Reuse Vulnerability', () => {
       const text = msg.text();
       if (text.includes('EXPLOIT:') || text.includes('MALICIOUS:')) {
         safeExploitEvents.push(text);
-        console.log('Safe user exploit attempt:', text);
       }
     });
 
@@ -660,10 +648,8 @@ test.describe('Token Approval Reuse Vulnerability', () => {
                 const amount = '10000000'; // Exactly 10 USDC
                 
                 // Log the approval pattern used
-                console.log('SAFE: Using exact approval amount pattern');
                 
                 // In a real implementation, this would call the token's approve method
-                console.log(\`APPROVAL: Approving \${spenderContract} to spend exactly 10 USDC\`);
                 
                 document.getElementById('result').textContent = 'Approved exactly 10 USDC for this transaction';
                 document.getElementById('execute-tx').style.display = 'block';
@@ -682,8 +668,6 @@ test.describe('Token Approval Reuse Vulnerability', () => {
                 const spenderContract = '0xSafeAppAddress';
                 const amount = '12000000'; // 12 USDC (20% buffer)
                 
-                console.log('SAFE: Using approval with buffer pattern');
-                console.log(\`APPROVAL: Approving \${spenderContract} to spend 12 USDC (with buffer)\`);
                 
                 document.getElementById('result').textContent = 'Approved 12 USDC with buffer for this transaction';
                 document.getElementById('execute-tx').style.display = 'block';
@@ -702,8 +686,6 @@ test.describe('Token Approval Reuse Vulnerability', () => {
                 const spenderContract = '0xSafeAppAddress';
                 const unlimitedAmount = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
                 
-                console.log('UNSAFE: Using unlimited approval pattern');
-                console.log(\`APPROVAL: Approving \${spenderContract} to spend unlimited USDC\`);
                 
                 document.getElementById('result').textContent = 'Approved unlimited USDC. Not recommended for security reasons.';
                 document.getElementById('execute-tx').style.display = 'block';
@@ -722,8 +704,6 @@ test.describe('Token Approval Reuse Vulnerability', () => {
                 const spenderContract = '0xSafeAppAddress';
                 const zeroAmount = '0';
                 
-                console.log('SAFE: Revoking approval');
-                console.log(\`APPROVAL: Setting \${spenderContract}'s allowance to zero\`);
                 
                 document.getElementById('result').textContent = 'All approvals revoked. This is the safest approach after completing transactions.';
                 document.getElementById('execute-tx').style.display = 'none';
@@ -738,11 +718,9 @@ test.describe('Token Approval Reuse Vulnerability', () => {
               if (!window.ethereum) return;
               
               try {
-                console.log('TRANSACTION: Executing transaction with approved tokens');
                 document.getElementById('result').textContent = 'Transaction executed successfully.';
                 
                 // Best practice: Auto-revoke approval after transaction if it was exact amount
-                console.log('SAFE: Auto-revoking remaining approval');
                 document.getElementById('execute-tx').style.display = 'none';
               } catch (error) {
                 document.getElementById('result').textContent = 'Error: ' + error.message;
@@ -766,7 +744,6 @@ test.describe('Token Approval Reuse Vulnerability', () => {
       const text = msg.text();
       if (text.includes('SAFE:') || text.includes('APPROVAL:') || text.includes('UNSAFE:')) {
         safetyEvents.push(text);
-        console.log('Security pattern:', text);
       }
     });
 

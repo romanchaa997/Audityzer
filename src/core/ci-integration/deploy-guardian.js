@@ -1399,7 +1399,6 @@ class DeployGuardian {
     const filePath = path.join(this.config.outputDir, `${deploymentToSave.id}.json`);
     fs.writeFileSync(filePath, JSON.stringify(deploymentToSave, null, 2));
 
-    console.log(`Deployment information saved to ${filePath}`);
   }
 
   /**

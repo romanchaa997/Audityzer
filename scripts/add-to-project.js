@@ -30,7 +30,6 @@ async function addToProject(issueNodeId, projectId) {
       }
     `);
 
-    console.log(`Successfully added item to project: ${result.addProjectV2ItemById.item.id}`);
     return result;
   } catch (error) {
     console.error('Error adding item to project:', error.message);

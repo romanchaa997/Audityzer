@@ -26,7 +26,6 @@ const CONFIG = {
  */
 async function generateDeclarationFile(filePath) {
   try {
-    console.log(`Generating declaration file for ${filePath}...`);
 
     // Read the source file
     const source = await readFile(filePath, 'utf8');
@@ -117,7 +116,6 @@ async function generateDeclarationFile(filePath) {
 
     // Write the declaration file
     await writeFile(outputPath, declaration);
-    console.log(`Created ${outputPath}`);
 
     return outputPath;
   } catch (error) {
@@ -131,7 +129,6 @@ async function generateDeclarationFile(filePath) {
  */
 async function main() {
   try {
-    console.log('Generating TypeScript declaration files...');
 
     let generatedCount = 0;
 
@@ -147,7 +144,6 @@ async function main() {
       }
     }
 
-    console.log(`Successfully generated ${generatedCount} declaration files.`);
   } catch (error) {
     console.error('Error:', error);
     process.exit(1);

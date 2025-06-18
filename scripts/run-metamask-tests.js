@@ -59,7 +59,6 @@ function log(message, level = 'info') {
       error: '\x1b[31m', // Red
     }[level] || '\x1b[0m';
 
-  console.log(`${colorCode}[${timestamp}] ${message}\x1b[0m`);
 
   // Ensure output directory exists before writing to log file
   if (!fs.existsSync(config.outputDir)) {

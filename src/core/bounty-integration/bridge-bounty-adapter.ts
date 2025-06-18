@@ -475,9 +475,9 @@ test.describe('${report.protocol} Bridge Vulnerability Test - ${report.id}', () 
     // This is a generic test template.
     // For a complete test, manual refinement based on the specific vulnerability is needed.
     
-    console.log('Testing vulnerability: ${report.title}');
-    console.log('Description: ${report.description}');
-    console.log('Impact: ${report.impact}');
+    logger.info('Testing vulnerability: ${report.title}');
+    logger.info('Description: ${report.description}');
+    logger.info('Impact: ${report.impact}');
     
     // Basic bridge message test
     const result = await harness.sendMessage(
@@ -571,20 +571,20 @@ test.describe('${report.protocol} Bridge Vulnerability Test - ${report.id}', () 
    * Main function to fetch reports, generate tests, and save them
    */
   async run(): Promise<any> {
-    console.log('Fetching vulnerability reports...');
+    logger.info('Fetching vulnerability reports...');
     const c4Reports = await this.fetchCode4renaReports();
     const sherlockReports = await this.fetchSherlockReports();
 
-    console.log(`Fetched ${c4Reports.length} reports from Code4rena`);
-    console.log(`Fetched ${sherlockReports.length} reports from Sherlock`);
+    logger.info(`Fetched ${c4Reports.length} reports from Code4rena`);
+    logger.info(`Fetched ${sherlockReports.length} reports from Sherlock`);
 
-    console.log('Generating test templates...');
+    logger.info('Generating test templates...');
     const templates = await this.generateTestTemplates();
-    console.log(`Generated ${templates.length} test templates`);
+    logger.info(`Generated ${templates.length} test templates`);
 
-    console.log('Saving test templates...');
+    logger.info('Saving test templates...');
     const savedFiles = await this.saveTestTemplates();
-    console.log(`Saved ${savedFiles.length} test files`);
+    logger.info(`Saved ${savedFiles.length} test files`);
 
     const report = this.generateReport();
 

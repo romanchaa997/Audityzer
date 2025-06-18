@@ -140,7 +140,8 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "security:scan": "npm audit && echo 'Security scan completed'",
-    "start:prod": "NODE_ENV=production node dist/index.js"
+    "start:prod": "NODE_ENV=production node dist/index.js",
+    "test:bridge": "npx playwright test tests/bridge --reporter=html"
   },
   "keywords": [
     "web3",

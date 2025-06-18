@@ -117,7 +117,6 @@ async function createMockDEXPage(page: Page) {
                 };
                 
                 // VULNERABLE: No slippage or deadline protection by default
-                console.log('SWAP_DATA:', JSON.stringify(txData));
                 
                 // Mock transaction call
                 const txHash = await window.ethereum.request({
@@ -161,7 +160,6 @@ test.describe('Front-running Vulnerability Detection', () => {
         const originalRequest = window.ethereum.request.bind(window.ethereum);
         window.ethereum.request = async function(args) {
           if (args.method === 'eth_sendTransaction') {
-            console.log(`TX_DATA: ${JSON.stringify(args)}`);
           }
           return originalRequest(args);
         };
@@ -206,7 +204,6 @@ test.describe('Front-running Vulnerability Detection', () => {
     }
 
     // Log findings
-    console.log('Vulnerabilities found:', vulnerabilitiesFound);
     
     // Assert that we detected at least one vulnerability
     expect(vulnerabilitiesFound.length).toBeGreaterThan(0);
@@ -268,7 +265,6 @@ test.describe('Front-running Vulnerability Detection', () => {
     }
 
     // Log findings
-    console.log('Security measures found:', securityMeasuresFound);
     
     // Assert that the transaction has proper protections
     expect(isSecure).toBe(true);

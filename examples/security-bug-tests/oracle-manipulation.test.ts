@@ -207,7 +207,6 @@ contract VulnerableOracle {
                 // Check for vulnerabilities
                 if (!usingMultiSource && !usingTWAP && !checkingDeviation && !checkingStaleness) {
                   // Log the vulnerability
-                  console.log('VULNERABILITY_DETECTED:', {
                     type: 'oracle_manipulation',
                     details: 'Single-source oracle without validation mechanisms',
                     severity: 'High',
@@ -230,7 +229,6 @@ contract VulnerableOracle {
                   lastPrice = lastPrice * 1.3;
                   manipulatedPrice = true;
                   
-                  console.log('SIMULATED_ATTACK:', {
                     type: 'price_manipulation',
                     details: 'Price manipulated by 30% through oracle',
                     beforePrice: usedPrice,

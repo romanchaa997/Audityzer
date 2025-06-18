@@ -78,7 +78,6 @@ async function addItemToProject(nodeId) {
 async function updateItemFields(itemId, fields) {
   // This would need to be implemented according to your project's field structure
   // Example: update status, priority, assignees, etc.
-  console.log(`Would update fields for item ${itemId}:`, fields);
 }
 
 /**
@@ -90,13 +89,11 @@ async function processBatch() {
     const configFile = path.resolve(process.cwd(), configPath);
     const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 
-    console.log(`Processing ${config.items.length} items from ${configPath}`);
 
     for (const item of config.items) {
       const { type, number, fields } = item;
 
       // Get the node ID for the issue or PR
-      console.log(`Processing ${type} #${number}...`);
       const nodeId = await getNodeId(type, number);
 
       if (!nodeId) {
@@ -112,7 +109,6 @@ async function processBatch() {
         continue;
       }
 
-      console.log(`Added ${type} #${number} to project as item ${itemId}`);
 
       // Update fields if provided
       if (fields && Object.keys(fields).length > 0) {
@@ -120,7 +116,6 @@ async function processBatch() {
       }
     }
 
-    console.log('Batch processing complete!');
   } catch (error) {
     console.error('Error processing batch:', error.message);
     process.exit(1);

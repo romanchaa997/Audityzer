@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audityzer Workflow Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .metric-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .metric-value { font-size: 2.5rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .metric-label { color: #6c757d; font-size: 0.9rem; text-transform: uppercase; }
+        .success { color: #28a745; }
+        .warning { color: #ffc107; }
+        .danger { color: #dc3545; }
+        .chart-section { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .workflow-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1rem; }
+        .workflow-item { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .workflow-name { font-weight: bold; margin-bottom: 0.5rem; }
+        .workflow-status { display: flex; justify-content: space-between; align-items: center; }
+        .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .status-healthy { background: #d4edda; color: #155724; }
+        .status-warning { background: #fff3cd; color: #856404; }
+        .status-critical { background: #f8d7da; color: #721c24; }
+        .refresh-btn { background: #007bff; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+        .refresh-btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 Audityzer Workflow Dashboard</h1>
+        <p>Real-time CI/CD pipeline monitoring and health metrics</p>
+        <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
+    </div>
+    
+    <div class="container">
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value success" id="totalWorkflows">23</div>
+                <div class="metric-label">Total Workflows</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="overallSuccessRate">10%</div>
+                <div class="metric-label">Overall Success Rate</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value danger" id="criticalWorkflows">5</div>
+                <div class="metric-label">Critical Workflows</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value warning" id="lastUpdated">Just now</div>
+                <div class="metric-label">Last Updated</div>
+            </div>
+        </div>
+        
+        <div class="chart-section">
+            <h2>Workflow Success Rates</h2>
+            <canvas id="successRateChart" height="100"></canvas>
+        </div>
+        
+        <div class="chart-section">
+            <h2>Workflow Status Overview</h2>
+            <div class="workflow-list" id="workflowList">
+                <!-- Workflow items will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data - in production this would come from the monitoring API
+        const workflowData = [
+            { name: 'Bridge Security Testing', successRate: 0, status: 'critical', totalRuns: 4 },
+            { name: 'Web3FuzzForge CI/CD', successRate: 0, status: 'critical', totalRuns: 4 },
+            { name: 'Website Regression', successRate: 0, status: 'critical', totalRuns: 4 },
+            { name: 'Security Quality Gates', successRate: 0, status: 'critical', totalRuns: 4 },
+            { name: 'DevForge CI/CD Pipeline', successRate: 0, status: 'critical', totalRuns: 4 },
+            { name: 'CI/CD Pipeline', successRate: 100, status: 'healthy', totalRuns: 3 },
+            { name: 'Security Scanning', successRate: 100, status: 'healthy', totalRuns: 3 },
+            { name: 'Automated Release', successRate: 33, status: 'warning', totalRuns: 3 }
+        ];
+        
+        function updateMetrics() {
+            const totalWorkflows = workflowData.length;
+            const criticalWorkflows = workflowData.filter(w => w.status === 'critical').length;
+            const overallSuccessRate = workflowData.reduce((sum, w) => sum + w.successRate, 0) / totalWorkflows;
+            
+            document.getElementById('totalWorkflows').textContent = totalWorkflows;
+            document.getElementById('overallSuccessRate').textContent = overallSuccessRate.toFixed(1) + '%';
+            document.getElementById('criticalWorkflows').textContent = criticalWorkflows;
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+            
+            // Update success rate color
+            const successElement = document.getElementById('overallSuccessRate');
+            successElement.className = overallSuccessRate >= 80 ? 'metric-value success' : 
+                                     overallSuccessRate >= 50 ? 'metric-value warning' : 'metric-value danger';
+        }
+        
+        function createChart() {
+            const ctx = document.getElementById('successRateChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: workflowData.map(w => w.name),
+                    datasets: [{
+                        label: 'Success Rate (%)',
+                        data: workflowData.map(w => w.successRate),
+                        backgroundColor: workflowData.map(w => 
+                            w.successRate >= 80 ? 'rgba(40, 167, 69, 0.8)' :
+                            w.successRate >= 50 ? 'rgba(255, 193, 7, 0.8)' : 'rgba(220, 53, 69, 0.8)'
+                        ),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+        }
+        
+        function populateWorkflowList() {
+            const workflowList = document.getElementById('workflowList');
+            workflowList.innerHTML = '';
+            
+            workflowData.forEach(workflow => {
+                const workflowItem = document.createElement('div');
+                workflowItem.className = 'workflow-item';
+                
+                const statusClass = workflow.status === 'healthy' ? 'status-healthy' :
+                                  workflow.status === 'warning' ? 'status-warning' : 'status-critical';
+                
+                workflowItem.innerHTML = `
+                    <div class="workflow-name">${workflow.name}</div>
+                    <div class="workflow-status">
+                        <span>Success Rate: ${workflow.successRate}% (${workflow.totalRuns} runs)</span>
+                        <span class="status-badge ${statusClass}">${workflow.status.toUpperCase()}</span>
+                    </div>
+                `;
+                workflowList.appendChild(workflowItem);
+            });
+        }
+        
+        function refreshData() {
+            // In production, this would fetch fresh data from the API
+            updateMetrics();
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+        }
+        
+        // Initialize dashboard
+        updateMetrics();
+        createChart();
+        populateWorkflowList();
+        
+        // Auto-refresh every 5 minutes
+        setInterval(refreshData, 300000);
+    </script>
+</body>
+</html>

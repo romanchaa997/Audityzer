@@ -26,7 +26,6 @@ function readPackageLock() {
 function writePackageLock(packageLock) {
   try {
     fs.writeFileSync(packageLockPath, JSON.stringify(packageLock, null, 2));
-    console.log(chalk.green('Successfully updated package-lock.json'));
   } catch (error) {
     console.error(chalk.red(`Error writing package-lock.json: ${error.message}`));
     process.exit(1);
@@ -35,7 +34,6 @@ function writePackageLock(packageLock) {
 
 // Main function to fix vulnerable packages
 function fixVulnerablePackages() {
-  console.log(chalk.blue('Starting vulnerability fixes...'));
   
   const packageLock = readPackageLock();
   let modifiedCount = 0;
@@ -72,7 +70,6 @@ function fixVulnerablePackages() {
           // Update package version if needed
           if (pkg.version && !isVersionSafe(pkg.version, safeVersion)) {
             const newVersion = getLatestSafeVersion(safeVersion);
-            console.log(chalk.yellow(`Fixing ${packagePath} from version ${pkg.version} to ${newVersion}`));
             pkg.version = newVersion;
             modifiedCount++;
           }
@@ -81,13 +78,10 @@ function fixVulnerablePackages() {
     });
   }
   
-  console.log(chalk.blue(`Fixed ${modifiedCount} vulnerable package(s)`));
   
   if (modifiedCount > 0) {
     writePackageLock(packageLock);
-    console.log(chalk.green('Run "npm install" to apply the changes'));
   } else {
-    console.log(chalk.green('No vulnerable packages found or all packages are already at safe versions'));
   }
 
   // Try to fix the specific Lighthouse/Raven vulnerabilities
@@ -146,7 +140,6 @@ ignore-advisory=GHSA-p6mc-m468-83gw
 `;
     
     fs.writeFileSync(npmrcPath, npmrcContent);
-    console.log(chalk.green('✅ Created/updated .npmrc with security overrides'));
   } catch (err) {
     console.error(chalk.red(`❌ Failed to create/update .npmrc: ${err.message}`));
   }
@@ -179,7 +172,6 @@ ignore-advisory=GHSA-p6mc-m468-83gw
 `;
     
     fs.writeFileSync(npmrcCiPath, npmrcCiContent);
-    console.log(chalk.green('✅ Created CI-specific .npmrc-ci configuration'));
   } catch (err) {
     console.error(chalk.red(`❌ Failed to create .npmrc-ci: ${err.message}`));
   }
@@ -197,8 +189,6 @@ function fixDevDependencyIssues() {
 
     // If the Lighthouse and Raven vulnerabilities are present, patch them
     if (hasRaven || hasLodashSet) {
-      console.log(chalk.yellow('⚠️ Detected development dependencies with vulnerabilities'));
-      console.log(chalk.blue('Creating an npm-audit-resolve.json file to manage these vulnerabilities'));
       
       // Create a .nsprc or npm-audit-resolve.json file to explicitly acknowledge these issues
       const auditResolvePath = path.join(process.cwd(), '.nsprc');
@@ -216,19 +206,14 @@ function fixDevDependencyIssues() {
       }, null, 2);
       
       fs.writeFileSync(auditResolvePath, auditResolveContent);
-      console.log(chalk.green('✅ Created .nsprc to acknowledge and track known vulnerabilities'));
       
       // For more aggressive fixes, we could try installing a patched version of these packages
-      console.log(chalk.blue('Attempting to fix lodash.set vulnerability...'));
       try {
         execSync('npm install lodash.set@latest --save-dev', { stdio: 'inherit' });
-        console.log(chalk.green('✅ Installed latest version of lodash.set'));
       } catch (err) {
-        console.log(chalk.yellow('⚠️ Could not update lodash.set automatically'));
       }
       
       // Update package.json to include a specific override for the dev environment
-      console.log(chalk.blue('Updating package.json with explicit overrides...'));
       try {
         const packageJsonPath = path.join(process.cwd(), 'package.json');
         const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -245,13 +230,10 @@ function fixDevDependencyIssues() {
         };
         
         fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-        console.log(chalk.green('✅ Updated package.json with explicit overrides'));
       } catch (err) {
-        console.log(chalk.yellow(`⚠️ Could not update package.json: ${err.message}`));
       }
     }
   } catch (err) {
-    console.log(chalk.yellow(`⚠️ Error checking for lighthouse/raven: ${err.message}`));
   }
 
   return true;

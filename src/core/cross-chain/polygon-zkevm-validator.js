@@ -380,7 +380,6 @@ class PolygonZkEVMValidator {
     this.logs.push(logEntry);
 
     if (this.config.logLevel === 'debug' || level === 'error' || level === 'warn') {
-      console.log(`[${logEntry.timestamp}] [PolygonZkEVM] [${level.toUpperCase()}] ${message}`);
     }
   }
 }

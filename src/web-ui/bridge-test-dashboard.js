@@ -81,7 +81,6 @@ app.get('/api/sequence/:testId', (req, res) => {
 // Start the server
 function startDashboard() {
   app.listen(config.port, () => {
-    console.log(`Bridge Test Dashboard running on http://localhost:${config.port}`);
   });
 }
 
@@ -224,7 +223,6 @@ function generateSequenceDiagram(test) {
  * Updates the dashboard with the latest test results
  */
 function updateDashboard() {
-  console.log('Updating dashboard with latest test results...');
   // This function would be called periodically to refresh data
   // For now, it just logs a message
 }

@@ -191,7 +191,7 @@ export class StargateTestHarness extends LayerZeroTestHarness {
         ],
         // Mock function to simulate a Stargate swap
         swap: async function (params) {
-          console.log('Simulating Stargate swap:', params);
+          // logger.info('Simulating Stargate swap:', params);
 
           // In a real implementation, this would interact with the Stargate router
           // For testing, we simulate the main steps and return test data
@@ -201,7 +201,7 @@ export class StargateTestHarness extends LayerZeroTestHarness {
           // Simulate approving token spend
           const tokenAddress =
             window.stargate?.getPoolTokenAddress(params.srcLayerZeroId, params.poolId) || '';
-          console.log(`Approving ${params.amount} of token ${tokenAddress} to router ${srcRouter}`);
+          // logger.info(`Approving ${params.amount} of token ${tokenAddress} to router ${srcRouter}`);
 
           // Calculate estimated fees (simplified for testing)
           const fees = window.stargate?.estimateFees(params) || {

@@ -118,7 +118,6 @@ async function runTests(options = {}) {
           json: dashboard.json
         };
         
-        console.log(`Dashboard generated at: ${dashboard.html}`);
       } catch (error) {
         console.error(`Error generating dashboard: ${error.message}`);
       }
@@ -147,7 +146,6 @@ async function runTests(options = {}) {
       
       // If stdout output is requested, print the verdict
       if (options.stdoutVerdict) {
-        console.log(JSON.stringify(results.ciOutput.verdict, null, 2));
       }
     }
     
@@ -172,7 +170,6 @@ async function runTests(options = {}) {
       };
       
       if (options.stdoutVerdict) {
-        console.log(JSON.stringify(results.ciOutput.verdict, null, 2));
       }
     }
     
@@ -306,7 +303,6 @@ function generateTestConfigs(options) {
  * @returns {Promise<Object>} Test results
  */
 async function executeTest(config, options) {
-  console.log(chalk.yellow(`Executing test: ${config.file}`));
   
   try {
     // Find the test file path
@@ -332,7 +328,6 @@ async function executeTest(config, options) {
     const cmd = `${playwrightBin} test ${testFile} --reporter=json`;
     
     // Execute the test
-    console.log(chalk.gray(`Running: ${cmd}`));
     let output;
     
     try {
@@ -586,7 +581,6 @@ async function generateAAReport(results, options) {
     // Write the report
     await fs.writeFile(reportPath, templateContent);
     
-    console.log(chalk.green(`AA report generated: ${reportPath}`));
     return reportPath;
   } catch (error) {
     console.error(chalk.red(`Error generating report: ${error.message}`));
@@ -639,7 +633,6 @@ async function generateAAReport(results, options) {
     // Write the fallback report
     await fs.writeFile(reportPath, reportContent);
     
-    console.log(chalk.yellow(`AA report generated with fallback method: ${reportPath}`));
     return reportPath;
   }
 }

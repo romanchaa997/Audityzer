@@ -342,7 +342,6 @@ class BaseValidator {
     this.logs.push(logEntry);
 
     if (this.config.logLevel === 'debug' || level === 'error') {
-      console.log(`[${logEntry.timestamp}] [Base] [${level.toUpperCase()}] ${message}`);
     }
   }
 }

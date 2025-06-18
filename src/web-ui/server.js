@@ -19,7 +19,6 @@ const MIME_TYPES = {
 
 // Create an HTTP server
 const server = http.createServer((req, res) => {
-  console.log(`Request: ${req.method} ${req.url}`);
 
   // Handle requests for the root
   const filePath =
@@ -53,6 +52,4 @@ const server = http.createServer((req, res) => {
 
 // Start the server
 server.listen(PORT, () => {
-  console.log(`Audityzer UI server running at http://localhost:${PORT}/`);
-  console.log('Press Ctrl+C to stop the server');
 });

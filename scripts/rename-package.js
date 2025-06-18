@@ -40,7 +40,6 @@ const dirsToSearch = [
 async function updateFile(filePath) {
   try {
     if (!fs.existsSync(filePath)) {
-      console.log(`File not found, skipping: ${filePath}`);
       return;
     }
     
@@ -88,7 +87,6 @@ async function updateFile(filePath) {
     // Write changes if content was modified
     if (content !== updatedContent) {
       fs.writeFileSync(filePath, updatedContent);
-      console.log(`Updated: ${filePath}`);
     }
   } catch (error) {
     console.error(`Error updating ${filePath}:`, error.message);
@@ -120,7 +118,6 @@ async function searchDirectory(dir) {
 
 // Main function
 async function renamePackage() {
-  console.log(`Starting package rename from ${oldName} to ${newName}...`);
   
   // Update specific files first
   for (const file of filesToUpdate) {
@@ -141,7 +138,6 @@ async function renamePackage() {
   if (fs.existsSync(oldBinPath) && !fs.existsSync(newBinPath)) {
     try {
       // Create a symbolic link instead of renaming to maintain backward compatibility
-      console.log(`Creating symbolic link from ${oldBinPath} to ${newBinPath}`);
       fs.copyFileSync(oldBinPath, newBinPath);
       
       // Update shebang line
@@ -153,12 +149,6 @@ async function renamePackage() {
     }
   }
   
-  console.log('\nPackage renamed successfully!');
-  console.log('\nNext steps:');
-  console.log('1. Review changes in the updated files');
-  console.log('2. Update any remaining references manually');
-  console.log('3. Test the package to ensure everything works correctly');
-  console.log('4. Update npm scripts in your package.json to use the new name');
 }
 
 // Run the script

@@ -44,7 +44,7 @@ class ChainDocs {
     for (const [networkName, networkConfig] of Object.entries(this.config.networks)) {
       try {
         this.providers[networkName] = new ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
-        console.log(`Connected to ${networkName} at ${networkConfig.rpcUrl}`);
+        // console.log(`Connected to ${networkName} at ${networkConfig.rpcUrl}`);
       } catch (error) {
         console.error(`Failed to connect to ${networkName}:`, error);
       }
@@ -118,7 +118,7 @@ class ChainDocs {
         // Start the server
         this.server.listen(this.config.port, this.config.host, () => {
           this.isRunning = true;
-          console.log(`ChainDocs server running at http://${this.config.host}:${this.config.port}`);
+          // console.log(`ChainDocs server running at http://${this.config.host}:${this.config.port}`);
           resolve({
             host: this.config.host,
             port: this.config.port,
@@ -145,7 +145,7 @@ class ChainDocs {
 
         this.server.close(() => {
           this.isRunning = false;
-          console.log('ChainDocs server stopped');
+          // console.log('ChainDocs server stopped');
           resolve(true);
         });
       } else {
@@ -513,13 +513,13 @@ class ChainDocs {
         const docContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
         this.apiDocs[contractName] = docContent;
-        console.log(`Loaded API documentation for ${contractName}`);
+        // console.log(`Loaded API documentation for ${contractName}`);
       } catch (error) {
         console.error(`Failed to load API documentation for ${file}:`, error);
       }
     }
 
-    console.log(`Loaded ${Object.keys(this.apiDocs).length} API docs`);
+    // console.log(`Loaded ${Object.keys(this.apiDocs).length} API docs`);
   }
 
   /**

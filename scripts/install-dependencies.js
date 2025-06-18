@@ -39,13 +39,11 @@ function installPackage(pkg, version, flags = []) {
     const packageSpec = version ? `${pkg}@${version}` : pkg;
     const args = ['install', packageSpec, ...flags];
 
-    console.log(chalk.blue(`Installing ${packageSpec} with flags: ${flags.join(' ')}`));
 
     const npmProcess = spawn('npm', args, { stdio: 'inherit' });
 
     npmProcess.on('close', code => {
       if (code === 0) {
-        console.log(chalk.green(`Successfully installed ${packageSpec}`));
         resolve();
       } else {
         console.error(chalk.red(`Failed to install ${packageSpec} (exit code: ${code})`));
@@ -72,9 +70,7 @@ async function main() {
       console.error(
         chalk.red('None of the specified packages are in the critical dependencies list.')
       );
-      console.log(chalk.yellow('Available critical packages:'));
       Object.keys(criticalDependencies).forEach(pkg => {
-        console.log(`- ${pkg}`);
       });
       process.exit(1);
     }
@@ -84,11 +80,9 @@ async function main() {
   const missingPackages = await checkPackages(packagesToInstall);
 
   if (missingPackages.length === 0) {
-    console.log(chalk.green('All critical dependencies are already installed!'));
     process.exit(0);
   }
 
-  console.log(chalk.yellow(`Installing missing dependencies: ${missingPackages.join(', ')}`));
 
   // Install missing packages
   for (const pkg of missingPackages) {
@@ -101,7 +95,6 @@ async function main() {
     }
   }
 
-  console.log(chalk.green('All dependencies installed successfully!'));
 }
 
 // Run the main function
