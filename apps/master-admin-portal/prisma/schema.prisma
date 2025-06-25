@@ -1,0 +1,735 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/audityzer-ecosystem/app/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Platform {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String   @map("display_name")
+  description String?
+  url         String
+  icon        String
+  status      PlatformStatus @default(ACTIVE)
+  version     String?
+  healthCheck String?  @map("health_check")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  platformAccess PlatformAccess[]
+  systemMetrics  SystemMetric[]
+
+  @@map("platforms")
+}
+
+model PlatformAccess {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  platformId String   @map("platform_id")
+  role       String
+  permissions Json?
+  grantedAt  DateTime @default(now()) @map("granted_at")
+  grantedBy  String?  @map("granted_by")
+  
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platformId])
+  @@map("platform_access")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?  @map("user_id")
+  action      String
+  resource    String
+  resourceId  String?  @map("resource_id")
+  platform    String?
+  details     Json?
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  timestamp   DateTime @default(now())
+  
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+model SystemMetric {
+  id         String   @id @default(cuid())
+  platformId String   @map("platform_id")
+  metricType String   @map("metric_type")
+  name       String
+  value      Float
+  unit       String?
+  timestamp  DateTime @default(now())
+  
+  platform Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@map("system_metrics")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  platform  String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  USER
+  VIEWER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum PlatformStatus {
+  ACTIVE
+  MAINTENANCE
+  INACTIVE
+  ERROR
+}
+
+enum NotificationType {
+  SUCCESS
+  INFO
+  WARNING
+  ERROR
+  ALERT
+}
+
+// Master Admin Enhancement Models
+
+model SystemIntegration {
+  id            String   @id @default(cuid())
+  platformName  String   @unique
+  displayName   String
+  baseUrl       String
+  apiKey        String?  // Encrypted API key for integration
+  healthEndpoint String? @map("health_endpoint")
+  status        IntegrationStatus @default(DISCONNECTED)
+  lastSync      DateTime? @map("last_sync")
+  syncInterval  Int      @default(300) @map("sync_interval") // seconds
+  config        Json?    // Platform-specific configuration
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  connectionLogs ConnectionLog[]
+  crossPlatformSessions CrossPlatformSession[]
+
+  @@map("system_integrations")
+}
+
+model ConnectionLog {
+  id              String   @id @default(cuid())
+  integrationId   String   @map("integration_id")
+  status          String   // SUCCESS, FAILURE, TIMEOUT
+  responseTime    Int?     @map("response_time") // milliseconds
+  statusCode      Int?     @map("status_code")
+  errorMessage    String?  @map("error_message")
+  requestDetails  Json?    @map("request_details")
+  responseDetails Json?    @map("response_details")
+  timestamp       DateTime @default(now())
+  
+  integration SystemIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@map("connection_logs")
+}
+
+model CrossPlatformSession {
+  id               String   @id @default(cuid())
+  userId           String   @map("user_id")
+  masterToken      String   @unique @map("master_token") // JWT token for cross-platform auth
+  integrationId    String   @map("integration_id")
+  platformToken    String?  @map("platform_token") // Platform-specific token
+  expiresAt        DateTime @map("expires_at")
+  lastAccessed     DateTime @default(now()) @map("last_accessed")
+  ipAddress        String?  @map("ip_address")
+  userAgent        String?  @map("user_agent")
+  active           Boolean  @default(true)
+  
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  integration SystemIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@map("cross_platform_sessions")
+}
+
+model SystemAlert {
+  id          String   @id @default(cuid())
+  title       String
+  message     String   @db.Text
+  severity    AlertSeverity @default(INFO)
+  category    String   // SECURITY, PERFORMANCE, INTEGRATION, SYSTEM
+  platform    String?  // Which platform triggered the alert
+  resolved    Boolean  @default(false)
+  resolvedAt  DateTime? @map("resolved_at")
+  resolvedBy  String?  @map("resolved_by")
+  metadata    Json?    // Additional alert data
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  responses AlertResponse[]
+
+  @@map("system_alerts")
+}
+
+model AlertResponse {
+  id        String   @id @default(cuid())
+  alertId   String   @map("alert_id")
+  userId    String   @map("user_id")
+  action    String   // ACKNOWLEDGE, RESOLVE, ESCALATE, COMMENT
+  comment   String?
+  timestamp DateTime @default(now())
+  
+  alert SystemAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("alert_responses")
+}
+
+model DataSyncJob {
+  id            String   @id @default(cuid())
+  jobName       String
+  sourceSystem  String   @map("source_system")
+  targetSystem  String   @map("target_system")
+  jobType       String   // FULL_SYNC, INCREMENTAL, REAL_TIME
+  status        SyncStatus @default(PENDING)
+  startedAt     DateTime? @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  recordsTotal  Int?     @map("records_total")
+  recordsSync   Int?     @map("records_synced")
+  recordsFailed Int?     @map("records_failed")
+  errorLog      String?  @map("error_log") @db.Text
+  nextRun       DateTime? @map("next_run")
+  config        Json?    // Job-specific configuration
+  
+  @@map("data_sync_jobs")
+}
+
+model SystemConfiguration {
+  id          String   @id @default(cuid())
+  category    String   // SECURITY, MONITORING, INTEGRATION, PERFORMANCE
+  key         String
+  value       String   @db.Text
+  description String?
+  dataType    String   @default("string") @map("data_type") // string, number, boolean, json
+  encrypted   Boolean  @default(false)
+  updatedBy   String   @map("updated_by")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  @@unique([category, key])
+  @@map("system_configurations")
+}
+
+model PerformanceMetric {
+  id          String   @id @default(cuid())
+  system      String   // Master portal or connected platform
+  metricName  String   @map("metric_name")
+  value       Float
+  unit        String?
+  threshold   Float?   // Alert threshold
+  tags        Json?    // Additional metadata/tags
+  timestamp   DateTime @default(now())
+  
+  @@index([system, metricName, timestamp])
+  @@map("performance_metrics")
+}
+
+model BackupJob {
+  id          String   @id @default(cuid())
+  jobName     String   @map("job_name")
+  backupType  String   @map("backup_type") // FULL, INCREMENTAL, DIFFERENTIAL
+  status      String   // PENDING, RUNNING, COMPLETED, FAILED
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  dataSize    BigInt?  @map("data_size") // bytes
+  location    String?  // backup storage location
+  checksum    String?  // verification checksum
+  errorLog    String?  @map("error_log") @db.Text
+  nextRun     DateTime? @map("next_run")
+  retentionDays Int    @default(30) @map("retention_days")
+  
+  @@map("backup_jobs")
+}
+
+// Enhanced User model with enterprise features
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  password      String?
+  role          Role      @default(USER)
+  status        UserStatus @default(ACTIVE)
+  department    String?
+  position      String?
+  lastLogin     DateTime? @map("last_login")
+  failedLoginAttempts Int @default(0) @map("failed_login_attempts")
+  lockedUntil   DateTime? @map("locked_until")
+  twoFactorEnabled Boolean @default(false) @map("two_factor_enabled")
+  twoFactorSecret String? @map("two_factor_secret")
+  preferences   Json?     // User preferences and settings
+  timezone      String?   @default("UTC")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  
+  // Existing relations
+  accounts      Account[]
+  sessions      Session[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  platformAccess PlatformAccess[]
+  crossPlatformSessions CrossPlatformSession[]
+  alertResponses AlertResponse[]
+  
+  // New enterprise relations
+  incidentTimeline IncidentTimeline[]
+  rootCauseAnalysis RootCauseAnalysis[]
+  workflows      WorkflowAutomation[]
+  apiAnalytics   ApiAnalytics[]
+  threatReports  ThreatIntelligence[]
+  threatReviews  ThreatDetection[]
+  complianceFrameworks ComplianceFramework[]
+  complianceAssessments ComplianceAssessment[]
+  resourceOptimizations ResourceOptimization[]
+
+  @@map("users")
+}
+
+// Enhanced Enterprise Models for Advanced Features
+
+model BusinessIntelligenceMetric {
+  id          String   @id @default(cuid())
+  category    String   // REVENUE, USAGE, PERFORMANCE, CUSTOMER
+  metricName  String   @map("metric_name")
+  value       Float
+  previousValue Float? @map("previous_value")
+  target      Float?
+  unit        String?
+  percentage  Float?   // Change percentage
+  trend       String?  // UP, DOWN, STABLE
+  period      String   // DAILY, WEEKLY, MONTHLY, QUARTERLY
+  dimensions  Json?    // Additional breakdown dimensions
+  timestamp   DateTime @default(now())
+  
+  @@index([category, metricName, timestamp])
+  @@map("business_intelligence_metrics")
+}
+
+model IncidentManagement {
+  id              String   @id @default(cuid())
+  incidentId      String   @unique @map("incident_id") // Human-readable ID like INC-2024-001
+  title           String
+  description     String   @db.Text
+  severity        IncidentSeverity @default(MEDIUM)
+  status          IncidentStatus @default(OPEN)
+  category        String   // SYSTEM, SECURITY, PERFORMANCE, INTEGRATION
+  affectedSystems Json?    @map("affected_systems") // List of affected platforms
+  assignedTo      String?  @map("assigned_to")
+  reportedBy      String   @map("reported_by")
+  resolvedBy      String?  @map("resolved_by")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  acknowledgedAt  DateTime? @map("acknowledged_at")
+  resolvedAt      DateTime? @map("resolved_at")
+  slaTarget       DateTime? @map("sla_target")
+  tags            Json?
+  metadata        Json?    // Additional incident data
+  
+  timeline        IncidentTimeline[]
+  rootCauseAnalysis RootCauseAnalysis?
+
+  @@map("incident_management")
+}
+
+model IncidentTimeline {
+  id          String   @id @default(cuid())
+  incidentId  String   @map("incident_id")
+  userId      String   @map("user_id")
+  action      String   // CREATED, ACKNOWLEDGED, UPDATED, RESOLVED, ESCALATED
+  description String   @db.Text
+  timestamp   DateTime @default(now())
+  metadata    Json?
+  
+  incident    IncidentManagement @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("incident_timeline")
+}
+
+model RootCauseAnalysis {
+  id                String   @id @default(cuid())
+  incidentId        String   @unique @map("incident_id")
+  rootCause         String   @map("root_cause") @db.Text
+  contributingFactors Json?  @map("contributing_factors")
+  preventiveMeasures String? @map("preventive_measures") @db.Text
+  lessonsLearned    String?  @map("lessons_learned") @db.Text
+  analyzedBy        String   @map("analyzed_by")
+  analyzedAt        DateTime @default(now()) @map("analyzed_at")
+  
+  incident          IncidentManagement @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  analyzer          User               @relation(fields: [analyzedBy], references: [id], onDelete: Cascade)
+
+  @@map("root_cause_analysis")
+}
+
+model WorkflowAutomation {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  trigger     Json     // Trigger conditions and events
+  actions     Json     // Actions to perform
+  status      WorkflowStatus @default(ACTIVE)
+  priority    Int      @default(5) // 1-10 priority scale
+  conditions  Json?    // Additional conditions for execution
+  schedule    String?  // Cron schedule for periodic workflows
+  lastRun     DateTime? @map("last_run")
+  nextRun     DateTime? @map("next_run")
+  runCount    Int      @default(0) @map("run_count")
+  successCount Int     @default(0) @map("success_count")
+  failureCount Int     @default(0) @map("failure_count")
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  executions  WorkflowExecution[]
+  creator     User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("workflow_automation")
+}
+
+model WorkflowExecution {
+  id          String   @id @default(cuid())
+  workflowId  String   @map("workflow_id")
+  status      ExecutionStatus @default(RUNNING)
+  startedAt   DateTime @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  duration    Int?     // Execution duration in milliseconds
+  input       Json?    // Input data for the workflow
+  output      Json?    // Output data from the workflow
+  errorLog    String?  @map("error_log") @db.Text
+  steps       Json?    // Individual step results
+  triggeredBy String?  @map("triggered_by") // User ID or system event
+  
+  workflow    WorkflowAutomation @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@map("workflow_executions")
+}
+
+model ApiManagement {
+  id              String   @id @default(cuid())
+  apiName         String   @map("api_name")
+  endpoint        String
+  method          String   // GET, POST, PUT, DELETE
+  description     String?
+  version         String   @default("1.0")
+  rateLimitPeriod String   @default("MINUTE") @map("rate_limit_period") // SECOND, MINUTE, HOUR, DAY
+  rateLimitCount  Int      @default(100) @map("rate_limit_count")
+  authRequired    Boolean  @default(true) @map("auth_required")
+  roles           Json?    // Required roles for access
+  status          ApiStatus @default(ACTIVE)
+  documentation   String?  @db.Text
+  tags            Json?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  analytics       ApiAnalytics[]
+
+  @@unique([endpoint, method])
+  @@map("api_management")
+}
+
+model ApiAnalytics {
+  id            String   @id @default(cuid())
+  apiId         String   @map("api_id")
+  timestamp     DateTime @default(now())
+  responseTime  Int      @map("response_time") // milliseconds
+  statusCode    Int      @map("status_code")
+  userAgent     String?  @map("user_agent")
+  ipAddress     String?  @map("ip_address")
+  userId        String?  @map("user_id")
+  errorMessage  String?  @map("error_message")
+  requestSize   Int?     @map("request_size") // bytes
+  responseSize  Int?     @map("response_size") // bytes
+  
+  api           ApiManagement @relation(fields: [apiId], references: [id], onDelete: Cascade)
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([apiId, timestamp])
+  @@index([timestamp])
+  @@map("api_analytics")
+}
+
+model ThreatIntelligence {
+  id              String   @id @default(cuid())
+  threatType      String   @map("threat_type") // MALWARE, PHISHING, INTRUSION, DDoS
+  severity        ThreatSeverity @default(MEDIUM)
+  source          String   // IP, domain, hash, etc.
+  sourceType      String   @map("source_type") // IP, DOMAIN, HASH, EMAIL
+  description     String   @db.Text
+  indicators      Json?    // IOCs (Indicators of Compromise)
+  mitigation      String?  @db.Text
+  references      Json?    // External references and sources
+  confidence      Int      @default(50) // Confidence level 0-100
+  status          String   @default("ACTIVE") // ACTIVE, RESOLVED, FALSE_POSITIVE
+  firstSeen       DateTime @default(now()) @map("first_seen")
+  lastSeen        DateTime @default(now()) @map("last_seen")
+  reportedBy      String   @map("reported_by")
+  
+  detections      ThreatDetection[]
+  reporter        User @relation(fields: [reportedBy], references: [id], onDelete: Cascade)
+
+  @@index([threatType, severity])
+  @@index([source, sourceType])
+  @@map("threat_intelligence")
+}
+
+model ThreatDetection {
+  id              String   @id @default(cuid())
+  threatId        String   @map("threat_id")
+  detectedAt      DateTime @default(now()) @map("detected_at")
+  platform        String   // Which platform detected the threat
+  details         Json     // Detection details and context
+  action          String   // BLOCKED, ALLOWED, QUARANTINED
+  automaticAction Boolean  @default(false) @map("automatic_action")
+  reviewedBy      String?  @map("reviewed_by")
+  reviewedAt      DateTime? @map("reviewed_at")
+  status          String   @default("PENDING") // PENDING, REVIEWED, RESOLVED
+  
+  threat          ThreatIntelligence @relation(fields: [threatId], references: [id], onDelete: Cascade)
+  reviewer        User?              @relation(fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@map("threat_detections")
+}
+
+model ComplianceFramework {
+  id          String   @id @default(cuid())
+  name        String   @unique // SOC2, GDPR, HIPAA, ISO27001
+  version     String   @default("1.0")
+  description String   @db.Text
+  requirements Json    // Compliance requirements and controls
+  status      String   @default("ACTIVE") // ACTIVE, INACTIVE, DRAFT
+  dueDate     DateTime? @map("due_date")
+  responsible String   // User responsible for compliance
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  assessments ComplianceAssessment[]
+  controls    ComplianceControl[]
+  owner       User @relation(fields: [responsible], references: [id], onDelete: Cascade)
+
+  @@map("compliance_frameworks")
+}
+
+model ComplianceControl {
+  id          String   @id @default(cuid())
+  frameworkId String   @map("framework_id")
+  controlId   String   @map("control_id") // Framework-specific control ID
+  name        String
+  description String   @db.Text
+  category    String   // TECHNICAL, ADMINISTRATIVE, PHYSICAL
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  status      ControlStatus @default(NOT_IMPLEMENTED)
+  evidence    Json?    // Evidence of implementation
+  assessor    String?  // User who assessed the control
+  assessedAt  DateTime? @map("assessed_at")
+  nextReview  DateTime? @map("next_review")
+  
+  framework   ComplianceFramework @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  
+  @@unique([frameworkId, controlId])
+  @@map("compliance_controls")
+}
+
+model ComplianceAssessment {
+  id          String   @id @default(cuid())
+  frameworkId String   @map("framework_id")
+  assessmentType String @map("assessment_type") // SELF, EXTERNAL, CONTINUOUS
+  status      String   @default("IN_PROGRESS") // PLANNED, IN_PROGRESS, COMPLETED, FAILED
+  score       Float?   // Overall compliance score
+  findings    Json?    // Assessment findings and gaps
+  recommendations Json? // Improvement recommendations
+  assessor    String   // User conducting assessment
+  startDate   DateTime @map("start_date")
+  endDate     DateTime? @map("end_date")
+  reportPath  String?  @map("report_path") // Path to assessment report
+  
+  framework   ComplianceFramework @relation(fields: [frameworkId], references: [id], onDelete: Cascade)
+  assessorUser User               @relation(fields: [assessor], references: [id], onDelete: Cascade)
+
+  @@map("compliance_assessments")
+}
+
+model ResourceOptimization {
+  id              String   @id @default(cuid())
+  resourceType    String   @map("resource_type") // CPU, MEMORY, STORAGE, NETWORK
+  platform        String
+  currentUsage    Float    @map("current_usage")
+  recommendedUsage Float?  @map("recommended_usage")
+  potentialSavings Float?  @map("potential_savings") // Cost savings
+  optimizationType String  @map("optimization_type") // SCALE_UP, SCALE_DOWN, MIGRATE, TERMINATE
+  confidence      Int      @default(80) // Confidence in recommendation
+  impact          String   @default("LOW") // LOW, MEDIUM, HIGH
+  description     String   @db.Text
+  implementation  Json?    // Implementation steps
+  status          String   @default("PENDING") // PENDING, IMPLEMENTED, REJECTED, EXPIRED
+  implementedBy   String?  @map("implemented_by")
+  implementedAt   DateTime? @map("implemented_at")
+  validUntil      DateTime @map("valid_until")
+  createdAt       DateTime @default(now()) @map("created_at")
+  
+  implementer     User?    @relation(fields: [implementedBy], references: [id], onDelete: SetNull)
+
+  @@index([platform, resourceType])
+  @@index([status, validUntil])
+  @@map("resource_optimization")
+}
+
+
+
+// Additional Enums
+enum IntegrationStatus {
+  CONNECTED
+  DISCONNECTED
+  ERROR
+  MAINTENANCE
+  SYNCING
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+  INFO
+}
+
+enum SyncStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+  URGENT
+}
+
+enum IncidentStatus {
+  OPEN
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  CANCELLED
+}
+
+enum WorkflowStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+  ARCHIVED
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+  TIMEOUT
+}
+
+enum ApiStatus {
+  ACTIVE
+  DEPRECATED
+  MAINTENANCE
+  INACTIVE
+}
+
+enum ThreatSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ControlStatus {
+  NOT_IMPLEMENTED
+  PARTIALLY_IMPLEMENTED
+  IMPLEMENTED
+  NOT_APPLICABLE
+  DEFERRED
+}

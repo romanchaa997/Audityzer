@@ -1,0 +1,313 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+    --radius: 0.5rem;
+
+    /* Audityzer Brand Colors */
+    --audityzer-blue: 217.2 91.2% 59.8%;
+    --audityzer-critical: 0 84% 60%;
+    --audityzer-warning: 32 95% 44%;
+    --audityzer-success: 142 76% 36%;
+    --audityzer-info: 199 89% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgb(17 24 39);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(75 85 99);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(107 114 128);
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Custom gradient backgrounds */
+  .gradient-bg {
+    background: linear-gradient(135deg, rgb(30 41 59) 0%, rgb(15 23 42) 100%);
+  }
+
+  .gradient-border {
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+    height: 1px;
+  }
+
+  /* Audityzer specific styling */
+  .audityzer-blue {
+    color: rgb(59 130 246);
+  }
+
+  .audityzer-critical {
+    color: rgb(239 68 68);
+  }
+
+  .audityzer-warning {
+    color: rgb(245 158 11);
+  }
+
+  .audityzer-success {
+    color: rgb(34 197 94);
+  }
+
+  .audityzer-info {
+    color: rgb(14 165 233);
+  }
+
+  /* Animation classes */
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.6s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Custom card hover effects */
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Status indicator styles */
+  .status-online {
+    background: rgb(34 197 94);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+  }
+
+  .status-warning {
+    background: rgb(245 158 11);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+  }
+
+  .status-error {
+    background: rgb(239 68 68);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+  }
+
+  .status-offline {
+    background: rgb(107 114 128);
+    box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.3);
+  }
+
+  /* Loading spinner */
+  .loading-spinner {
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-top: 2px solid rgb(59 130 246);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Progress bar custom styles */
+  .progress-bar {
+    background: linear-gradient(90deg, rgb(59 130 246), rgb(147 197 253));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  /* Table styles */
+  .table-row-hover:hover {
+    background: rgba(75, 85, 99, 0.3);
+  }
+
+  /* Badge styles */
+  .badge-success {
+    background: rgba(34, 197, 94, 0.2);
+    color: rgb(34 197 94);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .badge-warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: rgb(245 158 11);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .badge-error {
+    background: rgba(239, 68, 68, 0.2);
+    color: rgb(239 68 68);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .badge-info {
+    background: rgba(59, 130, 246, 0.2);
+    color: rgb(59 130 246);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  /* Form styles */
+  .form-input:focus {
+    border-color: rgb(59 130 246);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Button styles */
+  .btn-primary {
+    background: linear-gradient(135deg, rgb(59 130 246), rgb(29 78 216));
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, rgb(29 78 216), rgb(59 130 246));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  /* Sidebar styles */
+  .sidebar-item {
+    transition: all 0.2s ease;
+  }
+
+  .sidebar-item:hover {
+    background: rgba(75, 85, 99, 0.5);
+    transform: translateX(2px);
+  }
+
+  .sidebar-item.active {
+    background: rgb(59 130 246);
+    color: white;
+  }
+
+  /* Chart tooltip styles */
+  .recharts-tooltip-wrapper {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Mobile responsive utilities */
+  @media (max-width: 768px) {
+    .mobile-hide {
+      display: none;
+    }
+    
+    .mobile-full {
+      width: 100%;
+    }
+  }
+}
+
+/* Component specific styles */
+.bg-gray-750 {
+  background-color: rgb(55 65 81);
+}
+
+.border-gray-750 {
+  border-color: rgb(55 65 81);
+}
+
+/* Dark theme enhancements */
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+}
