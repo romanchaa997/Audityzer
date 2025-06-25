@@ -2,12 +2,11 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "DOCKERFILE",
-    "dockerfilePath": "Dockerfile"
+    "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npm run db:migrate && npm run db:seed && npm start",
-    "healthcheckPath": "/api/health",
+    "startCommand": "npm run db:generate && npm run build && npm start",
+    "healthcheckPath": "/",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
