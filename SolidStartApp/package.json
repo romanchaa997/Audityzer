@@ -11,13 +11,13 @@
   "dependencies": {
     "@solidjs/meta": "^0.29.3",
     "@solidjs/router": "^0.12.3",
-    "@solidjs/start": "^0.4.10",
+    "@solidjs/start": "^1.1.5",
     "solid-js": "^1.8.15"
   },
   "devDependencies": {
     "@codecov/solidstart-plugin": "^1.0.2",
     "typescript": "^5.3.3",
-    "vite": "^5.0.11",
+    "vite": "^7.0.0",
     "vite-plugin-solid": "^2.9.1"
   },
   "engines": {
