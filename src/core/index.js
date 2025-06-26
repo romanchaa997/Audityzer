@@ -3,14 +3,14 @@
  * Cross-chain DeFi fuzzing toolkit for security researchers
  */
 
-const defi = require('./defi-testing');
-const bridge = require('./bridge-testing');
-const wallet = require('./wallet-testing');
-const vulnerability = require('./vulnerability-detection');
-const ai = require('./ai-vulnerability-detection');
-const ci = require('./ci-integration');
-const visualization = require('./visualization');
-const utils = require('./utils');
+import * as defi from './defi-testing.js';
+import * as bridge from './bridge-testing.js';
+import * as wallet from './wallet-testing.js';
+import * as vulnerability from './vulnerability-detection.js';
+import * as ai from './ai-vulnerability-detection.js';
+import * as ci from './ci-integration.js';
+import * as visualization from './visualization.js';
+import * as utils from './utils.js';
 
 /**
  * Run security tests against a target
@@ -80,7 +80,7 @@ async function run(options = {}) {
         break;
       case 'aa':
         // Load the AA testing module dynamically
-        const aa = require('./account-abstraction');
+        const aa = await import('./account-abstraction.js');
         testResult = await aa.runTests(options);
         break;
       default:
@@ -129,7 +129,7 @@ async function submitToBounty(results, options = {}) {
   return { submitted: true, platform: options.platform };
 }
 
-module.exports = {
+export {
   run,
   generateReport,
   submitToBounty,

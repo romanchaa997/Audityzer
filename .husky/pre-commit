@@ -1,0 +1,30 @@
+
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run ESLint
+echo "📝 Checking code style with ESLint..."
+npx eslint . --max-warnings=10 || {
+  echo "❌ ESLint checks failed. Please fix the issues before committing."
+  exit 1
+}
+
+# Run tests
+echo "🧪 Running tests..."
+npm test || {
+  echo "❌ Tests failed. Please fix the failing tests before committing."
+  exit 1
+}
+
+# Check for secrets
+echo "🔐 Scanning for secrets..."
+if command -v trufflehog3 &> /dev/null; then
+  trufflehog3 --format json . | jq '.[] | select(.rule.severity == "HIGH")' | head -5 && {
+    echo "❌ High-severity secrets detected. Please remove them before committing."
+    exit 1
+  }
+fi
+
+echo "✅ All pre-commit checks passed!"

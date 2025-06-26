@@ -1,0 +1,128 @@
+# Audityzer Dashboard Mockup Prompts - P1-T2 Phase
+
+## PROMPT 1: Main Security Dashboard Interface
+**Recommended Model**: ideogram or flux_pro_ultra
+**Recommended Size**: 1280x720 (16:9)
+
+**Prompt**:
+"Professional Web3 security monitoring dashboard for Audityzer platform, dark theme interface with multiple panels showing real-time threat monitoring, vulnerability scan results with color-coded severity indicators (red for critical, orange for high, yellow for medium, green for safe), AI analysis insights section with charts and graphs, smart contract audit status panel, security score metrics with circular gauges, recent alerts and notifications feed, modern cybersecurity operations center aesthetic, professional blue-cyan accent colors (#0066CC, #00AAFF), clean data visualization, enterprise-grade dashboard design, multiple monitors layout"
+
+**Key Elements to Include**:
+- Real-time threat monitoring panel (top-left)
+- Vulnerability scan results with severity color coding
+- AI analysis insights with data visualizations
+- Smart contract audit status tracker
+- Security score metrics with gauges/charts
+- Recent alerts and notifications panel
+- Professional dark theme with security-focused UI
+
+---
+
+## PROMPT 2: Vulnerability Analysis Interface
+**Recommended Model**: ideogram or flux_pro_ultra
+**Recommended Size**: 1280x720 (16:9)
+
+**Prompt**:
+"Advanced vulnerability analysis interface for Audityzer Web3 security platform, split-screen layout with smart contract code editor on left showing syntax-highlighted Solidity code with vulnerability markers, detailed analysis panel on right displaying severity assessment, AI-powered recommendations section, fix suggestions with code examples, risk impact analysis charts, remediation timeline, professional IDE-style interface, dark theme with syntax highlighting, security annotations overlay, clean technical design, enterprise developer tools aesthetic"
+
+**Key Elements to Include**:
+- Code vulnerability viewer with syntax highlighting (left side)
+- Severity assessment panel with risk metrics
+- AI-powered recommendations section
+- Fix suggestions with code examples
+- Risk impact analysis visualizations
+- Timeline for remediation planning
+- Professional developer IDE styling
+
+---
+
+## PROMPT 3: AI Chat Assistant Interface
+**Recommended Model**: ideogram or flux_pro_ultra
+**Recommended Size**: 1280x720 (16:9)
+
+**Prompt**:
+"Modern AI security consultant chat interface for Audityzer platform, clean chat conversation area with message bubbles showing security-focused dialogue, AI avatar icon representing Audityzer assistant, input area with security quick actions buttons, code snippet sharing capabilities, file upload area for smart contract analysis, professional chat interface design, security branding elements, approachable AI-powered assistance aesthetic, blue-cyan accent colors, modern messaging UI with security context"
+
+**Key Elements to Include**:
+- Chat conversation area with message bubbles
+- AI avatar/icon for Audityzer security assistant
+- Input area with security-focused quick actions
+- Code snippet sharing and display capabilities
+- File upload area for smart contracts
+- Professional, approachable AI assistance design
+- Security-focused conversation examples
+
+---
+
+## PROMPT 4: Smart Contract Scanner Interface
+**Recommended Model**: ideogram or flux_pro_ultra
+**Recommended Size**: 1280x720 (16:9)
+
+**Prompt**:
+"Professional smart contract scanning interface for Audityzer Web3 security platform, central file upload area with drag-and-drop functionality, scanning progress indicators with real-time analysis feedback, results preview panel showing vulnerability detection, clean workflow design with step-by-step process visualization, modern file upload UI with security scanning context, professional blue-cyan color scheme, intuitive user experience design, enterprise-grade security tool interface"
+
+**Key Elements to Include**:
+- File upload area with drag-and-drop interface
+- Scanning progress indicators and status
+- Real-time analysis feedback display
+- Results preview panel with vulnerability highlights
+- Clean, intuitive workflow design
+- Professional security tool aesthetic
+
+---
+
+## ADDITIONAL DASHBOARD CONCEPTS (Future Phases)
+
+### PROMPT 5: Compliance Reporting Dashboard
+**Recommended Model**: flux_pro_ultra
+**Recommended Size**: 1536x2752 (9:16) for vertical report layout
+
+**Prompt**:
+"Enterprise compliance reporting dashboard for Audityzer, showing audit trail visualizations, regulatory compliance status indicators, security certification tracking, automated report generation interface, professional business intelligence design, clean data presentation, compliance badges and certifications display, executive summary panels, enterprise reporting aesthetic"
+
+### PROMPT 6: Multi-Chain Security Monitor
+**Recommended Model**: flux_pro_ultra
+**Recommended Size**: 2752x1536 (16:9) for wide monitoring display
+
+**Prompt**:
+"Multi-blockchain security monitoring interface showing Ethereum, Polygon, BSC, and other chain security status, cross-chain vulnerability tracking, network health indicators, transaction flow security analysis, professional network operations center design, real-time blockchain monitoring aesthetic, security-focused multi-chain dashboard"
+
+---
+
+## IMPLEMENTATION GUIDELINES
+
+### Color Scheme Consistency
+- Primary: Professional blues/cyans (#0066CC, #00AAFF)
+- Threat Indicators: Red (#FF4444) for critical, Orange (#FF8800) for high
+- Success Status: Green (#00CC66, #44FF88)
+- Neutral: Professional grays (#F8F9FA, #6C757D)
+
+### Visual Style Requirements
+- Professional, enterprise-grade aesthetic
+- Dark theme for security operations
+- Clean, minimal design with focus on data clarity
+- Consistent iconography (shields, locks, networks)
+- Modern UI components and typography
+- Accessibility-compliant color contrasts
+
+### Technical Specifications
+- High-resolution output (300 DPI equivalent)
+- PNG format for transparency support
+- Responsive design considerations
+- Professional quality suitable for enterprise presentations
+
+---
+
+## USAGE INSTRUCTIONS
+
+1. **Phase Implementation**: Use these prompts in order for systematic dashboard development
+2. **Model Selection**: Ideogram recommended for technical interfaces, flux_pro_ultra for complex layouts
+3. **Customization**: Adjust prompts based on specific feature requirements
+4. **Consistency**: Maintain color scheme and visual style across all mockups
+5. **Quality Control**: Ensure enterprise-grade professional appearance
+
+---
+
+*Created: June 19, 2025*
+*Phase: P1-T2 Dashboard Mockups - Preparation Complete*
+*Status: Ready for image generation in next session*

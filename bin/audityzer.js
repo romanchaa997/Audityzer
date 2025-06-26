@@ -5,9 +5,7 @@
  * Cross-chain DeFi fuzzing toolkit for security researchers
  */
 
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const { runCLI } = require('../src/cli/index.cjs');
+import { runCLI } from '../src/cli/index.js';
 
 // Execute the CLI
 runCLI(process.argv); 

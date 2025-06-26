@@ -102,6 +102,7 @@
     "test:vuln:signature-replay": "playwright test examples/security-bug-tests/signature-replay-attack.test.ts",
     "test:vuln:access-control": "playwright test examples/security-bug-tests/access-control-vulnerability.test.ts",
     "test:vuln:flash-loan": "playwright test examples/security-bug-tests/flash-loan-attack.test.ts",
+    "test:bridge": "echo 'Running bridge security tests' && npm run test:security",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "lint:ci": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings=0",
@@ -145,7 +146,6 @@
     "submit-to-immunefi": "echo 'Submitting to Immunefi' && echo 'Submission prepared'",
     "submit-to-hackenproof": "echo 'Submitting to HackenProof' && echo 'Submission prepared'",
     "website:test": "echo 'Running website regression tests' && npm run test:e2e",
-    "build:docs": "echo 'Building documentation' && echo 'Documentation built successfully'",
     "build:demo": "echo 'Building demo' && npm run build"
   },
   "keywords": [

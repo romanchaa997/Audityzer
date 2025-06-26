@@ -1,0 +1,27 @@
+
+# Global owners
+* @romanchaa997
+
+# Core components
+/src/core/ @romanchaa997
+/src/cli/ @romanchaa997
+
+# CI/CD and deployment
+/.github/ @romanchaa997
+/scripts/ @romanchaa997
+/src/core/ci-integration/ @romanchaa997
+
+# Security-related files
+/src/core/bridge-testing/ @romanchaa997
+/src/core/bounty-integration/ @romanchaa997
+/examples/security-bug-tests/ @romanchaa997
+
+# Configuration files
+package.json @romanchaa997
+eslint.config.js @romanchaa997
+.env.example @romanchaa997
+sonar-project.properties @romanchaa997
+
+# Documentation
+README.md @romanchaa997
+/docs/ @romanchaa997
