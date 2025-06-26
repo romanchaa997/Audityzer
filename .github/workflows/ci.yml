@@ -31,7 +31,7 @@ jobs:
         run: npm ci
 
       - name: Run SAST Security Scan
-        uses: github/super-linter@v4
+        uses: github/super-linter@v5
         env:
           DEFAULT_BRANCH: safe-improvements
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -51,12 +51,12 @@ jobs:
           npm run test:security-framework
 
       - name: CodeQL Analysis
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript, typescript
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
 
   security-testing:
     name: Security Plugin Testing
