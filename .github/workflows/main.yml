@@ -2,9 +2,9 @@ name: Web3FuzzForge CI/CD
 
 on:
   push:
-    branches: [main, master, develop]
+    branches: [main, master, develop, safe-improvements]
   pull_request:
-    branches: [main, master]
+    branches: [main, master, safe-improvements]
 
 jobs:
   build:
