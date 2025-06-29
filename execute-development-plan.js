@@ -9,7 +9,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// Simple console colors
+// Simple console colorsThe build failure is caused by an error checking out submodules. The error indicates that there is no URL found for the submodule path 'Airdrop' in .gitmodules.
+
+Solution: To resolve this issue, ensure that the URL for the submodule path 'Airdrop' is correctly specified in the .gitmodules file. Verify that the submodule is correctly configured and has a valid URL linked to it. After updating the .gitmodules file with the correct URL for the 'Airdrop' submodule, push the changes to the repository and trigger a new build.
 const chalk = {
   blue: (text) => `\x1b[34m${text}\x1b[0m`,
   green: (text) => `\x1b[32m${text}\x1b[0m`,

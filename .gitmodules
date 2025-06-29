@@ -2,3 +2,6 @@
 	path = Audityzer
 	url = https://github.com/romanchaa997/Audityzer
 
+[submodule "Airdrop"]
+	path = Airdrop
+	url = https://github.com/Airdrop.git
