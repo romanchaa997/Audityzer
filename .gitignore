@@ -1,4 +1,18 @@
-node_modules
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+.nuxt/
+.vuepress/dist/
+.serverless/
 
 # Environment variables
 .env
@@ -6,58 +20,95 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
-.firebase-config.json
 
-# Coverage reports
-coverage/
-.nyc_output/
-playwright-report/
-test-results/
-junit.xml
-codecov
-codecov.SHA256SUM*
-.coverage
-coverage.json
-coverage.lcov
-
-# Build outputs
-dist/
-build/
-.cache/
-
-# IDE and OS specific files
-.DS_Store
+# IDE and editor files
+.vscode/
 .idea/
-.vscode/*
-!.vscode/extensions.json
-!.vscode/launch.json
-!.vscode/settings.json
 *.swp
 *.swo
 *~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
 *.log
 
-# Additional exclusions for size reduction
-reports/
-test-output/
-test-user-data-dir/
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
 *.tgz
-Audityzer-*.tgz
-playwright-report/
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Temporary folders
+tmp/
+temp/
+
+# Local Netlify folder
+.netlify
+
+# Large files that shouldn't be in git
+*.pdf
+*.zip
+*.tar.gz
+*.dmg
+*.pkg
+*.deb
+*.rpm
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test artifacts
 test-results/
-debug-logs/
-test-user-data-dir/
-extensions/metamask/
-darkforest-v0.6/
-trace/
-.buildx-cache
+playwright-report/
+coverage/
 
-# Package outputs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-node_modules
-dist
-.env
+# Package lock files (keep only one)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

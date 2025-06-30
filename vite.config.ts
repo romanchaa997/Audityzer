@@ -10,12 +10,14 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       input: {
-        main: 'src/index.js'
+        main: 'public/index.html'
       }
     }
   },
   server: {
     port: 5000,
     host: true
-  }
+  },
+  publicDir: 'public',
+  root: '.'
 });
