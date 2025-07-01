@@ -1,0 +1,22 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--no-optional"
+  GIT_LFS_ENABLED = "false"
+
+# Explicitly disable submodules
+[build.processing]
+  skip_processing = false
+
+# Build settings to prevent submodule issues
+[context.production]
+  command = "npm ci --no-optional && npm run build"
+
+[context.deploy-preview]
+  command = "npm ci --no-optional && npm run build"
+
+[context.branch-deploy]
+  command = "npm ci --no-optional && npm run build"
