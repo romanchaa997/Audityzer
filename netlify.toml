@@ -5,6 +5,7 @@
 [build.environment]
   NODE_VERSION = "18"
   GIT_LFS_ENABLED = "false"
+  PNPM_FLAGS = "--no-frozen-lockfile"
 
 # Build settings with correct pnpm commands
 [context.production]
