@@ -1,9 +1,10 @@
 ---
 name: Feature request
 about: Suggest an idea for Audityzer
-title: '[FEATURE] '
+title: "[FEATURE] "
 labels: enhancement
 assignees: ''
+
 ---
 
 ## Feature Description
