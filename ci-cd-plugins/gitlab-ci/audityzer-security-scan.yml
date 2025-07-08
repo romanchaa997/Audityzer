@@ -1,0 +1,192 @@
+
+# Audityzer GitLab CI/CD Template
+# Web3 Security Scanning for Smart Contracts
+
+.audityzer_scan:
+  stage: security
+  image: node:18-alpine
+  variables:
+    AUDITYZER_API_URL: "https://api.audityzer.com"
+    SCAN_PATH: "contracts/"
+    FAIL_ON_SEVERITY: "HIGH"
+    OUTPUT_FORMAT: "json"
+    INCREMENTAL_SCAN: "true"
+    UPLOAD_TO_GITLAB_SECURITY: "true"
+  before_script:
+    - apk add --no-cache git curl jq
+    - npm install -g @audityzer/cli
+  script:
+    - echo "🚀 Starting Audityzer security scan..."
+    - echo "📁 Scanning path: $SCAN_PATH"
+    - echo "🔍 Incremental scan: $INCREMENTAL_SCAN"
+    
+    # Find smart contract files
+    - |
+      CONTRACT_FILES=$(find $SCAN_PATH -name "*.sol" -o -name "*.vy" -o -name "*.cairo" 2>/dev/null || echo "")
+      if [ -z "$CONTRACT_FILES" ]; then
+        echo "⚠️ No smart contract files found in $SCAN_PATH"
+        exit 0
+      fi
+      echo "📄 Found smart contract files:"
+      echo "$CONTRACT_FILES"
+    
+    # Determine changed files for incremental scanning
+    - |
+      CHANGED_FILES=""
+      if [ "$INCREMENTAL_SCAN" = "true" ]; then
+        if [ "$CI_MERGE_REQUEST_IID" ]; then
+          echo "🔄 Getting changed files for MR $CI_MERGE_REQUEST_IID"
+          CHANGED_FILES=$(git diff --name-only origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME...HEAD | grep -E '\.(sol|vy|cairo)$' || echo "")
+        elif [ "$CI_COMMIT_BEFORE_SHA" ] && [ "$CI_COMMIT_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+          echo "🔄 Getting changed files since $CI_COMMIT_BEFORE_SHA"
+          CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA..HEAD | grep -E '\.(sol|vy|cairo)$' || echo "")
+        fi
+        
+        if [ -n "$CHANGED_FILES" ]; then
+          echo "📝 Changed smart contract files:"
+          echo "$CHANGED_FILES"
+        else
+          echo "ℹ️ No smart contract files changed, performing full scan"
+        fi
+      fi
+    
+    # Perform security scan
+    - |
+      echo "🔍 Initiating security scan..."
+      SCAN_START_TIME=$(date +%s)
+      
+      audityzer scan \
+        --api-key "$AUDITYZER_API_KEY" \
+        --repository-url "$CI_PROJECT_URL" \
+        --scan-path "$SCAN_PATH" \
+        --output-format "$OUTPUT_FORMAT" \
+        --incremental="$INCREMENTAL_SCAN" \
+        --trigger-type "GITLAB_CI" \
+        --trigger-data "{
+          \"pipeline_id\": \"$CI_PIPELINE_ID\",
+          \"job_id\": \"$CI_JOB_ID\",
+          \"commit_sha\": \"$CI_COMMIT_SHA\",
+          \"ref\": \"$CI_COMMIT_REF_NAME\",
+          \"merge_request_iid\": \"$CI_MERGE_REQUEST_IID\",
+          \"changed_files\": \"$CHANGED_FILES\"
+        }" \
+        --output-file "audityzer-results.json"
+      
+      SCAN_END_TIME=$(date +%s)
+      SCAN_DURATION=$((SCAN_END_TIME - SCAN_START_TIME))
+      echo "⏱️ Scan completed in ${SCAN_DURATION}s"
+    
+    # Process scan results
+    - |
+      if [ -f "audityzer-results.json" ]; then
+        TOTAL_VULNS=$(jq '.vulnerabilities | length' audityzer-results.json)
+        CRITICAL_COUNT=$(jq '[.vulnerabilities[] | select(.severity == "CRITICAL")] | length' audityzer-results.json)
+        HIGH_COUNT=$(jq '[.vulnerabilities[] | select(.severity == "HIGH")] | length' audityzer-results.json)
+        MEDIUM_COUNT=$(jq '[.vulnerabilities[] | select(.severity == "MEDIUM")] | length' audityzer-results.json)
+        LOW_COUNT=$(jq '[.vulnerabilities[] | select(.severity == "LOW")] | length' audityzer-results.json)
+        
+        echo "📊 Scan Results:"
+        echo "   🛡️ Total vulnerabilities: $TOTAL_VULNS"
+        echo "   🔴 Critical: $CRITICAL_COUNT"
+        echo "   🟠 High: $HIGH_COUNT"
+        echo "   🟡 Medium: $MEDIUM_COUNT"
+        echo "   🟢 Low: $LOW_COUNT"
+        
+        # Generate GitLab Security Report
+        if [ "$UPLOAD_TO_GITLAB_SECURITY" = "true" ]; then
+          echo "📤 Generating GitLab Security Report..."
+          audityzer format --input audityzer-results.json --output gl-sast-report.json --format gitlab-sast
+        fi
+        
+        # Check if build should fail
+        case "$FAIL_ON_SEVERITY" in
+          "CRITICAL")
+            if [ "$CRITICAL_COUNT" -gt 0 ]; then
+              echo "❌ Build failed: $CRITICAL_COUNT critical vulnerabilities found"
+              exit 1
+            fi
+            ;;
+          "HIGH")
+            if [ "$CRITICAL_COUNT" -gt 0 ] || [ "$HIGH_COUNT" -gt 0 ]; then
+              echo "❌ Build failed: $((CRITICAL_COUNT + HIGH_COUNT)) high+ severity vulnerabilities found"
+              exit 1
+            fi
+            ;;
+          "MEDIUM")
+            if [ "$CRITICAL_COUNT" -gt 0 ] || [ "$HIGH_COUNT" -gt 0 ] || [ "$MEDIUM_COUNT" -gt 0 ]; then
+              echo "❌ Build failed: $((CRITICAL_COUNT + HIGH_COUNT + MEDIUM_COUNT)) medium+ severity vulnerabilities found"
+              exit 1
+            fi
+            ;;
+          "LOW")
+            if [ "$TOTAL_VULNS" -gt 0 ]; then
+              echo "❌ Build failed: $TOTAL_VULNS vulnerabilities found"
+              exit 1
+            fi
+            ;;
+        esac
+        
+        echo "✅ Security scan completed successfully"
+      else
+        echo "❌ Scan results file not found"
+        exit 1
+      fi
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+    paths:
+      - audityzer-results.json
+      - gl-sast-report.json
+    expire_in: 1 week
+    when: always
+  rules:
+    - if: $AUDITYZER_API_KEY == null
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_MERGE_REQUEST_IID
+
+# Usage examples:
+
+# Basic security scan
+audityzer_security_scan:
+  extends: .audityzer_scan
+  variables:
+    SCAN_PATH: "contracts/"
+    FAIL_ON_SEVERITY: "HIGH"
+
+# Scan specific project
+defi_contracts_scan:
+  extends: .audityzer_scan
+  variables:
+    SCAN_PATH: "packages/defi/contracts/"
+    FAIL_ON_SEVERITY: "MEDIUM"
+
+# Full scan (no incremental)
+full_security_scan:
+  extends: .audityzer_scan
+  variables:
+    INCREMENTAL_SCAN: "false"
+    FAIL_ON_SEVERITY: "CRITICAL"
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - contracts/**/*.sol
+
+# Multi-stage scanning
+security_scan_critical:
+  extends: .audityzer_scan
+  stage: test
+  variables:
+    FAIL_ON_SEVERITY: "CRITICAL"
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+
+security_scan_full:
+  extends: .audityzer_scan
+  stage: security
+  variables:
+    INCREMENTAL_SCAN: "false"
+    FAIL_ON_SEVERITY: "HIGH"
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

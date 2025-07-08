@@ -1,0 +1,405 @@
+
+version: 2.1
+
+description: |
+  Audityzer Web3 Security Scanning Orb
+  
+  Integrate comprehensive smart contract security scanning into your CircleCI workflows.
+  Supports Solidity, Vyper, Cairo, and other Web3 languages with detailed vulnerability 
+  reporting and configurable security thresholds.
+
+display:
+  source_url: "https://github.com/audityzer/circleci-orb"
+  home_url: "https://audityzer.com"
+
+executors:
+  default:
+    description: Default executor with Node.js for Audityzer CLI
+    docker:
+      - image: cimg/node:18.16
+    resource_class: medium
+
+commands:
+  install-cli:
+    description: Install Audityzer CLI
+    parameters:
+      version:
+        type: string
+        default: "latest"
+        description: Version of Audityzer CLI to install
+    steps:
+      - run:
+          name: Install Audityzer CLI
+          command: |
+            echo "📦 Installing Audityzer CLI v<< parameters.version >>"
+            npm install -g @audityzer/cli@<< parameters.version >>
+            audityzer --version
+
+  find-contracts:
+    description: Find smart contract files in the repository
+    parameters:
+      scan-path:
+        type: string
+        default: "contracts/"
+        description: Path to scan for smart contracts
+    steps:
+      - run:
+          name: Find Smart Contract Files
+          command: |
+            echo "🔍 Searching for smart contracts in << parameters.scan-path >>"
+            CONTRACT_FILES=$(find << parameters.scan-path >> -name "*.sol" -o -name "*.vy" -o -name "*.cairo" 2>/dev/null || echo "")
+            
+            if [ -z "$CONTRACT_FILES" ]; then
+              echo "⚠️ No smart contract files found in << parameters.scan-path >>"
+              echo "export AUDITYZER_SKIP_SCAN=true" >> $BASH_ENV
+              exit 0
+            fi
+            
+            echo "📄 Found smart contract files:"
+            echo "$CONTRACT_FILES"
+            echo "export AUDITYZER_CONTRACT_COUNT=$(echo \"$CONTRACT_FILES\" | wc -l)" >> $BASH_ENV
+
+  get-changed-files:
+    description: Get changed files for incremental scanning
+    parameters:
+      base-branch:
+        type: string
+        default: "main"
+        description: Base branch for comparison
+    steps:
+      - run:
+          name: Get Changed Files
+          command: |
+            echo "🔄 Getting changed files for incremental scan"
+            
+            if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+              # Pull request - compare with base branch
+              echo "📋 Analyzing PR changes against << parameters.base-branch >>"
+              CHANGED_FILES=$(git diff --name-only origin/<< parameters.base-branch >>...HEAD | grep -E '\.(sol|vy|cairo)$' || echo "")
+            elif [ "$CIRCLE_BRANCH" != "<< parameters.base-branch >>" ]; then
+              # Feature branch - compare with base
+              echo "🌿 Analyzing branch changes against << parameters.base-branch >>"
+              CHANGED_FILES=$(git diff --name-only origin/<< parameters.base-branch >>...HEAD | grep -E '\.(sol|vy|cairo)$' || echo "")
+            else
+              # Main branch - compare with previous commit
+              echo "📝 Analyzing recent changes"
+              CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD | grep -E '\.(sol|vy|cairo)$' || echo "")
+            fi
+            
+            if [ -n "$CHANGED_FILES" ]; then
+              echo "📝 Changed smart contract files:"
+              echo "$CHANGED_FILES"
+              echo "export AUDITYZER_CHANGED_FILES=\"$CHANGED_FILES\"" >> $BASH_ENV
+              echo "export AUDITYZER_HAS_CHANGES=true" >> $BASH_ENV
+            else
+              echo "ℹ️ No smart contract files changed"
+              echo "export AUDITYZER_HAS_CHANGES=false" >> $BASH_ENV
+            fi
+
+  scan:
+    description: Perform Audityzer security scan
+    parameters:
+      api-key:
+        type: env_var_name
+        default: AUDITYZER_API_KEY
+        description: Environment variable containing Audityzer API key
+      scan-path:
+        type: string
+        default: "contracts/"
+        description: Path to scan for smart contracts
+      output-format:
+        type: enum
+        enum: ["json", "sarif", "html"]
+        default: "json"
+        description: Output format for scan results
+      incremental:
+        type: boolean
+        default: true
+        description: Enable incremental scanning for faster results
+      fail-on-severity:
+        type: enum
+        enum: ["CRITICAL", "HIGH", "MEDIUM", "LOW", "NONE"]
+        default: "HIGH"
+        description: Minimum severity level to fail the build
+    steps:
+      - run:
+          name: Audityzer Security Scan
+          command: |
+            # Check if scan should be skipped
+            if [ "$AUDITYZER_SKIP_SCAN" = "true" ]; then
+              echo "⏭️ Skipping scan - no smart contracts found"
+              exit 0
+            fi
+            
+            echo "🚀 Starting Audityzer security scan"
+            echo "📁 Scan path: << parameters.scan-path >>"
+            echo "🔍 Incremental: << parameters.incremental >>"
+            echo "🎯 Fail on: << parameters.fail-on-severity >>"
+            
+            SCAN_START_TIME=$(date +%s)
+            
+            # Prepare trigger data
+            TRIGGER_DATA=$(cat << EOF
+            {
+              "workflow_id": "$CIRCLE_WORKFLOW_ID",
+              "job": "$CIRCLE_JOB",
+              "build_num": $CIRCLE_BUILD_NUM,
+              "branch": "$CIRCLE_BRANCH",
+              "sha": "$CIRCLE_SHA1",
+              "pull_request": "$CIRCLE_PULL_REQUEST",
+              "username": "$CIRCLE_USERNAME",
+              "changed_files": "$AUDITYZER_CHANGED_FILES"
+            }
+            EOF
+            )
+            
+            # Run security scan
+            audityzer scan \
+              --api-key "${<< parameters.api-key >>}" \
+              --repository-url "$CIRCLE_REPOSITORY_URL" \
+              --scan-path "<< parameters.scan-path >>" \
+              --output-format "<< parameters.output-format >>" \
+              --incremental="<< parameters.incremental >>" \
+              --trigger-type "CIRCLECI" \
+              --trigger-data "$TRIGGER_DATA" \
+              --output-file "audityzer-results.<< parameters.output-format >>"
+            
+            SCAN_END_TIME=$(date +%s)
+            SCAN_DURATION=$((SCAN_END_TIME - SCAN_START_TIME))
+            echo "⏱️ Scan completed in ${SCAN_DURATION}s"
+
+  process-results:
+    description: Process scan results and determine build status
+    parameters:
+      output-format:
+        type: enum
+        enum: ["json", "sarif", "html"]
+        default: "json"
+        description: Output format used for scan
+      fail-on-severity:
+        type: enum
+        enum: ["CRITICAL", "HIGH", "MEDIUM", "LOW", "NONE"]
+        default: "HIGH"
+        description: Minimum severity level to fail the build
+    steps:
+      - run:
+          name: Process Scan Results
+          command: |
+            # Check if scan was skipped
+            if [ "$AUDITYZER_SKIP_SCAN" = "true" ]; then
+              echo "⏭️ No results to process - scan was skipped"
+              exit 0
+            fi
+            
+            RESULTS_FILE="audityzer-results.<< parameters.output-format >>"
+            
+            if [ ! -f "$RESULTS_FILE" ]; then
+              echo "❌ Scan results file not found: $RESULTS_FILE"
+              exit 1
+            fi
+            
+            if [ "<< parameters.output-format >>" = "json" ]; then
+              # Process JSON results
+              TOTAL_VULNS=$(jq '.vulnerabilities | length' "$RESULTS_FILE")
+              CRITICAL_COUNT=$(jq '[.vulnerabilities[] | select(.severity == "CRITICAL")] | length' "$RESULTS_FILE")
+              HIGH_COUNT=$(jq '[.vulnerabilities[] | select(.severity == "HIGH")] | length' "$RESULTS_FILE")
+              MEDIUM_COUNT=$(jq '[.vulnerabilities[] | select(.severity == "MEDIUM")] | length' "$RESULTS_FILE")
+              LOW_COUNT=$(jq '[.vulnerabilities[] | select(.severity == "LOW")] | length' "$RESULTS_FILE")
+              
+              echo "📊 Scan Results:"
+              echo "   🛡️ Total vulnerabilities: $TOTAL_VULNS"
+              echo "   🔴 Critical: $CRITICAL_COUNT"
+              echo "   🟠 High: $HIGH_COUNT"
+              echo "   🟡 Medium: $MEDIUM_COUNT"
+              echo "   🟢 Low: $LOW_COUNT"
+              
+              # Export for other steps
+              echo "export AUDITYZER_TOTAL_VULNS=$TOTAL_VULNS" >> $BASH_ENV
+              echo "export AUDITYZER_CRITICAL_COUNT=$CRITICAL_COUNT" >> $BASH_ENV
+              echo "export AUDITYZER_HIGH_COUNT=$HIGH_COUNT" >> $BASH_ENV
+              echo "export AUDITYZER_MEDIUM_COUNT=$MEDIUM_COUNT" >> $BASH_ENV
+              echo "export AUDITYZER_LOW_COUNT=$LOW_COUNT" >> $BASH_ENV
+              
+              # Check if build should fail
+              SHOULD_FAIL=false
+              case "<< parameters.fail-on-severity >>" in
+                "CRITICAL")
+                  [ "$CRITICAL_COUNT" -gt 0 ] && SHOULD_FAIL=true
+                  ;;
+                "HIGH")
+                  [ "$CRITICAL_COUNT" -gt 0 ] || [ "$HIGH_COUNT" -gt 0 ] && SHOULD_FAIL=true
+                  ;;
+                "MEDIUM")
+                  [ "$CRITICAL_COUNT" -gt 0 ] || [ "$HIGH_COUNT" -gt 0 ] || [ "$MEDIUM_COUNT" -gt 0 ] && SHOULD_FAIL=true
+                  ;;
+                "LOW")
+                  [ "$TOTAL_VULNS" -gt 0 ] && SHOULD_FAIL=true
+                  ;;
+                "NONE")
+                  SHOULD_FAIL=false
+                  ;;
+              esac
+              
+              if [ "$SHOULD_FAIL" = "true" ]; then
+                echo "❌ Build failed due to << parameters.fail-on-severity >>+ severity vulnerabilities"
+                exit 1
+              else
+                echo "✅ Security scan completed successfully"
+              fi
+            else
+              echo "✅ Scan completed with << parameters.output-format >> output"
+            fi
+
+jobs:
+  security-scan:
+    description: |
+      Complete Audityzer security scan job with configurable options.
+      
+      This job will:
+      1. Install Audityzer CLI
+      2. Find smart contract files
+      3. Optionally perform incremental scanning
+      4. Run security analysis
+      5. Process results and fail build if needed
+    
+    executor: default
+    
+    parameters:
+      api-key:
+        type: env_var_name
+        default: AUDITYZER_API_KEY
+        description: Environment variable containing Audityzer API key
+      scan-path:
+        type: string
+        default: "contracts/"
+        description: Path to scan for smart contracts
+      output-format:
+        type: enum
+        enum: ["json", "sarif", "html"]
+        default: "json"
+        description: Output format for scan results
+      incremental:
+        type: boolean
+        default: true
+        description: Enable incremental scanning
+      fail-on-severity:
+        type: enum
+        enum: ["CRITICAL", "HIGH", "MEDIUM", "LOW", "NONE"]
+        default: "HIGH"
+        description: Minimum severity level to fail the build
+      base-branch:
+        type: string
+        default: "main"
+        description: Base branch for incremental comparison
+      cli-version:
+        type: string
+        default: "latest"
+        description: Audityzer CLI version to install
+    
+    steps:
+      - checkout
+      - install-cli:
+          version: << parameters.cli-version >>
+      - find-contracts:
+          scan-path: << parameters.scan-path >>
+      - when:
+          condition: << parameters.incremental >>
+          steps:
+            - get-changed-files:
+                base-branch: << parameters.base-branch >>
+      - scan:
+          api-key: << parameters.api-key >>
+          scan-path: << parameters.scan-path >>
+          output-format: << parameters.output-format >>
+          incremental: << parameters.incremental >>
+          fail-on-severity: << parameters.fail-on-severity >>
+      - process-results:
+          output-format: << parameters.output-format >>
+          fail-on-severity: << parameters.fail-on-severity >>
+      - store_artifacts:
+          path: audityzer-results.<< parameters.output-format >>
+          destination: security-scan-results
+      - when:
+          condition:
+            equal: [ << parameters.output-format >>, "html" ]
+          steps:
+            - store_artifacts:
+                path: audityzer-results.html
+                destination: security-report.html
+
+examples:
+  basic-scan:
+    description: |
+      Basic security scan with default settings.
+      Scans contracts/ directory and fails on HIGH+ severity issues.
+    usage:
+      version: 2.1
+      orbs:
+        audityzer: audityzer/security-scan@1.0.0
+      workflows:
+        security:
+          jobs:
+            - audityzer/security-scan:
+                context: audityzer-api
+                
+  advanced-scan:
+    description: |
+      Advanced security scan with custom configuration.
+      Includes incremental scanning and custom thresholds.
+    usage:
+      version: 2.1
+      orbs:
+        audityzer: audityzer/security-scan@1.0.0
+      workflows:
+        security:
+          jobs:
+            - audityzer/security-scan:
+                context: audityzer-api
+                scan-path: "src/contracts/"
+                output-format: "html"
+                fail-on-severity: "MEDIUM"
+                incremental: true
+                
+  multi-project-scan:
+    description: |
+      Scan multiple contract directories in parallel.
+      Useful for monorepos with multiple projects.
+    usage:
+      version: 2.1
+      orbs:
+        audityzer: audityzer/security-scan@1.0.0
+      workflows:
+        security:
+          jobs:
+            - audityzer/security-scan:
+                name: scan-defi-contracts
+                context: audityzer-api
+                scan-path: "packages/defi/contracts/"
+            - audityzer/security-scan:
+                name: scan-nft-contracts
+                context: audityzer-api
+                scan-path: "packages/nft/contracts/"
+            - audityzer/security-scan:
+                name: scan-governance-contracts
+                context: audityzer-api
+                scan-path: "packages/governance/contracts/"
+                
+  conditional-scan:
+    description: |
+      Conditional security scanning based on file changes.
+      Only runs when smart contract files are modified.
+    usage:
+      version: 2.1
+      orbs:
+        audityzer: audityzer/security-scan@1.0.0
+      workflows:
+        security:
+          jobs:
+            - audityzer/security-scan:
+                context: audityzer-api
+                filters:
+                  branches:
+                    only:
+                      - main
+                      - develop
+                      - /feature\/.*/

@@ -1,0 +1,12 @@
+
+{
+  "name": "AudityzerMobile",
+  "displayName": "Audityzer Security Platform",
+  "version": "1.0.0",
+  "versionCode": 1,
+  "description": "Mobile application for Audityzer Web3 Security Platform",
+  "author": "Audityzer Team",
+  "homepage": "https://audityzer.com",
+  "keywords": ["web3", "security", "blockchain", "smart-contracts", "audit"],
+  "platforms": ["ios", "android"]
+}
