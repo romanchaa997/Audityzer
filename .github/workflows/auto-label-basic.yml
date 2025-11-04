@@ -1,0 +1,119 @@
+name: 'Basic Auto-Labeling Workflow'
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Label issues based on keywords
+        if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.issue.title.toLowerCase();
+            const body = context.payload.issue.body?.toLowerCase() || '';
+            const labels = [];
+            
+            // Bug detection
+            if (title.includes('bug') || title.includes('error') || title.includes('issue')) {
+              labels.push('bug');
+            }
+            
+            // Feature request detection
+            if (title.includes('feature') || title.includes('enhancement') || title.includes('request')) {
+              labels.push('enhancement');
+            }
+            
+            // Documentation detection
+            if (title.includes('docs') || title.includes('documentation')) {
+              labels.push('documentation');
+            }
+            
+            // Question detection
+            if (title.includes('question') || title.includes('how to') || title.includes('help')) {
+              labels.push('question');
+            }
+            
+            // Security detection
+            if (title.includes('security') || title.includes('vulnerability') || body.includes('cve')) {
+              labels.push('security');
+            }
+            
+            // Priority detection
+            if (title.includes('urgent') || title.includes('critical') || title.includes('asap')) {
+              labels.push('priority: high');
+            }
+            
+            // Apply labels if any were detected
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                labels: labels
+              });
+            }
+      
+      - name: Label PRs based on files changed
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number
+            });
+            
+            const labels = new Set();
+            const filenames = files.map(f => f.filename);
+            
+            // Documentation changes
+            if (filenames.some(f => f.includes('README') || f.includes('.md') || f.includes('/docs/'))) {
+              labels.add('documentation');
+            }
+            
+            // Test changes
+            if (filenames.some(f => f.includes('test') || f.includes('spec') || f.includes('__tests__'))) {
+              labels.add('tests');
+            }
+            
+            // CI/CD changes
+            if (filenames.some(f => f.includes('.github/workflows') || f.includes('.yml') || f.includes('.yaml'))) {
+              labels.add('ci/cd');
+            }
+            
+            // Dependencies changes
+            if (filenames.some(f => f.includes('package.json') || f.includes('package-lock.json') || f.includes('yarn.lock'))) {
+              labels.add('dependencies');
+            }
+            
+            // Security changes
+            if (filenames.some(f => f.includes('security') || f.includes('auth') || f.includes('crypto'))) {
+              labels.add('security');
+            }
+            
+            // Apply labels if any were detected
+            if (labels.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: Array.from(labels)
+              });
+            }
