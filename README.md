@@ -117,3 +117,26 @@ For security issues, please see our [Security Policy](SECURITY.md).
 - Thanks to all contributors who have helped build Audityzer
 - Special thanks to the Web3 security community for their valuable feedback
 # Deployment trigger - Tue Jul  1 00:22:07 UTC 2025
+
+
+## 🌐 Web3 Integration: auditorsec.web3
+
+**Access our Web3 security audit services via the decentralized domain:**
+
+- **Domain:** [`auditorsec.web3`](https://auditorsec.web3)
+- **Network:** Polygon, Ethereum, Base, Solana, Arbitrum
+- **Services:**
+  - Smart Contract Audits
+  - Security Analysis & Vulnerability Detection
+  - AI-Powered Risk Assessment
+  - Real-time Threat Monitoring
+- **Contact:** [Discord Community](https://discord.gg/audityzer) | [GitHub Issues](https://github.com/romanchaa997/Audityzer/issues)
+
+### Why auditorsec.web3?
+
+The Web3 domain provides decentralized access to Audityzer's security services, enabling:
+- **Privacy-First Access:** No corporate domain dependency
+- **Web3-Native Resolution:** Compatible with Brave, MetaMask, and other Web3 browsers
+- **Transparent Operations:** Blockchain-backed domain verification
+
+**Get started:** Visit `auditorsec.web3` in your Web3-enabled browser
