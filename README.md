@@ -1,6 +1,9 @@
 
 # Audityzer - Web3 Security Testing Toolkit
 
+> **🚀 Productization Phase 2025**: Audityzer is transitioning to a commercial SaaS platform. See [PRODUCTIZATION_ROADMAP.md](./PRODUCTIZATION_ROADMAP.md) for the full strategy, pricing tiers, and roadmap. Quick start: [EXECUTION_SUMMARY.md](./EXECUTION_SUMMARY.md).
+
+
 [![npm version](https://badge.fury.io/js/audityzer.svg)](https://i.ytimg.com/vi/kK4Meix58R4/maxresdefault.jpg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://i.ytimg.com/vi/GlqQGLz6hfs/hqdefault.jpg)](https://github.com/romanchaa997/Audityzer/actions)
