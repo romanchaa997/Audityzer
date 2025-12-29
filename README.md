@@ -1,119 +1,146 @@
+# Audityzer — Web3 Security Platform 🛡️
 
-# Audityzer - Web3 Security Testing Toolkit
+**Automated smart-contract analysis and continuous security monitoring for Web3 teams.**
 
-[![npm version](https://badge.fury.io/js/audityzer.svg)](https://i.ytimg.com/vi/kK4Meix58R4/maxresdefault.jpg)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://i.ytimg.com/vi/GlqQGLz6hfs/hqdefault.jpg)](https://github.com/romanchaa997/Audityzer/actions)
+---
 
-Audityzer is a comprehensive Web3 security testing toolkit designed for DeFi applications, smart contracts, and blockchain protocols. It provides automated vulnerability detection, cross-chain testing capabilities, and AI-powered security analysis.
+## Problem
 
-## 🚀 Features
+Web3 developers and security researchers face significant challenges:
+- Smart contract vulnerabilities are discovered post-deployment, causing massive financial losses
+- Manual security audits are expensive, slow, and don't provide continuous monitoring
+- Cross-chain testing requires integration with multiple blockchain platforms
+- Security reports lack actionable insights and clear risk prioritization
 
-- **Comprehensive Security Testing**: 20+ vulnerability detection algorithms
-- **Multi-Wallet Integration**: Support for MetaMask, WalletConnect, Coinbase Wallet, and more
-- **Cross-Chain Support**: Test across multiple blockchain networks
-- **AI-Powered Analysis**: Intelligent vulnerability detection and risk assessment
-- **Automated Reporting**: Generate detailed security reports with visualizations
-- **Plugin System**: Extensible architecture for custom security tests
-- **CI/CD Integration**: Seamless integration with development workflows
+## Solution
 
-## 📦 Installation
+Audityzer provides:
+- **Automated vulnerability detection** with 20+ advanced algorithms (LLM-based + static analysis)
+- **Continuous monitoring** of deployed contracts with real-time risk alerts
+- **Cross-chain support** for Ethereum, Solana, Polygon, Avalanche, and more
+- **AI-powered analysis** that generates prioritized, actionable security insights
+- **Integration-ready** with development workflows via API, CLI, and plugins
 
-### NPM Installation
+## For whom / Pain / Outcome
+
+**Audience**: Web3 teams (developers, security researchers, protocols), DeFi projects, enterprise blockchain initiatives
+
+**Main pain**: Time-to-audit is 4–12 weeks; continuous monitoring is manual or non-existent
+
+**Outcome**: Audityzer reduces initial security assessment time to **hours** and enables **24/7 automated monitoring**, so teams ship faster and with higher confidence
+
+---
+
+## Tech Stack
+
+- **Languages**: Python (analysis engine), Node.js/TypeScript (API, CLI)
+- **AI/ML**: LLM-based vulnerability reasoning, transformer models for code understanding
+- **Blockchain**: Web3.py, ethers.js, Anchor (Solana)
+- **Infrastructure**: Cloudflare Workers/Pages, Docker, k8s, GitHub Actions
+- **Observability**: Prometheus, Grafana, structured logging
+- **API & Integrations**: REST API, webhooks, Slack/Discord notifications
+
+---
+
+## Quick Start
+
+### Installation
+
+**NPM**
 ```bash
 npm install -g audityzer
+audityzer --help
 ```
 
-### Docker Installation
+**Docker**
 ```bash
-docker pull audityzer/audityzer:latest
-docker run -it audityzer/audityzer:latest
+docker pull romanchaa997/audityzer:latest
+docker run -it audityzer:latest bash
 ```
 
-### From Source
-```bash
-git clone https://github.com/romanchaa997/Audityzer.git
-cd Audityzer
-npm install
-npm run build
-```
-
-## 🔧 Quick Start
-
-### CLI Usage
-```bash
-# Initialize a new security testing project
-audityzer init my-security-tests
-
-# Run security tests on a smart contract
-audityzer test --contract 0x1234567890123456789012345678901234567890
-
-# Generate a security report
-audityzer report --output security-report.html
-```
-
-### Programmatic Usage
-```javascript
-const { Audityzer } = require('audityzer');
-
-const audityzer = new Audityzer({
-  network: 'ethereum',
-  provider: 'https://mainnet.infura.io/v3/YOUR-PROJECT-ID'
-});
-
-// Run security tests
-const results = await audityzer.test({
-  contract: '0x1234567890123456789012345678901234567890',
-  tests: ['reentrancy', 'overflow', 'access-control']
-});
-
-console.log(results);
-```
-
-## 📚 Documentation
-
-- [Architecture Guide](docs/architecture.md)
-- [API Reference](docs/api.md)
-- [Plugin Development](docs/plugins.md)
-- [Security Testing Guide](docs/security-testing.md)
-- [Troubleshooting](docs/troubleshooting.md)
-
-## 🧪 Testing
+### Run Your First Analysis
 
 ```bash
-# Run all tests
-npm test
+# Analyze a smart contract
+audityzer analyze --contract path/to/contract.sol
 
-# Run unit tests
-npm run test:unit
+# Generate security report
+audityzer report --contract 0x... --chain ethereum
 
-# Run integration tests
-npm run test:integration
-
-# Run end-to-end tests
-npm run test:e2e
+# Start continuous monitoring
+audityzer monitor --contract 0x... --interval 1h
 ```
 
-## 🤝 Contributing
+---
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+## Architecture
 
-## 📄 License
+```
+┌──────────────────────────────────────────────────────────┐
+│                    Audityzer Platform                    │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  CLI/API Gateway  ──→  Analysis Engine (Python)         │
+│                            ├─ Static Analysis           │
+│                            ├─ LLM-based Reasoning       │
+│                            └─ Dynamic Testing           │
+│                                    ↓                    │
+│                        Blockchain RPC Layer             │
+│                     (Ethereum, Solana, etc)             │
+│                                                          │
+│  ↓ Reports & Alerts → Dashboard / Slack / Email         │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+---
 
-## 🔒 Security
+## Features
 
-For security issues, please see our [Security Policy](SECURITY.md).
+- ✅ **20+ Vulnerability Detection Algorithms** (reentrancy, overflow, unchecked calls, etc)
+- ✅ **Multi-Wallet Integration** (MetaMask, WalletConnect, Coinbase, Ledger)
+- ✅ **Cross-Chain Support** (Ethereum, Polygon, Solana, Avalanche, Arbitrum)
+- ✅ **AI-Powered Analysis** (LLM reasoning for context-aware vulnerability assessment)
+- ✅ **Automated Reporting** (detailed HTML/PDF reports with visualizations)
+- ✅ **Plugin System** (extensible for custom security tests)
+- ✅ **CI/CD Integration** (GitHub Actions, GitLab CI, Jenkins)
+- ✅ **Real-time Monitoring** (webhook alerts, Slack notifications)
 
-## 📞 Support
+---
 
-- [GitHub Issues](https://github.com/romanchaa997/Audityzer/issues)
-- [Documentation](https://audityzer.dev/docs)
-- [Community Discord](https://discord.gg/audityzer)
+## Roadmap
 
-## 🙏 Acknowledgments
+### Q1 2025
+- [ ] LLM fine-tuning for domain-specific security reasoning
+- [ ] Advanced static analysis (taint tracking, data flow)
+- [ ] Compliance checks (OWASP, CWE coverage)
 
-- Thanks to all contributors who have helped build Audityzer
-- Special thanks to the Web3 security community for their valuable feedback
-# Deployment trigger - Tue Jul  1 00:22:07 UTC 2025
+### Q2 2025
+- [ ] Interactive vulnerability dashboard
+- [ ] Integration with OpenZeppelin, Consensys tools
+- [ ] Multi-signature contract analysis
+
+### Q3 2025
+- [ ] Formal verification support
+- [ ] Automated patch generation
+- [ ] Security policy templates for enterprises
+
+---
+
+## Contributing
+
+We welcome contributions! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+---
+
+## License
+
+MIT — see [LICENSE](./LICENSE) file
+
+---
+
+## Support & Contact
+
+- 📧 **Email**: support@audityzer.io
+- 💬 **Discord**: [Join community](https://discord.gg/audityzer)
+- 🐙 **GitHub Issues**: [Report bugs or request features](https://github.com/romanchaa997/Audityzer/issues)
