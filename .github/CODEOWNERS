@@ -1,0 +1,22 @@
+# Code Owners for Audityzer
+# Automated audit and analytics tool
+
+* @romanchaa997
+
+# Core auditing engine
+/src/ @romanchaa997
+/audit/ @romanchaa997
+/analytics/ @romanchaa997
+
+# Configuration and standards
+/.github/ @romanchaa997
+/standards/ @romanchaa997
+config** @romanchaa997
+
+# Documentation
+/*.md @romanchaa997
+/docs/ @romanchaa997
+
+# Build and deployment
+Dockerfile @romanchaa997
+docker-compose.yml @romanchaa997
