@@ -1,0 +1,108 @@
+# GitHub Pages Jekyll Configuration
+# UHIP Documentation Site
+
+title: Unified Hybrid Intelligence Platform (UHIP)
+tagline: Advanced AI/ML Platform for Energy Infrastructure
+description: Comprehensive documentation for UHIP system architecture, deployment, and integration
+url: https://romanchaa997.github.io/Audityzer
+baseurl: /Audityzer
+
+# Author information
+author:
+  name: Audityzer Development Team
+  email: development@audityzer.io
+
+# Build settings
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Markdown processing
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /docs/:path/
+  guides:
+    output: true
+    permalink: /guides/:path/
+
+# Navigation menu
+header_pages:
+  - docs/index.md
+  - guides/index.md
+  - api.md
+  - about.md
+
+# SEO
+logo: /images/logo.png
+social:
+  name: Audityzer UHIP
+  links:
+    - https://github.com/romanchaa997/Audityzer
+    - https://twitter.com/audityzer
+
+# Site settings
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - CONTRIBUTING.md
+  - LICENSE
+
+include:
+  - _pages
+  - .htaccess
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: "docs"
+      type: "docs"
+    values:
+      layout: "doc"
+      toc: true
+
+# Output
+output_dir: ../_site
+plugin_dir: ./_plugins
+liquid:
+  error_mode: strict
+
+# Pagination (if using jekyll-paginate)
+paginate: 10
+paginate_path: /blog/page:num
+
+# Analytics
+google_analytics: [YOUR_GOOGLE_ANALYTICS_ID]
+
+# Comments
+disqus:
+  shortname: [YOUR_DISQUS_SHORTNAME]
+
+# Categories for blog posts
+categories:
+  - announcement
+  - tutorial
+  - technical
+  - roadmap
+
+# Timezone
+timezone: Europe/Brussels
