@@ -1,0 +1,39 @@
+# Code Owners for Audityzer - Web3 Security Platform
+# This file specifies who should review pull requests for different areas of the codebase
+
+# Default owners for everything in the repo
+* @romanchaa997
+
+# Core security analysis and vulnerability detection
+/audityzer-core/ @romanchaa997
+/audityzer-platform/ @romanchaa997
+
+# Smart contract analysis and testing
+/app/ @romanchaa997
+/SolidStartApp/ @romanchaa997
+/automation/ @romanchaa997
+
+# Backend services and infrastructure
+/backend/ @romanchaa997
+/bin/ @romanchaa997
+
+# Frontend and UI components
+/frontend/ @romanchaa997
+
+# Testing and quality assurance
+/Audityzer-community-tests/ @romanchaa997
+/checklists/ @romanchaa997
+
+# Configuration and infrastructure
+/.github/ @romanchaa997
+/.husky/ @romanchaa997
+/.vscode/ @romanchaa997
+/.well-known/ @romanchaa997
+
+# Assets and documentation
+/assets/ @romanchaa997
+
+# Build and deployment configuration
+/azure-functions-app-nodejs.yml @romanchaa997
+/project-config.yml @romanchaa997
+/rulesets.json @romanchaa997
