@@ -1,0 +1,161 @@
+{
+  "formMetadata": {
+    "name": "Audityzer Turbine Inspection Form",
+    "version": "0.1",
+    "description": "Comprehensive turbine health assessment and field inspection template",
+    "lastUpdated": "2025-01-03",
+    "formType": "field_inspection",
+    "applicableTo": ["wind_turbines", "hydro_turbines", "steam_turbines"]
+  },
+  "sections": {
+    "turbineIdentification": {
+      "title": "Turbine Identification & Location",
+      "required": true,
+      "fields": {
+        "turbineId": {
+          "type": "text",
+          "label": "Turbine Serial Number",
+          "required": true,
+          "description": "Unique identifier for the turbine unit"
+        },
+        "installationDate": {
+          "type": "date",
+          "label": "Installation Date",
+          "required": true
+        },
+        "manufacturer": {
+          "type": "select",
+          "label": "Manufacturer",
+          "required": true,
+          "options": ["GE Renewable Energy", "Siemens", "Vestas", "Nordex", "Other"]
+        },
+        "location": {
+          "type": "geolocation",
+          "label": "GPS Coordinates",
+          "required": false,
+          "subfields": {"latitude": "number", "longitude": "number"}
+        }
+      }
+    },
+    "visualInspection": {
+      "title": "Visual Inspection & Condition Assessment",
+      "required": true,
+      "fields": {
+        "bladesCondition": {
+          "type": "select",
+          "label": "Blade Surface Condition",
+          "options": ["Excellent", "Good", "Fair", "Poor", "Critical"],
+          "required": true
+        },
+        "towersCondition": {
+          "type": "select",
+          "label": "Tower/Structural Condition",
+          "options": ["Excellent", "Good", "Fair", "Poor", "Critical"],
+          "required": true
+        },
+        "visibleDamage": {
+          "type": "text",
+          "label": "Description of Visible Damage (if any)",
+          "required": false,
+          "maxLength": 500
+        },
+        "photoEvidence": {
+          "type": "file",
+          "label": "Inspection Photos",
+          "required": false,
+          "acceptedFormats": ["jpg", "png", "webp"]
+        }
+      }
+    },
+    "operationalMetrics": {
+      "title": "Operational Performance Metrics",
+      "required": false,
+      "fields": {
+        "operatingHours": {
+          "type": "number",
+          "label": "Total Operating Hours",
+          "unit": "hours",
+          "required": false
+        },
+        "energyProduction": {
+          "type": "number",
+          "label": "Last Period Energy Output",
+          "unit": "MWh",
+          "required": false
+        },
+        "vibrationLevel": {
+          "type": "number",
+          "label": "Vibration Level (RMS)",
+          "unit": "mm/s",
+          "required": false
+        },
+        "temperatureReadings": {
+          "type": "array",
+          "label": "Key Temperature Points (°C)",
+          "items": {
+            "location": "string",
+            "temperature": "number"
+          },
+          "required": false
+        }
+      }
+    },
+    "maintenanceHistory": {
+      "title": "Maintenance & Service Record",
+      "required": false,
+      "fields": {
+        "lastMaintenance": {
+          "type": "date",
+          "label": "Last Scheduled Maintenance Date",
+          "required": false
+        },
+        "maintenanceNotes": {
+          "type": "text",
+          "label": "Recent Maintenance Work Performed",
+          "required": false,
+          "maxLength": 1000
+        },
+        "recommendedActions": {
+          "type": "text",
+          "label": "Recommended Maintenance Actions",
+          "required": false,
+          "maxLength": 1000
+        }
+      }
+    },
+    "inspectionDetails": {
+      "title": "Inspection Certification",
+      "required": true,
+      "fields": {
+        "inspectionDate": {
+          "type": "date",
+          "label": "Inspection Date",
+          "required": true
+        },
+        "inspectorName": {
+          "type": "text",
+          "label": "Inspector Name & Credentials",
+          "required": true
+        },
+        "inspectorSignature": {
+          "type": "signature",
+          "label": "Digital Signature",
+          "required": true
+        },
+        "overallAssessment": {
+          "type": "select",
+          "label": "Overall Turbine Health Assessment",
+          "options": ["Fully Operational", "Operational with Restrictions", "Requires Maintenance", "Out of Service"],
+          "required": true
+        }
+      }
+    }
+  },
+  "validationRules": {
+    "turbineIdFormat": "must match pattern: [A-Z]{2}-[0-9]{4}-[A-Z0-9]{6}",
+    "coordinatesRange": "latitude: -90 to 90, longitude: -180 to 180",
+    "temperatureRange": "-50 to 150°C",
+    "vibrationRange": "0 to 100 mm/s"
+  },
+  "extensibilityNotes": "Base structure supports additional field modules without modification. Future versions can include: sensor IoT data integration, AI-powered fault prediction, blockchain verification records, multi-language support, and mobile-first form variants."
+}
