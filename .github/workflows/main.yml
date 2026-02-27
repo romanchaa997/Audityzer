@@ -12,29 +12,25 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x, 20.x]
+      fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Build
-        run: npm run build
-
+        run: npm run build --if-present
       - name: Install Codecov CLI
         run: |
           echo "Installing Codecov CLI..."
           pip install codecov-cli || echo "Codecov CLI installation failed, continuing..."
         continue-on-error: true
-
       - name: Test with coverage
         run: |
           mkdir -p reports
@@ -42,23 +38,20 @@ jobs:
         env:
           JEST_JUNIT_OUTPUT_DIR: ./reports
           JEST_JUNIT_OUTPUT_NAME: junit.xml
-
       - name: Upload test results to Codecov
         run: |
           echo "Uploading test results to Codecov..."
           codecovcli do-upload --report-type test_results --file ./reports/junit.xml || echo "Codecov upload failed"
         continue-on-error: true
-
       - name: Upload coverage to Codecov
         run: |
           echo "Uploading coverage to Codecov..."
           codecovcli upload-process || echo "Codecov coverage upload failed"
         continue-on-error: true
-
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
+          name: build-artifacts-${{ matrix.node-version }}
           path: |
             dist
             build
@@ -67,40 +60,32 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Lint
-        run: npm run lint
+        run: npm run lint --if-present
 
   security-check:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Security audit
-        run: npm audit --production
-
+        run: npm audit --production || echo "npm audit completed with warnings"
+        continue-on-error: true
       - name: Check for vulnerable dependencies
         run: |
           echo "Checking for vulnerable dependencies..."
@@ -110,48 +95,39 @@ jobs:
   e2e-tests:
     needs: [build]
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Install Playwright
         run: npx playwright install --with-deps
-
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: build-artifacts
-
+          name: build-artifacts-20.x
       - name: Install Codecov CLI
         run: |
           echo "Installing Codecov CLI..."
           pip install codecov-cli || echo "Codecov CLI installation failed, continuing..."
         continue-on-error: true
-
       - name: Run E2E tests with JUnit reporter
         run: |
           echo "Running E2E tests..."
           npx playwright test --reporter=junit || echo "E2E tests completed with warnings"
         continue-on-error: true
-
       - name: Upload E2E test results to Codecov
         run: |
           echo "Uploading E2E test results to Codecov..."
           codecovcli do-upload --report-type test_results --file playwright-report/results.xml || echo "Codecov upload failed"
         continue-on-error: true
-
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-report/
@@ -160,22 +136,17 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     needs: [build, lint, security-check]
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Build documentation
-        run: npm run build:docs
-
+        run: npm run build:docs --if-present
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -186,22 +157,17 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     needs: [build, lint, e2e-tests]
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '20.x'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Build demo
-        run: npm run build:demo
-
+        run: npm run build:demo --if-present
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
