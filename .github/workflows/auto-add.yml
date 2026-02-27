@@ -1,9 +1,9 @@
 name: Auto-add issues to project
 
-# NOTE: Before using this workflow, you need to:
-# 1. Replace the project-url with your actual GitHub project URL
-# 2. Create a PAT with project permissions and store it as a repository secret named PROJECT_TOKEN
-#    OR use the alternate approach below with GITHUB_TOKEN (has limited permissions)
+# SETUP REQUIRED: Before using this workflow, set a repository variable GITHUB_PROJECT_URL
+# Go to Settings > Secrets and variables > Actions > Variables
+# Add variable: GITHUB_PROJECT_URL = https://github.com/users/romanchaa997/projects/<NUMBER>
+# Then create project at: https://github.com/users/romanchaa997/projects
 
 on:
   issues:
@@ -19,16 +19,11 @@ jobs:
   add-to-project:
     name: Add issue to project
     runs-on: ubuntu-latest
+    # Only run if project URL is configured
+    if: vars.GITHUB_PROJECT_URL != '' && vars.GITHUB_PROJECT_URL != null
     steps:
-      - uses: actions/add-to-project@v0.5.0
+      - uses: actions/add-to-project@v0.6.1
         with:
-          # Replace with your actual project URL
-          project-url: https://github.com/users/romanchaa997/projects/YOUR_PROJECT_NUMBER
-          # Option 1: Use a dedicated PAT with project permissions (preferred for org projects)
-          # github-token: ${{ secrets.PROJECT_TOKEN }}
-          # Option 2: Use the default token (works for personal projects, has limitations)
-          github-token: ${{ github.token }}
-          # Optional: Configure conditional to only add specific issues
-          # labeled-fields-as-options: true
-          # label-operator: OR
-          # label-prefix: area:
+          project-url: ${{ vars.GITHUB_PROJECT_URL }}
+          github-token: ${{ secrets.PROJECT_TOKEN || github.token }}
+        continue-on-error: true
