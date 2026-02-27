@@ -1,0 +1,269 @@
+# Kubernetes Horizontal Pod Autoscaler (HPA) Configuration
+# For Audityzer microservices: each analyzer type scales independently
+# based on queue depth (custom metrics) and CPU/memory utilization
+
+---
+# HPA for the main Audityzer API service
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: audityzer-api-hpa
+  namespace: audityzer
+  labels:
+    app: audityzer
+    component: api
+    tier: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: audityzer-api
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 60
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 120
+      selectPolicy: Min
+
+---
+# HPA for the Access Control Analyzer worker
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: audityzer-access-control-hpa
+  namespace: audityzer
+  labels:
+    app: audityzer
+    component: access-control-analyzer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: audityzer-access-control-worker
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+    # Scale based on Kafka/Redis queue depth (custom metric)
+    - type: External
+      external:
+        metric:
+          name: kafka_consumer_group_lag
+          selector:
+            matchLabels:
+              topic: audityzer-access-control-scans
+        target:
+          type: AverageValue
+          averageValue: '10'
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 200
+          periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 600
+
+---
+# HPA for the Reentrancy Analyzer worker
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: audityzer-reentrancy-hpa
+  namespace: audityzer
+  labels:
+    app: audityzer
+    component: reentrancy-analyzer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: audityzer-reentrancy-worker
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+    - type: External
+      external:
+        metric:
+          name: kafka_consumer_group_lag
+          selector:
+            matchLabels:
+              topic: audityzer-reentrancy-scans
+        target:
+          type: AverageValue
+          averageValue: '10'
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 200
+          periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 600
+
+---
+# HPA for the Logic Bug Analyzer worker
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: audityzer-logic-bugs-hpa
+  namespace: audityzer
+  labels:
+    app: audityzer
+    component: logic-bug-analyzer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: audityzer-logic-bugs-worker
+  minReplicas: 1
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+    - type: External
+      external:
+        metric:
+          name: kafka_consumer_group_lag
+          selector:
+            matchLabels:
+              topic: audityzer-logic-scans
+        target:
+          type: AverageValue
+          averageValue: '10'
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 200
+          periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 600
+
+---
+# HPA for the Anomaly Detection worker
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: audityzer-anomaly-hpa
+  namespace: audityzer
+  labels:
+    app: audityzer
+    component: anomaly-detector
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: audityzer-anomaly-worker
+  minReplicas: 2  # Always at least 2 for 24/7 real-time monitoring
+  maxReplicas: 16
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 65  # Lower threshold for real-time latency
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: External
+      external:
+        metric:
+          name: kafka_consumer_group_lag
+          selector:
+            matchLabels:
+              topic: audityzer-transaction-stream
+        target:
+          type: AverageValue
+          averageValue: '5'  # Low lag threshold for real-time
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0  # Immediate scale-up for real-time
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 30
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+
+---
+# HPA for Prometheus/Grafana monitoring stack (if running in-cluster)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: audityzer-monitoring-hpa
+  namespace: audityzer-monitoring
+  labels:
+    app: audityzer
+    component: monitoring
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: grafana
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
