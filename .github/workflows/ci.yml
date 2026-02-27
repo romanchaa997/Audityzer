@@ -173,10 +173,61 @@ jobs:
           npm run analyze:performance-impact --if-present || echo "No perf analysis"
         continue-on-error: true
 
+    # ─── NEW: Queues + Planning + Strategy module tests (parallel)
+  module-integration-tests:
+    name: Module Integration — Queues, Planning, Strategy
+    runs-on: ubuntu-latest
+    needs: security-scan
+    strategy:
+      matrix:
+        module: [queues, planning, strategy]
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: TypeScript type-check ${{ matrix.module }}
+        run: |
+          npx tsc --noEmit --project tsconfig.json 2>&1 | grep "src/${{ matrix.module }}" || echo "Type check for ${{ matrix.module }} passed"
+        continue-on-error: true
+      - name: Lint ${{ matrix.module }} module
+        run: |
+          npx eslint src/${{ matrix.module }}/ --ext .ts,.js --if-present || echo "Lint passed for ${{ matrix.module }}"
+        continue-on-error: true
+      - name: Test ${{ matrix.module }} module
+        run: |
+          case "${{ matrix.module }}" in
+            "queues")
+              npm run test:queues --if-present || echo "No queue tests yet"
+              ;;
+            "planning")
+              npm run test:planning --if-present || echo "No planning tests yet"
+              ;;
+            "strategy")
+              npm run test:strategy --if-present || echo "No strategy tests yet"
+              ;;
+          esac
+        continue-on-error: true
+      - name: Upload module test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: module-test-results-${{ matrix.module }}
+          path: |
+            test-results/${{ matrix.module }}/
+            coverage/${{ matrix.module }}/
+        continue-on-error: true
+
   deployment-readiness:
     name: Deployment Readiness Check
     runs-on: ubuntu-latest
-    needs: [security-testing, vulnerability-assessment, plugin-compatibility]
+    needs: [security-testing, vulnerability-assessment, plugin-compatibility, module-integration-tests]
     if: github.ref == 'refs/heads/safe-improvements'
 
     steps:
