@@ -220,7 +220,7 @@ jobs:
     name: Backup to S3
     runs-on: ubuntu-latest
     needs: all-checks
-    if: github.ref == 'refs/heads/main' && secrets.AWS_ACCESS_KEY_ID != ''
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
