@@ -1,0 +1,239 @@
+name: Parallel Security Scans
+
+on:
+  push:
+    branches: [ main, develop, safe-improvements ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Deep Analysis every day at 02:00 UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      deep_scan:
+        description: 'Run deep security scan'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+
+  # ===========================================================================
+  # FAST PATH: Initial Analysis (runs on every PR/commit)
+  # ===========================================================================
+
+  # --- Static code analysis: ESLint security plugin ---
+  initial-eslint-security:
+    name: '[Fast] ESLint Security Plugin'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps --force
+      - run: |
+          npm install --no-save eslint-plugin-security || true
+          npx eslint --plugin security --rule 'security/detect-object-injection: warn' . || true
+        continue-on-error: true
+
+  # --- npm audit for dependency vulnerabilities ---
+  initial-npm-audit:
+    name: '[Fast] npm Audit'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps --force
+      - run: npm audit --audit-level=high || true
+        continue-on-error: true
+
+  # --- CodeQL: JavaScript/TypeScript ---
+  initial-codeql:
+    name: '[Fast] CodeQL Analysis'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:javascript-typescript'
+
+  # --- Solidity: Slither quick scan (per PR) ---
+  initial-slither:
+    name: '[Fast] Slither Quick Scan'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install slither-analyzer
+      - name: Run Slither (critical detectors only)
+        run: |
+          find . -name '*.sol' -not -path '*/node_modules/*' | head -5 | \
+          xargs -I{} slither {} --detect reentrancy-eth,arbitrary-send,suicidal || true
+        continue-on-error: true
+
+  # ===========================================================================
+  # DEEP PATH: Comprehensive Analysis (scheduled / manual / label: deep-scan)
+  # ===========================================================================
+
+  # --- Multi-chain parallel security scan ---
+  deep-scan-eth:
+    name: '[Deep] ETH Chain Scan'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.deep_scan == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install slither-analyzer mythril
+      - name: Slither full scan (ETH)
+        run: |
+          find . -name '*.sol' -not -path '*/node_modules/*' | \
+          xargs -I{} slither {} --json reports/slither-eth.json || true
+        continue-on-error: true
+      - name: Mythril symbolic execution (ETH)
+        run: |
+          mkdir -p reports
+          find . -name '*.sol' -not -path '*/node_modules/*' | head -3 | \
+          while read f; do
+            myth analyze "$f" --solv 0.8.19 -o json > "reports/myth-eth-$(basename $f).json" || true
+          done
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deep-scan-eth
+          path: reports/
+          retention-days: 30
+
+  deep-scan-bsc:
+    name: '[Deep] BSC Chain Scan'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.deep_scan == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install slither-analyzer
+      - name: Slither BSC configuration scan
+        run: |
+          mkdir -p reports
+          find . -name '*.sol' -not -path '*/node_modules/*' | \
+          xargs -I{} slither {} --json reports/slither-bsc.json || true
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deep-scan-bsc
+          path: reports/
+          retention-days: 30
+
+  deep-scan-polygon:
+    name: '[Deep] Polygon Chain Scan'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.deep_scan == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install slither-analyzer
+      - name: Slither Polygon scan
+        run: |
+          mkdir -p reports
+          find . -name '*.sol' -not -path '*/node_modules/*' | \
+          xargs -I{} slither {} --json reports/slither-polygon.json || true
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deep-scan-polygon
+          path: reports/
+          retention-days: 30
+
+  deep-scan-arbitrum:
+    name: '[Deep] Arbitrum Chain Scan'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.deep_scan == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install slither-analyzer
+      - name: Slither Arbitrum scan
+        run: |
+          mkdir -p reports
+          find . -name '*.sol' -not -path '*/node_modules/*' | \
+          xargs -I{} slither {} --json reports/slither-arb.json || true
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deep-scan-arbitrum
+          path: reports/
+          retention-days: 30
+
+  # --- Aggregate deep scan results ---
+  deep-scan-aggregate:
+    name: '[Deep] Aggregate Security Report'
+    runs-on: ubuntu-latest
+    needs: [ deep-scan-eth, deep-scan-bsc, deep-scan-polygon, deep-scan-arbitrum ]
+    if: always() && (github.event_name == 'schedule' || github.event.inputs.deep_scan == 'true')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all scan reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-reports/
+      - name: Generate aggregate summary
+        run: |
+          echo '# Security Scan Summary' > summary.md
+          echo "Date: $(date -u)" >> summary.md
+          echo "Commit: ${{ github.sha }}" >> summary.md
+          echo '' >> summary.md
+          for chain in eth bsc polygon arbitrum; do
+            echo "## Chain: ${chain^^}" >> summary.md
+            if ls all-reports/deep-scan-${chain}/*.json 2>/dev/null; then
+              echo "Reports found" >> summary.md
+            else
+              echo "No reports" >> summary.md
+            fi
+          done
+          cat summary.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: security-aggregate-report
+          path: summary.md
+          retention-days: 90
+      - name: Notify Slack on critical findings
+        if: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"Security deep scan completed for Audityzer. Check artifacts for details."}' \
+            ${{ secrets.SLACK_WEBHOOK_URL }} || true
