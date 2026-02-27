@@ -1,0 +1,10 @@
+{
+  "domains": [
+    {"name": "audityzer.com", "api_endpoint": "api.audityzer.com", "cdn": "cdn.audityzer.com"},
+    {"name": "auditors.com", "api_endpoint": "api.audityzer.com", "cdn": "cdn.audityzer.com"},
+    {"name": "auditors.hub", "api_endpoint": "api.audityzer.com", "cdn": "cdn.audityzer.com"},
+    {"name": "auditors.web3", "api_endpoint": "api.audityzer.com", "cdn": "cdn.audityzer.com"},
+    {"name": "audityzer.web3", "api_endpoint": "api.audityzer.com", "cdn": "cdn.audityzer.com"},
+    {"name": "bbbhhai.com", "api_endpoint": "api.audityzer.com", "cdn": "cdn.audityzer.com"}
+  ]
+}
