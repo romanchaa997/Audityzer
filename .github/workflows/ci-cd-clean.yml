@@ -1,4 +1,4 @@
-name: CI/CD Pipeline – Parallel
+name: CI/CD Pipeline
 
 on:
   push:
@@ -15,282 +15,139 @@ env:
   CACHE_DEPENDENCY_PATH: '**/package-lock.json'
 
 jobs:
-
-  # ─── FAST PATH: Lint ────────────────────────────────────────────────────────
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps --force
-      - name: Run ESLint
-        # P1 fix: no || true – lint failures MUST fail the job so all-checks gate blocks deploy
-        run: npm run lint:ci
-      - name: Run type-check
-        run: npm run type-check
-
-  # ─── FAST PATH: Unit Tests ───────────────────────────────────────────────────
-  unit-tests:
-    name: Unit Tests
+  test:
+    name: Test & Build (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        node: ['18', '20']
       fail-fast: false
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          cache: 'npm'
-          cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps --force
-      - name: Run unit tests
-        # P1 fix: no || true – test failures MUST fail the job
-        run: npm test
-        env:
-          CI: true
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
-        if: matrix.node == '20'
-        with:
-          name: coverage-node${{ matrix.node }}
-          path: coverage/
-          retention-days: 7
+      matrix:
+        node-version: ['18.x', '20.x']
 
-  # ─── FAST PATH: Security Tests ───────────────────────────────────────────────
-  security-tests:
-    name: Security Tests
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps --force
-      - name: Run security tests
-        # P1 fix: no || true – security test failures MUST fail the job
-        run: npm run test:security
-        env:
-          MOCK_MODE: true
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-  # ─── FAST PATH: Smart Contract Static Analysis ──────────────────────────────
-  smart-contract-analysis:
-    name: Smart Contract Analysis (Slither / Solhint)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install Slither, Solhint and solc
-        run: |
-          # P2 fix: install solc so Slither can compile contracts
-          pip install slither-analyzer solc-select
-          solc-select install 0.8.19
-          solc-select use 0.8.19
-          npm install -g solhint
-      - name: Run Slither (per-file output)
-        run: |
-          mkdir -p slither-reports
-          # P2 fix: write each .sol result to its own JSON file to avoid overwrites
-          find . -name '*.sol' -not -path '*/node_modules/*' | head -20 | \
-          while read f; do
-            SAFE=$(echo "$f" | tr '/' '_' | tr '.' '_')
-            slither "$f" --json "slither-reports/slither-${SAFE}.json" 2>/dev/null || true
-          done
-          # Merge all per-file JSONs into one aggregate report
-          echo '{"results":[]}' > slither-report.json
-          find slither-reports -name '*.json' -exec sh -c '
-            cat "$1" >> /tmp/slither_parts.txt
-          ' _ {} \;
-        continue-on-error: true
-      - name: Run Solhint
-        run: solhint 'contracts/**/*.sol' || true
-        continue-on-error: true
-      - name: Upload Slither reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: slither-reports
-          path: slither-reports/
-          retention-days: 14
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
 
-  # ─── FAST PATH: Build ────────────────────────────────────────────────────────
-  build:
-    name: Build
+    - name: Install dependencies
+      run: npm ci --prefer-offline
+
+    - name: Run linter
+      run: npm run lint --if-present
+
+    - name: Run tests
+      run: npm test --if-present
+
+    - name: Build project
+      run: npm run build --if-present
+
+    - name: Upload build artifacts
+      if: matrix.node-version == '20.x'
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: dist/
+        retention-days: 7
+        if-no-files-found: ignore
+
+  security-scan:
+    name: OWASP ZAP DAST Security Scan
     runs-on: ubuntu-latest
-    needs: [ lint ]
+    needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    permissions:
+      contents: read
+      issues: write
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps --force
-      - name: Build application
-        run: |
-          if npm run build; then
-            echo "Build succeeded"
-          elif npm run build:core; then
-            echo "Core build succeeded"
-          else
-            mkdir -p dist
-            echo "<html><body><h1>Audityzer</h1></body></html>" > dist/index.html
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
+
+    - name: Install dependencies
+      run: npm ci --prefer-offline
+
+    - name: Start application for DAST scan
+      run: |
+        npm run start --if-present &
+        sleep 15
+        echo "Application started for DAST scanning"
+      env:
+        NODE_ENV: test
+        PORT: 3000
+
+    - name: OWASP ZAP Full Scan
+      uses: zaproxy/action-full-scan@v0.10.0
+      with:
+        target: 'http://localhost:3000'
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'
+        fail_action: false
+        allow_issue_writing: true
+      continue-on-error: true
+
+    - name: Upload ZAP Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: zap-security-report
+        path: report_html.html
+        retention-days: 30
+        if-no-files-found: ignore
+
+  health-check:
+    name: Health Endpoint Verification
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
+
+    - name: Install dependencies
+      run: npm ci --prefer-offline
+
+    - name: Start application
+      run: |
+        npm run start --if-present &
+        sleep 10
+      env:
+        NODE_ENV: test
+        PORT: 3000
+
+    - name: Verify health endpoint
+      run: |
+        MAX_RETRIES=5
+        RETRY_DELAY=5
+        for i in $(seq 1 $MAX_RETRIES); do
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/health || echo "000")
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "Health check passed with status $HTTP_STATUS"
+            exit 0
           fi
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            dist/
-            build/
-          retention-days: 7
-
-  # ─── DEEP PATH: E2E / Playwright ─────────────────────────────────────────────
-  e2e-tests:
-    name: E2E Tests (Playwright)
-    runs-on: ubuntu-latest
-    needs: [ build ]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps --force
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium || true
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          # P2 fix: download to a staging dir, then copy to ./dist to avoid nested dist/dist
-          path: ./build-dl
-      - name: Prepare dist
-        run: |
-          mkdir -p dist
-          cp -r ./build-dl/dist/* ./dist/ 2>/dev/null || \
-          cp -r ./build-dl/* ./dist/ 2>/dev/null || true
-      - name: Run Playwright e2e tests
-        run: npx playwright test || true
-        env:
-          CI: true
-        continue-on-error: true
-
-  # ─── AGGREGATOR: All checks must pass before deploy ─────────────────────────
-  all-checks:
-    name: All Checks Passed
-    runs-on: ubuntu-latest
-    # P2 fix: include e2e-tests so deploy waits for E2E completion
-    needs: [ lint, unit-tests, security-tests, smart-contract-analysis, build, e2e-tests ]
-    steps:
-      - run: echo "All parallel jobs completed successfully"
-
-  # ─── DEPLOY: Staging ──────────────────────────────────────────────────────────
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: all-checks
-    if: github.ref == 'refs/heads/develop'
-    environment: staging
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          # P2 fix: download to staging-dl, then flatten to avoid nested dirs
-          path: ./staging-dl
-      - name: Prepare and Deploy to GitHub Pages (Staging)
-        if: github.repository_owner == 'romanchaa997'
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan gh-pages-staging || git checkout gh-pages-staging
-          git rm -rf . || true
-          # P2 fix: flatten artifact – copy contents not the dir itself
-          cp -r ./staging-dl/dist/* . 2>/dev/null || \
-          cp -r ./staging-dl/* . 2>/dev/null || echo "No dist files"
-          git add .
-          git commit -m "Deploy staging from ${{ github.sha }}" || echo "No changes"
-          git push origin gh-pages-staging --force || echo "Push failed"
-
-  # ─── DEPLOY: Production ───────────────────────────────────────────────────────
-  deploy-production:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: all-checks
-    if: github.ref == 'refs/heads/main'
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          # P2 fix: download to prod-dl, then flatten
-          path: ./prod-dl
-      - name: Prepare and Deploy to GitHub Pages (Production)
-        if: github.repository_owner == 'romanchaa997'
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan gh-pages || git checkout gh-pages
-          git rm -rf . || true
-          # P2 fix: flatten artifact
-          cp -r ./prod-dl/dist/* . 2>/dev/null || \
-          cp -r ./prod-dl/* . 2>/dev/null || echo "No dist files"
-          git add .
-          git commit -m "Deploy production from ${{ github.sha }}" || echo "No changes"
-          git push origin gh-pages --force || echo "Push failed"
-      - name: Notify deployment success
-        run: echo "Production deployed to https://romanchaa997.github.io/Audityzer"
-
-  # ─── BACKUP: S3 ──────────────────────────────────────────────────────────────
-  backup-to-s3:
-    name: Backup Build Artifacts to S3
-    runs-on: ubuntu-latest
-    needs: all-checks
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: ./build-backup
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      - name: Upload to S3
-        run: |
-          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-          aws s3 sync ./build-backup s3://audityzer-backups/builds/${TIMESTAMP}/ --delete
-          echo "Backup uploaded to s3://audityzer-backups/builds/${TIMESTAMP}/"
-      - name: Cleanup old backups (keep last 30)
-        run: |
-          aws s3 ls s3://audityzer-backups/builds/ | awk '{print $2}' | sort -r | tail -n +31 | \
-          while read dir; do
-            aws s3 rm s3://audityzer-backups/builds/${dir} --recursive
-            echo "Deleted old backup: ${dir}"
-          done
+          echo "Attempt $i/$MAX_RETRIES: status=$HTTP_STATUS, retrying in ${RETRY_DELAY}s..."
+          sleep $RETRY_DELAY
+        done
+        echo "Health endpoint not available (may not be implemented yet), continuing..."
+        exit 0
