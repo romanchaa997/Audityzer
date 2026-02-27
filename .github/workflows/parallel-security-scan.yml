@@ -1,5 +1,4 @@
 name: Parallel Security Scans
-
 on:
   push:
     branches: [ main, develop, safe-improvements ]
@@ -14,20 +13,15 @@ on:
         description: 'Run deep security scan'
         type: boolean
         default: false
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 env:
   NODE_VERSION: '20'
-
 jobs:
-
   # ===========================================================================
   # FAST PATH: Initial Analysis (runs on every PR/commit)
   # ===========================================================================
-
   # --- Static code analysis: ESLint security plugin ---
   initial-eslint-security:
     name: '[Fast] ESLint Security Plugin'
@@ -43,7 +37,6 @@ jobs:
           npm install --no-save eslint-plugin-security || true
           npx eslint --plugin security --rule 'security/detect-object-injection: warn' . || true
         continue-on-error: true
-
   # --- npm audit for dependency vulnerabilities ---
   initial-npm-audit:
     name: '[Fast] npm Audit'
@@ -57,7 +50,6 @@ jobs:
       - run: npm ci --legacy-peer-deps --force
       - run: npm audit --audit-level=high || true
         continue-on-error: true
-
   # --- CodeQL: JavaScript/TypeScript ---
   initial-codeql:
     name: '[Fast] CodeQL Analysis'
@@ -78,7 +70,6 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: '/language:javascript-typescript'
-
   # --- Solidity: Slither quick scan (per PR) ---
   initial-slither:
     name: '[Fast] Slither Quick Scan'
@@ -88,17 +79,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install slither-analyzer
+      - run: |
+          # P4 fix: install solc so Slither can compile contracts
+          pip install slither-analyzer solc-select
+          solc-select install 0.8.19 && solc-select use 0.8.19 || true
       - name: Run Slither (critical detectors only)
         run: |
           find . -name '*.sol' -not -path '*/node_modules/*' | head -5 | \
-          xargs -I{} slither {} --detect reentrancy-eth,arbitrary-send,suicidal || true
+          while read f; do
+            slither "$f" --detect reentrancy-eth,arbitrary-send,suicidal || true
+          done
         continue-on-error: true
-
   # ===========================================================================
   # DEEP PATH: Comprehensive Analysis (scheduled / manual / label: deep-scan)
   # ===========================================================================
-
   # --- Multi-chain parallel security scan ---
   deep-scan-eth:
     name: '[Deep] ETH Chain Scan'
@@ -109,11 +103,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install slither-analyzer mythril
+      - run: |
+          # P4 fix: install solc so Slither/Mythril can compile contracts
+          pip install slither-analyzer mythril solc-select
+          solc-select install 0.8.19 && solc-select use 0.8.19 || true
       - name: Slither full scan (ETH)
         run: |
+          mkdir -p reports
+          # P4 fix: write per-file JSON to avoid overwrites
           find . -name '*.sol' -not -path '*/node_modules/*' | \
-          xargs -I{} slither {} --json reports/slither-eth.json || true
+          while read f; do
+            SAFE=$(echo "$f" | tr '/' '_' | tr '.' '_')
+            slither "$f" --json "reports/slither-eth-${SAFE}.json" || true
+          done
         continue-on-error: true
       - name: Mythril symbolic execution (ETH)
         run: |
@@ -129,7 +131,6 @@ jobs:
           name: deep-scan-eth
           path: reports/
           retention-days: 30
-
   deep-scan-bsc:
     name: '[Deep] BSC Chain Scan'
     runs-on: ubuntu-latest
@@ -139,12 +140,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install slither-analyzer
+      - run: |
+          # P4 fix: install solc so Slither can compile contracts
+          pip install slither-analyzer solc-select
+          solc-select install 0.8.19 && solc-select use 0.8.19 || true
       - name: Slither BSC configuration scan
         run: |
           mkdir -p reports
+          # P4 fix: write per-file JSON to avoid overwrites
           find . -name '*.sol' -not -path '*/node_modules/*' | \
-          xargs -I{} slither {} --json reports/slither-bsc.json || true
+          while read f; do
+            SAFE=$(echo "$f" | tr '/' '_' | tr '.' '_')
+            slither "$f" --json "reports/slither-bsc-${SAFE}.json" || true
+          done
         continue-on-error: true
       - uses: actions/upload-artifact@v4
         if: always()
@@ -152,7 +160,6 @@ jobs:
           name: deep-scan-bsc
           path: reports/
           retention-days: 30
-
   deep-scan-polygon:
     name: '[Deep] Polygon Chain Scan'
     runs-on: ubuntu-latest
@@ -162,12 +169,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install slither-analyzer
+      - run: |
+          # P4 fix: install solc so Slither can compile contracts
+          pip install slither-analyzer solc-select
+          solc-select install 0.8.19 && solc-select use 0.8.19 || true
       - name: Slither Polygon scan
         run: |
           mkdir -p reports
+          # P4 fix: write per-file JSON to avoid overwrites
           find . -name '*.sol' -not -path '*/node_modules/*' | \
-          xargs -I{} slither {} --json reports/slither-polygon.json || true
+          while read f; do
+            SAFE=$(echo "$f" | tr '/' '_' | tr '.' '_')
+            slither "$f" --json "reports/slither-polygon-${SAFE}.json" || true
+          done
         continue-on-error: true
       - uses: actions/upload-artifact@v4
         if: always()
@@ -175,7 +189,6 @@ jobs:
           name: deep-scan-polygon
           path: reports/
           retention-days: 30
-
   deep-scan-arbitrum:
     name: '[Deep] Arbitrum Chain Scan'
     runs-on: ubuntu-latest
@@ -185,12 +198,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install slither-analyzer
+      - run: |
+          # P4 fix: install solc so Slither can compile contracts
+          pip install slither-analyzer solc-select
+          solc-select install 0.8.19 && solc-select use 0.8.19 || true
       - name: Slither Arbitrum scan
         run: |
           mkdir -p reports
+          # P4 fix: write per-file JSON to avoid overwrites
           find . -name '*.sol' -not -path '*/node_modules/*' | \
-          xargs -I{} slither {} --json reports/slither-arb.json || true
+          while read f; do
+            SAFE=$(echo "$f" | tr '/' '_' | tr '.' '_')
+            slither "$f" --json "reports/slither-arb-${SAFE}.json" || true
+          done
         continue-on-error: true
       - uses: actions/upload-artifact@v4
         if: always()
@@ -198,13 +218,15 @@ jobs:
           name: deep-scan-arbitrum
           path: reports/
           retention-days: 30
-
   # --- Aggregate deep scan results ---
   deep-scan-aggregate:
     name: '[Deep] Aggregate Security Report'
     runs-on: ubuntu-latest
     needs: [ deep-scan-eth, deep-scan-bsc, deep-scan-polygon, deep-scan-arbitrum ]
     if: always() && (github.event_name == 'schedule' || github.event.inputs.deep_scan == 'true')
+    # P4 fix: map secret to env var so it can be used in if-conditional
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
     steps:
       - uses: actions/checkout@v4
       - name: Download all scan reports
@@ -232,8 +254,9 @@ jobs:
           path: summary.md
           retention-days: 90
       - name: Notify Slack on critical findings
-        if: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # P4 fix: check env var (mapped from secret) instead of secret directly
+        if: env.SLACK_WEBHOOK_URL != ''
         run: |
           curl -X POST -H 'Content-type: application/json' \
             --data '{"text":"Security deep scan completed for Audityzer. Check artifacts for details."}' \
-            ${{ secrets.SLACK_WEBHOOK_URL }} || true
+            "${SLACK_WEBHOOK_URL}" || true
