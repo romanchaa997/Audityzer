@@ -1,0 +1,105 @@
+# Dependabot configuration for Audityzer
+# Enables Advanced Security: automatic dependency updates,
+# vulnerability alerts, and security patches
+
+version: 2
+updates:
+
+  # --- npm / Node.js dependencies ---
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '08:00'
+      timezone: 'Europe/Kiev'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'romanchaa997'
+    assignees:
+      - 'romanchaa997'
+    labels:
+      - 'dependencies'
+      - 'npm'
+      - 'automated'
+    commit-message:
+      prefix: 'chore'
+      prefix-development: 'chore'
+      include: 'scope'
+    # Group minor/patch updates to reduce PR noise
+    groups:
+      development-dependencies:
+        dependency-type: 'development'
+        update-types:
+          - 'minor'
+          - 'patch'
+      production-dependencies:
+        dependency-type: 'production'
+        update-types:
+          - 'minor'
+          - 'patch'
+    ignore:
+      # Ignore major updates for critical packages (require manual review)
+      - dependency-name: 'ethers'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'hardhat'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@openzeppelin/*'
+        update-types: ['version-update:semver-major']
+
+  # --- GitHub Actions ---
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '08:00'
+      timezone: 'Europe/Kiev'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'romanchaa997'
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+      - 'automated'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
+
+  # --- Python dependencies (for Slither, Mythril, etc.) ---
+  - package-ecosystem: 'pip'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'tuesday'
+      time: '08:00'
+      timezone: 'Europe/Kiev'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'romanchaa997'
+    labels:
+      - 'dependencies'
+      - 'python'
+      - 'automated'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+
+  # --- Docker images ---
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'wednesday'
+      time: '08:00'
+      timezone: 'Europe/Kiev'
+    open-pull-requests-limit: 3
+    reviewers:
+      - 'romanchaa997'
+    labels:
+      - 'dependencies'
+      - 'docker'
+      - 'automated'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
