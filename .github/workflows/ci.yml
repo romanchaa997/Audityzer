@@ -25,7 +25,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Run SAST Security Scan
         uses: github/super-linter@v6
         env:
@@ -78,7 +78,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install dependencies
         run: |
-          npm ci
+          npm install
           pip install -r requirements-security.txt || echo "No requirements-security.txt found"
         continue-on-error: true
       - name: Run Security Tests
@@ -154,7 +154,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Test Plugin Framework Compatibility
         run: |
           npm run test:plugin-framework --if-present || echo "No plugin framework tests"
@@ -191,7 +191,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: TypeScript type-check ${{ matrix.module }}
         run: |
           npx tsc --noEmit --project tsconfig.json 2>&1 | grep "src/${{ matrix.module }}" || echo "Type check for ${{ matrix.module }} passed"
@@ -239,7 +239,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Build Security Platform
         run: |
           npm run build:production --if-present || npm run build --if-present || echo "No build script"
