@@ -35,7 +35,7 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: |
-          npm ci --legacy-peer-deps --force
+          npm install --legacy-peer-deps --force
           # P3 fix: install solc so Slither can compile contracts
           pip install slither-analyzer solc-select openai || true
           solc-select install 0.8.19 && solc-select use 0.8.19 || true
@@ -123,7 +123,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install tools
         run: |
-          npm ci --legacy-peer-deps --force
+          npm install --legacy-peer-deps --force
           # P3 fix: install solc so Slither can compile contracts
           pip install slither-analyzer solc-select
           solc-select install 0.8.19 && solc-select use 0.8.19 || true
@@ -162,7 +162,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps --force
+        run: npm install --legacy-peer-deps --force
       - name: Run Anomaly Detection
         run: |
           mkdir -p ai-reports
