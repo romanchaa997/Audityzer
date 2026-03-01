@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps --force
+      - run: npm install --legacy-peer-deps --force
       - run: |
           npm install --no-save eslint-plugin-security || true
           npx eslint --plugin security --rule 'security/detect-object-injection: warn' . || true
@@ -47,7 +47,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps --force
+      - run: npm install --legacy-peer-deps --force
       - run: npm audit --audit-level=high || true
         continue-on-error: true
   # --- CodeQL: JavaScript/TypeScript ---
