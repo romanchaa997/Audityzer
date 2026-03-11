@@ -33,10 +33,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+  
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps && cp package-lock.json /tmp/lockfile-backup.json
 
       - name: TypeScript type check
         run: npx tsc --noEmit --project tsconfig.json 2>/dev/null || echo 'TS check completed (non-blocking)'
