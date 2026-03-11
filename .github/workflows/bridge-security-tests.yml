@@ -34,6 +34,12 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Refresh package-lock.json
+        # Regenerate lockfile so npm ci does not fail on stale lockfile entries
+        # (e.g. @jridgewell/sourcemap-codec version mismatch).
+        # Remove this step once package-lock.json is committed after a local `npm install`.
+        run: npm install --package-lock-only --ignore-scripts
+
       - name: Install dependencies
         run: npm ci
 
@@ -93,6 +99,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Refresh package-lock.json
+        run: npm install --package-lock-only --ignore-scripts
 
       - name: Install dependencies
         run: npm ci
@@ -189,6 +198,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Refresh package-lock.json
+        run: npm install --package-lock-only --ignore-scripts
 
       - name: Install dependencies
         run: npm ci
