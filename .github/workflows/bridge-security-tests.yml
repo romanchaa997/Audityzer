@@ -24,24 +24,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       - name: Run bridge security tests
         run: npm run test:bridge
         env:
           NODE_ENV: test
-          TEST_BRIDGE_TIMEOUT: 60000
+          TEST_BRIDGE_TIMEOUT: 30000
+          CI: true
 
       - name: Generate test report
         if: always()
@@ -56,13 +60,19 @@ jobs:
             playwright-report/
             reports/
             test-results/
+          if-no-files-found: warn
 
       - name: Check for critical vulnerabilities
+        if: always()
         run: |
-          export CRITICAL_COUNT=$(grep -c "severity.*critical" reports/bridge-security-summary.json || echo "0")
-          if [ "$CRITICAL_COUNT" -gt "0" ]; then
-            echo "::error::Found $CRITICAL_COUNT critical bridge vulnerabilities!"
-            exit 1
+          if [ -f reports/bridge-security-summary.json ]; then
+            export CRITICAL_COUNT=$(grep -c '"severity".*"critical"' reports/bridge-security-summary.json || echo "0")
+            if [ "$CRITICAL_COUNT" -gt "0" ]; then
+              echo "::error::Found $CRITICAL_COUNT critical bridge vulnerabilities!"
+              exit 1
+            fi
+          else
+            echo "No summary file found, skipping vulnerability check"
           fi
 
   visualize:
@@ -74,11 +84,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -89,6 +102,7 @@ jobs:
         with:
           name: bridge-test-results
           path: downloaded-results
+        continue-on-error: true
 
       - name: Process visualization data
         run: node src/web-ui/process-visualization-data.js
@@ -101,12 +115,13 @@ jobs:
         with:
           name: bridge-security-visualizations
           path: visualization/
+          if-no-files-found: warn
 
   notify:
     name: Send Notifications
     needs: [test, visualize]
     runs-on: ubuntu-latest
-    if: always() && (github.repository == 'yourusername/Audityzer' || github.repository == 'yourusername/Audityzer')
+    if: always() && (github.repository == 'rigoryanych/Audityzer')
 
     steps:
       - name: Checkout code
@@ -117,27 +132,28 @@ jobs:
         with:
           name: bridge-test-results
           path: downloaded-results
+        continue-on-error: true
 
       - name: Check for vulnerabilities
         id: check-vulnerabilities
         run: |
-          export VULN_COUNT=$(grep -c '"vulnerabilitiesFound": true' downloaded-results/reports/*.json || echo "0")
+          export VULN_COUNT=$(grep -rl '"vulnerabilitiesFound": true' downloaded-results/reports/ 2>/dev/null | wc -l || echo "0")
           echo "vulnerability_count=$VULN_COUNT" >> $GITHUB_OUTPUT
 
       - name: Create GitHub issue for vulnerabilities
         if: steps.check-vulnerabilities.outputs.vulnerability_count != '0'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
           script: |
             const fs = require('fs');
             const vulnCount = "${{ steps.check-vulnerabilities.outputs.vulnerability_count }}";
 
-            // Read the summary file
             const summaryFile = 'downloaded-results/reports/bridge-security-summary.json';
-            const summary = JSON.parse(fs.readFileSync(summaryFile, 'utf8'));
+            const summary = fs.existsSync(summaryFile)
+              ? JSON.parse(fs.readFileSync(summaryFile, 'utf8'))
+              : { criticalCount: 0, highCount: 0, mediumCount: 0, lowCount: 0 };
 
-            // Create issue content
             let issueBody = `## Bridge Security Vulnerabilities Detected\n\n`;
             issueBody += `**Total vulnerabilities:** ${vulnCount}\n\n`;
             issueBody += `### Severity Breakdown\n`;
@@ -147,11 +163,10 @@ jobs:
             issueBody += `- Low: ${summary.lowCount || 0}\n\n`;
             issueBody += `Please check the [detailed report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}) for more information.`;
 
-            // Create the issue
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `🚨 Bridge Security Alert: ${vulnCount} vulnerabilities detected`,
+              title: `Bridge Security Alert: ${vulnCount} vulnerabilities detected`,
               body: issueBody,
               labels: ['security', 'bridge', 'vulnerability']
             });
@@ -165,11 +180,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -179,16 +197,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: downloaded-artifacts
+        continue-on-error: true
 
       - name: Prepare dashboard files
         run: |
           mkdir -p dashboard/data
-          cp -r downloaded-artifacts/bridge-test-results/reports/* dashboard/data/
-          cp -r downloaded-artifacts/bridge-security-visualizations/* dashboard/
-          cp -r src/web-ui/templates/* dashboard/
-          cp -r src/web-ui/assets/* dashboard/
+          [ -d downloaded-artifacts/bridge-test-results/reports ] && cp -r downloaded-artifacts/bridge-test-results/reports/* dashboard/data/ || true
+          [ -d downloaded-artifacts/bridge-security-visualizations ] && cp -r downloaded-artifacts/bridge-security-visualizations/* dashboard/ || true
+          [ -d src/web-ui/templates ] && cp -r src/web-ui/templates/* dashboard/ || true
+          [ -d src/web-ui/assets ] && cp -r src/web-ui/assets/* dashboard/ || true
 
-      # Deploy to GitHub Pages or your preferred hosting
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
