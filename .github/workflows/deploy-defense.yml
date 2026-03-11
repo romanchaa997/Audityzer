@@ -99,7 +99,7 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           railway up \
-            --service auditorsec-defense \
+            --service ${{ secrets.RAILWAY_SERVICE_ID }} \
             --detach
           echo "Deployed: $(date -u)" >> deployment.log
           echo "Branch: ${{ github.ref_name }}" >> deployment.log
