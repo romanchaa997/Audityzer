@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'auditorSEC-brave1'
+    environment: 'production'
+
+scrape_configs:
+  - job_name: 'audityzer'
+    static_configs:
+      - targets: ['audityzer.railway.internal:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'brave1-kpis'
+    static_configs:
+      - targets: ['audityzer.railway.internal:8080']
+    metrics_path: '/brave1/metrics'
+    params:
+      format: ['prometheus']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'bbbhhai-prod'
