@@ -1,0 +1,7 @@
+supplier,unitPrice,benchmarkPrice,registeredMonths,contractValue,supplierCount,soleSourceJustification,sanctionedCountry,intermediaryCount,lastMileRegisteredMonths,pepUboOverlap,repeatOverpricingCount,prepaymentPercent,deliveryWeeks,missingContractId,quantityMismatch,inBreachDump,weakTLS,onchainMixerDetected,smallContractCount,sameSupplierSameMonth,intermediaryMarginPercent,valueAdded,hasWebsite,physicalAddressVerified,statutoryCapital,mediumFindingCount,criticalFindingCount
+DroneCorpUA,10000,9500,36,2000000,3,false,false,1,24,false,0,30,4,false,false,false,false,false,0,false,10,true,true,true,500000,0,0
+ShellDrone_Ltd,25000,9500,3,800000,1,false,false,3,4,false,2,80,12,true,true,true,true,false,4,true,45,false,false,false,5000,3,1
+GoodTech_Systems,12000,11000,48,3500000,4,false,false,1,36,false,0,20,3,false,false,false,false,false,0,false,8,true,true,true,1000000,0,0
+FastSupply_2025,22000,9500,8,550000,1,false,false,2,6,true,1,70,10,false,true,false,false,false,3,true,38,false,true,false,15000,2,1
+UkrDroneTech,9800,9500,60,5000000,5,false,false,1,48,false,0,25,4,false,false,false,false,false,0,false,5,true,true,true,2000000,0,0
+MixedSignals_EW,18000,9500,14,1200000,2,false,false,2,10,false,1,50,6,true,false,true,false,true,2,false,25,false,true,true,50000,1,1
