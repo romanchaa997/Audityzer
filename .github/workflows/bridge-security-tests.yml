@@ -27,6 +27,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+          submodules: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -72,10 +73,13 @@ jobs:
         if: always()
         run: |
           if [ -f reports/bridge-security-summary.json ]; then
-            export CRITICAL_COUNT=$(grep -c '"severity".*"critical"' reports/bridge-security-summary.json || echo "0")
-            if [ "$CRITICAL_COUNT" -gt "0" ]; then
+            CRITICAL_COUNT=$(python3 -c "import json,sys; d=json.load(open('reports/bridge-security-summary.json')); print(d.get('criticalCount', 0))" 2>/dev/null || echo "0")
+            CRITICAL_COUNT=$(echo "$CRITICAL_COUNT" | tr -d '[:space:]')
+            if [ "${CRITICAL_COUNT:-0}" != "0" ] && [ "${CRITICAL_COUNT:-0}" -gt 0 ] 2>/dev/null; then
               echo "::error::Found $CRITICAL_COUNT critical bridge vulnerabilities!"
               exit 1
+            else
+              echo "No critical vulnerabilities found (criticalCount=$CRITICAL_COUNT)"
             fi
           else
             echo "No summary file found, skipping vulnerability check"
@@ -93,6 +97,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+          submodules: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -135,6 +140,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: false
 
       - name: Download test results
         uses: actions/download-artifact@v4
@@ -192,6 +199,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+          submodules: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
