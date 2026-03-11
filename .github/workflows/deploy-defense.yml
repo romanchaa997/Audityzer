@@ -36,7 +36,7 @@ jobs:
   
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps && cp package-lock.json /tmp/lockfile-backup.json
+        run: |           npm install --legacy-peer-deps           git config user.name 'github-actions[bot]'           git config user.email 'github-actions[bot]@users.noreply.github.com'           git add package-lock.json           git diff --staged --quiet || git commit -m 'ci: regenerate package-lock.json [skip ci]'           git push origin defense-audit || true
 
       - name: TypeScript type check
         run: npx tsc --noEmit --project tsconfig.json 2>/dev/null || echo 'TS check completed (non-blocking)'
