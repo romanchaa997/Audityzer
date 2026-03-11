@@ -2,9 +2,7 @@
 # Triggers on push to defense-audit branch
 # Builds Docker image, pushes to GHCR, deploys to Railway
 # BRAVE1 grant compliance: audit trail via GitHub Actions logs
-
 name: Deploy AuditorSEC Defense to Railway
-
 on:
   push:
     branches:
@@ -15,32 +13,36 @@ on:
         description: 'Deployment environment'
         required: false
         default: 'production'
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: romanchaa997/auditorsec-defense
   NODE_VERSION: '20'
-
 jobs:
   # ---- JOB 1: Lint & Type-check ----
   typecheck:
     name: TypeScript Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-  
-
       - name: Install dependencies
-        run: |           npm install --legacy-peer-deps           git config user.name 'github-actions[bot]'           git config user.email 'github-actions[bot]@users.noreply.github.com'           git add package-lock.json           git diff --staged --quiet || git commit -m 'ci: regenerate package-lock.json [skip ci]'           git push origin defense-audit || true
-
+        run: npm install --legacy-peer-deps
+      - name: Commit package-lock.json if generated
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json || true
+          git diff --staged --quiet || git commit -m 'ci: regenerate package-lock.json [skip ci]'
+          git push origin defense-audit || true
       - name: TypeScript type check
         run: npx tsc --noEmit --project tsconfig.json 2>/dev/null || echo 'TS check completed (non-blocking)'
-
   # ---- JOB 2: Build & Push Docker image ----
   build-and-push:
     name: Build & Push to GHCR
@@ -49,17 +51,14 @@ jobs:
     permissions:
       contents: read
       packages: write
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -69,7 +68,6 @@ jobs:
             type=ref,event=branch
             type=sha,prefix=sha-
             type=raw,value=latest,enable={{is_default_branch}}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -80,20 +78,16 @@ jobs:
           build-args: |
             BRAVE1_ENV=production
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
-
   # ---- JOB 3: Deploy to Railway ----
   deploy:
     name: Deploy to Railway
     runs-on: ubuntu-latest
     needs: build-and-push
     environment: production
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
@@ -104,12 +98,10 @@ jobs:
           echo "Deployed: $(date -u)" >> deployment.log
           echo "Branch: ${{ github.ref_name }}" >> deployment.log
           echo "Commit: ${{ github.sha }}" >> deployment.log
-
       - name: Health check
         run: |
           sleep 15
           curl -f ${{ secrets.RAILWAY_HEALTH_URL }}/health || echo 'Health check pending (service starting)'
-
       - name: Upload deployment log (audit trail)
         uses: actions/upload-artifact@v4
         if: always()
@@ -117,20 +109,17 @@ jobs:
           name: deployment-log-${{ github.sha }}
           path: deployment.log
           retention-days: 90
-
   # ---- JOB 4: Post-deploy Prometheus metrics check ----
   metrics-check:
     name: Prometheus Metrics Validation
     runs-on: ubuntu-latest
     needs: deploy
     if: success()
-
     steps:
       - name: Check /metrics endpoint
         run: |
           sleep 20
           curl -s ${{ secrets.RAILWAY_HEALTH_URL }}/metrics | grep 'audit_duration_seconds' || echo 'Metrics endpoint pending'
-
       - name: Notify ClickUp task (BRAVE1 KPI update)
         if: success()
         run: |
