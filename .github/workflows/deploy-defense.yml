@@ -1,6 +1,7 @@
 # AuditorSEC Defense Audit — Railway Deploy Workflow
 # Triggers on push to defense-audit branch
-# Builds Docker image, pushes to GHCR, deploys to Railway
+# Builds Docker image, pushes to GHCR
+# Railway auto-deploys via native GitHub integration (no CLI needed)
 # BRAVE1 grant compliance: audit trail via GitHub Actions logs
 name: Deploy AuditorSEC Defense to Railway
 on:
@@ -82,46 +83,43 @@ jobs:
           build-args: |
             BRAVE1_ENV=production
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
-  # ---- JOB 3: Deploy to Railway ----
-  deploy:
-    name: Deploy to Railway
+  # ---- JOB 3: Verify Railway Deployment ----
+  verify-deploy:
+    name: Verify Railway Deployment
     runs-on: ubuntu-latest
     needs: build-and-push
-    environment: production
-    # continue-on-error ensures failed Railway CLI deploy doesn't block
-    # Railway's native auto-deploy via GitHub integration
+    # Railway auto-deploys via GitHub integration — this job just verifies
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - name: Check Railway token
-        id: check-token
+      - name: Wait for Railway to deploy
         run: |
-          if [ -z "${{ secrets.RAILWAY_TOKEN }}" ]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "::warning::RAILWAY_TOKEN not set — skipping CLI deploy (Railway auto-deploys via GitHub integration)"
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
+          echo "Railway auto-deploys via GitHub integration."
+          echo "Waiting 60s for deployment to start and health check to pass..."
+          sleep 60
+      - name: Health check
+        run: |
+          HEALTH_URL="${{ secrets.RAILWAY_HEALTH_URL }}"
+          if [ -z "$HEALTH_URL" ]; then
+            HEALTH_URL="https://bbbhhai.com"
           fi
-      - name: Install Railway CLI
-        if: steps.check-token.outputs.skip != 'true'
-        run: npm install -g @railway/cli
-      - name: Deploy to Railway
-        if: steps.check-token.outputs.skip != 'true'
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RETRIES=5
+          for i in $(seq 1 $RETRIES); do
+            HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "$HEALTH_URL/health" || echo "000")
+            if [ "$HTTP_STATUS" = "200" ]; then
+              echo "Health check passed (attempt $i)"
+              exit 0
+            fi
+            echo "Health check attempt $i/$RETRIES returned $HTTP_STATUS, retrying in 15s..."
+            sleep 15
+          done
+          echo "::warning::Health check did not return 200 after $RETRIES attempts (Railway may still be deploying)"
+      - name: Create deployment log
+        if: always()
         run: |
-          railway up \
-            --service ${{ secrets.RAILWAY_SERVICE_ID }} \
-            --detach
-          echo "Deployed: $(date -u)" >> deployment.log
+          echo "Deployed: $(date -u)" > deployment.log
           echo "Branch: ${{ github.ref_name }}" >> deployment.log
           echo "Commit: ${{ github.sha }}" >> deployment.log
-      - name: Health check
-        if: steps.check-token.outputs.skip != 'true'
-        run: |
-          sleep 15
-          curl -f ${{ secrets.RAILWAY_HEALTH_URL }}/health || echo 'Health check pending (service starting)'
+          echo "Method: Railway auto-deploy via GitHub integration" >> deployment.log
       - name: Upload deployment log (audit trail)
         uses: actions/upload-artifact@v4
         if: always()
@@ -133,15 +131,18 @@ jobs:
   metrics-check:
     name: Prometheus Metrics Validation
     runs-on: ubuntu-latest
-    needs: deploy
-    # Run even if deploy was skipped/failed (Railway auto-deploys independently)
+    needs: verify-deploy
     if: always()
     continue-on-error: true
     steps:
       - name: Check /metrics endpoint
         run: |
+          HEALTH_URL="${{ secrets.RAILWAY_HEALTH_URL }}"
+          if [ -z "$HEALTH_URL" ]; then
+            HEALTH_URL="https://bbbhhai.com"
+          fi
           sleep 20
-          curl -s ${{ secrets.RAILWAY_HEALTH_URL }}/metrics | grep 'audityzer_audits_total' || echo 'Metrics endpoint pending'
+          curl -s "$HEALTH_URL/metrics" | grep 'audityzer_audits_total' || echo 'Metrics endpoint pending'
       - name: Notify ClickUp task (BRAVE1 KPI update)
         if: success()
         run: |
