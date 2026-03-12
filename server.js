@@ -8,9 +8,14 @@
  * - /api/status for platform status
  */
 
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
+import express from 'express';
+import path from 'path';
+import cors from 'cors';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -205,7 +210,6 @@ app.get('/api/rules', (req, res) => {
 // Try dist/ first (Vite build output), fall back to public/
 const distPath = path.join(__dirname, 'dist');
 const publicPath = path.join(__dirname, 'public');
-const fs = require('fs');
 
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
