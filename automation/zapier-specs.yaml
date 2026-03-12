@@ -1,0 +1,294 @@
+# =============================================================================
+# Audityzer — Zapier Automation Specifications
+# Integration targets: ClickUp, GitHub Actions, Slack, Telegram, Grafana, BRAVE1
+# =============================================================================
+
+apiVersion: audityzer.io/v1
+kind: ZapierSpecs
+metadata:
+  name: audityzer-zapier-automations
+  version: "1.0.0"
+  description: >
+    Zapier zap definitions for cross-platform automation between ClickUp,
+    GitHub, Slack, Telegram, Grafana, and BRAVE1 submission portal.
+
+# ---------------------------------------------------------------------------
+# Zap 1: ClickUp Row → GitHub Actions Status → Slack/Telegram Notify
+# ---------------------------------------------------------------------------
+zaps:
+  - id: clickup-to-github-notify
+    name: "ClickUp → GitHub Actions → Notify"
+    description: >
+      When a new task row is created or updated in ClickUp list 86c6yjdmk
+      (Finance & Grants), update the corresponding GitHub Actions workflow
+      status and send notifications to Slack and Telegram.
+    active: true
+
+    trigger:
+      app: clickup
+      event: new_or_updated_task
+      config:
+        workspace_id: "90151967246"
+        list_id: "86c6yjdmk"
+        filters:
+          - field: status
+            operator: changed_to
+            values:
+              - "in progress"
+              - "complete"
+              - "review"
+
+    actions:
+      # Step 1: Map ClickUp status to GitHub commit status
+      - id: update-github-status
+        app: github
+        action: create_commit_status
+        config:
+          owner: AuditorSEC
+          repo: Audityzer
+          sha: "{{trigger.custom_fields.commit_sha}}"
+          state_mapping:
+            "in progress": pending
+            "review": pending
+            "complete": success
+          target_url: "https://app.clickup.com/t/{{trigger.task_id}}"
+          description: "ClickUp: {{trigger.status}} — {{trigger.task_name}}"
+          context: "clickup/task-status"
+
+      # Step 2: Post to Slack
+      - id: slack-notify
+        app: slack
+        action: send_channel_message
+        config:
+          channel: "#audityzer-deploys"
+          message: |
+            *ClickUp Task Updated*
+            Task: {{trigger.task_name}}
+            Status: {{trigger.status}}
+            Assignee: {{trigger.assignee}}
+            Link: https://app.clickup.com/t/{{trigger.task_id}}
+
+      # Step 3: Post to Telegram
+      - id: telegram-notify
+        app: telegram
+        action: send_message
+        config:
+          chat_id: "{{TELEGRAM_CHAT_ID}}"
+          parse_mode: Markdown
+          text: |
+            📋 *ClickUp Update*
+            Task: `{{trigger.task_name}}`
+            Status: {{trigger.status}}
+            [View Task](https://app.clickup.com/t/{{trigger.task_id}})
+
+  # ---------------------------------------------------------------------------
+  # Zap 2: Grafana Alert → BRAVE1 Submission Trigger
+  # ---------------------------------------------------------------------------
+  - id: grafana-alert-to-brave1
+    name: "Grafana Alert → BRAVE1 Submission"
+    description: >
+      When Grafana fires an alert indicating KPI thresholds are met
+      (audityzer_brave1_score >= 4), trigger the BRAVE1 submission workflow.
+    active: true
+
+    trigger:
+      app: webhooks_by_zapier
+      event: catch_hook
+      config:
+        webhook_url: "{{ZAPIER_GRAFANA_WEBHOOK}}"
+        validation:
+          - field: alertname
+            equals: brave1_kpi_threshold_met
+          - field: status
+            equals: firing
+
+    filters:
+      - condition: and
+        rules:
+          - field: "labels.brave1_score"
+            operator: greater_than_or_equal
+            value: 4
+          - field: status
+            operator: equals
+            value: firing
+
+    actions:
+      # Step 1: Fetch latest KPI data from CSV
+      - id: fetch-kpi-csv
+        app: github
+        action: get_file_contents
+        config:
+          owner: AuditorSEC
+          repo: Audityzer
+          path: docs/brave1-kpis.csv
+          ref: defense-audit
+
+      # Step 2: Parse CSV data
+      - id: parse-csv
+        app: formatter_by_zapier
+        action: text_transform
+        config:
+          transform: split
+          input: "{{steps.fetch-kpi-csv.content}}"
+          separator: "\n"
+
+      # Step 3: Trigger BRAVE1 submission via n8n
+      - id: trigger-brave1-submit
+        app: webhooks_by_zapier
+        action: custom_request
+        config:
+          method: POST
+          url: "{{N8N_WEBHOOK_URL}}/webhook/brave1-submit"
+          headers:
+            Content-Type: application/json
+          body:
+            source: grafana_alert
+            brave1_score: "{{trigger.labels.brave1_score}}"
+            kpi_data: "{{steps.parse-csv.output}}"
+            submission_url: "https://brave1.gov.ua"
+            usf_profile: "https://usf.com.ua/brave1"
+            timestamp: "{{zap.timestamp}}"
+
+      # Step 4: Notify team
+      - id: notify-brave1-triggered
+        app: telegram
+        action: send_message
+        config:
+          chat_id: "{{TELEGRAM_CHAT_ID}}"
+          parse_mode: Markdown
+          text: |
+            🇺🇦 *BRAVE1 Submission Triggered*
+            Score: {{trigger.labels.brave1_score}}/5
+            Source: Grafana alert `{{trigger.alertname}}`
+            Portal: [brave1.gov.ua](https://brave1.gov.ua)
+            Profile: [USF](https://usf.com.ua/brave1)
+
+  # ---------------------------------------------------------------------------
+  # Zap 3: GitHub Deploy Success → ClickUp Task Update
+  # ---------------------------------------------------------------------------
+  - id: github-deploy-to-clickup
+    name: "GitHub Deploy Success → ClickUp Update"
+    description: >
+      When a GitHub Actions deployment workflow completes successfully on the
+      defense-audit branch, update the corresponding ClickUp task with
+      deployment details and mark the milestone as complete.
+    active: true
+
+    trigger:
+      app: github
+      event: workflow_run_completed
+      config:
+        owner: AuditorSEC
+        repo: Audityzer
+        filters:
+          - field: workflow_name
+            operator: contains
+            values:
+              - "CI/CD"
+              - "deploy"
+              - "railway"
+          - field: head_branch
+            equals: defense-audit
+          - field: conclusion
+            equals: success
+
+    actions:
+      # Step 1: Find matching ClickUp task
+      - id: find-clickup-task
+        app: clickup
+        action: find_task
+        config:
+          list_id: "86c6yjdmk"
+          search:
+            custom_field: "commit_sha"
+            value: "{{trigger.head_sha}}"
+
+      # Step 2: Update ClickUp task status
+      - id: update-clickup-task
+        app: clickup
+        action: update_task
+        config:
+          task_id: "{{steps.find-clickup-task.task_id}}"
+          status: "deployed"
+          custom_fields:
+            - name: deploy_status
+              value: "success"
+            - name: deploy_url
+              value: "{{trigger.html_url}}"
+            - name: deploy_timestamp
+              value: "{{trigger.updated_at}}"
+
+      # Step 3: Add comment with deployment details
+      - id: add-deploy-comment
+        app: clickup
+        action: create_comment
+        config:
+          task_id: "{{steps.find-clickup-task.task_id}}"
+          text: |
+            ✅ Deployment Successful
+            Branch: defense-audit
+            Commit: {{trigger.head_sha}}
+            Workflow: {{trigger.workflow_name}}
+            Run: {{trigger.html_url}}
+            Timestamp: {{trigger.updated_at}}
+
+      # Step 4: Slack deployment success notification
+      - id: slack-deploy-success
+        app: slack
+        action: send_channel_message
+        config:
+          channel: "#audityzer-deploys"
+          message: |
+            ✅ *Deployment Successful*
+            Branch: `defense-audit`
+            Commit: `{{trigger.head_sha | truncate:8}}`
+            Workflow: {{trigger.workflow_name}}
+            <{{trigger.html_url}}|View Run>
+
+      # Step 5: Update ClickUp milestone if all tasks deployed
+      - id: check-milestone-completion
+        app: clickup
+        action: get_tasks
+        config:
+          list_id: "86c6yjdmk"
+          filters:
+            - field: status
+              operator: not_equals
+              value: "deployed"
+
+      - id: update-milestone
+        app: clickup
+        action: update_task
+        condition: "{{steps.check-milestone-completion.count}} == 0"
+        config:
+          task_id: "{{CLICKUP_MILESTONE_TASK_ID}}"
+          status: "complete"
+          custom_fields:
+            - name: milestone_status
+              value: "All tasks deployed"
+
+# ---------------------------------------------------------------------------
+# Shared Configuration
+# ---------------------------------------------------------------------------
+config:
+  error_handling:
+    strategy: retry_then_notify
+    max_retries: 3
+    retry_delay_seconds: 60
+    notify_on_failure:
+      - telegram
+      - slack
+
+  secrets:
+    required:
+      - TELEGRAM_CHAT_ID
+      - ZAPIER_GRAFANA_WEBHOOK
+      - N8N_WEBHOOK_URL
+      - CLICKUP_MILESTONE_TASK_ID
+    reference:
+      clickup_workspace_id: "90151967246"
+      clickup_list_id: "86c6yjdmk"
+      github_owner: AuditorSEC
+      github_repo: Audityzer
+      brave1_portal: "https://brave1.gov.ua"
+      usf_profile: "https://usf.com.ua/brave1"

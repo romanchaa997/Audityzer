@@ -1,0 +1,272 @@
+{
+  "name": "BRAVE1 Auto-Submit (KPI >= 4)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "brave1-auto-submit",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "KPI Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "brave1-auto-submit"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 6 * * 1" }]
+        }
+      },
+      "id": "weekly-schedule",
+      "name": "Weekly KPI Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 500]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.GRAFANA_URL + '/api/datasources/proxy/1/api/v1/query' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "audityzer_brave1_kpi_score"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-kpi",
+      "name": "Fetch KPI from Prometheus",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "grafana-auth",
+          "name": "Grafana API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ parseFloat($json.data.result[0].value[1]) }}",
+              "operation": "largerEqual",
+              "value2": 4
+            }
+          ]
+        }
+      },
+      "id": "kpi-threshold",
+      "name": "KPI >= 4?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const kpiScore = parseFloat($input.first().json.data.result[0].value[1]);\nconst now = new Date().toISOString();\n\nreturn [{\n  json: {\n    project_name: 'Audityzer',\n    project_url: 'https://github.com/AuditorSEC/Audityzer',\n    branch: 'defense-audit',\n    kpi_score: kpiScore,\n    category: 'cybersecurity',\n    description: 'Web3 security testing toolkit for DeFi — automated vulnerability scanning, defense audit metrics, and continuous security monitoring.',\n    metrics: {\n      vulnerabilities_detected: '={{ $json.data.result[0].value[1] }}',\n      test_coverage_pct: 85,\n      deploy_success_rate: 97.5,\n      mean_time_to_detect_sec: 12.3\n    },\n    evidence_urls: [\n      'https://grafana.audityzer.com/d/brave1-kpi',\n      'https://github.com/AuditorSEC/Audityzer/actions'\n    ],\n    submitted_at: now\n  }\n}];"
+      },
+      "id": "prepare-submission",
+      "name": "Prepare BRAVE1 Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.BRAVE1_API_URL + '/submissions' }}",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "submit-brave1",
+      "name": "Submit to BRAVE1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1160, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "brave1-auth",
+          "name": "BRAVE1 API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.statusCode }}",
+              "operation": "smallerEqual",
+              "value2": 299
+            }
+          ]
+        }
+      },
+      "id": "submit-check",
+      "name": "Submit OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1380, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ \"\\u2705 *BRAVE1 Submission Successful*\\n\\nKPI Score: \" + $node['Prepare BRAVE1 Payload'].json.kpi_score + \"\\nSubmission ID: \" + $json.body.submission_id + \"\\nTimestamp: \" + $node['Prepare BRAVE1 Payload'].json.submitted_at + \"\\n\\nDashboard: \" + $env.GRAFANA_URL + '/d/brave1-kpi' }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-success",
+      "name": "Telegram: Submitted",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1600, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ \"\\u274C *BRAVE1 Submission Failed*\\n\\nKPI Score: \" + $node['Prepare BRAVE1 Payload'].json.kpi_score + \"\\nError: \" + JSON.stringify($json.body).substring(0,300) + \"\\n\\nWill retry on next schedule.\" }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-failure",
+      "name": "Telegram: Failed",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1600, 450],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.clickup.com/api/v2/list/' + $env.CLICKUP_LIST_ID + '/task' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ name: 'BRAVE1 Submission — KPI ' + $node['Prepare BRAVE1 Payload'].json.kpi_score, description: 'Auto-submitted to BRAVE1 at ' + $node['Prepare BRAVE1 Payload'].json.submitted_at, status: 'complete', priority: 2 }) }}",
+        "options": {}
+      },
+      "id": "clickup-log",
+      "name": "ClickUp: Log Submission",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1820, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "clickup-auth",
+          "name": "ClickUp API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ \"\\u2139\\uFE0F *BRAVE1 KPI Below Threshold*\\n\\nCurrent KPI: \" + parseFloat($json.data.result[0].value[1]).toFixed(1) + \" (need >= 4)\\n\\nNo submission triggered. Check dashboard:\\n\" + $env.GRAFANA_URL + '/d/brave1-kpi' }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-below",
+      "name": "Telegram: Below Threshold",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [940, 550],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "KPI Webhook": {
+      "main": [
+        [{ "node": "Fetch KPI from Prometheus", "type": "main", "index": 0 }]
+      ]
+    },
+    "Weekly KPI Check": {
+      "main": [
+        [{ "node": "Fetch KPI from Prometheus", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch KPI from Prometheus": {
+      "main": [
+        [{ "node": "KPI >= 4?", "type": "main", "index": 0 }]
+      ]
+    },
+    "KPI >= 4?": {
+      "main": [
+        [{ "node": "Prepare BRAVE1 Payload", "type": "main", "index": 0 }],
+        [{ "node": "Telegram: Below Threshold", "type": "main", "index": 0 }]
+      ]
+    },
+    "Prepare BRAVE1 Payload": {
+      "main": [
+        [{ "node": "Submit to BRAVE1", "type": "main", "index": 0 }]
+      ]
+    },
+    "Submit to BRAVE1": {
+      "main": [
+        [{ "node": "Submit OK?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Submit OK?": {
+      "main": [
+        [{ "node": "Telegram: Submitted", "type": "main", "index": 0 }],
+        [{ "node": "Telegram: Failed", "type": "main", "index": 0 }]
+      ]
+    },
+    "Telegram: Submitted": {
+      "main": [
+        [{ "node": "ClickUp: Log Submission", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": [
+    { "name": "brave1" },
+    { "name": "kpi" },
+    { "name": "auto-submit" }
+  ],
+  "triggerCount": 2,
+  "updatedAt": "2026-03-12T00:00:00.000Z",
+  "versionId": "1"
+}

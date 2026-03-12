@@ -1,0 +1,296 @@
+{
+  "name": "Defense Audit Deploy Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "defense-audit-push",
+        "options": {
+          "responseMode": "onReceived"
+        },
+        "authentication": "headerAuth",
+        "headerAuth": {
+          "name": "X-Hub-Signature-256"
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "GitHub Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "defense-audit-push"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.ref }}",
+              "operation": "equals",
+              "value2": "refs/heads/defense-audit"
+            }
+          ]
+        }
+      },
+      "id": "branch-filter",
+      "name": "Filter defense-audit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "command": "cd /app && git pull origin defense-audit && npm ci --legacy-peer-deps"
+      },
+      "id": "pull-and-install",
+      "name": "Pull & Install",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.exitCode }}",
+              "operation": "equals",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "install-check",
+      "name": "Install OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "command": "cd /app && rm -f package-lock.json && npm install --legacy-peer-deps && git add package-lock.json && git commit -m 'fix: auto-regenerate package-lock.json [self-heal]' && git push origin defense-audit"
+      },
+      "id": "self-heal-npm",
+      "name": "Self-Heal npm",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1120, 400]
+    },
+    {
+      "parameters": {
+        "command": "npm run lint && npm test"
+      },
+      "id": "validate",
+      "name": "Lint & Test",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1120, 100]
+    },
+    {
+      "parameters": {
+        "command": "railway up --service $RAILWAY_SERVICE_ID --detach"
+      },
+      "id": "railway-deploy",
+      "name": "Railway Deploy",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1340, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.exitCode }}",
+              "operation": "equals",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "deploy-check",
+      "name": "Deploy OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1560, 100]
+    },
+    {
+      "parameters": {
+        "url": "https://audityzer.up.railway.app/health",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "healthcheck",
+      "name": "Healthcheck",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1780, 0]
+    },
+    {
+      "parameters": {
+        "command": "railway variables list --service $RAILWAY_SERVICE_ID && sleep 30 && railway up --service $RAILWAY_SERVICE_ID --detach"
+      },
+      "id": "retry-deploy",
+      "name": "Check Secrets & Retry",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1780, 250]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ \"\\u2705 *Defense-Audit Deploy Successful*\\n\\nCommit: `\" + $node['GitHub Webhook'].json.after.substring(0,8) + \"`\\nAuthor: \" + $node['GitHub Webhook'].json.pusher.name + \"\\nRailway: https://audityzer.up.railway.app\\nGrafana: \" + $env.GRAFANA_URL + \"/d/brave1-kpi\" }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-success",
+      "name": "Telegram: Success",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2000, 0],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ \"\\u274C *Defense-Audit Deploy FAILED*\\n\\nCommit: `\" + $node['GitHub Webhook'].json.after.substring(0,8) + \"`\\nError: \" + $json.stderr.substring(0,500) + \"\\n\\nSelf-heal attempted.\" }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-failure",
+      "name": "Telegram: Failure",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2000, 350],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ 'https://api.clickup.com/api/v2/task/' + $env.CLICKUP_TASK_ID }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "status",
+              "value": "deployed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "clickup-update",
+      "name": "ClickUp: Update Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2000, 150],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "clickup-auth",
+          "name": "ClickUp API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.PROMETHEUS_ENDPOINT + '/-/reload' }}",
+        "method": "POST",
+        "options": {}
+      },
+      "id": "prometheus-reload",
+      "name": "Prometheus Reload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2200, 0]
+    }
+  ],
+  "connections": {
+    "GitHub Webhook": {
+      "main": [
+        [{ "node": "Filter defense-audit", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter defense-audit": {
+      "main": [
+        [{ "node": "Pull & Install", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Pull & Install": {
+      "main": [
+        [{ "node": "Install OK?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Install OK?": {
+      "main": [
+        [{ "node": "Lint & Test", "type": "main", "index": 0 }],
+        [{ "node": "Self-Heal npm", "type": "main", "index": 0 }]
+      ]
+    },
+    "Self-Heal npm": {
+      "main": [
+        [{ "node": "Lint & Test", "type": "main", "index": 0 }]
+      ]
+    },
+    "Lint & Test": {
+      "main": [
+        [{ "node": "Railway Deploy", "type": "main", "index": 0 }]
+      ]
+    },
+    "Railway Deploy": {
+      "main": [
+        [{ "node": "Deploy OK?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Deploy OK?": {
+      "main": [
+        [{ "node": "Healthcheck", "type": "main", "index": 0 }],
+        [{ "node": "Check Secrets & Retry", "type": "main", "index": 0 }]
+      ]
+    },
+    "Healthcheck": {
+      "main": [
+        [
+          { "node": "Telegram: Success", "type": "main", "index": 0 },
+          { "node": "ClickUp: Update Status", "type": "main", "index": 0 },
+          { "node": "Prometheus Reload", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Check Secrets & Retry": {
+      "main": [
+        [{ "node": "Telegram: Failure", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "telegram-self-healing"
+  },
+  "staticData": null,
+  "tags": [
+    { "name": "defense-audit" },
+    { "name": "deploy" },
+    { "name": "railway" }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2026-03-12T00:00:00.000Z",
+  "versionId": "1"
+}

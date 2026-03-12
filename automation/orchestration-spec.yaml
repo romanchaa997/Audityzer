@@ -1,0 +1,433 @@
+##############################################################################
+# Audityzer — Master Orchestration Specification
+# Pipeline: CSV → ClickUp → GitHub Actions → Railway → Prometheus → Grafana → BRAVE1
+# Branch:   defense-audit
+# Version:  1.0.0
+##############################################################################
+
+meta:
+  name: audityzer-defense-audit-orchestration
+  version: "1.0.0"
+  description: >
+    End-to-end pipeline that drives every defense-audit change from commit
+    through deployment, observability, and BRAVE1 submission.
+  maintainers:
+    - team: AuditorSEC
+  repository: AuditorSEC/Audityzer
+  branch: defense-audit
+
+# ─── Global Environment ─────────────────────────────────────────────────────
+env:
+  RAILWAY_PROJECT_ID: "${RAILWAY_PROJECT_ID}"
+  RAILWAY_SERVICE_ID: "${RAILWAY_SERVICE_ID}"
+  RAILWAY_TOKEN: "${RAILWAY_TOKEN}"
+  CLICKUP_API_TOKEN: "${CLICKUP_API_TOKEN}"
+  CLICKUP_LIST_ID: "${CLICKUP_LIST_ID}"
+  PROMETHEUS_ENDPOINT: "https://prometheus.audityzer.com"
+  GRAFANA_URL: "https://grafana.audityzer.com"
+  GRAFANA_API_KEY: "${GRAFANA_API_KEY}"
+  BRAVE1_API_URL: "https://brave1.gov.ua/api/v1"
+  BRAVE1_API_KEY: "${BRAVE1_API_KEY}"
+  TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}"
+  TELEGRAM_CHAT_ID: "${TELEGRAM_CHAT_ID}"
+  N8N_WEBHOOK_BASE: "${N8N_WEBHOOK_BASE}"
+  SLACK_WEBHOOK_URL: "${SLACK_WEBHOOK_URL}"
+
+# ─── Pipeline Stages ────────────────────────────────────────────────────────
+pipeline:
+  name: defense-audit-full-pipeline
+  trigger:
+    type: webhook
+    source: github
+    events:
+      - push
+    branches:
+      - defense-audit
+    webhook_url: "${N8N_WEBHOOK_BASE}/webhook/defense-audit-push"
+
+  stages:
+    # ── Stage 1: CSV Intake & ClickUp Sync ──────────────────────────────────
+    - id: csv-intake
+      name: CSV Intake & ClickUp Sync
+      description: Parse KPI / metrics CSV and sync rows to ClickUp tasks
+      steps:
+        - id: parse-csv
+          action: script
+          command: node scripts/parse-kpi-csv.js --input data/brave1-kpis.csv --output /tmp/kpis.json
+          timeout: 30s
+
+        - id: sync-clickup
+          action: http
+          method: POST
+          url: "https://api.clickup.com/api/v2/list/${CLICKUP_LIST_ID}/task"
+          headers:
+            Authorization: "${CLICKUP_API_TOKEN}"
+            Content-Type: application/json
+          body_from: /tmp/kpis.json
+          retry:
+            max_attempts: 3
+            backoff: exponential
+            initial_delay: 2s
+
+    # ── Stage 2: Build & Validate ───────────────────────────────────────────
+    - id: build-validate
+      name: Build & Validate
+      depends_on: [csv-intake]
+      steps:
+        - id: npm-install
+          action: shell
+          command: npm ci --legacy-peer-deps
+          timeout: 120s
+          on_failure:
+            strategy: self-heal
+            handler: self-heal-npm
+
+        - id: typecheck
+          action: shell
+          command: npx tsc --noEmit
+          timeout: 60s
+          allow_failure: true
+
+        - id: lint
+          action: shell
+          command: npm run lint
+          timeout: 60s
+          allow_failure: true
+
+        - id: test
+          action: shell
+          command: npm test
+          timeout: 180s
+
+    # ── Stage 3: Parallel Execution Paths ───────────────────────────────────
+    - id: parallel-deploy
+      name: Parallel Deploy & Notify
+      depends_on: [build-validate]
+      parallel: true
+      paths:
+
+        # ── Path A: Railway Deploy ──────────────────────────────────────────
+        - id: railway-deploy
+          name: Railway Deploy
+          steps:
+            - id: railway-link
+              action: shell
+              command: railway link --project "${RAILWAY_PROJECT_ID}"
+              timeout: 30s
+
+            - id: railway-up
+              action: shell
+              command: railway up --service "${RAILWAY_SERVICE_ID}" --detach
+              timeout: 300s
+              retry:
+                max_attempts: 3
+                backoff: exponential
+                initial_delay: 10s
+              on_failure:
+                strategy: self-heal
+                handler: self-heal-railway
+
+            - id: railway-healthcheck
+              action: http
+              method: GET
+              url: "https://audityzer.up.railway.app/health"
+              expect:
+                status: 200
+              retry:
+                max_attempts: 5
+                backoff: linear
+                initial_delay: 15s
+
+        # ── Path B: ClickUp Status Notify ───────────────────────────────────
+        - id: clickup-notify
+          name: ClickUp Notify
+          steps:
+            - id: update-clickup-status
+              action: http
+              method: PUT
+              url: "https://api.clickup.com/api/v2/task/${CLICKUP_TASK_ID}"
+              headers:
+                Authorization: "${CLICKUP_API_TOKEN}"
+                Content-Type: application/json
+              body:
+                status: "deploy started"
+                custom_fields:
+                  - id: deploy_branch
+                    value: defense-audit
+                  - id: deploy_commit
+                    value: "${GITHUB_SHA}"
+
+        # ── Path C: Prometheus Scrape Config ────────────────────────────────
+        - id: prometheus-scrape
+          name: Prometheus Scrape Setup
+          steps:
+            - id: verify-metrics-endpoint
+              action: http
+              method: GET
+              url: "https://audityzer.up.railway.app/metrics"
+              expect:
+                status: 200
+                body_contains: "audityzer_"
+              retry:
+                max_attempts: 5
+                backoff: linear
+                initial_delay: 20s
+              on_failure:
+                strategy: self-heal
+                handler: self-heal-prometheus
+
+            - id: reload-prometheus
+              action: http
+              method: POST
+              url: "${PROMETHEUS_ENDPOINT}/-/reload"
+              headers:
+                Authorization: "Bearer ${PROMETHEUS_TOKEN}"
+
+        # ── Path D: Grafana Dashboard Import ────────────────────────────────
+        - id: grafana-import
+          name: Grafana Dashboard Import
+          steps:
+            - id: import-brave1-dashboard
+              action: http
+              method: POST
+              url: "${GRAFANA_URL}/api/dashboards/db"
+              headers:
+                Authorization: "Bearer ${GRAFANA_API_KEY}"
+                Content-Type: application/json
+              body_from: monitoring/grafana/dashboards/brave1-kpi-dashboard.json
+              retry:
+                max_attempts: 2
+                backoff: fixed
+                initial_delay: 5s
+
+    # ── Stage 4: BRAVE1 Submission ──────────────────────────────────────────
+    - id: brave1-submit
+      name: BRAVE1 Submission
+      depends_on: [parallel-deploy]
+      condition: "kpi_score >= 4"
+      steps:
+        - id: prepare-submission
+          action: script
+          command: node scripts/prepare-brave1-submission.js
+          timeout: 30s
+
+        - id: submit-brave1
+          action: http
+          method: POST
+          url: "${BRAVE1_API_URL}/submissions"
+          headers:
+            Authorization: "Bearer ${BRAVE1_API_KEY}"
+            Content-Type: application/json
+          body_from: /tmp/brave1-submission.json
+          retry:
+            max_attempts: 3
+            backoff: exponential
+            initial_delay: 5s
+
+        - id: notify-submission
+          action: parallel
+          steps:
+            - id: telegram-notify
+              action: http
+              method: POST
+              url: "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
+              body:
+                chat_id: "${TELEGRAM_CHAT_ID}"
+                text: "BRAVE1 submission completed for defense-audit (KPI: ${KPI_SCORE})"
+                parse_mode: Markdown
+
+            - id: slack-notify
+              action: http
+              method: POST
+              url: "${SLACK_WEBHOOK_URL}"
+              body:
+                text: "BRAVE1 submission completed for defense-audit (KPI: ${KPI_SCORE})"
+
+# ─── Self-Healing Handlers ──────────────────────────────────────────────────
+self_healing:
+
+  # npm ci failure → delete lockfile, npm install, recommit
+  self-heal-npm:
+    description: Auto-fix npm ci failures by regenerating package-lock.json
+    trigger: npm-install.failure
+    steps:
+      - id: remove-lockfile
+        action: shell
+        command: rm -f package-lock.json
+
+      - id: fresh-install
+        action: shell
+        command: npm install --legacy-peer-deps
+        timeout: 180s
+
+      - id: recommit-lockfile
+        action: shell
+        command: |
+          git add package-lock.json
+          git commit -m "fix: auto-regenerate package-lock.json [self-heal]"
+          git push origin defense-audit
+
+      - id: notify-self-heal
+        action: http
+        method: POST
+        url: "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
+        body:
+          chat_id: "${TELEGRAM_CHAT_ID}"
+          text: "Self-heal triggered: package-lock.json regenerated and recommitted"
+
+  # Railway deploy failure → verify secrets → retry with backoff
+  self-heal-railway:
+    description: Auto-recover Railway deploy failures
+    trigger: railway-up.failure
+    steps:
+      - id: check-secrets
+        action: shell
+        command: |
+          railway variables list --service "${RAILWAY_SERVICE_ID}" | head -20
+        timeout: 30s
+
+      - id: verify-railway-token
+        action: shell
+        command: railway whoami
+        timeout: 15s
+        on_failure:
+          strategy: abort
+          message: "Railway token is invalid. Manual intervention required."
+
+      - id: retry-deploy
+        action: shell
+        command: railway up --service "${RAILWAY_SERVICE_ID}" --detach
+        timeout: 300s
+        retry:
+          max_attempts: 2
+          backoff: exponential
+          initial_delay: 30s
+
+      - id: notify-railway-heal
+        action: http
+        method: POST
+        url: "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
+        body:
+          chat_id: "${TELEGRAM_CHAT_ID}"
+          text: "Railway self-heal: deploy retried after secret verification"
+
+  # Prometheus metrics endpoint failure → restart metrics service
+  self-heal-prometheus:
+    description: Restart metrics endpoint when Prometheus scrape fails
+    trigger: verify-metrics-endpoint.failure
+    steps:
+      - id: restart-metrics
+        action: shell
+        command: |
+          railway run --service "${RAILWAY_SERVICE_ID}" -- \
+            node -e "process.exit(0)" || railway restart --service "${RAILWAY_SERVICE_ID}"
+        timeout: 60s
+
+      - id: wait-for-metrics
+        action: shell
+        command: sleep 30
+        timeout: 35s
+
+      - id: verify-after-restart
+        action: http
+        method: GET
+        url: "https://audityzer.up.railway.app/metrics"
+        expect:
+          status: 200
+        retry:
+          max_attempts: 3
+          backoff: linear
+          initial_delay: 10s
+
+      - id: notify-prometheus-heal
+        action: http
+        method: POST
+        url: "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
+        body:
+          chat_id: "${TELEGRAM_CHAT_ID}"
+          text: "Prometheus self-heal: metrics endpoint restarted"
+
+# ─── n8n Webhook Triggers ───────────────────────────────────────────────────
+n8n_webhooks:
+  defense_audit_push:
+    webhook_path: /webhook/defense-audit-push
+    method: POST
+    auth: header
+    auth_header: X-Hub-Signature-256
+    workflow_file: automation/n8n-workflows/defense-audit-deploy.json
+    description: Triggers on every push to defense-audit branch
+
+  brave1_auto_submit:
+    webhook_path: /webhook/brave1-auto-submit
+    method: POST
+    auth: header
+    auth_header: X-API-Key
+    workflow_file: automation/n8n-workflows/brave1-auto-submit.json
+    description: Triggers BRAVE1 submission when KPI score reaches threshold
+
+  telegram_health_check:
+    webhook_path: /webhook/telegram-health
+    method: POST
+    auth: header
+    auth_header: X-Telegram-Bot-Api-Secret-Token
+    workflow_file: automation/n8n-workflows/telegram-self-healing.json
+    description: Telegram bot webhook for CI/CD health monitoring
+
+# ─── Notifications ──────────────────────────────────────────────────────────
+notifications:
+  channels:
+    telegram:
+      bot_token: "${TELEGRAM_BOT_TOKEN}"
+      chat_id: "${TELEGRAM_CHAT_ID}"
+      events: [deploy.success, deploy.failure, self-heal.triggered, brave1.submitted]
+
+    slack:
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      events: [deploy.success, deploy.failure, brave1.submitted]
+
+    clickup:
+      api_token: "${CLICKUP_API_TOKEN}"
+      list_id: "${CLICKUP_LIST_ID}"
+      events: [deploy.success, brave1.submitted]
+
+  templates:
+    deploy_success: |
+      Deploy successful on defense-audit
+      Commit: ${GITHUB_SHA}
+      Railway: https://audityzer.up.railway.app
+      Grafana: ${GRAFANA_URL}/d/brave1-kpi
+    deploy_failure: |
+      Deploy FAILED on defense-audit
+      Commit: ${GITHUB_SHA}
+      Error: ${ERROR_MESSAGE}
+      Self-heal: ${SELF_HEAL_STATUS}
+    brave1_submitted: |
+      BRAVE1 submission sent
+      KPI Score: ${KPI_SCORE}
+      Submission ID: ${BRAVE1_SUBMISSION_ID}
+
+# ─── Schedules ──────────────────────────────────────────────────────────────
+schedules:
+  brave1_kpi_export:
+    cron: "0 6 * * 1"  # Every Monday at 06:00 UTC
+    action: workflow
+    workflow: automation/github-actions/brave1-metrics-export.yml
+    description: Weekly export of BRAVE1 KPIs to CSV and ClickUp
+
+  prometheus_health:
+    cron: "*/5 * * * *"  # Every 5 minutes
+    action: http
+    url: "https://audityzer.up.railway.app/metrics"
+    expect:
+      status: 200
+    on_failure:
+      handler: self-heal-prometheus
+
+  grafana_dashboard_sync:
+    cron: "0 0 * * *"  # Daily at midnight UTC
+    action: http
+    method: POST
+    url: "${GRAFANA_URL}/api/dashboards/db"
+    headers:
+      Authorization: "Bearer ${GRAFANA_API_KEY}"
+    body_from: monitoring/grafana/dashboards/brave1-kpi-dashboard.json
