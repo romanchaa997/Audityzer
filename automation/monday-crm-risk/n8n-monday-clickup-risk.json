@@ -1,0 +1,134 @@
+{
+  "name": "Monday High-Risk → ClickUp Risk Register",
+  "nodes": [
+    {
+      "parameters": {
+        "boardId": "={{$parameter.boardId}}",
+        "event": "change_specific_column_value",
+        "columnId": "risk_level"
+      },
+      "id": "monday-trigger",
+      "name": "Monday Risk Level Change",
+      "type": "n8n-nodes-base.mondayComTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "filter-high",
+              "leftValue": "={{ $json.event.value.label.text }}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "id": "filter-high",
+      "name": "Filter: Only High Risk",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "resource": "boardItem",
+        "operation": "get",
+        "itemId": "={{ $json.event.pulseId }}"
+      },
+      "id": "get-item",
+      "name": "Get Full Monday Item",
+      "type": "n8n-nodes-base.mondayCom",
+      "typeVersion": 2,
+      "position": [690, 300],
+      "credentials": {
+        "mondayComApi": {
+          "id": "MONDAY_CREDENTIAL_ID",
+          "name": "Monday.com API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "task",
+        "operation": "create",
+        "list": "={{$parameter.clickupListId}}",
+        "name": "=🔴 RISK: {{ $json.name }} — Score: {{ $json.column_values.risk_score.text }}",
+        "additionalFields": {
+          "content": "## Risk Entry — Monday.com CRM\n\n| Field | Value |\n|-------|-------|\n| **Deal** | {{ $json.name }} |\n| **Deal Value** | {{ $json.column_values.deal_value.text }} |\n| **Stage** | {{ $json.column_values.stage.text }} |\n| **Owner** | {{ $json.column_values.owner.text }} |\n| **Risk Score** | {{ $json.column_values.risk_score.text }} |\n| **Sentiment** | {{ $json.column_values.sentiment.text }} |\n| **Likelihood** | {{ $json.column_values.likelihood.text }} |\n| **Impact** | {{ $json.column_values.impact.text }} |\n| **Days Overdue** | {{ $json.column_values.days_overdue.text }} |\n| **Days No Touch** | {{ $json.column_values.days_no_touch.text }} |\n\n**Risk Trigger:** RiskScore ≥13 in Monday CRM\n\n**Monday Item URL:** https://YOUR_WORKSPACE.monday.com/boards/BOARD_ID/pulses/{{ $json.id }}\n\n---\n\n### Mitigation Plan\n- [ ] Schedule call with client within 48h\n- [ ] Review pricing/proposal adjustments\n- [ ] Prepare alternative strategy\n- [ ] Escalate to management if unresolved in 72h\n- [ ] Update Monday CRM status after review\n- [ ] Close this risk entry when mitigated",
+          "priority": 2,
+          "status": "Open",
+          "dueDate": "={{ $now.plus(2, 'days').toISO() }}"
+        }
+      },
+      "id": "create-clickup-task",
+      "name": "Create ClickUp Risk Entry",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [910, 200],
+      "credentials": {
+        "clickUpApi": {
+          "id": "CLICKUP_CREDENTIAL_ID",
+          "name": "ClickUp API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$parameter.telegramChatId}}",
+        "text": "=🔴 *NEW HIGH-RISK DEAL*\n\n*Deal:* {{ $('Get Full Monday Item').item.json.name }}\n*Risk Score:* {{ $('Get Full Monday Item').item.json.column_values.risk_score.text }}\n*Deal Value:* {{ $('Get Full Monday Item').item.json.column_values.deal_value.text }}\n*Sentiment:* {{ $('Get Full Monday Item').item.json.column_values.sentiment.text }}\n*Stage:* {{ $('Get Full Monday Item').item.json.column_values.stage.text }}\n\n✅ ClickUp task created: {{ $json.url }}\n📋 Review required within 48h",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-alert",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [910, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Monday Risk Level Change": {
+      "main": [
+        [{"node": "Filter: Only High Risk", "type": "main", "index": 0}]
+      ]
+    },
+    "Filter: Only High Risk": {
+      "main": [
+        [{"node": "Get Full Monday Item", "type": "main", "index": 0}]
+      ]
+    },
+    "Get Full Monday Item": {
+      "main": [
+        [
+          {"node": "Create ClickUp Risk Entry", "type": "main", "index": 0},
+          {"node": "Telegram Alert", "type": "main", "index": 0}
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {"name": "AuditorSEC"},
+    {"name": "Risk Management"},
+    {"name": "CRM Pipeline"}
+  ]
+}
