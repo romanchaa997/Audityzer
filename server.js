@@ -417,6 +417,68 @@ app.get('/api/rules', async (req, res) => {
   res.json({ rules, total: rules.length, source: 'memory' });
 });
 
+// ─── Prometheus-Compatible Metrics (for Grafana Cloud) ──────────────────────
+let requestCount = 0;
+let scanCount = 0;
+let errorCount = 0;
+
+// Count requests
+app.use((req, res, next) => { requestCount++; next(); });
+
+app.get('/metrics/prometheus', async (req, res) => {
+  const uptimeSec = process.uptime();
+  const memUsage = process.memoryUsage();
+
+  let dbScans = 0, dbRiskEvents = 0, dbRules = 0;
+  if (pool) {
+    const r = await dbQuery(`
+      SELECT 
+        (SELECT count(*) FROM vulnerability_scans) as scans,
+        (SELECT count(*) FROM crm_risk_events) as risk_events,
+        (SELECT count(*) FROM security_rules WHERE is_active) as rules
+    `);
+    if (r?.rows?.[0]) {
+      dbScans = parseInt(r.rows[0].scans) || 0;
+      dbRiskEvents = parseInt(r.rows[0].risk_events) || 0;
+      dbRules = parseInt(r.rows[0].rules) || 0;
+    }
+  }
+
+  res.set('Content-Type', 'text/plain; version=0.0.4');
+  res.send(`# HELP audityzer_uptime_seconds Server uptime in seconds
+# TYPE audityzer_uptime_seconds gauge
+audityzer_uptime_seconds ${Math.round(uptimeSec)}
+
+# HELP audityzer_requests_total Total HTTP requests received
+# TYPE audityzer_requests_total counter
+audityzer_requests_total ${requestCount}
+
+# HELP audityzer_scans_total Total vulnerability scans performed
+# TYPE audityzer_scans_total counter
+audityzer_scans_total ${dbScans}
+
+# HELP audityzer_risk_events_total Total CRM risk events ingested
+# TYPE audityzer_risk_events_total counter
+audityzer_risk_events_total ${dbRiskEvents}
+
+# HELP audityzer_active_rules Active security detection rules
+# TYPE audityzer_active_rules gauge
+audityzer_active_rules ${dbRules || Object.keys(VULN_PATTERNS).length}
+
+# HELP audityzer_memory_heap_bytes Heap memory usage in bytes
+# TYPE audityzer_memory_heap_bytes gauge
+audityzer_memory_heap_bytes ${memUsage.heapUsed}
+
+# HELP audityzer_memory_rss_bytes Resident set size in bytes
+# TYPE audityzer_memory_rss_bytes gauge
+audityzer_memory_rss_bytes ${memUsage.rss}
+
+# HELP audityzer_version_info Server version info
+# TYPE audityzer_version_info gauge
+audityzer_version_info{version="1.2.0"} 1
+`);
+});
+
 // ─── Serve Static Frontend ───────────────────────────────────────────────────
 const distPath = path.join(__dirname, 'dist');
 const publicPath = path.join(__dirname, 'public');
