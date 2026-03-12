@@ -1,4 +1,3 @@
-
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
@@ -19,7 +18,7 @@ scrape_configs:
 
   - job_name: 'audityzer-app'
     static_configs:
-      - targets: ['host.docker.internal:3000']
+      - targets: ['auditorsec-defense-app:5000']
     metrics_path: '/metrics'
     scrape_interval: 30s
 
@@ -30,13 +29,3 @@ scrape_configs:
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['cadvisor:8080']
-
-  - job_name: 'nginx'
-    static_configs:
-      - targets: ['host.docker.internal:9113']
-    metrics_path: '/metrics'
-
-  - job_name: 'postgres'
-    static_configs:
-      - targets: ['host.docker.internal:9187']
-    metrics_path: '/metrics'
