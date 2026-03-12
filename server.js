@@ -25,6 +25,22 @@ const PORT = process.env.PORT || 5000;
 const HF_TOKEN = process.env.HUGGINGFACE_API_KEY || process.env.HF_TOKEN || '';
 const HF_API_URL = 'https://api-inference.huggingface.co/models/microsoft/codebert-base';
 const DATABASE_URL = process.env.DATABASE_URL || '';
+const TG_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const TG_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '';
+
+// ─── Telegram Alert Helper ────────────────────────────────────────────────────
+async function sendTelegramAlert(text) {
+  if (!TG_BOT_TOKEN || !TG_CHAT_ID) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'Markdown' }),
+    });
+  } catch (err) {
+    console.error('Telegram alert error:', err.message);
+  }
+}
 
 // ─── Database Connection ─────────────────────────────────────────────────────
 let pool = null;
@@ -298,6 +314,22 @@ app.post('/api/ai/detect', async (req, res) => {
       req.ip,
     ]);
 
+    const riskLevel = riskScore > 15 ? 'critical' : riskScore > 8 ? 'high' : riskScore > 3 ? 'medium' : 'low';
+
+    // Telegram alert on High/Critical findings
+    if (riskLevel === 'high' || riskLevel === 'critical') {
+      const contractLabel = req.body.contractName || 'unknown contract';
+      const findingSummary = patternFindings
+        .map(f => `  • *${f.severity.toUpperCase()}* — ${f.description} (${f.cwe})`)
+        .join('\n');
+      sendTelegramAlert(
+        `🚨 *AuditorSEC Scan Alert*\n` +
+        `Risk: *${riskLevel.toUpperCase()}* (score ${Math.round(riskScore * 100) / 100})\n` +
+        `Contract: \`${contractLabel}\`\n` +
+        `Findings (${patternFindings.length}):\n${findingSummary}`
+      );
+    }
+
     res.json({
       success: true,
       timestamp: new Date().toISOString(),
@@ -305,7 +337,7 @@ app.post('/api/ai/detect', async (req, res) => {
         totalRules: Object.keys(VULN_PATTERNS).length,
         findingsCount: patternFindings.length,
         riskScore: Math.round(riskScore * 100) / 100,
-        riskLevel: riskScore > 15 ? 'critical' : riskScore > 8 ? 'high' : riskScore > 3 ? 'medium' : 'low',
+        riskLevel,
         scanDurationMs: scanDuration,
       },
       findings: patternFindings,
@@ -344,9 +376,25 @@ app.post('/api/events', async (req, res) => {
     VALUES ('crm_risk_event', $1, 'deal', $2, $3)
   `, [event.source || 'webhook', event.deal_id, JSON.stringify(event)]);
 
+  const eventId = result?.rows?.[0]?.id || null;
+
+  // Telegram alert on risk event ingestion
+  const band = event.band || event.risk_band || 'unknown';
+  const score = event.score || event.risk_score || 0;
+  if (band === 'High' || band === 'Critical' || score >= 7) {
+    sendTelegramAlert(
+      `⚠️ *CRM Risk Event Ingested*\n` +
+      `Client: *${event.client || event.deal_name || 'N/A'}*\n` +
+      `Risk Band: *${band}* (score ${score})\n` +
+      `Deal Value: ${event.deal_value || 'N/A'}\n` +
+      `Owner: ${event.owner || 'N/A'}\n` +
+      `Event ID: ${eventId}`
+    );
+  }
+
   res.json({ 
     success: true, 
-    id: result?.rows?.[0]?.id || null,
+    id: eventId,
     timestamp: new Date().toISOString(),
   });
 });
