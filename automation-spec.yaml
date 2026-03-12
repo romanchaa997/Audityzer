@@ -1,0 +1,705 @@
+# automation-spec.yaml — Audityzer Platform Automation Specification
+# Full pipeline definition for CI/CD, Security, Deploy, Monitoring, and Notifications
+# Version: 1.0.0 | Date: 2026-03-12
+# Repo: https://github.com/romanchaa997/Audityzer
+# Branch: safe-improvements
+
+---
+metadata:
+  project: Audityzer
+  description: >
+    Comprehensive automation specification for the Audityzer Web3 Security Platform.
+    Covers CI/CD pipelines, security scanning, deployment, monitoring, notifications,
+    Superfluid indexer health, subgraph sync, and scheduled reconciliation tasks.
+  owner: romanchaa997
+  repo: romanchaa997/Audityzer
+  default_branch: safe-improvements
+  node_version: "20"
+  package_manager: pnpm
+  monorepo_packages:
+    - contracts   # Solidity smart contracts, bridge security
+    - indexer     # Superfluid stream indexer (Node/TS/Prisma/Postgres)
+    - api         # GraphQL/REST API layer
+    - web         # React frontend (Vite + Tailwind)
+
+# =============================================================================
+# 1. CI PIPELINE — Lint, Test, Build for all packages
+# =============================================================================
+ci_pipeline:
+  name: CI Fast Pipeline
+  workflow_file: ci-fast.yml
+  triggers:
+    push:
+      branches: [main, develop, safe-improvements]
+    pull_request:
+      branches: [main, safe-improvements]
+
+  concurrency:
+    group: ci-${{ github.ref }}
+    cancel_in_progress: true
+
+  jobs:
+    lint:
+      name: Lint & Format Check
+      runs_on: ubuntu-latest
+      timeout_minutes: 10
+      steps:
+        - checkout
+        - setup_node: "20"
+        - install_deps: "pnpm install --no-frozen-lockfile"
+        - run: "pnpm run lint:ci || pnpm run lint"
+        - run: "pnpm run format:check || true"
+
+    typecheck:
+      name: TypeScript Type Check
+      runs_on: ubuntu-latest
+      timeout_minutes: 10
+      steps:
+        - checkout
+        - setup_node: "20"
+        - install_deps: "pnpm install --no-frozen-lockfile"
+        - run: "pnpm run type-check"
+
+    unit_tests:
+      name: Unit Tests
+      runs_on: ubuntu-latest
+      timeout_minutes: 15
+      env:
+        CI: "true"
+        MOCK_MODE: "true"
+      steps:
+        - checkout
+        - setup_node: "20"
+        - install_deps: "pnpm install --no-frozen-lockfile"
+        - run: "pnpm run test:unit || pnpm test"
+        - upload_coverage: codecov
+
+    security_tests:
+      name: Security Unit Tests
+      runs_on: ubuntu-latest
+      timeout_minutes: 15
+      env:
+        MOCK_MODE: "true"
+      steps:
+        - checkout
+        - setup_node: "20"
+        - install_deps: "pnpm install --no-frozen-lockfile"
+        - run: "pnpm run test:security"
+
+    build:
+      name: Build Application
+      runs_on: ubuntu-latest
+      timeout_minutes: 15
+      needs: [lint, typecheck]
+      steps:
+        - checkout
+        - setup_node: "20"
+        - install_deps: "pnpm install --no-frozen-lockfile"
+        - run: "pnpm run build"
+        - upload_artifact: dist/
+
+    all_checks:
+      name: CI Gate (all must pass)
+      runs_on: ubuntu-latest
+      needs: [lint, typecheck, unit_tests, security_tests, build]
+      steps:
+        - run: "echo 'All CI checks passed'"
+
+# =============================================================================
+# 2. SECURITY PIPELINE — Slither, Foundry Fuzz, Bridge-Specific Rules
+# =============================================================================
+security_pipeline:
+  name: Security Scan Pipeline
+  workflow_file: security-scan.yml
+  triggers:
+    push:
+      branches: [main, safe-improvements]
+      paths:
+        - "contracts/**"
+        - "src/core/bridge-testing/**"
+        - "tests/**bridge**"
+    pull_request:
+      branches: [main]
+    schedule:
+      - cron: "0 2 * * 1"  # Weekly deep scan Monday 02:00 UTC
+    workflow_dispatch: {}
+
+  jobs:
+    slither_analysis:
+      name: Slither Static Analysis
+      runs_on: ubuntu-latest
+      timeout_minutes: 20
+      steps:
+        - checkout
+        - install_python_deps:
+            - slither-analyzer
+            - solc-select
+        - install_solc: "0.8.17"
+        - run_slither:
+            targets:
+              - "contracts/"
+            output: "slither-report.json"
+            sarif: "slither-results.sarif"
+        - upload_sarif: "slither-results.sarif"
+
+    foundry_fuzz:
+      name: Foundry Fuzz Testing
+      runs_on: ubuntu-latest
+      timeout_minutes: 30
+      steps:
+        - checkout
+        - install_foundry: true
+        - run: "forge build"
+        - run: "forge test --fuzz-runs 1000 -vvv"
+        - run: "forge coverage --report lcov"
+
+    bridge_security:
+      name: Bridge-Specific Security Rules
+      runs_on: ubuntu-latest
+      timeout_minutes: 20
+      steps:
+        - checkout
+        - setup_node: "20"
+        - install_deps: "pnpm install --no-frozen-lockfile"
+        - run: "pnpm run test:bridge"
+        - run: "node scripts/generate-bridge-report.js"
+        - upload_artifact: "reports/"
+      custom_rules:
+        - check_message_relay_integrity
+        - check_cross_chain_replay_protection
+        - check_bridge_finality_validation
+        - check_liquidity_pool_bounds
+        - check_oracle_price_manipulation
+        - check_withdrawal_delay_enforcement
+
+    npm_audit:
+      name: Dependency Vulnerability Audit
+      runs_on: ubuntu-latest
+      timeout_minutes: 10
+      steps:
+        - checkout
+        - setup_node: "20"
+        - run: "npm audit --production --audit-level=high"
+        - run: "pnpm audit --audit-level=high || true"
+
+    secret_scan:
+      name: Hardcoded Secret Detection
+      runs_on: ubuntu-latest
+      timeout_minutes: 10
+      steps:
+        - checkout
+        - run: "pip install trufflehog3"
+        - run: "trufflehog3 --no-history -f json -o trufflehog-results.json . || true"
+
+    aggregate_report:
+      name: Aggregate Security Report
+      runs_on: ubuntu-latest
+      needs: [slither_analysis, foundry_fuzz, bridge_security, npm_audit, secret_scan]
+      steps:
+        - download_all_artifacts
+        - generate_aggregate_report: "security-aggregate-report.md"
+        - notify_slack:
+            channel: "#security-alerts"
+            condition: "failure() || contains(needs.*.result, 'failure')"
+
+# =============================================================================
+# 3. DEPLOY PIPELINE — Railway / Render / Fly Auto-Deploy on main
+# =============================================================================
+deploy_pipeline:
+  name: Deploy Pipeline
+  workflow_file: deploy-railway.yml
+
+  triggers:
+    push:
+      branches: [main]
+    workflow_dispatch:
+      inputs:
+        environment:
+          description: "Target environment"
+          type: choice
+          options: [staging, production]
+          default: staging
+
+  environments:
+    staging:
+      url: https://staging.audityzer.com
+      deploy_targets:
+        railway:
+          service_id: "${{ secrets.RAILWAY_SERVICE_ID_STAGING }}"
+        fly:
+          app: audityzeroman-staging
+          region: waw
+    production:
+      url: https://audityzer.com
+      requires_approval: true
+      deploy_targets:
+        railway:
+          service_id: "${{ secrets.RAILWAY_SERVICE_ID }}"
+        fly:
+          app: audityzeroman
+          region: waw
+        netlify:
+          site_id: "${{ secrets.NETLIFY_SITE_ID }}"
+        github_pages:
+          branch: gh-pages
+          target_folder: /
+
+  jobs:
+    build_and_test:
+      name: Build & Validate Before Deploy
+      runs_on: ubuntu-latest
+      steps:
+        - checkout
+        - setup_node: "20"
+        - install_deps: "pnpm install --no-frozen-lockfile"
+        - run: "pnpm run build"
+        - run: "pnpm test || true"
+        - upload_artifact: "dist/"
+
+    deploy_railway:
+      name: Deploy to Railway
+      runs_on: ubuntu-latest
+      needs: [build_and_test]
+      steps:
+        - checkout
+        - install_railway_cli: true
+        - run: "railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}"
+        - healthcheck:
+            url: "${{ env.DEPLOY_URL }}/health"
+            retries: 5
+            interval: 10s
+
+    deploy_fly:
+      name: Deploy to Fly.io
+      runs_on: ubuntu-latest
+      needs: [build_and_test]
+      if: github.ref == 'refs/heads/main'
+      steps:
+        - checkout
+        - install_flyctl: true
+        - run: "flyctl deploy --remote-only"
+        - healthcheck:
+            url: "https://audityzeroman.fly.dev/health"
+            retries: 5
+
+    deploy_netlify:
+      name: Deploy to Netlify
+      runs_on: ubuntu-latest
+      needs: [build_and_test]
+      if: github.ref == 'refs/heads/main'
+      steps:
+        - checkout
+        - download_artifact: "dist/"
+        - run: "npx netlify-cli deploy --prod --dir=dist"
+
+    post_deploy_smoke:
+      name: Post-Deploy Smoke Tests
+      runs_on: ubuntu-latest
+      needs: [deploy_railway, deploy_fly]
+      steps:
+        - checkout
+        - run: |
+            curl -sf https://audityzer.com/health || exit 1
+            curl -sf https://audityzeroman.fly.dev/health || exit 1
+        - notify_slack:
+            message: "Deploy complete - all health checks passed"
+            channel: "#deploys"
+
+# =============================================================================
+# 4. MONITORING PIPELINE — Grafana / Prometheus Health Checks
+# =============================================================================
+monitoring_pipeline:
+  name: Monitoring & Health Check Pipeline
+  workflow_file: monitor-health.yml
+
+  triggers:
+    schedule:
+      - cron: "*/15 * * * *"  # Every 15 minutes
+    workflow_dispatch: {}
+
+  services_monitored:
+    - name: Audityzer App
+      url: https://audityzer.com/health
+      expected_status: 200
+      timeout: 10s
+    - name: Audityzer API
+      url: https://api.audityzer.com/health
+      expected_status: 200
+      timeout: 10s
+    - name: Fly.io App
+      url: https://audityzeroman.fly.dev/health
+      expected_status: 200
+      timeout: 10s
+    - name: Grafana Dashboard
+      url: http://localhost:3001/api/health
+      expected_status: 200
+      timeout: 5s
+    - name: Prometheus
+      url: http://localhost:9090/-/healthy
+      expected_status: 200
+      timeout: 5s
+
+  prometheus_config:
+    scrape_interval: 15s
+    evaluation_interval: 15s
+    scrape_configs:
+      - job_name: audityzer-app
+        targets: ["host.docker.internal:3000"]
+        metrics_path: /metrics
+        scrape_interval: 30s
+      - job_name: node-exporter
+        targets: ["node-exporter:9100"]
+      - job_name: cadvisor
+        targets: ["cadvisor:8080"]
+      - job_name: nginx
+        targets: ["host.docker.internal:9113"]
+      - job_name: postgres
+        targets: ["host.docker.internal:9187"]
+
+  alert_rules:
+    - name: HighErrorRate
+      expr: "rate(http_requests_total{status=~'5..'}[5m]) > 0.05"
+      for: 5m
+      severity: critical
+    - name: HighLatency
+      expr: "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 2"
+      for: 5m
+      severity: warning
+    - name: ServiceDown
+      expr: "up == 0"
+      for: 2m
+      severity: critical
+    - name: HighMemoryUsage
+      expr: "process_resident_memory_bytes / 1024 / 1024 > 512"
+      for: 10m
+      severity: warning
+    - name: DiskSpaceLow
+      expr: 'node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} < 0.1'
+      for: 5m
+      severity: critical
+
+# =============================================================================
+# 5. NOTIFICATION PIPELINE — Telegram / Slack
+# =============================================================================
+notification_pipeline:
+  name: Notification Pipeline
+
+  channels:
+    slack:
+      webhook_secret: SLACK_WEBHOOK_URL
+      channels:
+        security_alerts: "#security-alerts"
+        deploy_notifications: "#deploys"
+        ci_failures: "#ci-alerts"
+        monitoring: "#monitoring"
+    telegram:
+      bot_token_secret: TELEGRAM_BOT_TOKEN
+      chat_id_secret: TELEGRAM_CHAT_ID
+      status: disconnected  # Needs setup — see track-context.md
+
+  trigger_rules:
+    - event: security_scan_failure
+      channels: [slack.security_alerts, telegram]
+      urgency: high
+      template: |
+        :alert: Security scan failed on {{ branch }}
+        Findings: {{ finding_count }} issues ({{ critical_count }} critical)
+        Run: {{ workflow_url }}
+    - event: deploy_success
+      channels: [slack.deploy_notifications]
+      urgency: low
+      template: |
+        :rocket: Deploy to {{ environment }} succeeded
+        Commit: {{ commit_sha_short }}
+        By: {{ actor }}
+    - event: deploy_failure
+      channels: [slack.deploy_notifications, telegram]
+      urgency: high
+      template: |
+        :x: Deploy to {{ environment }} FAILED
+        Commit: {{ commit_sha_short }}
+        Error: {{ error_message }}
+    - event: health_check_failure
+      channels: [slack.monitoring, telegram]
+      urgency: critical
+      template: |
+        :rotating_light: Service {{ service_name }} is DOWN
+        URL: {{ service_url }}
+        Last healthy: {{ last_healthy_time }}
+    - event: ci_failure
+      channels: [slack.ci_failures]
+      urgency: medium
+      template: |
+        :warning: CI failed on {{ branch }}
+        Job: {{ job_name }}
+        Run: {{ workflow_url }}
+
+# =============================================================================
+# 6. SUPERFLUID INDEXER HEALTH CHECKS
+# =============================================================================
+superfluid_indexer:
+  name: Superfluid Indexer Health
+  description: >
+    Monitors the Superfluid stream indexer that listens to FlowUpdated events
+    on Optimism L2 for the AuditorSEC donation system.
+
+  health_checks:
+    - name: Indexer Process Alive
+      type: process
+      check: "pgrep -f 'indexer' || curl -sf http://localhost:4000/health"
+      interval: 60s
+    - name: Database Connection
+      type: postgres
+      check: "pg_isready -U audityzer -d audityzer"
+      interval: 30s
+    - name: Last Block Indexed
+      type: custom
+      check: |
+        LAST_BLOCK=$(curl -sf http://localhost:4000/status | jq '.lastBlockIndexed')
+        CHAIN_HEAD=$(curl -sf https://mainnet.optimism.io -X POST -H 'Content-Type: application/json' \
+          -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' | jq -r '.result' | xargs printf '%d')
+        DIFF=$((CHAIN_HEAD - LAST_BLOCK))
+        [ "$DIFF" -lt 100 ] && echo "OK: $DIFF blocks behind" || (echo "WARN: $DIFF blocks behind" && exit 1)
+      interval: 120s
+      alert_threshold: 100  # blocks behind
+
+    - name: FlowUpdated Event Processing
+      type: custom
+      check: |
+        EVENTS_LAST_HOUR=$(curl -sf http://localhost:4000/metrics | grep 'events_processed_total' | awk '{print $2}')
+        [ "$EVENTS_LAST_HOUR" -gt 0 ] && echo "OK" || echo "WARN: No events in last hour"
+      interval: 3600s
+
+  database:
+    type: postgresql
+    connection: "postgresql://audityzer:${DB_PASSWORD}@postgres:5432/audityzer"
+    orm: prisma
+    health_query: "SELECT COUNT(*) FROM _prisma_migrations WHERE finished_at IS NOT NULL"
+
+# =============================================================================
+# 7. SUBGRAPH SYNC MONITORING
+# =============================================================================
+subgraph_monitoring:
+  name: Subgraph Sync Monitor
+  description: >
+    Monitors Superfluid Subgraph sync status for AudityzerStreams queries.
+    Uses The Graph's hosted service or Subgraph Studio.
+
+  subgraphs:
+    - name: superfluid-optimism
+      endpoint: "https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-optimism"
+      health_query: |
+        {
+          _meta {
+            block { number }
+            hasIndexingErrors
+          }
+        }
+      sync_threshold_blocks: 50
+      check_interval: 300s  # 5 minutes
+
+    - name: audityzer-streams
+      endpoint: "https://api.thegraph.com/subgraphs/name/romanchaa997/audityzer-streams"
+      health_query: |
+        {
+          _meta {
+            block { number }
+            hasIndexingErrors
+          }
+          streams(first: 1, orderBy: updatedAtTimestamp, orderDirection: desc) {
+            id
+            updatedAtTimestamp
+          }
+        }
+      sync_threshold_blocks: 100
+      stale_data_threshold: 3600  # seconds since last update
+      check_interval: 300s
+
+  reconciliation:
+    description: Cross-check indexer DB against subgraph data
+    query: |
+      Compare local DB stream counts vs subgraph:
+      - Local: SELECT COUNT(*) FROM streams WHERE chain_id = 10
+      - Subgraph: { streams(where: {}) { id } } count
+    max_drift: 10  # max allowed difference in stream count
+    alert_on_drift: true
+
+# =============================================================================
+# 8. SCHEDULED TASKS — Cron Jobs
+# =============================================================================
+scheduled_tasks:
+  - name: Subgraph Reconciliation
+    cron: "0 */6 * * *"  # Every 6 hours
+    description: >
+      Reconcile local indexer database with Superfluid subgraph data.
+      Detects missed events and re-indexes if necessary.
+    action: "node scripts/reconcile-subgraph.js"
+    timeout: 600s
+    alert_on_failure: true
+    notify: [slack.monitoring]
+
+  - name: Stream Health Monitor
+    cron: "*/30 * * * *"  # Every 30 minutes
+    description: >
+      Check all active Superfluid streams for anomalies —
+      unexpected flow rate changes, stopped streams, liquidations.
+    action: "node scripts/monitor-streams.js"
+    timeout: 300s
+    alert_on_failure: true
+    notify: [slack.monitoring, telegram]
+
+  - name: Weekly Security Deep Scan
+    cron: "0 2 * * 1"  # Monday at 02:00 UTC
+    description: >
+      Full security scan including Slither, Mythril, multi-chain analysis.
+      Generates comprehensive report and notifies security team.
+    action: "gh workflow run security-scan.yml -f deep=true"
+    timeout: 1800s
+    notify: [slack.security_alerts]
+
+  - name: Daily Bridge Security Test
+    cron: "0 0 * * *"  # Daily at midnight UTC
+    description: >
+      Run bridge security test suite with full visualization generation.
+    action: "gh workflow run bridge-security-tests.yml"
+    timeout: 1200s
+    notify: [slack.security_alerts]
+
+  - name: Dependency Update Check
+    cron: "0 8 * * 1"  # Monday at 08:00 UTC
+    description: >
+      Check for outdated dependencies, especially security-critical Web3 libs.
+    action: "pnpm outdated --format json > reports/outdated-deps.json"
+    timeout: 120s
+    notify: [slack.ci_failures]
+
+  - name: Artifact Cleanup
+    cron: "0 3 * * 0"  # Sunday at 03:00 UTC
+    description: >
+      Clean up old build artifacts, logs, and stale GitHub Actions caches.
+    action: |
+      find reports/ -mtime +30 -delete
+      find logs/ -mtime +14 -delete
+    timeout: 120s
+
+  - name: Certificate Renewal Check
+    cron: "0 9 1 * *"  # 1st of every month at 09:00 UTC
+    description: >
+      Check SSL certificate expiry for all domains:
+      audityzer.com, auditorsec.com, bbbhhai.com
+    action: "node scripts/check-certs.js"
+    timeout: 60s
+    alert_on_failure: true
+    notify: [slack.monitoring, telegram]
+
+  - name: Growth Metrics Collection
+    cron: "0 6 * * *"  # Daily at 06:00 UTC
+    description: >
+      Collect GitHub stars, npm downloads, Docker pulls, and community metrics.
+    action: "node scripts/collect-growth-metrics.js"
+    timeout: 300s
+    notify: [slack.monitoring]
+
+# =============================================================================
+# 9. INFRASTRUCTURE — K8s, Docker, Deploy Targets
+# =============================================================================
+infrastructure:
+  docker:
+    compose_file: docker-compose.yml
+    services:
+      - audityzer-app (port 3000)
+      - mcp-server (port 8080)
+      - postgres (port 5432)
+      - redis (port 6379)
+      - nginx (port 80/443)
+      - prometheus (port 9090)
+      - grafana (port 3001)
+      - node-exporter (port 9100)
+      - community-bot
+      - growth-tracker
+
+  kubernetes:
+    hpa_config: infrastructure/k8s/hpa.yml  # From PR#111
+    autoscaling:
+      - audityzer-api: min 2, max 10, target CPU 70%
+      - audityzer-access-control-worker: min 1, max 5
+      - audityzer-reentrancy-worker: min 1, max 5
+      - audityzer-logic-bugs-worker: min 1, max 3
+      - audityzer-anomaly-worker: min 1, max 3
+      - grafana: min 1, max 3
+
+  deploy_targets:
+    railway:
+      docs: https://railway.app
+      auto_deploy: true
+      branch: main
+    fly_io:
+      app: audityzeroman
+      region: waw
+      config: fly.toml
+    netlify:
+      config: netlify.toml
+      publish_dir: dist
+    github_pages:
+      branch: gh-pages
+      url: https://romanchaa997.github.io/Audityzer
+
+# =============================================================================
+# 10. SECRETS REQUIRED
+# =============================================================================
+required_secrets:
+  ci:
+    - GITHUB_TOKEN              # Auto-provided by GitHub Actions
+    - CODECOV_TOKEN             # Code coverage uploads
+
+  security:
+    - SNYK_TOKEN                # Snyk vulnerability scanning (optional)
+
+  deploy:
+    - RAILWAY_TOKEN             # Railway CLI authentication
+    - RAILWAY_SERVICE_ID        # Railway service target
+    - RAILWAY_SERVICE_ID_STAGING
+    - FLY_API_TOKEN             # Fly.io deployments
+    - NETLIFY_AUTH_TOKEN        # Netlify deploys
+    - NETLIFY_SITE_ID
+    - AWS_ACCESS_KEY_ID         # S3 backup
+    - AWS_SECRET_ACCESS_KEY
+
+  monitoring:
+    - GRAFANA_PASSWORD          # Grafana admin access
+    - PROMETHEUS_PUSHGATEWAY_URL
+
+  notifications:
+    - SLACK_WEBHOOK_URL         # Slack integration
+    - TELEGRAM_BOT_TOKEN        # Telegram bot (needs setup)
+    - TELEGRAM_CHAT_ID          # Telegram target chat
+
+  database:
+    - DB_PASSWORD               # PostgreSQL
+    - REDIS_PASSWORD            # Redis cache
+
+  ai:
+    - OPENAI_API_KEY            # AI vulnerability detection
+    - ANTHROPIC_API_KEY         # MCP server
+
+  community:
+    - DISCORD_TOKEN             # Community bot
+    - DISCORD_GUILD_ID
+
+# =============================================================================
+# 11. PR #111 INTEGRATION NOTES
+# =============================================================================
+pr_111_status:
+  title: "Full Optimization – Parallel CI/CD, Security Scans, AI/ML Analytics, Dependabot, K8s HPA"
+  state: OPEN
+  files_changed: 26
+  key_additions:
+    - .github/workflows/parallel-security-scan.yml  # Fast + Deep path
+    - .github/workflows/ai-parallel-analytics.yml   # 5 concurrent AI workers
+    - .github/dependabot.yml                         # npm, Actions, pip, Docker
+    - infrastructure/k8s/hpa.yml                     # 6 HPA resources
+  integration_notes: >
+    This automation spec complements PR#111. Once #111 is merged, the parallel
+    security scan and AI analytics workflows will be active. This spec adds
+    the missing pieces: Railway deploy automation, comprehensive health monitoring,
+    Superfluid indexer health, subgraph sync, and scheduled reconciliation tasks.
