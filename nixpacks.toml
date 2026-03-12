@@ -1,11 +1,11 @@
 # Nixpacks config for Railway deployment
-# Ensures correct Node.js version and skip unnecessary build steps
-
-[phases.setup]
-nixPkgs = ["nodejs-18_x", "npm-9_x"]
+# Skip vite build — we only need server.js + express
 
 [phases.install]
-cmds = ["npm ci --omit=dev || npm install --production"]
+cmds = ["npm install --production --ignore-scripts"]
+
+[phases.build]
+cmds = ["echo 'Skipping frontend build — server-only deploy'"]
 
 [start]
 cmd = "node server.js"
