@@ -155,7 +155,7 @@ app.get('/api/status', async (req, res) => {
   res.json({
     platform: 'AuditorSEC',
     product: 'Audityzer',
-    version: '1.2.0',
+    version: '1.3.0',
     branch: 'defense-audit',
     modules: {
       patternDetection: true,
@@ -166,11 +166,19 @@ app.get('/api/status', async (req, res) => {
       immunefiIntegration: true,
       grafanaDashboard: true,
       postgresStorage: !!pool,
+      aiAgentSecurity: true,
+      defenseSupplyChain: true,
+      nis2Compliance: true,
+      gdprCompliance: true,
+      multiChainSupport: true,
+      proZorroMonitoring: true,
     },
     security: {
-      rulesLoaded: 12,
-      categories: ['bridge', 'optimism-l2', 'dapp-frontend', 'mev', 'smart-contract', 'defi'],
-      severities: { critical: 2, high: 5, medium: 3, low: 1 },
+      rulesLoaded: Object.keys(VULN_PATTERNS).length,
+      categories: [...new Set(Object.values(VULN_PATTERNS).map(p => p.category))],
+      severities: Object.values(VULN_PATTERNS).reduce((acc, p) => {
+        acc[p.severity] = (acc[p.severity] || 0) + 1; return acc;
+      }, {}),
     },
     database: dbStats,
     links: {
@@ -182,40 +190,104 @@ app.get('/api/status', async (req, res) => {
 
 // ─── Vulnerability Patterns ──────────────────────────────────────────────────
 const VULN_PATTERNS = {
+  // ─── Original Web3 Patterns ──────────────────────────────────────────────
   reentrancy: {
     keywords: ['call.value', '.call{value', 'external call', 'callback', 'fallback'],
-    severity: 'high', cwe: 'CWE-841',
+    severity: 'high', cwe: 'CWE-841', category: 'smart-contract',
     description: 'Re-entrancy: state changes after external calls',
   },
   accessControl: {
     keywords: ['onlyOwner', 'require(msg.sender', 'auth', 'modifier'],
-    severity: 'high', cwe: 'CWE-284',
+    severity: 'high', cwe: 'CWE-284', category: 'smart-contract',
     description: 'Missing or improper access control',
   },
   integerOverflow: {
     keywords: ['SafeMath', 'overflow', 'underflow', 'unchecked'],
-    severity: 'medium', cwe: 'CWE-190',
+    severity: 'medium', cwe: 'CWE-190', category: 'smart-contract',
     description: 'Integer overflow/underflow risk',
   },
   flashLoan: {
     keywords: ['flashloan', 'flash loan', 'price oracle', 'getReserves'],
-    severity: 'high', cwe: 'CWE-682',
+    severity: 'high', cwe: 'CWE-682', category: 'defi',
     description: 'Flash loan attack vector',
   },
   frontRunning: {
     keywords: ['mempool', 'frontrun', 'sandwich', 'slippage', 'MEV'],
-    severity: 'medium', cwe: 'CWE-362',
+    severity: 'medium', cwe: 'CWE-362', category: 'mev',
     description: 'MEV/front-running vulnerability',
   },
   crossChain: {
     keywords: ['bridge', 'cross-chain', 'relay', 'message passing'],
-    severity: 'critical', cwe: 'CWE-345',
+    severity: 'critical', cwe: 'CWE-345', category: 'bridge',
     description: 'Cross-chain bridge security issue',
   },
   oracleManipulation: {
     keywords: ['oracle', 'price feed', 'Chainlink', 'TWAP'],
-    severity: 'high', cwe: 'CWE-400',
+    severity: 'high', cwe: 'CWE-400', category: 'defi',
     description: 'Oracle manipulation vulnerability',
+  },
+  // ─── AI-Agent Security (Grok Conv #4: AI-agent audit direction) ──────────
+  agentPromptInjection: {
+    keywords: ['prompt', 'injection', 'system prompt', 'jailbreak', 'ignore previous'],
+    severity: 'critical', cwe: 'CWE-77', category: 'ai-agent',
+    description: 'AI agent prompt injection / jailbreak vector',
+  },
+  agentAutonomousTrading: {
+    keywords: ['autonomous', 'ai agent', 'auto trade', 'agent executor', 'langchain'],
+    severity: 'high', cwe: 'CWE-863', category: 'ai-agent',
+    description: 'Autonomous AI agent with unguarded asset access',
+  },
+  governanceExploit: {
+    keywords: ['governance', 'proposal', 'vote', 'quorum', 'timelock', 'delegate'],
+    severity: 'high', cwe: 'CWE-285', category: 'defi',
+    description: 'Governance manipulation / vote buying exploit',
+  },
+  sandwichAttack: {
+    keywords: ['sandwich', 'frontrun', 'backrun', 'amountOutMin', 'slippage tolerance'],
+    severity: 'medium', cwe: 'CWE-362', category: 'mev',
+    description: 'Sandwich attack on DEX swap with insufficient slippage protection',
+  },
+  dataPoisoning: {
+    keywords: ['training data', 'model update', 'poisoning', 'adversarial', 'backdoor model'],
+    severity: 'high', cwe: 'CWE-506', category: 'ai-agent',
+    description: 'Data poisoning / adversarial ML attack on AI component',
+  },
+  // ─── Defense Tech / Supply Chain (Grok Conv #2: Ukrainian defence tech) ──
+  supplyChainIntegrity: {
+    keywords: ['supply chain', 'vendor', 'supplier', 'procurement', 'subcontract', 'third party'],
+    severity: 'high', cwe: 'CWE-829', category: 'defense-supply-chain',
+    description: 'Supply chain integrity risk — unverified vendor/supplier dependency',
+  },
+  droneCommsSecurity: {
+    keywords: ['telemetry', 'mavlink', 'drone', 'UAV', 'command and control', 'C2', 'FPV'],
+    severity: 'critical', cwe: 'CWE-319', category: 'defense-supply-chain',
+    description: 'Drone/UAV communication channel security — unencrypted C2 or telemetry',
+  },
+  firmwareIntegrity: {
+    keywords: ['firmware', 'bootloader', 'OTA update', 'signed binary', 'secure boot'],
+    severity: 'high', cwe: 'CWE-494', category: 'defense-supply-chain',
+    description: 'Firmware integrity — unsigned or unverified update mechanism',
+  },
+  // ─── NIS2 Article 21 Controls (Grok Conv #8: NIS2/GDPR mapping) ─────────
+  encryptionWeakness: {
+    keywords: ['md5', 'sha1', 'des', 'rc4', 'ecb mode', 'weak cipher', 'no encryption'],
+    severity: 'high', cwe: 'CWE-327', category: 'nis2-compliance',
+    description: 'NIS2 Art.21(2h) — Weak or missing cryptography/encryption',
+  },
+  mfaAbsent: {
+    keywords: ['single factor', 'password only', 'no 2fa', 'no mfa', 'basic auth'],
+    severity: 'medium', cwe: 'CWE-308', category: 'nis2-compliance',
+    description: 'NIS2 Art.21(2j) — Missing multi-factor authentication',
+  },
+  incidentResponseGap: {
+    keywords: ['no incident', 'no alert', 'unmonitored', 'no logging', 'no audit trail'],
+    severity: 'high', cwe: 'CWE-778', category: 'nis2-compliance',
+    description: 'NIS2 Art.21(2b) — Insufficient incident handling / detection capability',
+  },
+  backupDisasterRecovery: {
+    keywords: ['no backup', 'no disaster', 'no recovery', 'single point of failure', 'no redundancy'],
+    severity: 'medium', cwe: 'CWE-693', category: 'nis2-compliance',
+    description: 'NIS2 Art.21(2c) — Missing business continuity / disaster recovery plan',
   },
 };
 
@@ -523,7 +595,7 @@ audityzer_memory_rss_bytes ${memUsage.rss}
 
 # HELP audityzer_version_info Server version info
 # TYPE audityzer_version_info gauge
-audityzer_version_info{version="1.2.0"} 1
+audityzer_version_info{version="1.3.0"} 1
 `);
 });
 
@@ -633,6 +705,198 @@ app.get('/api/compliance/cmmc', (req, res) => {
   });
 });
 
+// ─── NIS2 Directive Article 21 Full Mapping (Grok Conv #8) ──────────────────
+const NIS2_ARTICLE_21 = {
+  '21.2a': { measure: 'Risk analysis and information system security policies',
+    isoMapping: ['5.2', '6.1.2', '6.1.3', 'A.5.1'], gdprMapping: 'Article 32',
+    automatedRules: ['accessControl', 'encryptionWeakness'], status: 'partial' },
+  '21.2b': { measure: 'Incident handling',
+    isoMapping: ['A.5.24', 'A.5.25', 'A.5.26', 'A.5.27', 'A.5.28'], gdprMapping: 'Article 33/34',
+    automatedRules: ['incidentResponseGap'], status: 'partial' },
+  '21.2c': { measure: 'Business continuity, backup management, disaster recovery, crisis management',
+    isoMapping: ['A.5.29', 'A.5.30'], gdprMapping: 'Article 32(1c)',
+    automatedRules: ['backupDisasterRecovery'], status: 'partial' },
+  '21.2d': { measure: 'Supply chain security (vendor/supplier relationships)',
+    isoMapping: ['A.5.19', 'A.5.20', 'A.5.21', 'A.5.22', 'A.5.23'], gdprMapping: 'Article 28 (DPA)',
+    automatedRules: ['supplyChainIntegrity', 'firmwareIntegrity'], status: 'partial' },
+  '21.2e': { measure: 'Security in network/information systems acquisition, development, maintenance + vulnerability handling',
+    isoMapping: ['A.8.8', 'A.8.9', 'A.8.10', 'A.8.22'], gdprMapping: 'Article 25 (by design)',
+    automatedRules: ['reentrancy', 'integerOverflow', 'flashLoan', 'oracleManipulation', 'crossChain'], status: 'active' },
+  '21.2f': { measure: 'Policies and procedures to assess effectiveness of cybersecurity risk-management',
+    isoMapping: ['9.1', '9.2', '9.3', 'A.5.35'], gdprMapping: 'Article 32(1d)',
+    automatedRules: [], status: 'manual' },
+  '21.2g': { measure: 'Basic cyber hygiene practices and cybersecurity training',
+    isoMapping: ['7.3', '7.4', 'A.6.3'], gdprMapping: 'Article 39',
+    automatedRules: [], status: 'manual' },
+  '21.2h': { measure: 'Policies and procedures regarding cryptography and encryption',
+    isoMapping: ['A.8.24'], gdprMapping: 'Article 32(1a)',
+    automatedRules: ['encryptionWeakness'], status: 'partial' },
+  '21.2i': { measure: 'Human resources security, access control policies, asset management',
+    isoMapping: ['A.5.9', 'A.5.10', 'A.5.11', 'A.5.15', 'A.5.18'], gdprMapping: 'Article 32',
+    automatedRules: ['accessControl', 'mfaAbsent'], status: 'partial' },
+  '21.2j': { measure: 'Multi-factor authentication, secured communications, emergency communication',
+    isoMapping: ['A.5.14', 'A.5.16', 'A.5.17'], gdprMapping: 'Article 32',
+    automatedRules: ['mfaAbsent', 'droneCommsSecurity'], status: 'partial' },
+};
+
+app.get('/api/compliance/nis2', (req, res) => {
+  const measures = Object.entries(NIS2_ARTICLE_21).map(([id, m]) => {
+    const rulesCovering = m.automatedRules.filter(r => VULN_PATTERNS[r]);
+    return {
+      id, measure: m.measure, isoMapping: m.isoMapping, gdprMapping: m.gdprMapping,
+      automatedRules: rulesCovering.length, ruleIds: rulesCovering, status: m.status,
+    };
+  });
+  const active = measures.filter(m => m.automatedRules > 0).length;
+  res.json({
+    framework: 'NIS2 Directive (EU) 2022/2555 — Article 21',
+    applicableTo: 'Essential and important entities (EU member states)',
+    fines: { essential: '€10M or 2% global turnover', important: '€7M or 1.4% global turnover' },
+    timestamp: new Date().toISOString(),
+    summary: { totalMeasures: 10, withAutomation: active, overallCoverage: Math.round((active / 10) * 100) },
+    measures,
+    auditPackages: {
+      combined: 'NIS2 + GDPR Gap Analysis — recommended for EU entities',
+      pricing: { small: '€3,000–8,000', medium: '€15,000–40,000', enterprise: '€50,000–120,000' },
+    },
+  });
+});
+
+// ─── GDPR Article 32 Compliance Mapping ─────────────────────────────────────
+app.get('/api/compliance/gdpr', (req, res) => {
+  res.json({
+    framework: 'GDPR (EU) 2016/679 — Article 32 (Security of processing)',
+    timestamp: new Date().toISOString(),
+    requirements: [
+      { id: 'Art32.1a', requirement: 'Pseudonymisation and encryption of personal data',
+        automatedCheck: true, rules: ['encryptionWeakness'], nis2Mapping: '21.2h' },
+      { id: 'Art32.1b', requirement: 'Ensure ongoing confidentiality, integrity, availability and resilience',
+        automatedCheck: true, rules: ['accessControl', 'mfaAbsent', 'reentrancy'], nis2Mapping: '21.2a/21.2i' },
+      { id: 'Art32.1c', requirement: 'Restore availability and access to personal data in timely manner',
+        automatedCheck: true, rules: ['backupDisasterRecovery'], nis2Mapping: '21.2c' },
+      { id: 'Art32.1d', requirement: 'Regularly test, assess, evaluate effectiveness of measures',
+        automatedCheck: false, rules: [], nis2Mapping: '21.2f' },
+    ],
+    dpiaRequired: 'For high-risk processing (Article 35)',
+    combinedAudit: {
+      description: 'GDPR + NIS2 share 70-80% of controls (encryption, MFA, incident handling)',
+      recommendation: 'Combined gap analysis reduces cost by 30-40% vs separate audits',
+    },
+  });
+});
+
+// ─── Multi-Chain Support Configuration (Grok Conv #4) ───────────────────────
+const SUPPORTED_CHAINS = {
+  ethereum: { name: 'Ethereum', chainId: 1, type: 'L1', status: 'active', explorer: 'etherscan.io' },
+  optimism: { name: 'Optimism', chainId: 10, type: 'L2', status: 'active', explorer: 'optimistic.etherscan.io' },
+  arbitrum: { name: 'Arbitrum One', chainId: 42161, type: 'L2', status: 'active', explorer: 'arbiscan.io' },
+  base: { name: 'Base', chainId: 8453, type: 'L2', status: 'active', explorer: 'basescan.org' },
+  polygon: { name: 'Polygon PoS', chainId: 137, type: 'L2', status: 'active', explorer: 'polygonscan.com' },
+  solana: { name: 'Solana', chainId: null, type: 'L1', status: 'beta', explorer: 'solscan.io' },
+  ton: { name: 'TON', chainId: null, type: 'L1', status: 'planned', explorer: 'tonscan.org' },
+  cosmos: { name: 'Cosmos Hub', chainId: null, type: 'L0', status: 'planned', explorer: 'mintscan.io' },
+  avalanche: { name: 'Avalanche C-Chain', chainId: 43114, type: 'L1', status: 'beta', explorer: 'snowscan.xyz' },
+  bsc: { name: 'BNB Smart Chain', chainId: 56, type: 'L1', status: 'active', explorer: 'bscscan.com' },
+};
+
+app.get('/api/chains', (req, res) => {
+  const chains = Object.entries(SUPPORTED_CHAINS).map(([id, c]) => ({ id, ...c }));
+  res.json({
+    totalChains: chains.length,
+    active: chains.filter(c => c.status === 'active').length,
+    beta: chains.filter(c => c.status === 'beta').length,
+    planned: chains.filter(c => c.status === 'planned').length,
+    chains,
+    securityIntelligence: 'Cross-chain vulnerability comparison in real-time — unified database',
+  });
+});
+
+// ─── ProZorro Tender Monitoring (Grok Conv #8: NIS2/GDPR) ───────────────────
+const PROZORRO_CPV_CODES = {
+  '79210000-1': 'Accounting and auditing services',
+  '72212700-4': 'Software development and consultancy services',
+  '72220000-0': 'Systems and technical consultancy services',
+  '64210000-1': 'Telephone and data transmission services',
+  '72000000-5': 'IT services: consulting, software, Internet',
+  '35000000-4': 'Security, fire-fighting, police and defence equipment',
+};
+
+app.get('/api/tenders/config', (req, res) => {
+  res.json({
+    source: 'ProZorro (public-api.prozorro.gov.ua)',
+    monitoredCPVCodes: PROZORRO_CPV_CODES,
+    relevantStatuses: ['active.enquiries', 'active.tendering'],
+    auditFocus: ['NIS2 compliance audits', 'Cybersecurity assessments', 'IT auditing services'],
+    apiEndpoint: 'https://public-api.prozorro.gov.ua/api/2.5/tenders',
+    estimatedValue: {
+      financialAudit: '250,000–340,000 UAH',
+      nis2ComplianceAudit: '200,000–500,000 UAH',
+      combinedGdprNis2: '250,000–500,000 UAH',
+    },
+    diiaCity: {
+      annualAuditDeadline: 'June 1 (ISAE 3000 required)',
+      riskOfNonCompliance: 'Status loss if >20 days late',
+    },
+  });
+});
+
+// ─── Defense Supply Chain Audit (Grok Conv #2 + BRAVE1) ─────────────────────
+app.get('/api/defense/capabilities', (req, res) => {
+  res.json({
+    platform: 'AuditorSEC Defense Audit Module',
+    brave1Integration: true,
+    capabilities: [
+      { id: 'drone-supply-chain', name: 'Drone Supply Chain Audit',
+        description: 'Verify vendor integrity, firmware signing, and procurement compliance for UAV components',
+        rules: ['supplyChainIntegrity', 'firmwareIntegrity', 'droneCommsSecurity'] },
+      { id: 'defense-procurement', name: 'Defense Procurement Transparency',
+        description: 'Blockchain-based audit trail for MoD procurement (ProZorro integration)',
+        rules: ['supplyChainIntegrity'] },
+      { id: 'comms-security', name: 'Secure Communications Audit',
+        description: 'Verify encryption of drone C2, telemetry, and video feeds (fiber-optic FPV compliance)',
+        rules: ['droneCommsSecurity', 'encryptionWeakness'] },
+    ],
+    ukrainianDefenseTech: {
+      ecosystem: 'BRAVE1 (brave1.gov.ua)',
+      companies: ['Ukrspecsystems', 'Airlogix', 'TAF Drones', 'Swarmer', 'Ratel Robotics', 'Wild Hornets', 'Escadrone', 'Aerorozvidka'],
+      industrySize: '~500 companies (2025-2026)',
+      growth: 'From dozens in 2022 to ~500 in 2026',
+    },
+  });
+});
+
+// ─── Competitive Intelligence (Grok Conv #5 + #7) ───────────────────────────
+app.get('/api/market/landscape', (req, res) => {
+  res.json({
+    platform: 'AuditorSEC / Audityzer',
+    positioning: 'AI-first automated security + decentralized audit network (2026-2027)',
+    competitors: [
+      { name: 'Sherlock', strength: 'AI + competitive audits + $2M insurance', tier: 'leader' },
+      { name: 'CertiK', strength: 'Skynet real-time monitoring + formal verification', tier: 'leader' },
+      { name: 'Trail of Bits', strength: 'Slither/Echidna tools + deep research', tier: 'leader' },
+      { name: 'Spearbit', strength: 'DAO + curated auditor network, $7M funding', tier: 'premium' },
+      { name: 'Nethermind', strength: 'AI threat intelligence + proactive defense', tier: 'strong' },
+      { name: 'Hashlock', strength: 'Free AI scan + optimization for MVPs', tier: 'emerging' },
+      { name: 'Cyfrin', strength: 'Aderyn + AI First Flights education', tier: 'strong' },
+      { name: 'Forta', strength: 'Decentralized threat monitoring network (FORT token)', tier: 'leader' },
+      { name: 'PeckShield', strength: 'Traditional top-3 auditor since 2018', tier: 'established' },
+    ],
+    pricingTiers: {
+      mvp: { range: '$2,000–$12,000', stack: 'AI scan + 1 manual audit' },
+      defi: { range: '$40,000–$150,000', stack: 'Multi-layer: AI + 2-3 manual audits + monitoring' },
+      institutional: { range: '$120,000–$400,000+', stack: 'AI + formal verification + top-tier audit + insurance + monitoring' },
+    },
+    differentiators: [
+      'AI-agent security auditing (autonomous DeFi agents, governance exploits)',
+      'Defense supply chain auditing (BRAVE1 ecosystem, drone/UAV)',
+      'NIS2 + GDPR combined compliance for EU entities',
+      'Multi-chain unified security intelligence (10 chains)',
+      'ProZorro government tender integration (Ukrainian market)',
+    ],
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // API 404 handler — return JSON for unmatched /api/* routes
 app.all('/api/*', (req, res) => {
   res.status(404).json({
@@ -648,6 +912,12 @@ app.all('/api/*', (req, res) => {
       'GET  /api/scans',
       'GET  /api/compliance/nist',
       'GET  /api/compliance/cmmc',
+      'GET  /api/compliance/nis2',
+      'GET  /api/compliance/gdpr',
+      'GET  /api/chains',
+      'GET  /api/tenders/config',
+      'GET  /api/defense/capabilities',
+      'GET  /api/market/landscape',
     ],
   });
 });
@@ -668,7 +938,7 @@ app.get('*', (req, res) => {
 
 // ─── Start Server ────────────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🛡️  AuditorSEC/Audityzer server v1.2.0 on port ${PORT}`);
+  console.log(`🛡️  AuditorSEC/Audityzer server v1.3.0 on port ${PORT}`);
   console.log(`   Health:  http://0.0.0.0:${PORT}/health`);
   console.log(`   API:     http://0.0.0.0:${PORT}/api/ai/detect`);
   console.log(`   Status:  http://0.0.0.0:${PORT}/api/status`);
