@@ -34,7 +34,8 @@
     "express": "^4.21.0",
     "prom-client": "^15.1.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
