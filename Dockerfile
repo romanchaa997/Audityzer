@@ -2,13 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy only what the server needs
-COPY package.json package-lock.json ./
-RUN npm install --production --ignore-scripts 2>/dev/null || npm install --omit=dev --ignore-scripts
+# Install only the deps server.js actually needs (skip the huge package-lock)
+RUN npm install express@4.21.0 cors@2.8.5 prom-client@15.1.0 2>/dev/null
 
+# Copy server
 COPY server.js ./
-COPY src/core/ai-vulnerability-detection.js ./src/core/
 
-EXPOSE 5000
+# Railway sets PORT env var
+ENV PORT=8080
+EXPOSE 8080
 
 CMD ["node", "server.js"]
