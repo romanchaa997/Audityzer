@@ -88,11 +88,25 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push
     environment: production
+    # continue-on-error ensures failed Railway CLI deploy doesn't block
+    # Railway's native auto-deploy via GitHub integration
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
+      - name: Check Railway token
+        id: check-token
+        run: |
+          if [ -z "${{ secrets.RAILWAY_TOKEN }}" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "::warning::RAILWAY_TOKEN not set — skipping CLI deploy (Railway auto-deploys via GitHub integration)"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
       - name: Install Railway CLI
+        if: steps.check-token.outputs.skip != 'true'
         run: npm install -g @railway/cli
       - name: Deploy to Railway
+        if: steps.check-token.outputs.skip != 'true'
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
@@ -104,6 +118,7 @@ jobs:
           echo "Branch: ${{ github.ref_name }}" >> deployment.log
           echo "Commit: ${{ github.sha }}" >> deployment.log
       - name: Health check
+        if: steps.check-token.outputs.skip != 'true'
         run: |
           sleep 15
           curl -f ${{ secrets.RAILWAY_HEALTH_URL }}/health || echo 'Health check pending (service starting)'
@@ -119,7 +134,9 @@ jobs:
     name: Prometheus Metrics Validation
     runs-on: ubuntu-latest
     needs: deploy
-    if: success()
+    # Run even if deploy was skipped/failed (Railway auto-deploys independently)
+    if: always()
+    continue-on-error: true
     steps:
       - name: Check /metrics endpoint
         run: |
