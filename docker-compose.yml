@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 version: '3.8'
 
@@ -240,23 +239,3 @@ volumes:
     driver: local
   grafana_data:
     driver: local
-=======
-version: "3.8"
-
-services:
-  backend:
-    build:
-      context: ./backend
-    ports:
-      - "3001:3001"
-    restart: unless-stopped
-    env_file:
-      - .env
-
-  frontend:
-    build:
-      context: ./frontend
-    ports:
-      - "80:80"
-    restart: unless-stopped
->>>>>>> 9fcef16aa3870634216e27d04154ec98e4c712a8
