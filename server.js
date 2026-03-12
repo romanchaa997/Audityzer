@@ -50,9 +50,53 @@ async function dbQuery(text, params = []) {
   }
 }
 
-// Middleware
-app.use(cors());
+// ─── Security Middleware ─────────────────────────────────────────────────────
+// Remove X-Powered-By header (info leak)
+app.disable('x-powered-by');
+
+// Security headers (OWASP recommended)
+app.use((req, res, next) => {
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:;");
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
+// CORS — restrict to known origins in production
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['https://bbbhhai.com', 'https://www.bbbhhai.com', 'https://audityzer-production.up.railway.app'];
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    if (process.env.NODE_ENV !== 'production') return cb(null, true);
+    cb(new Error('CORS policy: origin not allowed'));
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json({ limit: '1mb' }));
+
+// Rate limiting (basic — prevent abuse)
+const rateMap = new Map();
+app.use('/api/', (req, res, next) => {
+  const ip = req.ip || req.connection.remoteAddress;
+  const now = Date.now();
+  const window = 60000; // 1 minute
+  const maxReqs = 60;   // 60 req/min per IP
+  const entry = rateMap.get(ip) || { count: 0, start: now };
+  if (now - entry.start > window) { entry.count = 0; entry.start = now; }
+  entry.count++;
+  rateMap.set(ip, entry);
+  if (entry.count > maxReqs) {
+    return res.status(429).json({ error: 'Rate limit exceeded. Try again later.' });
+  }
+  next();
+});
 
 // ─── Health Check ────────────────────────────────────────────────────────────
 app.get('/health', async (req, res) => {
@@ -67,7 +111,7 @@ app.get('/health', async (req, res) => {
   res.json({
     status: 'ok',
     service: 'audityzer',
-    version: '1.1.0',
+    version: '1.2.0',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     ai: {
@@ -95,7 +139,7 @@ app.get('/api/status', async (req, res) => {
   res.json({
     platform: 'AuditorSEC',
     product: 'Audityzer',
-    version: '1.1.0',
+    version: '1.2.0',
     branch: 'defense-audit',
     modules: {
       patternDetection: true,
@@ -383,7 +427,122 @@ if (fs.existsSync(distPath)) {
   app.use(express.static(publicPath));
 }
 
-// SPA fallback
+// ─── NIST SP 800-171 / CMMC Compliance Mapping ──────────────────────────────
+const NIST_MAPPING = {
+  'AC': { family: 'Access Control', controls: 22, mapped: ['accessControl'],
+    description: 'Limit system access to authorized users and transactions' },
+  'AT': { family: 'Awareness and Training', controls: 3, mapped: [],
+    description: 'Ensure personnel are aware of security risks' },
+  'AU': { family: 'Audit and Accountability', controls: 9, mapped: ['reentrancy', 'crossChain'],
+    description: 'Create, protect, and retain system audit records' },
+  'CM': { family: 'Configuration Management', controls: 9, mapped: ['integerOverflow'],
+    description: 'Establish and maintain baseline configurations' },
+  'IA': { family: 'Identification and Authentication', controls: 11, mapped: ['accessControl'],
+    description: 'Identify and authenticate users and devices' },
+  'IR': { family: 'Incident Response', controls: 3, mapped: [],
+    description: 'Establish incident-handling capability' },
+  'MA': { family: 'Maintenance', controls: 6, mapped: [],
+    description: 'Perform maintenance on organizational systems' },
+  'MP': { family: 'Media Protection', controls: 9, mapped: [],
+    description: 'Protect system media, including digital and paper' },
+  'PE': { family: 'Physical Protection', controls: 6, mapped: [],
+    description: 'Limit physical access to systems and equipment' },
+  'PS': { family: 'Personnel Security', controls: 2, mapped: [],
+    description: 'Screen individuals prior to authorizing access' },
+  'RA': { family: 'Risk Assessment', controls: 3, mapped: ['flashLoan', 'oracleManipulation', 'frontRunning'],
+    description: 'Assess risk to operations and assets' },
+  'CA': { family: 'Security Assessment', controls: 4, mapped: [],
+    description: 'Assess security controls periodically' },
+  'SC': { family: 'System and Communications Protection', controls: 16, mapped: ['crossChain', 'oracleManipulation'],
+    description: 'Monitor and protect communications at system boundaries' },
+  'SI': { family: 'System and Information Integrity', controls: 7, mapped: ['reentrancy', 'integerOverflow', 'flashLoan'],
+    description: 'Identify and correct information flaws, protect from malicious code' },
+};
+
+app.get('/api/compliance/nist', (req, res) => {
+  const families = Object.entries(NIST_MAPPING).map(([id, fam]) => {
+    const coveredRules = fam.mapped.filter(r => VULN_PATTERNS[r]);
+    const coverage = fam.controls > 0 ? Math.min(100, Math.round((coveredRules.length / fam.controls) * 100 * 3)) : 0;
+    return {
+      id: `NIST-${id}`,
+      family: fam.family,
+      description: fam.description,
+      totalControls: fam.controls,
+      automatedRules: coveredRules.length,
+      ruleIds: coveredRules,
+      coveragePercent: coverage,
+      status: coverage >= 50 ? 'partial' : coverage > 0 ? 'minimal' : 'manual',
+    };
+  });
+
+  const totalControls = families.reduce((s, f) => s + f.totalControls, 0);
+  const totalAutomated = families.reduce((s, f) => s + f.automatedRules, 0);
+  const familiesWithCoverage = families.filter(f => f.automatedRules > 0).length;
+
+  res.json({
+    framework: 'NIST SP 800-171 Rev 2',
+    cmmcLevel: 'Level 2 (Advanced)',
+    timestamp: new Date().toISOString(),
+    summary: {
+      totalFamilies: families.length,
+      familiesWithAutomation: familiesWithCoverage,
+      totalControls,
+      automatedDetectionRules: totalAutomated,
+      overallScore: Math.round((familiesWithCoverage / families.length) * 100),
+    },
+    families,
+    recommendations: [
+      'Add authentication/authorization scanning rules to improve AC/IA coverage',
+      'Implement audit trail logging for all scan operations (AU family)',
+      'Add configuration baseline checks for CM family compliance',
+      'Integrate incident response workflows for IR family',
+    ],
+  });
+});
+
+app.get('/api/compliance/cmmc', (req, res) => {
+  res.json({
+    framework: 'CMMC 2.0',
+    timestamp: new Date().toISOString(),
+    levels: [
+      { level: 1, name: 'Foundational', practices: 17, status: 'partial',
+        description: 'Basic cyber hygiene — protect FCI' },
+      { level: 2, name: 'Advanced', practices: 110, status: 'in-progress',
+        description: 'Good cyber hygiene — protect CUI (NIST 800-171)' },
+      { level: 3, name: 'Expert', practices: 134, status: 'planned',
+        description: 'Advanced/progressive — protect CUI from APTs' },
+    ],
+    currentCapabilities: {
+      automatedVulnDetection: true,
+      patternBasedScanning: true,
+      aiAssistedAnalysis: !!HF_TOKEN,
+      complianceReporting: true,
+      continuousMonitoring: false,
+      incidentResponse: false,
+    },
+  });
+});
+
+// API 404 handler — return JSON for unmatched /api/* routes
+app.all('/api/*', (req, res) => {
+  res.status(404).json({
+    error: 'Not found',
+    message: `No API route matches ${req.method} ${req.path}`,
+    availableEndpoints: [
+      'GET  /api/status',
+      'GET  /api/rules',
+      'POST /api/ai/detect',
+      'POST /api/events',
+      'GET  /api/metrics',
+      'GET  /api/risks',
+      'GET  /api/scans',
+      'GET  /api/compliance/nist',
+      'GET  /api/compliance/cmmc',
+    ],
+  });
+});
+
+// SPA fallback — serve index.html for unmatched non-API routes
 app.get('*', (req, res) => {
   const indexDist = path.join(distPath, 'index.html');
   const indexPublic = path.join(publicPath, 'index.html');
@@ -399,7 +558,7 @@ app.get('*', (req, res) => {
 
 // ─── Start Server ────────────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🛡️  AuditorSEC/Audityzer server v1.1.0 on port ${PORT}`);
+  console.log(`🛡️  AuditorSEC/Audityzer server v1.2.0 on port ${PORT}`);
   console.log(`   Health:  http://0.0.0.0:${PORT}/health`);
   console.log(`   API:     http://0.0.0.0:${PORT}/api/ai/detect`);
   console.log(`   Status:  http://0.0.0.0:${PORT}/api/status`);
