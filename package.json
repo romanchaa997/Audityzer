@@ -31,6 +31,8 @@
     "openai": "^4.98.0",
     "path": "^0.12.7",
     "prettier": "^3.5.3",
+    "express": "^4.21.0",
+    "prom-client": "^15.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

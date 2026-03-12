@@ -91,6 +91,7 @@ jobs:
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
         run: |
           railway up \
             --service ${{ secrets.RAILWAY_SERVICE_ID }} \
@@ -119,7 +120,7 @@ jobs:
       - name: Check /metrics endpoint
         run: |
           sleep 20
-          curl -s ${{ secrets.RAILWAY_HEALTH_URL }}/metrics | grep 'audit_duration_seconds' || echo 'Metrics endpoint pending'
+          curl -s ${{ secrets.RAILWAY_HEALTH_URL }}/metrics | grep 'audityzer_audits_total' || echo 'Metrics endpoint pending'
       - name: Notify ClickUp task (BRAVE1 KPI update)
         if: success()
         run: |
