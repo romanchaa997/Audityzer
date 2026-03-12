@@ -1,0 +1,180 @@
+name: Service Health Monitor
+
+on:
+  schedule:
+    - cron: "7 */1 * * *"   # Hourly at :07 (offset to avoid :00 congestion)
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: Health Check — All Services
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check service endpoints
+        id: health
+        run: |
+          echo "## Service Health Report" > health-report.md
+          echo "**Timestamp:** $(date -u)" >> health-report.md
+          echo "**Run:** ${{ github.run_id }}" >> health-report.md
+          echo "" >> health-report.md
+          echo "| Service | URL | Status | Latency |" >> health-report.md
+          echo "|---------|-----|--------|---------|" >> health-report.md
+
+          FAILED=0
+          TOTAL=0
+
+          check_endpoint() {
+            local NAME="$1"
+            local URL="$2"
+            local TIMEOUT="${3:-10}"
+            TOTAL=$((TOTAL + 1))
+
+            START=$(date +%s%N)
+            HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" --max-time "$TIMEOUT" "$URL" 2>/dev/null || echo "000")
+            END=$(date +%s%N)
+            LATENCY=$(( (END - START) / 1000000 ))ms
+
+            if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "301" ] || [ "$HTTP_STATUS" = "302" ]; then
+              echo "| $NAME | $URL | $HTTP_STATUS | $LATENCY |" >> health-report.md
+            else
+              echo "| **$NAME** | $URL | **$HTTP_STATUS** | $LATENCY |" >> health-report.md
+              FAILED=$((FAILED + 1))
+            fi
+          }
+
+          # Core services
+          check_endpoint "Audityzer Main" "https://audityzer.com" 15
+          check_endpoint "GitHub Pages" "https://romanchaa997.github.io/Audityzer" 15
+          check_endpoint "Fly.io App" "https://audityzeroman.fly.dev" 15
+
+          # Domain checks
+          check_endpoint "AuditorSEC" "https://auditorsec.com" 15
+          check_endpoint "BBBHHAI" "https://bbbhhai.com" 15
+
+          echo "" >> health-report.md
+          echo "**Summary:** $((TOTAL - FAILED))/$TOTAL services healthy" >> health-report.md
+
+          cat health-report.md
+
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+
+      - name: Upload health report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report-${{ github.run_number }}
+          path: health-report.md
+          retention-days: 30
+
+      - name: Alert on failures
+        if: steps.health.outputs.failed != '0'
+        run: |
+          echo "::warning::${{ steps.health.outputs.failed }} service(s) are unhealthy"
+
+          # Slack notification
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": ":rotating_light: Health Check Alert: ${{ steps.health.outputs.failed }}/${{ steps.health.outputs.total }} services DOWN\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }' || true
+          fi
+
+  subgraph-sync:
+    name: Subgraph Sync Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Superfluid subgraph sync
+        id: subgraph
+        run: |
+          echo "## Subgraph Sync Report" > subgraph-report.md
+          echo "**Timestamp:** $(date -u)" >> subgraph-report.md
+          echo "" >> subgraph-report.md
+
+          # Check Superfluid Optimism subgraph
+          RESPONSE=$(curl -sf -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"query": "{ _meta { block { number } hasIndexingErrors } }"}' \
+            "https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-optimism" 2>/dev/null || echo '{"error": true}')
+
+          if echo "$RESPONSE" | grep -q '"error"'; then
+            echo "| Superfluid Optimism | ERROR | N/A |" >> subgraph-report.md
+            echo "subgraph_healthy=false" >> $GITHUB_OUTPUT
+          else
+            BLOCK=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_meta']['block']['number'])" 2>/dev/null || echo "unknown")
+            ERRORS=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['_meta']['hasIndexingErrors'])" 2>/dev/null || echo "unknown")
+            echo "| Superfluid Optimism | Block $BLOCK | Indexing errors: $ERRORS |" >> subgraph-report.md
+
+            if [ "$ERRORS" = "True" ]; then
+              echo "subgraph_healthy=false" >> $GITHUB_OUTPUT
+            else
+              echo "subgraph_healthy=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          cat subgraph-report.md
+
+      - name: Upload subgraph report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: subgraph-report-${{ github.run_number }}
+          path: subgraph-report.md
+          retention-days: 30
+
+      - name: Alert on subgraph issues
+        if: steps.subgraph.outputs.subgraph_healthy == 'false'
+        run: |
+          echo "::warning::Subgraph sync issues detected"
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": ":warning: Subgraph sync issue detected — Superfluid Optimism subgraph may have indexing errors.\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }' || true
+          fi
+
+  indexer-health:
+    name: Indexer Database Health
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check indexer status
+        run: |
+          echo "## Indexer Health Report" > indexer-report.md
+          echo "**Timestamp:** $(date -u)" >> indexer-report.md
+          echo "" >> indexer-report.md
+
+          # Check if indexer API is reachable (if deployed)
+          INDEXER_URL="${{ secrets.INDEXER_URL }}"
+          if [ -n "$INDEXER_URL" ]; then
+            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "$INDEXER_URL/health" 2>/dev/null || echo "000")
+            echo "Indexer API status: $STATUS" >> indexer-report.md
+
+            if [ "$STATUS" = "200" ]; then
+              # Get indexer metrics
+              METRICS=$(curl -sf "$INDEXER_URL/status" 2>/dev/null || echo "{}")
+              echo "Indexer metrics: $METRICS" >> indexer-report.md
+            fi
+          else
+            echo "Indexer URL not configured — skipping remote check" >> indexer-report.md
+          fi
+
+          cat indexer-report.md
+
+      - name: Upload indexer report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: indexer-report-${{ github.run_number }}
+          path: indexer-report.md
+          retention-days: 30
