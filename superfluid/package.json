@@ -1,0 +1,32 @@
+{
+  "name": "@audityzer/superfluid-integration",
+  "version": "1.0.0",
+  "description": "Audityzer × Superfluid streaming payments integration",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:sepolia": "hardhat run scripts/deploy-rewards-macro.ts --network op-sepolia",
+    "deploy:mainnet": "hardhat run scripts/deploy-rewards-macro.ts --network op-mainnet",
+    "stream:test": "ts-node scripts/create-test-stream.ts",
+    "monitor": "ts-node monitoring/monitoring.ts",
+    "subgraph:codegen": "cd subgraph && graph codegen",
+    "subgraph:build": "cd subgraph && graph build",
+    "subgraph:deploy:dev": "cd subgraph && graph deploy --studio audityzer-streams-op-sepolia",
+    "test:e2e": "hardhat test --network op-sepolia"
+  },
+  "dependencies": {
+    "@superfluid-finance/sdk-core": "^0.9.0",
+    "@superfluid-finance/ethereum-contracts": "^1.10.0",
+    "ethers": "^6.13.0",
+    "@graphprotocol/graph-cli": "^0.80.0",
+    "@graphprotocol/graph-ts": "^0.35.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0",
+    "typescript": "^5.5.0",
+    "ts-node": "^10.9.2",
+    "@types/node": "^22.0.0"
+  }
+}

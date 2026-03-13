@@ -1,0 +1,43 @@
+name: Audityzer Superfluid Deploy
+
+on:
+  push:
+    branches: [main, safe-improvements]
+    paths:
+      - 'superfluid/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: cd superfluid && npm ci
+      - run: cd superfluid && npx hardhat compile
+      - run: cd superfluid && npx hardhat test
+
+  deploy-subgraph:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install -g @graphprotocol/graph-cli
+      - run: cd superfluid/subgraph && graph auth --studio ${{ secrets.GRAPH_ACCESS_TOKEN }}
+      - run: cd superfluid/subgraph && graph codegen && graph build
+      - run: |
+          cd superfluid/subgraph
+          graph deploy --studio audityzer-streams-op \
+            --version-label v${{ github.run_number }}.0.0
+
+  deploy-contracts:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd superfluid && npm ci
+      - run: cd superfluid && npx hardhat run scripts/deploy-rewards-macro.ts --network op-mainnet
+        env:
+          OP_MAINNET_RPC: ${{ secrets.OP_MAINNET_RPC }}
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PK }}

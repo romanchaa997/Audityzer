@@ -1,0 +1,11 @@
+{
+  "macroForwarder": "0xcfA132E353cB4E398080B9700609bb008eceB125",
+  "rewardsMacro": {
+    "opSepolia": "",
+    "opMainnet": ""
+  },
+  "audityzerProxy": {
+    "opSepolia": "",
+    "opMainnet": ""
+  }
+}

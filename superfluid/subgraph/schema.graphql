@@ -1,0 +1,16 @@
+type Stream @entity {
+  id: ID!
+  sender: Bytes!
+  receiver: Bytes!
+  token: Bytes!
+  flowRate: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type AudityzerTVL @entity {
+  id: ID!
+  totalInflowRate: BigInt!
+  activeStreams: Int!
+  updatedAt: BigInt!
+}
