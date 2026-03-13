@@ -1,0 +1,71 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─── AI Governance Platform Integration Models ───────────────────────────────
+
+enum AuditTrailSource {
+  BLOCKCHAIN
+  OBSERVER
+  TRANSPARENCY
+  KUBERNETES
+  PROMETHEUS
+  COMMUNICATION
+}
+
+enum ComplianceStandard {
+  GDPR
+  NATO_STANAG
+  FIPS_140
+  ISO_27001
+  BLOCKCHAIN
+  WCAG
+}
+
+enum ComplianceStatus {
+  PASS
+  FAIL
+  WARNING
+  PENDING
+}
+
+model AuditTrailEvent {
+  id             String           @id @default(cuid())
+  source         AuditTrailSource
+  eventType      String
+  severity       String
+  rawData        Json
+  normalizedData Json
+  timestamp      DateTime
+  processedAt    DateTime         @default(now())
+
+  @@index([source, timestamp])
+  @@index([severity])
+}
+
+model ComplianceCheck {
+  id        String             @id @default(cuid())
+  standard  ComplianceStandard
+  status    ComplianceStatus
+  findings  Json
+  checkedAt DateTime           @default(now())
+  module    String
+
+  @@index([standard, checkedAt])
+  @@index([status])
+}
+
+model PlatformHealthCheck {
+  id          String   @id @default(cuid())
+  endpoint    String
+  status      String
+  responseTime Int
+  lastChecked DateTime @default(now())
+
+  @@index([endpoint, lastChecked])
+}
