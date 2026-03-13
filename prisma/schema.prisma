@@ -1,0 +1,95 @@
+// ─── Prisma Schema ───────────────────────────────────────────────────
+//
+// Neural Dust & NEMS Stiction Security Models
+//
+// Supports the four threat-detection modules:
+//   - Neural dust spoofing detection
+//   - RF energy-denial (DoS) monitoring
+//   - NEMS stiction-induced drift tracking
+//   - Stiction-enabled data poisoning detection
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────
+
+enum SecurityEventType {
+  NEURAL_DUST_SPOOFING
+  NEURAL_DUST_DOS
+  NEMS_STICTION
+  STICTION_DATA_POISONING
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum MoteStatus {
+  ACTIVE
+  SUSPECT
+  COMPROMISED
+  OFFLINE
+}
+
+// ─── Models ──────────────────────────────────────────────────────────
+
+/// Security events raised by the Neural Dust and StictionWatch rules.
+model SecurityEvent {
+  id         Int               @id @default(autoincrement())
+  type       SecurityEventType
+  severity   Severity
+  packetData Json
+  kpiData    Json
+  createdAt  DateTime          @default(now())
+  resolvedAt DateTime?
+
+  @@index([type])
+  @@index([severity])
+  @@index([createdAt])
+}
+
+/// Historical harvested-power readings per mote, used to compute
+/// baseline averages for energy-denial detection.
+model HistoricalMotePower {
+  id             Int      @id @default(autoincrement())
+  moteID         String
+  harvestedPower Float
+  measuredAt     DateTime @default(now())
+
+  @@index([moteID])
+  @@index([measuredAt])
+}
+
+/// Time-series resonance-frequency log for each mote, used by the
+/// StictionWatch module to detect drift and stiction events.
+model ResonanceFrequencyLog {
+  id               Int      @id @default(autoincrement())
+  moteID           String
+  frequency        Float
+  driftRate        Float
+  stictionDetected Boolean  @default(false)
+  measuredAt       DateTime @default(now())
+
+  @@index([moteID])
+  @@index([measuredAt])
+}
+
+/// Registry of known neural dust motes and their authentication status.
+model MoteRegistry {
+  id        Int        @id @default(autoincrement())
+  moteID    String     @unique
+  publicKey String
+  lastSeen  DateTime   @default(now())
+  status    MoteStatus @default(ACTIVE)
+
+  @@index([status])
+}
