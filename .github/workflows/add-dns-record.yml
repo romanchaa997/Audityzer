@@ -1,0 +1,45 @@
+name: Add DNS Record
+
+on:
+  workflow_dispatch:
+
+jobs:
+  add-dns:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get audityzer.com zone ID
+        id: zone
+        run: |
+          ZONES=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=audityzer.com" \
+            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}")
+          ZONE_ID=$(echo $ZONES | jq -r '.result[0].id')
+          echo "zone_id=$ZONE_ID" >> $GITHUB_OUTPUT
+          echo "Zone ID: $ZONE_ID"
+
+      - name: Add A record for k8s.audityzer.com
+        run: |
+          # Check if record exists
+          EXISTING=$(curl -s "https://api.cloudflare.com/client/v4/zones/${{ steps.zone.outputs.zone_id }}/dns_records?name=k8s.audityzer.com&type=A" \
+            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}")
+          RECORD_ID=$(echo $EXISTING | jq -r '.result[0].id // empty')
+          
+          if [ -n "$RECORD_ID" ]; then
+            echo "Updating existing record $RECORD_ID"
+            curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/${{ steps.zone.outputs.zone_id }}/dns_records/$RECORD_ID" \
+              -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{"type":"A","name":"k8s","content":"129.212.254.79","ttl":1,"proxied":false}'
+          else
+            echo "Creating new A record"
+            curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${{ steps.zone.outputs.zone_id }}/dns_records" \
+              -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{"type":"A","name":"k8s","content":"129.212.254.79","ttl":1,"proxied":false}'
+          fi
+
+      - name: Verify record
+        run: |
+          sleep 5
+          RECORDS=$(curl -s "https://api.cloudflare.com/client/v4/zones/${{ steps.zone.outputs.zone_id }}/dns_records?name=k8s.audityzer.com" \
+            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}")
+          echo "$RECORDS" | jq '.result[] | {name, type, content, proxied}'
