@@ -1,27 +1,71 @@
-version: "3.8"
+version: "3.9"
 
 services:
   fastapi-backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: python:3.12-slim
+    container_name: rehab-backend
+    volumes:
+      - ./api:/app
+    working_dir: /app
+    command: sh -c "pip install fastapi uvicorn web3 && uvicorn main:app --host 0.0.0.0 --port 8000"
+    environment:
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - RPC_URL=${RPC_URL}
     ports:
-      - "8000:7860"
-    env_file:
-      - .env
+      - "8000:8000"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:7860/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
+  monitor:
+    image: python:3.12-slim
+    container_name: rehab-monitor
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    restart: unless-stopped
+      - ./monitoring:/app
+    working_dir: /app
+    command: sh -c "pip install web3 prometheus_client && python monitor.py"
+    environment:
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - RPC_URL=${RPC_URL}
     depends_on:
       - fastapi-backend
+    restart: unless-stopped
+
+  aiogram-bot:
+    image: python:3.12-slim
+    container_name: rehab-bot
+    volumes:
+      - ./bot:/app
+    working_dir: /app
+    command: sh -c "pip install aiogram web3 && python bot.py"
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - RPC_URL=${RPC_URL}
+    depends_on:
+      - monitor
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: rehab-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    command: --config.file=/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: rehab-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    restart: unless-stopped

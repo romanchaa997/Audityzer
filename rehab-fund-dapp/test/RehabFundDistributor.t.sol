@@ -12,6 +12,32 @@ contract MockERC20 is ERC20 {
     }
 }
 
+/// @dev Malicious contract that attempts reentrancy via ERC-20 transfer callback
+contract ReentrantAttacker {
+    RehabFundDistributor public target;
+    address public tokenAddr;
+    uint256 public attackCount;
+
+    constructor(address _target) {
+        target = RehabFundDistributor(_target);
+    }
+
+    function setToken(address _token) external {
+        tokenAddr = _token;
+    }
+
+    function attack(uint256 amount) external {
+        target.release(tokenAddr, address(this), amount);
+    }
+
+    fallback() external {
+        if (attackCount < 1) {
+            attackCount++;
+            target.release(tokenAddr, address(this), 1 ether);
+        }
+    }
+}
+
 contract RehabFundDistributorTest is Test {
     RehabFundDistributor public fund;
     MockERC20 public token;
@@ -27,6 +53,8 @@ contract RehabFundDistributorTest is Test {
         token.mint(donor, 1000 ether);
     }
 
+    // ── Donate ──────────────────────────────────────────────
+
     function test_Donate_Success() public {
         vm.prank(donor);
         token.approve(address(fund), 100 ether);
@@ -38,8 +66,34 @@ contract RehabFundDistributorTest is Test {
         assertEq(fund.lockedBalance(address(token)), 100 ether);
     }
 
+    function test_Donate_RevertsOnZeroAmount() public {
+        vm.prank(donor);
+        vm.expectRevert("Amount must be > 0");
+        fund.donate(address(token), 0);
+    }
+
+    function test_Donate_RevertsOnZeroAddress() public {
+        vm.prank(donor);
+        vm.expectRevert("Invalid token");
+        fund.donate(address(0), 100 ether);
+    }
+
+    function test_MultipleDonations() public {
+        vm.prank(donor);
+        token.approve(address(fund), 200 ether);
+
+        vm.prank(donor);
+        fund.donate(address(token), 100 ether);
+        vm.prank(donor);
+        fund.donate(address(token), 50 ether);
+
+        assertEq(fund.lockedBalance(address(token)), 150 ether);
+        assertEq(token.balanceOf(address(fund)), 150 ether);
+    }
+
+    // ── Release ─────────────────────────────────────────────
+
     function test_Release_OnlyOwner() public {
-        // Setup donation
         vm.prank(donor);
         token.approve(address(fund), 100 ether);
         vm.prank(donor);
@@ -58,18 +112,6 @@ contract RehabFundDistributorTest is Test {
         fund.release(address(token), beneficiary, 10 ether);
     }
 
-    function test_Donate_RevertsOnZeroAmount() public {
-        vm.prank(donor);
-        vm.expectRevert("Amount must be > 0");
-        fund.donate(address(token), 0);
-    }
-
-    function test_Donate_RevertsOnZeroAddress() public {
-        vm.prank(donor);
-        vm.expectRevert("Invalid token");
-        fund.donate(address(0), 100 ether);
-    }
-
     function test_CannotReleaseZeroAmountOrZeroAddress() public {
         vm.prank(owner);
         vm.expectRevert("Amount must be > 0");
@@ -86,8 +128,9 @@ contract RehabFundDistributorTest is Test {
         fund.release(address(token), beneficiary, 10 ether);
     }
 
+    // ── Emergency Withdraw ──────────────────────────────────
+
     function test_EmergencyWithdraw() public {
-        // Setup donation
         vm.prank(donor);
         token.approve(address(fund), 100 ether);
         vm.prank(donor);
@@ -106,16 +149,55 @@ contract RehabFundDistributorTest is Test {
         fund.emergencyWithdraw(address(token));
     }
 
-    function test_MultipleDonations() public {
-        vm.prank(donor);
-        token.approve(address(fund), 200 ether);
+    // ── Reentrancy ──────────────────────────────────────────
 
+    function test_ReentrancyGuard_BlocksReentrantRelease() public {
+        // Deploy attacker contract
+        ReentrantAttacker attacker = new ReentrantAttacker(address(fund));
+        attacker.setToken(address(token));
+
+        // Fund the contract with a donation
+        vm.prank(donor);
+        token.approve(address(fund), 100 ether);
         vm.prank(donor);
         fund.donate(address(token), 100 ether);
+
+        // Transfer ownership to attacker so it can call release()
+        vm.prank(owner);
+        fund.transferOwnership(address(attacker));
+
+        // The attacker's fallback tries to re-enter release().
+        // OZ ReentrancyGuard reverts the nested call.
+        vm.expectRevert();
+        attacker.attack(10 ether);
+
+        // Balances unchanged — attack failed
+        assertEq(fund.lockedBalance(address(token)), 100 ether);
+    }
+
+    // ── Events ──────────────────────────────────────────────
+
+    function test_DonateEmitsEvent() public {
+        vm.prank(donor);
+        token.approve(address(fund), 50 ether);
+
+        vm.expectEmit(true, true, false, true);
+        emit RehabFundDistributor.Donated(donor, address(token), 50 ether);
+
+        vm.prank(donor);
+        fund.donate(address(token), 50 ether);
+    }
+
+    function test_ReleaseEmitsEvent() public {
+        vm.prank(donor);
+        token.approve(address(fund), 50 ether);
         vm.prank(donor);
         fund.donate(address(token), 50 ether);
 
-        assertEq(fund.lockedBalance(address(token)), 150 ether);
-        assertEq(token.balanceOf(address(fund)), 150 ether);
+        vm.expectEmit(true, true, false, true);
+        emit RehabFundDistributor.Released(beneficiary, address(token), 20 ether);
+
+        vm.prank(owner);
+        fund.release(address(token), beneficiary, 20 ether);
     }
 }

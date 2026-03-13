@@ -1,0 +1,70 @@
+name: Rehab Fund CI/CD
+
+on:
+  push:
+    branches: [main, safe-improvements]
+    paths:
+      - "rehab-fund-dapp/**"
+  pull_request:
+    branches: [main, safe-improvements]
+    paths:
+      - "rehab-fund-dapp/**"
+
+defaults:
+  run:
+    working-directory: rehab-fund-dapp
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Install solhint
+        run: npm install -g solhint
+      - name: Lint Solidity
+        run: |
+          forge fmt --check
+          solhint 'src/**/*.sol'
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Install dependencies
+        run: forge install
+      - name: Run Foundry tests
+        run: forge test -vvv
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Install Slither
+        run: pip install slither-analyzer
+      - name: Run Slither audit
+        run: slither src/RehabFundDistributor.sol --solc-remaps '@openzeppelin/=lib/openzeppelin-contracts/'
+        continue-on-error: true
+
+  deploy-sepolia:
+    runs-on: ubuntu-latest
+    needs: [lint, test, audit]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Deploy to Sepolia
+        env:
+          SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          forge script script/DeployRehabFund.s.sol \
+            --rpc-url $SEPOLIA_RPC_URL \
+            --private-key $PRIVATE_KEY \
+            --broadcast --verify
