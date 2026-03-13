@@ -1,4 +1,9 @@
 azure-functions
 requests
 numpy
+fastapi
+httpx
+pydantic-settings
+uvicorn
+itsdangerous
 # Add other dependencies here
