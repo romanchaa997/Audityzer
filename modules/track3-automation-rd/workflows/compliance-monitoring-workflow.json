@@ -1,0 +1,392 @@
+{
+  "name": "AuditorSEC — Compliance Monitoring (SEBI / LGPD / Joint Standard)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "cron-daily",
+      "name": "Daily Compliance Check (08:00 UTC)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.REGULATORY_API_BASE }}/api/v1/sebi/updates",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $now.minus({days: 1}).toISO() }}"
+            },
+            {
+              "name": "categories",
+              "value": "CSCRF,cyber-audit,blockchain,digital-assets"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-sebi",
+      "name": "Fetch SEBI CSCRF Updates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 140],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.REGULATORY_API_BASE }}/api/v1/lgpd/updates",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $now.minus({days: 1}).toISO() }}"
+            },
+            {
+              "name": "categories",
+              "value": "ANPD,breach-notification,data-protection,fines"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-lgpd",
+      "name": "Fetch LGPD/ANPD Updates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 300],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.REGULATORY_API_BASE }}/api/v1/joint-standard/updates",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $now.minus({days: 1}).toISO() }}"
+            },
+            {
+              "name": "categories",
+              "value": "joint-standard-2-2024,financial-institutions,cyber-resilience"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-joint-standard",
+      "name": "Fetch SA Joint Standard Updates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [500, 460],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge all regulatory updates and parse changes\nconst sebiData = $('Fetch SEBI CSCRF Updates').first().json;\nconst lgpdData = $('Fetch LGPD/ANPD Updates').first().json;\nconst jointData = $('Fetch SA Joint Standard Updates').first().json;\n\nconst allUpdates = [];\n\n// Process SEBI updates\nif (sebiData.updates && sebiData.updates.length > 0) {\n  for (const update of sebiData.updates) {\n    allUpdates.push({\n      source: 'SEBI_CSCRF',\n      region: 'India',\n      title: update.title,\n      summary: update.summary,\n      severity: update.severity || 'info',\n      effectiveDate: update.effectiveDate,\n      url: update.url,\n      categories: update.categories || [],\n      publishedAt: update.publishedAt\n    });\n  }\n}\n\n// Process LGPD updates\nif (lgpdData.updates && lgpdData.updates.length > 0) {\n  for (const update of lgpdData.updates) {\n    allUpdates.push({\n      source: 'LGPD_ANPD',\n      region: 'Brazil',\n      title: update.title,\n      summary: update.summary,\n      severity: update.severity || 'info',\n      effectiveDate: update.effectiveDate,\n      url: update.url,\n      categories: update.categories || [],\n      publishedAt: update.publishedAt\n    });\n  }\n}\n\n// Process Joint Standard updates\nif (jointData.updates && jointData.updates.length > 0) {\n  for (const update of jointData.updates) {\n    allUpdates.push({\n      source: 'JOINT_STANDARD_SA',\n      region: 'South Africa',\n      title: update.title,\n      summary: update.summary,\n      severity: update.severity || 'info',\n      effectiveDate: update.effectiveDate,\n      url: update.url,\n      categories: update.categories || [],\n      publishedAt: update.publishedAt\n    });\n  }\n}\n\nreturn [{\n  json: {\n    totalUpdates: allUpdates.length,\n    updates: allUpdates,\n    checkedAt: new Date().toISOString(),\n    hasChanges: allUpdates.length > 0\n  }\n}];"
+      },
+      "id": "parse-changes",
+      "name": "Parse & Merge Regulatory Changes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.hasChanges }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "has-changes",
+      "name": "Any Changes Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [970, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.AUDIT_ENGINE_URL }}/api/v1/compliance/compare",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "updates",
+              "value": "={{ JSON.stringify($json.updates) }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "compare-configs",
+      "name": "Compare Against Client Configs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1190, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build Telegram alert messages per affected client\nconst comparison = $input.first().json;\nconst affectedClients = comparison.affectedClients || [];\nconst updates = $('Parse & Merge Regulatory Changes').first().json.updates;\n\nconst messages = [];\n\nif (affectedClients.length > 0) {\n  for (const client of affectedClients) {\n    const relevantUpdates = updates.filter(u => \n      client.regions.includes(u.region) || \n      client.frameworks.includes(u.source)\n    );\n\n    let alertText = `🚨 *Compliance Alert — ${client.name}*\\n\\n`;\n    alertText += `${relevantUpdates.length} regulatory change(s) affect your configuration:\\n\\n`;\n    \n    for (const update of relevantUpdates) {\n      const severityEmoji = {\n        critical: '🔴',\n        high: '🟠',\n        medium: '🟡',\n        low: '🟢',\n        info: 'ℹ️'\n      }[update.severity] || 'ℹ️';\n\n      alertText += `${severityEmoji} *${update.source}* — ${update.title}\\n`;\n      alertText += `   ${update.summary.substring(0, 200)}\\n`;\n      if (update.effectiveDate) {\n        alertText += `   📅 Effective: ${update.effectiveDate}\\n`;\n      }\n      alertText += `\\n`;\n    }\n\n    alertText += `📋 Action required: Review and update your compliance configuration.`;\n\n    messages.push({\n      chatId: client.telegramChatId,\n      text: alertText,\n      clientId: client.id\n    });\n  }\n} else {\n  // Summary for admin channel\n  let summaryText = `✅ *Daily Compliance Check — No Client Impact*\\n\\n`;\n  summaryText += `📅 ${new Date().toISOString().split('T')[0]}\\n`;\n  summaryText += `📊 ${updates.length} update(s) reviewed\\n`;\n  summaryText += `👥 0 clients affected\\n`;\n\n  messages.push({\n    chatId: process.env.ADMIN_TELEGRAM_CHAT_ID,\n    text: summaryText,\n    clientId: 'admin'\n  });\n}\n\nreturn messages.map(m => ({ json: m }));"
+      },
+      "id": "build-alerts",
+      "name": "Build Alert Messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1410, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $json.chatId }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "send-alerts",
+      "name": "Send Telegram Alerts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1630, 200],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $env.ADMIN_TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "✅ *Daily Compliance Check — No Changes*\n\n📅 {{ $now.toISO().split('T')[0] }}\n🔍 SEBI CSCRF: No updates\n🔍 LGPD/ANPD: No updates\n🔍 Joint Standard SA: No updates\n\nAll client configurations are current."
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "notify-no-changes",
+      "name": "Notify — No Changes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1190, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log compliance check results\nconst updates = $('Parse & Merge Regulatory Changes').first().json;\nconst comparison = $input.first()?.json || {};\n\nreturn [{\n  json: {\n    event: 'compliance_check_complete',\n    timestamp: new Date().toISOString(),\n    totalUpdates: updates.totalUpdates,\n    affectedClients: comparison.affectedClients?.length || 0,\n    sources: ['SEBI_CSCRF', 'LGPD_ANPD', 'JOINT_STANDARD_SA']\n  }\n}];"
+      },
+      "id": "log-results",
+      "name": "Log Check Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1850, 200]
+    }
+  ],
+  "connections": {
+    "Daily Compliance Check (08:00 UTC)": {
+      "main": [
+        [
+          {
+            "node": "Fetch SEBI CSCRF Updates",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch LGPD/ANPD Updates",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch SA Joint Standard Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SEBI CSCRF Updates": {
+      "main": [
+        [
+          {
+            "node": "Parse & Merge Regulatory Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch LGPD/ANPD Updates": {
+      "main": [
+        [
+          {
+            "node": "Parse & Merge Regulatory Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SA Joint Standard Updates": {
+      "main": [
+        [
+          {
+            "node": "Parse & Merge Regulatory Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Merge Regulatory Changes": {
+      "main": [
+        [
+          {
+            "node": "Any Changes Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Changes Found?": {
+      "main": [
+        [
+          {
+            "node": "Compare Against Client Configs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify — No Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare Against Client Configs": {
+      "main": [
+        [
+          {
+            "node": "Build Alert Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Alert Messages": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Alerts": {
+      "main": [
+        [
+          {
+            "node": "Log Check Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "AuditorSEC",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    },
+    {
+      "name": "compliance-monitoring",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    },
+    {
+      "name": "BRICS",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    }
+  ],
+  "pinData": {},
+  "versionId": "1.0.0"
+}

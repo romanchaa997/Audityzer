@@ -1,0 +1,22 @@
+MQTT Gateway has been deployed.
+
+MQTT Endpoints:
+  - MQTT (TCP):      {{ .Values.service.mqtt.port }}
+  - MQTTS (TLS):     {{ .Values.service.mqtts.port }}
+  - WebSocket:       {{ .Values.service.websocket.port }}
+
+{{- if .Values.ingress.enabled }}
+WebSocket URL:
+{{- range .Values.ingress.hosts }}
+  - wss://{{ .host }}
+{{- end }}
+{{- end }}
+
+LoadBalancer IP (for ESP32 devices):
+  kubectl get svc {{ include "mqtt-gateway.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+To test MQTT connection:
+  mosquitto_pub -h <LOADBALANCER_IP> -p 1883 -u platform -P <password> -t "sensor/test" -m "hello"
+
+To check deployment status:
+  kubectl get pods -l app.kubernetes.io/name={{ include "mqtt-gateway.name" . }}

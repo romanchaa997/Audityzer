@@ -1,0 +1,16 @@
+Telegram Bots have been deployed.
+
+{{- if .Values.ingress.enabled }}
+Webhook URL:
+{{- range .Values.ingress.hosts }}
+  - https://{{ .host }}{{ $.Values.env.WEBHOOK_PATH }}
+{{- end }}
+
+Set the Telegram webhook:
+  curl -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook" \
+    -H "Content-Type: application/json" \
+    -d '{"url": "https://bot.neuralinfra.digital/webhook/telegram"}'
+{{- end }}
+
+To check deployment status:
+  kubectl get pods -l app.kubernetes.io/name={{ include "telegram-bots.name" . }}

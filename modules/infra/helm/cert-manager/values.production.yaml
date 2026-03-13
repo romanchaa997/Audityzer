@@ -1,0 +1,10 @@
+# Production overrides for cert-manager
+cert-manager:
+  replicaCount: 2
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m

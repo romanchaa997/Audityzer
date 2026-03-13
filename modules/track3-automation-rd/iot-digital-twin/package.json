@@ -1,0 +1,40 @@
+{
+  "name": "@auditorsec/iot-digital-twin",
+  "version": "1.0.0",
+  "description": "Green energy IoT digital twin for Bakhmach installation — solar, wind, battery, and grid monitoring with simulation engine",
+  "type": "module",
+  "main": "dist/twin-model.js",
+  "types": "dist/twin-model.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch twin-model.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts"
+  },
+  "keywords": [
+    "digital-twin",
+    "iot",
+    "green-energy",
+    "solar",
+    "wind",
+    "battery",
+    "mqtt",
+    "timescaledb",
+    "carbon-credits",
+    "bakhmach"
+  ],
+  "author": "AuditorSEC <dev@auditorsec.io>",
+  "license": "MIT",
+  "dependencies": {
+    "mqtt": "^5.10.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

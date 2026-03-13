@@ -1,0 +1,16 @@
+replicaCount: 1
+
+image:
+  tag: production
+  pullPolicy: Always
+
+env:
+  NODE_ENV: production
+  LOG_LEVEL: warn
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"

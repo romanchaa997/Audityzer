@@ -1,0 +1,49 @@
+# Production overrides for monitoring stack
+
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      retention: 30d
+      resources:
+        requests:
+          memory: 1Gi
+          cpu: "1"
+        limits:
+          memory: 2Gi
+          cpu: "2"
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            resources:
+              requests:
+                storage: 50Gi
+
+  grafana:
+    adminPassword: ""  # Set via --set at deploy time
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 500m
+      limits:
+        memory: 1Gi
+        cpu: "1"
+
+  alertmanager:
+    alertmanagerSpec:
+      resources:
+        requests:
+          memory: 256Mi
+          cpu: 200m
+        limits:
+          memory: 512Mi
+          cpu: 500m
+
+loki-stack:
+  loki:
+    persistence:
+      size: 50Gi
+    config:
+      limits_config:
+        retention_period: 720h

@@ -1,0 +1,18 @@
+apiVersion: v2
+name: cert-manager
+description: TLS certificate management for AuditorSEC/DaBROIoTEXs with Let's Encrypt
+type: application
+version: 0.1.0
+appVersion: "1.14.0"
+dependencies:
+  - name: cert-manager
+    version: "v1.14.4"
+    repository: https://charts.jetstack.io
+keywords:
+  - tls
+  - certificates
+  - letsencrypt
+home: https://neuralinfra.digital
+maintainers:
+  - name: AuditorSEC
+    email: dev@neuralinfra.digital

@@ -1,0 +1,16 @@
+apiVersion: v2
+name: mqtt-gateway
+description: MQTT broker gateway for DaBROIoTEXs IoT devices (ESP32, green energy sensors)
+type: application
+version: 0.1.0
+appVersion: "2.0.0"
+keywords:
+  - mqtt
+  - iot
+  - mosquitto
+  - esp32
+  - green-energy
+home: https://neuralinfra.digital
+maintainers:
+  - name: AuditorSEC
+    email: dev@neuralinfra.digital

@@ -1,0 +1,210 @@
+# =============================================================================
+# AuditorSEC / DaBROIoTEXs — Terraform Infrastructure Pipeline
+# Конвеєр змін інфраструктури
+# =============================================================================
+# Triggers: changes to infra/terraform/**, PRs get plan comment
+# =============================================================================
+
+name: "Terraform — Infrastructure"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infra/terraform/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "infra/terraform/**"
+
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TF_VERSION: "1.7.0"
+  TF_WORKING_DIR: infra/terraform
+  DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+  SPACES_ACCESS_KEY_ID: ${{ secrets.DIGITALOCEAN_SPACES_KEY }}
+  SPACES_SECRET_ACCESS_KEY: ${{ secrets.DIGITALOCEAN_SPACES_SECRET }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # =============================================================================
+  # Перевірка формату / Format Check
+  # =============================================================================
+  format:
+    name: "Terraform Format"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: "📥 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: "📐 Terraform fmt check"
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform fmt -check -recursive -diff
+
+  # =============================================================================
+  # Валідація та план / Validate & Plan
+  # =============================================================================
+  plan:
+    name: "Terraform Plan"
+    needs: format
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      has-changes: ${{ steps.plan.outputs.exitcode }}
+
+    steps:
+      - name: "📥 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: "🔧 Terraform Init"
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform init \
+            -backend-config="access_key=${{ secrets.DIGITALOCEAN_SPACES_KEY }}" \
+            -backend-config="secret_key=${{ secrets.DIGITALOCEAN_SPACES_SECRET }}"
+
+      - name: "✅ Terraform Validate"
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform validate -no-color
+
+      - name: "📋 Terraform Plan"
+        id: plan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform plan \
+            -no-color \
+            -detailed-exitcode \
+            -out=tfplan \
+            -var="do_token=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" \
+            -var="spaces_access_key=${{ secrets.DIGITALOCEAN_SPACES_KEY }}" \
+            -var="spaces_secret_key=${{ secrets.DIGITALOCEAN_SPACES_SECRET }}" \
+            2>&1 | tee plan-output.txt
+        continue-on-error: true
+
+      - name: "📤 Upload plan artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: |
+            ${{ env.TF_WORKING_DIR }}/tfplan
+            ${{ env.TF_WORKING_DIR }}/plan-output.txt
+          retention-days: 5
+
+      # ── Comment plan on PR ─────────────────────────────────────────
+      - name: "💬 Comment plan on PR"
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const planOutput = fs.readFileSync('${{ env.TF_WORKING_DIR }}/plan-output.txt', 'utf8');
+            const exitCode = '${{ steps.plan.outputs.exitcode }}';
+
+            let emoji = '✅';
+            let status = 'No changes detected';
+            if (exitCode === '2') {
+              emoji = '📋';
+              status = 'Changes detected';
+            } else if (exitCode === '1') {
+              emoji = '❌';
+              status = 'Plan failed';
+            }
+
+            // Truncate if too long for GH comment (65535 char limit)
+            const maxLen = 60000;
+            const plan = planOutput.length > maxLen
+              ? planOutput.substring(0, maxLen) + '\n\n... (truncated)'
+              : planOutput;
+
+            const body = `## ${emoji} Terraform Plan — ${status}
+
+            <details>
+            <summary>Show plan output</summary>
+
+            \`\`\`hcl
+            ${plan}
+            \`\`\`
+
+            </details>
+
+            **Exit code:** \`${exitCode}\` (0=no changes, 2=changes, 1=error)
+
+            > Pushed by @${{ github.actor }} | Commit: \`${{ github.sha }}\``;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body,
+            });
+
+  # =============================================================================
+  # Застосування змін / Apply (main branch only, manual approval)
+  # =============================================================================
+  apply:
+    name: "Terraform Apply"
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: infrastructure
+      url: https://cloud.digitalocean.com
+
+    steps:
+      - name: "📥 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: "🔧 Terraform Init"
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform init \
+            -backend-config="access_key=${{ secrets.DIGITALOCEAN_SPACES_KEY }}" \
+            -backend-config="secret_key=${{ secrets.DIGITALOCEAN_SPACES_SECRET }}"
+
+      - name: "📥 Download plan"
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: ${{ env.TF_WORKING_DIR }}
+
+      - name: "🚀 Terraform Apply"
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan
+
+      - name: "📨 Notify Telegram"
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          EMOJI=$([[ "$STATUS" == "success" ]] && echo "🏗️" || echo "🔥")
+
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d parse_mode=HTML \
+            -d text="${EMOJI} <b>Terraform</b> apply ${STATUS}
+          Actor: ${{ github.actor }}
+          <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View run</a>"

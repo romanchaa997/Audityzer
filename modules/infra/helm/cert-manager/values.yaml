@@ -1,0 +1,51 @@
+# cert-manager subchart values
+cert-manager:
+  installCRDs: true
+  replicaCount: 1
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 50m
+    limits:
+      memory: 128Mi
+      cpu: 100m
+  webhook:
+    resources:
+      requests:
+        memory: 32Mi
+        cpu: 25m
+      limits:
+        memory: 64Mi
+        cpu: 50m
+  cainjector:
+    resources:
+      requests:
+        memory: 64Mi
+        cpu: 50m
+      limits:
+        memory: 128Mi
+        cpu: 100m
+
+# ClusterIssuer configuration
+clusterIssuers:
+  production:
+    enabled: true
+    name: letsencrypt-production
+    email: dev@neuralinfra.digital
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef: letsencrypt-production-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+
+  staging:
+    enabled: true
+    name: letsencrypt-staging
+    email: dev@neuralinfra.digital
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef: letsencrypt-staging-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx

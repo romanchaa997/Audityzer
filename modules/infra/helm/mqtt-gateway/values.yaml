@@ -1,0 +1,152 @@
+replicaCount: 1
+
+image:
+  repository: eclipse-mosquitto
+  pullPolicy: IfNotPresent
+  tag: "2.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# MQTT service - LoadBalancer for direct IoT device access
+service:
+  type: LoadBalancer
+  mqtt:
+    port: 1883
+    nodePort: 31883
+  mqtts:
+    port: 8883
+    nodePort: 31884
+  websocket:
+    port: 9001
+
+# Ingress for WebSocket access
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+    nginx.ingress.kubernetes.io/websocket-services: "mqtt-gateway"
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
+  hosts:
+    - host: mqtt.neuralinfra.digital
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: mqtt-gateway-tls
+      hosts:
+        - mqtt.neuralinfra.digital
+
+# Mosquitto configuration
+mosquitto:
+  # Authentication
+  allowAnonymous: false
+  passwordFile: /mosquitto/config/passwd
+  aclFile: /mosquitto/config/acl
+
+  # Persistence
+  persistence: true
+  persistenceLocation: /mosquitto/data/
+
+  # Logging
+  logType: all
+  logDest: stdout
+
+  # Listeners
+  listeners:
+    - port: 1883
+      protocol: mqtt
+    - port: 8883
+      protocol: mqtt
+      certfile: /mosquitto/certs/tls.crt
+      keyfile: /mosquitto/certs/tls.key
+    - port: 9001
+      protocol: websockets
+
+  # Default ACL rules
+  acl: |
+    # IoT devices publish sensor data
+    pattern readwrite sensor/%c/#
+    pattern readwrite device/%c/status
+    # Platform subscribes to all sensor data
+    user platform
+    topic readwrite sensor/#
+    topic readwrite device/#
+    topic readwrite command/#
+    # Devices receive commands
+    pattern read command/%c/#
+
+  # Default users (override in production)
+  users:
+    platform: "changeme"
+    esp32_default: "changeme"
+
+# Environment variables
+env:
+  MQTT_MAX_CONNECTIONS: "1000"
+  MQTT_MAX_PACKET_SIZE: "65536"
+
+# Secrets (mounted as files, not env vars for Mosquitto)
+secrets:
+  MQTT_TLS_CERT: ""
+  MQTT_TLS_KEY: ""
+
+# Persistence
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClass: do-block-storage
+
+resources:
+  requests:
+    memory: 128Mi
+    cpu: 100m
+  limits:
+    memory: 256Mi
+    cpu: 250m
+
+livenessProbe:
+  tcpSocket:
+    port: mqtt
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  tcpSocket:
+    port: mqtt
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+podAnnotations: {}
+podSecurityContext:
+  fsGroup: 1883
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1883
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics

@@ -1,0 +1,47 @@
+# =============================================================================
+# AuditorSEC Telegram Bot — Aiogram v3
+# Python 3.12 multi-stage build
+# =============================================================================
+
+# ── Stage 1: Dependencies ────────────────────────────────────────────────────
+FROM python:3.12-slim AS deps
+
+WORKDIR /app
+
+COPY bot/requirements.txt ./
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# ── Stage 2: Production ─────────────────────────────────────────────────────
+FROM python:3.12-slim AS production
+
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
+LABEL org.opencontainers.image.title="AuditorSEC Telegram Bot" \
+      org.opencontainers.image.description="Aiogram v3 bot — /audit /scan /full /price commands" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.vendor="AuditorSEC"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -g 1001 auditorsec \
+    && useradd -u 1001 -g auditorsec -s /bin/false auditorsec
+
+WORKDIR /app
+
+COPY --from=deps /install /usr/local
+COPY bot/ ./
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+USER auditorsec
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD python -c "import aiohttp; print('ok')" || exit 1
+
+CMD ["python", "-m", "bot"]

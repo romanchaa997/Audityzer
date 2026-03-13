@@ -1,0 +1,33 @@
+{{- if .Values.clusterIssuers.production.enabled }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.clusterIssuers.production.name }}
+  labels:
+    {{- include "cert-manager-wrapper.labels" . | nindent 4 }}
+spec:
+  acme:
+    email: {{ .Values.clusterIssuers.production.email }}
+    server: {{ .Values.clusterIssuers.production.server }}
+    privateKeySecretRef:
+      name: {{ .Values.clusterIssuers.production.privateKeySecretRef }}
+    solvers:
+      {{- toYaml .Values.clusterIssuers.production.solvers | nindent 6 }}
+{{- end }}
+---
+{{- if .Values.clusterIssuers.staging.enabled }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.clusterIssuers.staging.name }}
+  labels:
+    {{- include "cert-manager-wrapper.labels" . | nindent 4 }}
+spec:
+  acme:
+    email: {{ .Values.clusterIssuers.staging.email }}
+    server: {{ .Values.clusterIssuers.staging.server }}
+    privateKeySecretRef:
+      name: {{ .Values.clusterIssuers.staging.privateKeySecretRef }}
+    solvers:
+      {{- toYaml .Values.clusterIssuers.staging.solvers | nindent 6 }}
+{{- end }}

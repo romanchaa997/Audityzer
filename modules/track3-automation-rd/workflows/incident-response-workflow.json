@@ -1,0 +1,365 @@
+{
+  "name": "AuditorSEC — Incident Response Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "incident-alert",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "alert-webhook",
+      "name": "Alert Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Classify incident severity based on alert data\nconst body = $input.first().json.body || $input.first().json;\n\nconst alert = {\n  source: body.source || 'unknown',\n  type: body.type || body.alertType || 'general',\n  title: body.title || body.summary || 'Untitled Alert',\n  description: body.description || body.details || '',\n  contractAddress: body.contractAddress || null,\n  chain: body.chain || null,\n  detectedAt: body.detectedAt || body.timestamp || new Date().toISOString(),\n  rawPayload: body\n};\n\n// Severity classification rules\nlet severity = 'LOW';\nlet severityScore = 0;\nconst type = alert.type.toLowerCase();\nconst desc = alert.description.toLowerCase();\n\n// Critical indicators\nif (\n  type.includes('exploit') ||\n  type.includes('drain') ||\n  type.includes('reentrancy') ||\n  desc.includes('funds at risk') ||\n  desc.includes('active exploit') ||\n  desc.includes('flash loan attack')\n) {\n  severity = 'CRITICAL';\n  severityScore = 95;\n}\n// High indicators\nelse if (\n  type.includes('vulnerability') ||\n  type.includes('unauthorized') ||\n  desc.includes('access control') ||\n  desc.includes('privilege escalation') ||\n  desc.includes('oracle manipulation')\n) {\n  severity = 'HIGH';\n  severityScore = 75;\n}\n// Medium indicators\nelse if (\n  type.includes('anomaly') ||\n  type.includes('suspicious') ||\n  desc.includes('unusual pattern') ||\n  desc.includes('compliance violation')\n) {\n  severity = 'MEDIUM';\n  severityScore = 50;\n}\n// Low — everything else\nelse {\n  severity = 'LOW';\n  severityScore = 25;\n}\n\nconst incidentId = `INC-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;\n\nreturn [{\n  json: {\n    incidentId,\n    severity,\n    severityScore,\n    ...alert,\n    classifiedAt: new Date().toISOString(),\n    status: 'OPEN',\n    timeline: [\n      {\n        event: 'incident_created',\n        timestamp: new Date().toISOString(),\n        actor: 'system',\n        details: `Incident auto-classified as ${severity}`\n      }\n    ]\n  }\n}];"
+      },
+      "id": "classify-severity",
+      "name": "Classify Severity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.severity }}",
+              "value2": "CRITICAL",
+              "operation": "equals"
+            }
+          ]
+        }
+      },
+      "id": "is-critical",
+      "name": "Is Critical?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Critical: Notify all channels immediately\nconst incident = $input.first().json;\n\nconst urgentMsg = `🚨🚨🚨 *CRITICAL INCIDENT*\\n\\n` +\n  `🔑 ID: \\`${incident.incidentId}\\`\\n` +\n  `⚡ Severity: 🔴 CRITICAL (${incident.severityScore}/100)\\n` +\n  `📋 Type: ${incident.type}\\n` +\n  `📝 ${incident.title}\\n\\n` +\n  `${incident.description.substring(0, 500)}\\n\\n` +\n  (incident.contractAddress ? `🔑 Contract: \\`${incident.contractAddress}\\`\\n` : '') +\n  (incident.chain ? `⛓ Chain: ${incident.chain}\\n` : '') +\n  `\\n🕐 Detected: ${incident.detectedAt}\\n` +\n  `\\n⚠️ *IMMEDIATE ACTION REQUIRED*\\n` +\n  `All on-call team members must respond within 15 minutes.`;\n\nreturn [{ json: { ...incident, notificationMessage: urgentMsg, channels: ['team', 'management', 'oncall'] } }];"
+      },
+      "id": "build-critical-alert",
+      "name": "Build Critical Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [910, 180]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Non-critical: Standard notification\nconst incident = $input.first().json;\n\nconst severityEmoji = {\n  HIGH: '🟠',\n  MEDIUM: '🟡',\n  LOW: '🟢'\n};\n\nconst emoji = severityEmoji[incident.severity] || '📋';\n\nconst msg = `${emoji} *Incident Alert — ${incident.severity}*\\n\\n` +\n  `🔑 ID: \\`${incident.incidentId}\\`\\n` +\n  `⚡ Severity: ${incident.severity} (${incident.severityScore}/100)\\n` +\n  `📋 Type: ${incident.type}\\n` +\n  `📝 ${incident.title}\\n\\n` +\n  `${incident.description.substring(0, 300)}\\n\\n` +\n  (incident.contractAddress ? `🔑 Contract: \\`${incident.contractAddress}\\`\\n` : '') +\n  `\\n🕐 Detected: ${incident.detectedAt}`;\n\nreturn [{ json: { ...incident, notificationMessage: msg, channels: ['team'] } }];"
+      },
+      "id": "build-standard-alert",
+      "name": "Build Standard Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [910, 420]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $env.INCIDENT_TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.notificationMessage }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "notify-team",
+      "name": "Notify Team via Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1130, 300],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.TICKETING_API_URL }}/api/v1/tickets",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $json.description }}"
+            },
+            {
+              "name": "severity",
+              "value": "={{ $json.severity }}"
+            },
+            {
+              "name": "incidentId",
+              "value": "={{ $json.incidentId }}"
+            },
+            {
+              "name": "type",
+              "value": "={{ $json.type }}"
+            },
+            {
+              "name": "contractAddress",
+              "value": "={{ $json.contractAddress }}"
+            },
+            {
+              "name": "chain",
+              "value": "={{ $json.chain }}"
+            },
+            {
+              "name": "source",
+              "value": "={{ $json.source }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "create-ticket",
+      "name": "Create Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1350, 300],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Record timeline event for ticket creation\nconst incident = $('Classify Severity').first().json;\nconst ticket = $input.first().json;\n\nconst timeline = incident.timeline || [];\ntimeline.push({\n  event: 'ticket_created',\n  timestamp: new Date().toISOString(),\n  actor: 'system',\n  details: `Ticket created: ${ticket.ticketId || ticket.id || 'N/A'}`\n});\n\ntimeline.push({\n  event: 'team_notified',\n  timestamp: new Date().toISOString(),\n  actor: 'system',\n  details: `Team notified via Telegram`\n});\n\nreturn [{\n  json: {\n    incidentId: incident.incidentId,\n    ticketId: ticket.ticketId || ticket.id,\n    severity: incident.severity,\n    status: 'INVESTIGATING',\n    timeline,\n    updatedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "track-timeline",
+      "name": "Update Timeline",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1570, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.AUDIT_ENGINE_URL }}/api/v1/incidents",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "incident",
+              "value": "={{ JSON.stringify($json) }}"
+            }
+          ]
+        }
+      },
+      "id": "store-incident",
+      "name": "Store Incident Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1790, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate post-mortem template\nconst incident = $('Classify Severity').first().json;\nconst timeline = $('Update Timeline').first().json.timeline;\n\nconst template = `# Post-Mortem Report\\n\\n` +\n  `## Incident: ${incident.incidentId}\\n\\n` +\n  `**Date:** ${incident.detectedAt}\\n` +\n  `**Severity:** ${incident.severity}\\n` +\n  `**Type:** ${incident.type}\\n` +\n  `**Status:** RESOLVED / ONGOING\\n\\n` +\n  `## Summary\\n\\n` +\n  `${incident.title}\\n\\n` +\n  `${incident.description}\\n\\n` +\n  `## Timeline\\n\\n` +\n  timeline.map(t => `- **${t.timestamp}** — ${t.event}: ${t.details}`).join('\\n') + '\\n\\n' +\n  `## Root Cause\\n\\n` +\n  `_[To be filled during post-mortem]_\\n\\n` +\n  `## Impact\\n\\n` +\n  `- Affected systems: \\n` +\n  `- Affected users: \\n` +\n  `- Financial impact: \\n\\n` +\n  `## Resolution\\n\\n` +\n  `_[Steps taken to resolve]_\\n\\n` +\n  `## Action Items\\n\\n` +\n  `- [ ] \\n- [ ] \\n- [ ] \\n\\n` +\n  `## Lessons Learned\\n\\n` +\n  `_[Key takeaways]_\\n`;\n\nreturn [{ json: { incidentId: incident.incidentId, postMortemTemplate: template } }];"
+      },
+      "id": "generate-postmortem",
+      "name": "Generate Post-Mortem Template",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2010, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $env.INCIDENT_TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "📝 *Post-Mortem Template Created*\n\n🔑 Incident: `{{ $json.incidentId }}`\n\nA post-mortem template has been generated and attached to the incident ticket.\n\nPlease complete the template within 48 hours of resolution."
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "notify-postmortem",
+      "name": "Notify — Post-Mortem Ready",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2230, 300]
+    }
+  ],
+  "connections": {
+    "Alert Webhook": {
+      "main": [
+        [
+          {
+            "node": "Classify Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Severity": {
+      "main": [
+        [
+          {
+            "node": "Is Critical?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Critical?": {
+      "main": [
+        [
+          {
+            "node": "Build Critical Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Standard Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Critical Alert": {
+      "main": [
+        [
+          {
+            "node": "Notify Team via Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Standard Alert": {
+      "main": [
+        [
+          {
+            "node": "Notify Team via Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Team via Telegram": {
+      "main": [
+        [
+          {
+            "node": "Create Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ticket": {
+      "main": [
+        [
+          {
+            "node": "Update Timeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Timeline": {
+      "main": [
+        [
+          {
+            "node": "Store Incident Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Incident Record": {
+      "main": [
+        [
+          {
+            "node": "Generate Post-Mortem Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Post-Mortem Template": {
+      "main": [
+        [
+          {
+            "node": "Notify — Post-Mortem Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "AuditorSEC",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    },
+    {
+      "name": "incident-response",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    }
+  ],
+  "pinData": {},
+  "versionId": "1.0.0"
+}

@@ -1,0 +1,16 @@
+apiVersion: v2
+name: telegram-bots
+description: AuditorSEC Telegram bot ecosystem — @audityzerbot webhook handler with BRICS-localized alerting
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - telegram
+  - bot
+  - webhook
+  - brics
+  - auditorsec
+home: https://neuralinfra.digital
+maintainers:
+  - name: Roman
+    url: https://github.com/romanchaa997

@@ -1,0 +1,16 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "telegram-bots.fullname" . }}
+  labels:
+    {{- include "telegram-bots.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "telegram-bots.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: http
+      interval: {{ .Values.serviceMonitor.interval }}
+      path: {{ .Values.serviceMonitor.path }}
+{{- end }}

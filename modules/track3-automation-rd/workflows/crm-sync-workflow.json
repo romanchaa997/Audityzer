@@ -1,0 +1,279 @@
+{
+  "name": "AuditorSEC — CRM Sync (monday.com ↔ Telegram)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "monday-webhook",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "monday-webhook",
+      "name": "monday.com Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse monday.com webhook event\nconst body = $input.first().json.body || $input.first().json;\n\n// monday.com sends a challenge for webhook verification\nif (body.challenge) {\n  return [{ json: { challenge: body.challenge, isChallenge: true } }];\n}\n\nconst event = body.event || {};\nconst pulseId = event.pulseId || event.itemId;\nconst boardId = event.boardId;\nconst groupId = event.groupId;\nconst columnId = event.columnId;\nconst value = event.value;\nconst previousValue = event.previousValue;\nconst eventType = event.type; // e.g., 'update_column_value', 'create_item'\n\n// Map monday.com column IDs to semantic names\nconst columnMap = {\n  'status': 'auditStatus',\n  'date4': 'deadline',\n  'person': 'assignee',\n  'text0': 'contractAddress',\n  'dropdown': 'priority',\n  'long_text': 'notes',\n  'numbers': 'riskScore'\n};\n\nreturn [{\n  json: {\n    isChallenge: false,\n    eventType,\n    itemId: pulseId,\n    boardId,\n    groupId,\n    columnId,\n    columnName: columnMap[columnId] || columnId,\n    newValue: value,\n    previousValue,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "parse-event",
+      "name": "Parse monday.com Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.isChallenge }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "is-challenge",
+      "name": "Is Webhook Challenge?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ challenge: $json.challenge }) }}"
+      },
+      "id": "respond-challenge",
+      "name": "Respond to Challenge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [910, 420]
+    },
+    {
+      "parameters": {
+        "url": "https://api.monday.com/v2",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"query { items(ids: [{{ $json.itemId }}]) { id name column_values { id text value } group { title } board { name } } }\"\n}"
+      },
+      "id": "fetch-item",
+      "name": "Fetch Full Item from monday.com",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [910, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build unified audit record from monday.com item\nconst event = $('Parse monday.com Event').first().json;\nconst mondayResponse = $input.first().json;\nconst item = mondayResponse.data?.items?.[0];\n\nif (!item) {\n  throw new Error(`Item ${event.itemId} not found in monday.com`);\n}\n\nconst columns = {};\nfor (const col of item.column_values || []) {\n  columns[col.id] = {\n    text: col.text,\n    value: col.value ? JSON.parse(col.value) : null\n  };\n}\n\nconst auditRecord = {\n  mondayItemId: item.id,\n  name: item.name,\n  board: item.board?.name,\n  group: item.group?.title,\n  status: columns.status?.text || 'Unknown',\n  contractAddress: columns.text0?.text || null,\n  priority: columns.dropdown?.text || 'Medium',\n  assignee: columns.person?.text || 'Unassigned',\n  deadline: columns.date4?.text || null,\n  riskScore: columns.numbers?.text || null,\n  notes: columns.long_text?.text || '',\n  eventType: event.eventType,\n  changedColumn: event.columnName,\n  newValue: event.newValue,\n  previousValue: event.previousValue,\n  updatedAt: event.timestamp\n};\n\nreturn [{ json: auditRecord }];"
+      },
+      "id": "build-record",
+      "name": "Build Audit Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1130, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.AUDIT_ENGINE_URL }}/api/v1/audits/sync",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "source",
+              "value": "monday.com"
+            },
+            {
+              "name": "record",
+              "value": "={{ JSON.stringify($json) }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "sync-internal",
+      "name": "Sync to Internal Systems",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1350, 200],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build Telegram notification based on event type\nconst record = $('Build Audit Record').first().json;\n\nconst statusEmoji = {\n  'Working on it': '🔄',\n  'Done': '✅',\n  'Stuck': '🚫',\n  'Waiting for review': '⏳',\n  'Critical': '🔴',\n  'In Progress': '🔄'\n};\n\nconst emoji = statusEmoji[record.status] || '📋';\n\nlet message = '';\n\nswitch (record.eventType) {\n  case 'update_column_value':\n    if (record.changedColumn === 'auditStatus') {\n      message = `${emoji} *Audit Status Update*\\n\\n`;\n      message += `📋 *${record.name}*\\n`;\n      message += `📊 Status: ${record.status}\\n`;\n      if (record.contractAddress) message += `🔑 Contract: \\`${record.contractAddress}\\`\\n`;\n      message += `👤 Assignee: ${record.assignee}\\n`;\n      if (record.deadline) message += `📅 Deadline: ${record.deadline}\\n`;\n      if (record.riskScore) message += `⚠️ Risk Score: ${record.riskScore}/100\\n`;\n    } else {\n      message = `📝 *Audit Record Updated*\\n\\n`;\n      message += `📋 *${record.name}*\\n`;\n      message += `🔄 Changed: ${record.changedColumn}\\n`;\n      message += `📊 Status: ${record.status}\\n`;\n    }\n    break;\n  case 'create_item':\n    message = `🆕 *New Audit Created*\\n\\n`;\n    message += `📋 *${record.name}*\\n`;\n    message += `📂 Board: ${record.board}\\n`;\n    message += `📁 Group: ${record.group}\\n`;\n    if (record.contractAddress) message += `🔑 Contract: \\`${record.contractAddress}\\`\\n`;\n    break;\n  default:\n    message = `📋 *Audit Update*\\n\\n`;\n    message += `📋 *${record.name}*\\n`;\n    message += `📊 Status: ${record.status}\\n`;\n}\n\nmessage += `\\n🕐 Updated: ${record.updatedAt}`;\n\nreturn [{ json: { message, record } }];"
+      },
+      "id": "build-telegram-msg",
+      "name": "Build Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1350, 400]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $env.CRM_TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "send-telegram",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1570, 400],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate daily summary for CRM sync\nconst record = $('Build Audit Record').first().json;\nconst syncResult = $('Sync to Internal Systems').first().json;\n\nreturn [{\n  json: {\n    event: 'crm_sync_complete',\n    itemId: record.mondayItemId,\n    itemName: record.name,\n    eventType: record.eventType,\n    syncStatus: syncResult.success ? 'synced' : 'failed',\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "generate-summary",
+      "name": "Generate Sync Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1570, 200]
+    }
+  ],
+  "connections": {
+    "monday.com Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse monday.com Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse monday.com Event": {
+      "main": [
+        [
+          {
+            "node": "Is Webhook Challenge?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Webhook Challenge?": {
+      "main": [
+        [
+          {
+            "node": "Respond to Challenge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Full Item from monday.com",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Full Item from monday.com": {
+      "main": [
+        [
+          {
+            "node": "Build Audit Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Audit Record": {
+      "main": [
+        [
+          {
+            "node": "Sync to Internal Systems",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync to Internal Systems": {
+      "main": [
+        [
+          {
+            "node": "Generate Sync Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "AuditorSEC",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    },
+    {
+      "name": "crm-sync",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    }
+  ],
+  "pinData": {},
+  "versionId": "1.0.0"
+}

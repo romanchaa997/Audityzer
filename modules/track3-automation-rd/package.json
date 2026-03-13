@@ -1,0 +1,31 @@
+{
+  "name": "@auditorsec/track3-automation-rd",
+  "version": "1.0.0",
+  "description": "AuditorSEC Track 3 — Automation & R&D: n8n workflows, IoT digital twin, and gig contracts framework",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^3.1.0",
+    "ethers": "^6.13.0",
+    "mqtt": "^5.5.0",
+    "pino": "^9.1.0",
+    "zod": "^3.23.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "eslint": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

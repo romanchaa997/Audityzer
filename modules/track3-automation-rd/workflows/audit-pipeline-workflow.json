@@ -1,0 +1,437 @@
+{
+  "name": "AuditorSEC — Smart Contract Audit Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "audit-trigger",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "Telegram Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract contract details from Telegram webhook payload\nconst body = $input.first().json.body || $input.first().json;\nconst message = body.message || body.callback_query?.message;\n\nif (!message || !message.text) {\n  throw new Error('No message text found in webhook payload');\n}\n\nconst text = message.text;\nconst chatId = message.chat.id;\nconst userId = message.from.id;\nconst username = message.from.username || 'unknown';\n\n// Parse contract address or submission\nconst addressMatch = text.match(/0x[a-fA-F0-9]{40}/);\nconst chainMatch = text.match(/chain:(\\w+)/i);\nconst priorityMatch = text.match(/priority:(high|medium|low)/i);\n\nreturn [{\n  json: {\n    chatId,\n    userId,\n    username,\n    contractAddress: addressMatch ? addressMatch[0] : null,\n    chain: chainMatch ? chainMatch[1] : 'ethereum',\n    priority: priorityMatch ? priorityMatch[1] : 'medium',\n    rawMessage: text,\n    timestamp: new Date().toISOString(),\n    auditId: `AUD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`\n  }\n}];"
+      },
+      "id": "parse-request",
+      "name": "Parse Audit Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [],
+          "string": [
+            {
+              "value1": "={{ $json.contractAddress }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "validate-contract",
+      "name": "Validate Contract Address",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.AUDIT_ENGINE_URL }}/api/v1/audits",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contractAddress",
+              "value": "={{ $json.contractAddress }}"
+            },
+            {
+              "name": "chain",
+              "value": "={{ $json.chain }}"
+            },
+            {
+              "name": "priority",
+              "value": "={{ $json.priority }}"
+            },
+            {
+              "name": "auditId",
+              "value": "={{ $json.auditId }}"
+            },
+            {
+              "name": "requestedBy",
+              "value": "={{ $json.username }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "maxRetries": 3,
+            "retryInterval": 5000
+          }
+        }
+      },
+      "id": "queue-audit",
+      "name": "Queue to Audit Engine",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [910, 200],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $('Parse Audit Request').item.json.chatId }}"
+            },
+            {
+              "name": "text",
+              "value": "✅ *Audit Queued Successfully*\n\n🔑 Audit ID: `{{ $('Parse Audit Request').item.json.auditId }}`\n📋 Contract: `{{ $('Parse Audit Request').item.json.contractAddress }}`\n⛓ Chain: {{ $('Parse Audit Request').item.json.chain }}\n⚡ Priority: {{ $('Parse Audit Request').item.json.priority }}\n\nYou will receive a notification when the audit is complete."
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "notify-queued",
+      "name": "Notify — Audit Queued",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1130, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $('Parse Audit Request').item.json.chatId }}"
+            },
+            {
+              "name": "text",
+              "value": "❌ *Invalid Request*\n\nNo valid contract address found. Please send a valid Ethereum address (0x...).\n\nUsage: `0x<address> chain:<chain> priority:<high|medium|low>`"
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "notify-invalid",
+      "name": "Notify — Invalid Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [910, 420]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.AUDIT_ENGINE_URL }}/api/v1/audits/{{ $('Parse Audit Request').item.json.auditId }}/status",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "poll-status",
+      "name": "Poll Audit Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1350, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "value2": "completed",
+              "operation": "equals"
+            }
+          ]
+        }
+      },
+      "id": "check-complete",
+      "name": "Is Audit Complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1570, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.AUDIT_ENGINE_URL }}/api/v1/audits/{{ $('Parse Audit Request').item.json.auditId }}/report",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "fetch-report",
+      "name": "Fetch Audit Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1790, 100]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendDocument",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $('Parse Audit Request').item.json.chatId }}"
+            },
+            {
+              "name": "caption",
+              "value": "📊 *Audit Report Ready*\n\n🔑 Audit ID: `{{ $('Parse Audit Request').item.json.auditId }}`\n📋 Contract: `{{ $('Parse Audit Request').item.json.contractAddress }}`\n\nSeverity Summary:\n🔴 Critical: {{ $json.summary?.critical || 0 }}\n🟠 High: {{ $json.summary?.high || 0 }}\n🟡 Medium: {{ $json.summary?.medium || 0 }}\n🟢 Low: {{ $json.summary?.low || 0 }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "document",
+              "inputDataFieldName": "data"
+            }
+          ]
+        }
+      },
+      "id": "deliver-report",
+      "name": "Deliver Report via Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2010, 100]
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "wait-retry",
+      "name": "Wait 30s Before Retry",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1790, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Error handler — capture error details and notify\nconst errorData = {\n  auditId: $('Parse Audit Request')?.item?.json?.auditId || 'UNKNOWN',\n  chatId: $('Parse Audit Request')?.item?.json?.chatId || null,\n  errorMessage: $input.first().json?.error?.message || 'Unknown error occurred',\n  errorNode: $input.first().json?.error?.node || 'Unknown',\n  timestamp: new Date().toISOString(),\n  retryCount: ($input.first().json?.retryCount || 0) + 1\n};\n\nreturn [{ json: errorData }];"
+      },
+      "id": "error-handler",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1130, 520]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $json.chatId }}"
+            },
+            {
+              "name": "text",
+              "value": "⚠️ *Audit Pipeline Error*\n\n🔑 Audit ID: `{{ $json.auditId }}`\n❌ Error: {{ $json.errorMessage }}\n🔄 Retry: {{ $json.retryCount }}/3\n\nOur team has been notified. Please try again or contact support."
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "notify-error",
+      "name": "Notify — Error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1350, 520]
+    }
+  ],
+  "connections": {
+    "Telegram Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Audit Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Audit Request": {
+      "main": [
+        [
+          {
+            "node": "Validate Contract Address",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Contract Address": {
+      "main": [
+        [
+          {
+            "node": "Queue to Audit Engine",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify — Invalid Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queue to Audit Engine": {
+      "main": [
+        [
+          {
+            "node": "Notify — Audit Queued",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify — Audit Queued": {
+      "main": [
+        [
+          {
+            "node": "Poll Audit Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Audit Status": {
+      "main": [
+        [
+          {
+            "node": "Is Audit Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Audit Complete?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Audit Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 30s Before Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Audit Report": {
+      "main": [
+        [
+          {
+            "node": "Deliver Report via Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30s Before Retry": {
+      "main": [
+        [
+          {
+            "node": "Poll Audit Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Handler": {
+      "main": [
+        [
+          {
+            "node": "Notify — Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "AuditorSEC",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    },
+    {
+      "name": "audit-pipeline",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    }
+  ],
+  "pinData": {},
+  "versionId": "1.0.0"
+}

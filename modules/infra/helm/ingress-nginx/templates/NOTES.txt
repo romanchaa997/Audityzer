@@ -1,0 +1,18 @@
+ingress-nginx has been deployed.
+
+LoadBalancer:
+  kubectl get svc -n {{ .Release.Namespace }} -l app.kubernetes.io/name=ingress-nginx
+
+After the LoadBalancer IP is assigned, update DNS records:
+  - api.neuralinfra.digital    -> <LB_IP>
+  - app.neuralinfra.digital    -> <LB_IP>
+  - bot.neuralinfra.digital    -> <LB_IP>
+  - mqtt.neuralinfra.digital   -> <LB_IP>
+  - grafana.neuralinfra.digital -> <LB_IP>
+
+Or set a wildcard DNS record:
+  - *.neuralinfra.digital -> <LB_IP>
+
+Rate limiting can be configured per-ingress:
+  nginx.ingress.kubernetes.io/limit-rps: "10"
+  nginx.ingress.kubernetes.io/limit-connections: "5"

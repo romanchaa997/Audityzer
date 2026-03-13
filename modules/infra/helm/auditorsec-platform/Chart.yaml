@@ -1,0 +1,15 @@
+apiVersion: v2
+name: auditorsec-platform
+description: AuditorSEC smart contract audit platform — Express API + React frontend
+type: application
+version: 0.1.0
+appVersion: "2.0.0"
+keywords:
+  - auditorsec
+  - smart-contract-audit
+  - dia-city
+  - cybersecurity
+home: https://neuralinfra.digital
+maintainers:
+  - name: Roman
+    url: https://github.com/romanchaa997

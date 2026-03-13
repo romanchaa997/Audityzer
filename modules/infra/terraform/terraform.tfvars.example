@@ -1,0 +1,61 @@
+# ============================================================================
+# AuditorSEC / DaBROIoTEXs — Example Variable Values
+# Приклад значень змінних (без секретів!)
+# ============================================================================
+#
+# Usage / Використання:
+#   cp terraform.tfvars.example terraform.tfvars
+#   # Edit terraform.tfvars with your actual values
+#   terraform plan
+#
+# ВАЖЛИВО: Ніколи не комітьте terraform.tfvars з реальними секретами!
+# IMPORTANT: Never commit terraform.tfvars with real secrets!
+# ============================================================================
+
+# --- Credentials (set via env vars or terraform.tfvars) ---
+# Рекомендуємо використовувати змінні середовища:
+#   export TF_VAR_do_token="dop_v1_xxxx"
+#   export TF_VAR_spaces_access_id="DO00xxxx"
+#   export TF_VAR_spaces_secret_key="xxxx"
+#
+# do_token          = "dop_v1_your_token_here"
+# spaces_access_id  = "DO00your_access_key"
+# spaces_secret_key = "your_secret_key"
+
+# --- Region ---
+region = "fra1" # Frankfurt — найближчий до України
+
+# --- Environment ---
+environment = "production" # production | staging | development
+
+# --- Domain ---
+domain = "neuralinfra.digital"
+
+# --- Kubernetes ---
+k8s_version      = "1.31"
+k8s_node_size    = "s-2vcpu-4gb" # $24/mo per node
+k8s_node_count   = 2
+k8s_min_nodes    = 2
+k8s_max_nodes    = 5
+k8s_auto_upgrade = true
+k8s_surge_upgrade = true
+
+# --- Database ---
+db_size           = "db-s-1vcpu-1gb" # $15/mo
+db_engine_version = "16"
+db_name           = "auditorsec"
+db_node_count     = 1  # 1 = standalone, 2+ = HA з автоматичним failover
+db_pool_size      = 25
+db_pool_mode      = "transaction"
+
+# --- Spaces ---
+spaces_force_destroy = false # true = дозволити видалення непустих бакетів (НЕБЕЗПЕЧНО!)
+
+# --- DNS / LoadBalancer ---
+# Set after first deploy: kubectl get svc -n ingress-nginx -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}'
+lb_ip = "127.0.0.1"
+
+# --- Monitoring Droplet (optional) ---
+enable_monitoring_droplet = false      # true = розгорнути дроплет з Grafana + Prometheus
+monitoring_droplet_size   = "s-1vcpu-1gb" # $6/mo
+ssh_key_fingerprints      = []         # ["aa:bb:cc:dd:..."]

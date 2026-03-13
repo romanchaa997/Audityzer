@@ -1,0 +1,76 @@
+# ingress-nginx subchart values for DigitalOcean DOKS
+
+ingress-nginx:
+  controller:
+    replicaCount: 2
+
+    # DigitalOcean LoadBalancer annotations
+    service:
+      type: LoadBalancer
+      annotations:
+        service.beta.kubernetes.io/do-loadbalancer-name: "auditorsec-lb"
+        service.beta.kubernetes.io/do-loadbalancer-protocol: "http"
+        service.beta.kubernetes.io/do-loadbalancer-http-ports: "80"
+        service.beta.kubernetes.io/do-loadbalancer-tls-ports: "443"
+        service.beta.kubernetes.io/do-loadbalancer-certificate-id: ""
+        service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+        service.beta.kubernetes.io/do-loadbalancer-size-slug: "lb-small"
+        service.beta.kubernetes.io/do-loadbalancer-hostname: "lb.neuralinfra.digital"
+
+    # Enable proxy protocol for real client IPs
+    config:
+      use-proxy-protocol: "true"
+      use-forwarded-headers: "true"
+      compute-full-forwarded-for: "true"
+      enable-real-ip: "true"
+
+      # Rate limiting defaults
+      limit-req-status-code: "429"
+      limit-conn-status-code: "429"
+
+      # Security headers
+      hide-headers: "X-Powered-By,Server"
+      ssl-redirect: "true"
+      force-ssl-redirect: "true"
+      hsts: "true"
+      hsts-max-age: "31536000"
+      hsts-include-subdomains: "true"
+      hsts-preload: "true"
+
+      # Performance
+      keep-alive: "75"
+      keep-alive-requests: "1000"
+      proxy-body-size: "50m"
+      proxy-buffer-size: "16k"
+      proxy-connect-timeout: "10"
+      proxy-read-timeout: "60"
+      proxy-send-timeout: "60"
+
+      # Logging
+      log-format-upstream: '$remote_addr - $request_id [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_length $request_time [$proxy_upstream_name] $upstream_addr $upstream_response_length $upstream_response_time $upstream_status'
+
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 250m
+
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          app.kubernetes.io/part-of: auditorsec
+
+    admissionWebhooks:
+      enabled: true
+
+    # Annotations for rate limiting (applied per-ingress)
+    # Example: nginx.ingress.kubernetes.io/limit-rps: "10"
+    addHeaders: {}
+
+  # Default backend
+  defaultBackend:
+    enabled: false

@@ -1,0 +1,20 @@
+# =============================================================================
+# AuditorSEC MQTT Broker — Eclipse Mosquitto
+# IoT sensor gateway for ESP32 devices (Bakhmach deployment)
+# =============================================================================
+
+FROM eclipse-mosquitto:2.0
+
+LABEL org.opencontainers.image.title="AuditorSEC MQTT Broker" \
+      org.opencontainers.image.description="Mosquitto MQTT broker for IoT sensor network" \
+      org.opencontainers.image.vendor="AuditorSEC"
+
+COPY mosquitto.conf /mosquitto/config/mosquitto.conf
+
+# MQTT (unencrypted), MQTT (TLS), WebSocket
+EXPOSE 1883 8883 9001
+
+HEALTHCHECK --interval=15s --timeout=3s --start-period=5s --retries=3 \
+  CMD mosquitto_sub -t '$SYS/broker/uptime' -C 1 -W 3 || exit 1
+
+VOLUME ["/mosquitto/data", "/mosquitto/log"]

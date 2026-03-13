@@ -1,0 +1,333 @@
+# Monitoring stack values for AuditorSEC/DaBROIoTEXs
+
+nameOverride: ""
+fullnameOverride: ""
+
+# kube-prometheus-stack subchart values
+kube-prometheus-stack:
+  # Prometheus
+  prometheus:
+    prometheusSpec:
+      retention: 15d
+      resources:
+        requests:
+          memory: 512Mi
+          cpu: 500m
+        limits:
+          memory: 1Gi
+          cpu: "1"
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: do-block-storage
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+      serviceMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelector: {}
+      podMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelector: {}
+
+  # Grafana
+  grafana:
+    enabled: true
+    adminPassword: "changeme"
+    persistence:
+      enabled: true
+      storageClassName: do-block-storage
+      size: 5Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-production
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      hosts:
+        - grafana.neuralinfra.digital
+      tls:
+        - secretName: grafana-tls
+          hosts:
+            - grafana.neuralinfra.digital
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: auditorsec
+            orgId: 1
+            folder: AuditorSEC
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/auditorsec
+    dashboards:
+      auditorsec:
+        kubernetes-health:
+          gnetId: 15520
+          revision: 1
+          datasource: Prometheus
+        api-metrics:
+          json: |
+            {
+              "annotations": { "list": [] },
+              "title": "AuditorSEC API Metrics",
+              "uid": "auditorsec-api",
+              "panels": [
+                {
+                  "title": "Request Rate",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "expr": "rate(http_requests_total{namespace=\"auditorsec\"}[5m])",
+                      "legendFormat": "{{method}} {{path}}"
+                    }
+                  ],
+                  "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+                },
+                {
+                  "title": "Response Latency (p95)",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{namespace=\"auditorsec\"}[5m]))",
+                      "legendFormat": "p95 {{path}}"
+                    }
+                  ],
+                  "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+                },
+                {
+                  "title": "Error Rate",
+                  "type": "stat",
+                  "targets": [
+                    {
+                      "expr": "sum(rate(http_requests_total{namespace=\"auditorsec\",status=~\"5..\"}[5m])) / sum(rate(http_requests_total{namespace=\"auditorsec\"}[5m])) * 100",
+                      "legendFormat": "Error %"
+                    }
+                  ],
+                  "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 }
+                }
+              ],
+              "schemaVersion": 38,
+              "version": 1,
+              "time": { "from": "now-1h", "to": "now" }
+            }
+        mqtt-metrics:
+          json: |
+            {
+              "annotations": { "list": [] },
+              "title": "MQTT IoT Gateway Metrics",
+              "uid": "mqtt-gateway",
+              "panels": [
+                {
+                  "title": "Connected Clients",
+                  "type": "stat",
+                  "targets": [
+                    {
+                      "expr": "mosquitto_clients_connected",
+                      "legendFormat": "Connected"
+                    }
+                  ],
+                  "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
+                },
+                {
+                  "title": "Messages Received/s",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "expr": "rate(mosquitto_messages_received_total[5m])",
+                      "legendFormat": "Received"
+                    },
+                    {
+                      "expr": "rate(mosquitto_messages_sent_total[5m])",
+                      "legendFormat": "Sent"
+                    }
+                  ],
+                  "gridPos": { "h": 8, "w": 12, "x": 6, "y": 0 }
+                },
+                {
+                  "title": "Bytes In/Out",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "expr": "rate(mosquitto_bytes_received_total[5m])",
+                      "legendFormat": "Bytes In"
+                    },
+                    {
+                      "expr": "rate(mosquitto_bytes_sent_total[5m])",
+                      "legendFormat": "Bytes Out"
+                    }
+                  ],
+                  "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
+                }
+              ],
+              "schemaVersion": 38,
+              "version": 1,
+              "time": { "from": "now-1h", "to": "now" }
+            }
+        bot-usage:
+          json: |
+            {
+              "annotations": { "list": [] },
+              "title": "Telegram Bot Usage",
+              "uid": "telegram-bots",
+              "panels": [
+                {
+                  "title": "Messages Processed/min",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "expr": "rate(telegram_messages_total{namespace=\"auditorsec\"}[5m]) * 60",
+                      "legendFormat": "{{bot}}"
+                    }
+                  ],
+                  "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+                },
+                {
+                  "title": "RAG API Calls",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "expr": "rate(rag_api_requests_total{namespace=\"auditorsec\"}[5m])",
+                      "legendFormat": "{{status}}"
+                    }
+                  ],
+                  "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+                }
+              ],
+              "schemaVersion": 38,
+              "version": 1,
+              "time": { "from": "now-1h", "to": "now" }
+            }
+        iot-sensors:
+          json: |
+            {
+              "annotations": { "list": [] },
+              "title": "IoT Sensor Dashboard",
+              "uid": "iot-sensors",
+              "panels": [
+                {
+                  "title": "Active Devices",
+                  "type": "stat",
+                  "targets": [
+                    {
+                      "expr": "count(iot_device_last_seen_timestamp{namespace=\"auditorsec\"} > (time() - 300))",
+                      "legendFormat": "Active"
+                    }
+                  ],
+                  "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
+                },
+                {
+                  "title": "Energy Production (kWh)",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "expr": "sum(iot_energy_production_kwh{namespace=\"auditorsec\"}) by (device_id)",
+                      "legendFormat": "{{device_id}}"
+                    }
+                  ],
+                  "gridPos": { "h": 8, "w": 18, "x": 6, "y": 0 }
+                },
+                {
+                  "title": "Temperature Readings",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "expr": "iot_sensor_temperature_celsius{namespace=\"auditorsec\"}",
+                      "legendFormat": "{{device_id}} {{sensor}}"
+                    }
+                  ],
+                  "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
+                },
+                {
+                  "title": "Humidity Readings",
+                  "type": "timeseries",
+                  "targets": [
+                    {
+                      "expr": "iot_sensor_humidity_percent{namespace=\"auditorsec\"}",
+                      "legendFormat": "{{device_id}} {{sensor}}"
+                    }
+                  ],
+                  "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 }
+                }
+              ],
+              "schemaVersion": 38,
+              "version": 1,
+              "time": { "from": "now-6h", "to": "now" }
+            }
+    sidecar:
+      dashboards:
+        enabled: true
+      datasources:
+        enabled: true
+
+  # AlertManager
+  alertmanager:
+    enabled: true
+    alertmanagerSpec:
+      resources:
+        requests:
+          memory: 128Mi
+          cpu: 100m
+        limits:
+          memory: 256Mi
+          cpu: 250m
+    config:
+      global:
+        resolve_timeout: 5m
+      route:
+        group_by: ['alertname', 'namespace']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+        receiver: telegram
+        routes:
+          - match:
+              severity: critical
+            receiver: telegram
+            repeat_interval: 1h
+          - match:
+              severity: warning
+            receiver: telegram
+            repeat_interval: 4h
+      receivers:
+        - name: telegram
+          webhook_configs:
+            - url: "http://telegram-bots:80/webhook/alertmanager"
+              send_resolved: true
+
+  # Node exporter
+  nodeExporter:
+    enabled: true
+
+  # Kube-state-metrics
+  kubeStateMetrics:
+    enabled: true
+
+# Loki stack subchart values
+loki-stack:
+  loki:
+    enabled: true
+    persistence:
+      enabled: true
+      storageClassName: do-block-storage
+      size: 10Gi
+    config:
+      auth_enabled: false
+      server:
+        http_listen_port: 3100
+      compactor:
+        retention_enabled: true
+        retention_delete_delay: 2h
+      limits_config:
+        retention_period: 168h
+  promtail:
+    enabled: true

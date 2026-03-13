@@ -1,0 +1,450 @@
+# =============================================================================
+# AuditorSEC / DaBROIoTEXs — Main CI/CD Pipeline
+# Головний конвеєр збірки та деплою
+# =============================================================================
+# Triggers: push to main, release tags v*
+# Flow: lint+test+security → build+push → staging → production
+# =============================================================================
+
+name: "Deploy — AuditorSEC Platform"
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - "infra/terraform/**"
+      - "iot/**"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - "infra/terraform/**"
+      - "iot/**"
+  release:
+    types: [published]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: registry.digitalocean.com/auditorsec
+  IMAGE_PLATFORM: auditorsec-platform
+  IMAGE_BOT: auditorsec-bot
+  NODE_ENV: production
+  TELEGRAM_THREAD_ID: ""
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+  id-token: write
+
+# =============================================================================
+# Job 1: Перевірка якості коду / Lint, Test, Security (parallel matrix)
+# =============================================================================
+jobs:
+  lint-and-test:
+    name: "${{ matrix.check }} (Node ${{ matrix.node }})"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["20", "22"]
+        check: [lint, test, security]
+
+    steps:
+      - name: "📥 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Node.js ${{ matrix.node }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "npm"
+
+      - name: "📦 Install dependencies"
+        run: npm ci --ignore-scripts
+
+      # ── Lint ──────────────────────────────────────────────────────────
+      - name: "🔍 ESLint + TypeScript check"
+        if: matrix.check == 'lint'
+        run: |
+          npx eslint . --ext .ts,.tsx --format=compact --max-warnings=0
+          npx tsc --noEmit
+
+      # ── Test ──────────────────────────────────────────────────────────
+      - name: "🧪 Run tests with coverage"
+        if: matrix.check == 'test'
+        run: |
+          npx vitest run --coverage --reporter=verbose
+        env:
+          CI: true
+
+      - name: "📊 Upload coverage"
+        if: matrix.check == 'test' && matrix.node == '20'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+      # ── Security ──────────────────────────────────────────────────────
+      - name: "🔐 npm audit"
+        if: matrix.check == 'security'
+        run: npm audit --audit-level=high --omit=dev
+        continue-on-error: true
+
+      - name: "🛡️ Trivy filesystem scan"
+        if: matrix.check == 'security'
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: "CRITICAL,HIGH"
+          format: "sarif"
+          output: "trivy-fs.sarif"
+
+      - name: "📤 Upload Trivy results"
+        if: matrix.check == 'security' && always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-fs.sarif"
+        continue-on-error: true
+
+  # =============================================================================
+  # Job 2: Збірка Docker образу / Build & Push
+  # =============================================================================
+  build-and-push:
+    name: "Build & Push Docker images"
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 20
+    outputs:
+      image-tag: ${{ steps.meta.outputs.version }}
+      image-digest: ${{ steps.build-platform.outputs.digest }}
+
+    steps:
+      - name: "📥 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "🏷️ Docker metadata"
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PLATFORM }}
+          tags: |
+            type=sha,prefix=
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: "🔑 Login to DigitalOcean Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: registry.digitalocean.com
+          username: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          password: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: "🏗️ Set up Docker Buildx"
+        uses: docker/setup-buildx-action@v3
+
+      - name: "📦 Build & push — Platform"
+        id: build-platform
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/Dockerfile.platform
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ steps.meta.outputs.version }}
+
+      - name: "📦 Build & push — Bot"
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/Dockerfile.bot
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_BOT }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_BOT }}:latest
+          cache-from: type=gha,scope=bot
+          cache-to: type=gha,scope=bot,mode=max
+
+      # ── SBOM & Scan ─────────────────────────────────────────────────
+      - name: "📋 Generate SBOM with Syft"
+        uses: anchore/sbom-action@v0
+        with:
+          image: "${{ env.REGISTRY }}/${{ env.IMAGE_PLATFORM }}:${{ github.sha }}"
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: "🛡️ Trivy image scan"
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "${{ env.REGISTRY }}/${{ env.IMAGE_PLATFORM }}:${{ github.sha }}"
+          severity: "CRITICAL,HIGH"
+          format: "sarif"
+          output: "trivy-image.sarif"
+
+      - name: "📤 Upload SBOM + scan artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-artifacts
+          path: |
+            sbom.spdx.json
+            trivy-image.sarif
+          retention-days: 30
+
+  # =============================================================================
+  # Job 3: Деплой на стейджинг / Deploy to Staging
+  # =============================================================================
+  deploy-staging:
+    name: "Deploy to Staging"
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: staging
+      url: https://staging.neuralinfra.digital
+
+    steps:
+      - name: "📥 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Install doctl"
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: "☸️ Configure kubectl"
+        run: doctl kubernetes cluster kubeconfig save auditorsec-k8s
+
+      - name: "⎈ Install Helm"
+        uses: azure/setup-helm@v4
+        with:
+          version: "v3.14.0"
+
+      - name: "🚀 Deploy to staging namespace"
+        run: |
+          helm upgrade --install auditorsec-staging ./infra/helm/auditorsec \
+            --namespace staging \
+            --create-namespace \
+            --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_PLATFORM }} \
+            --set image.tag=${{ github.sha }} \
+            --set bot.image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_BOT }} \
+            --set bot.image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --set ingress.host=staging.neuralinfra.digital \
+            --set postgresql.host=${{ secrets.DB_HOST }} \
+            --set postgresql.password=${{ secrets.DB_PASSWORD }} \
+            --set redis.host=redis-staging \
+            --set mqtt.host=mqtt-staging \
+            --timeout 5m \
+            --wait
+
+      - name: "🏥 Smoke tests"
+        run: |
+          echo "⏳ Waiting for pods to be ready..."
+          kubectl wait --for=condition=ready pod \
+            -l app.kubernetes.io/instance=auditorsec-staging \
+            -n staging \
+            --timeout=180s
+
+          STAGING_URL="https://staging.neuralinfra.digital"
+          echo "🔍 Testing health endpoint..."
+          for i in $(seq 1 10); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/api/health" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Health check passed (attempt $i)"
+              exit 0
+            fi
+            echo "⏳ Attempt $i: status $STATUS, retrying in 10s..."
+            sleep 10
+          done
+          echo "❌ Staging health check failed"
+          exit 1
+
+      - name: "📨 Notify Telegram — staging"
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" = "success" ]; then
+            EMOJI="✅"
+            MSG="deployed to staging"
+          else
+            EMOJI="❌"
+            MSG="staging deploy FAILED"
+          fi
+
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d parse_mode=HTML \
+            -d text="${EMOJI} <b>AuditorSEC</b> ${MSG}
+          <code>${{ github.sha }}</code>
+          Branch: <code>${{ github.ref_name }}</code>
+          Actor: ${{ github.actor }}
+          <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View run</a>"
+
+  # =============================================================================
+  # Job 4: Деплой на продакшн / Deploy to Production
+  # =============================================================================
+  deploy-production:
+    name: "Deploy to Production"
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    if: github.event_name == 'release' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
+    environment:
+      name: production
+      url: https://app.neuralinfra.digital
+
+    steps:
+      - name: "📥 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Install doctl"
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: "☸️ Configure kubectl"
+        run: doctl kubernetes cluster kubeconfig save auditorsec-k8s
+
+      - name: "⎈ Install Helm"
+        uses: azure/setup-helm@v4
+        with:
+          version: "v3.14.0"
+
+      # ── Canary: 10% ────────────────────────────────────────────────
+      - name: "🐤 Canary deploy — 10% traffic"
+        run: |
+          helm upgrade --install auditorsec ./infra/helm/auditorsec \
+            --namespace production \
+            --create-namespace \
+            --set image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_PLATFORM }} \
+            --set image.tag=${{ github.sha }} \
+            --set bot.image.repository=${{ env.REGISTRY }}/${{ env.IMAGE_BOT }} \
+            --set bot.image.tag=${{ github.sha }} \
+            --set environment=production \
+            --set ingress.host=app.neuralinfra.digital \
+            --set canary.enabled=true \
+            --set canary.weight=10 \
+            --set postgresql.host=${{ secrets.DB_HOST }} \
+            --set postgresql.password=${{ secrets.DB_PASSWORD }} \
+            --timeout 5m \
+            --wait
+
+      - name: "🏥 Health check — canary 10%"
+        run: |
+          sleep 30
+          for i in $(seq 1 5); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://app.neuralinfra.digital/api/health")
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Canary 10% healthy (attempt $i)"
+              break
+            fi
+            echo "⏳ Attempt $i: status $STATUS"
+            sleep 10
+          done
+
+      # ── Canary: 50% ────────────────────────────────────────────────
+      - name: "🐤 Canary deploy — 50% traffic"
+        run: |
+          helm upgrade --install auditorsec ./infra/helm/auditorsec \
+            --namespace production \
+            --reuse-values \
+            --set canary.weight=50 \
+            --timeout 3m \
+            --wait
+
+      - name: "🏥 Health check — canary 50%"
+        run: |
+          sleep 30
+          ERROR_COUNT=0
+          for i in $(seq 1 10); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://app.neuralinfra.digital/api/health")
+            if [ "$STATUS" != "200" ]; then
+              ERROR_COUNT=$((ERROR_COUNT + 1))
+            fi
+            sleep 5
+          done
+          if [ "$ERROR_COUNT" -gt 3 ]; then
+            echo "❌ Too many errors at 50% — rolling back"
+            helm rollback auditorsec -n production
+            exit 1
+          fi
+          echo "✅ Canary 50% healthy ($ERROR_COUNT errors in 10 checks)"
+
+      # ── Full rollout: 100% ──────────────────────────────────────────
+      - name: "🚀 Full production rollout — 100%"
+        run: |
+          helm upgrade --install auditorsec ./infra/helm/auditorsec \
+            --namespace production \
+            --reuse-values \
+            --set canary.enabled=false \
+            --set canary.weight=100 \
+            --timeout 5m \
+            --wait
+
+      - name: "🏥 Final health verification"
+        run: |
+          kubectl wait --for=condition=ready pod \
+            -l app.kubernetes.io/instance=auditorsec \
+            -n production \
+            --timeout=180s
+
+          for endpoint in /api/health /api/version; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://app.neuralinfra.digital${endpoint}")
+            echo "  ${endpoint}: ${STATUS}"
+            if [ "$STATUS" != "200" ]; then
+              echo "❌ Health check failed for ${endpoint}"
+              helm rollback auditorsec -n production
+              exit 1
+            fi
+          done
+          echo "✅ All production health checks passed"
+
+      # ── Rollback on failure ─────────────────────────────────────────
+      - name: "⏪ Rollback on failure"
+        if: failure()
+        run: |
+          echo "⚠️ Rolling back production deployment..."
+          helm rollback auditorsec -n production || true
+          echo "Rollback complete. Previous version restored."
+
+      - name: "📨 Notify Telegram — production"
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" = "success" ]; then
+            EMOJI="🚀"
+            MSG="deployed to PRODUCTION"
+          else
+            EMOJI="🔥"
+            MSG="PRODUCTION deploy FAILED (rolled back)"
+          fi
+
+          VERSION="${{ github.event.release.tag_name || github.sha }}"
+
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d parse_mode=HTML \
+            -d text="${EMOJI} <b>AuditorSEC</b> ${MSG}
+          Version: <code>${VERSION}</code>
+          Actor: ${{ github.actor }}
+          <a href=\"https://app.neuralinfra.digital\">Open App</a> | <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View run</a>"

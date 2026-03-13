@@ -1,0 +1,88 @@
+replicaCount: 1
+
+image:
+  repository: registry.digitalocean.com/auditorsec/telegram-bots
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: do-registry
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3000"
+  prometheus.io/path: "/metrics"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+  hosts:
+    - host: bot.neuralinfra.digital
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: telegram-bots-tls
+      hosts:
+        - bot.neuralinfra.digital
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "250m"
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+env:
+  NODE_ENV: production
+  PORT: "3000"
+  LOG_LEVEL: info
+  RAG_API_URL: "http://auditorsec-platform:80/api/rag"
+  WEBHOOK_PATH: "/webhook/telegram"
+
+secrets:
+  TELEGRAM_BOT_TOKEN: ""
+  RAG_API_KEY: ""
+  ALERT_BOT_TOKEN: ""
+  YOUTUBE_BOT_TOKEN: ""
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics

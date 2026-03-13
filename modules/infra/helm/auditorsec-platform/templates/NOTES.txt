@@ -1,0 +1,17 @@
+AuditorSEC Platform has been deployed.
+
+{{- if .Values.ingress.enabled }}
+Application URLs:
+{{- range .Values.ingress.hosts }}
+  - https://{{ .host }}
+{{- end }}
+{{- end }}
+
+To check deployment status:
+  kubectl get pods -l app.kubernetes.io/name={{ include "auditorsec-platform.name" . }}
+
+To view logs:
+  kubectl logs -l app.kubernetes.io/name={{ include "auditorsec-platform.name" . }} -f
+
+Health check endpoint: /api/health
+Metrics endpoint:     /api/metrics

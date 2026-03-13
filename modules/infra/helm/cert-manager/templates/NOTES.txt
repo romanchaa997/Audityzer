@@ -1,0 +1,19 @@
+cert-manager has been deployed.
+
+ClusterIssuers:
+{{- if .Values.clusterIssuers.production.enabled }}
+  - {{ .Values.clusterIssuers.production.name }} (Let's Encrypt Production)
+{{- end }}
+{{- if .Values.clusterIssuers.staging.enabled }}
+  - {{ .Values.clusterIssuers.staging.name }} (Let's Encrypt Staging)
+{{- end }}
+
+Usage: Add this annotation to your Ingress resources:
+  cert-manager.io/cluster-issuer: {{ .Values.clusterIssuers.production.name }}
+
+To check certificate status:
+  kubectl get certificates -A
+  kubectl get clusterissuers
+
+To check challenge status:
+  kubectl get challenges -A

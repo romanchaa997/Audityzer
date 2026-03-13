@@ -1,0 +1,43 @@
+{
+  "name": "@auditorsec/telegram-brics",
+  "version": "1.0.0",
+  "description": "AuditorSEC Telegram webhook integration with BRICS-localized compliance alerting for @audityzerbot",
+  "type": "module",
+  "main": "dist/webhook-server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/webhook-server.js",
+    "dev": "tsx watch webhook-server.ts",
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "telegram",
+    "webhook",
+    "smart-contract",
+    "audit",
+    "brics",
+    "compliance",
+    "sebi",
+    "lgpd",
+    "joint-standard"
+  ],
+  "author": "AuditorSEC <dev@auditorsec.io>",
+  "license": "MIT",
+  "dependencies": {
+    "bullmq": "^5.20.0",
+    "express": "^4.21.0",
+    "pino": "^9.5.0",
+    "pino-http": "^10.3.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

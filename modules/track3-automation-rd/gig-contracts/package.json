@@ -1,0 +1,47 @@
+{
+  "name": "@auditorsec/gig-contracts",
+  "version": "1.0.0",
+  "description": "DefenseTech gig contracts framework — Solidity smart contracts and TypeScript orchestration for Дія.City-compliant contractor management",
+  "type": "module",
+  "main": "dist/contract-framework.js",
+  "types": "dist/contract-framework.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.sol",
+    "compile": "hardhat compile",
+    "test:sol": "hardhat test",
+    "test": "vitest",
+    "deploy:testnet": "hardhat run scripts/deploy.ts --network amoy",
+    "deploy:mainnet": "hardhat run scripts/deploy.ts --network polygon"
+  },
+  "keywords": [
+    "solidity",
+    "smart-contracts",
+    "escrow",
+    "gig-contracts",
+    "dia-city",
+    "kyc",
+    "defensetech",
+    "polygon",
+    "openzeppelin",
+    "multi-sig"
+  ],
+  "author": "AuditorSEC <dev@auditorsec.io>",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "ethers": "^6.13.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^22.10.0",
+    "hardhat": "^2.22.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

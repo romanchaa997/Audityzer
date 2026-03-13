@@ -1,0 +1,46 @@
+{
+  "name": "@auditorsec/saas-compliance",
+  "version": "1.0.0",
+  "description": "AuditorSEC SaaS Compliance Platform — Track 2: multi-framework compliance engine, dApp risk audit, AI meta-learning scanner, and CRM integration",
+  "type": "module",
+  "main": "dist/routes.js",
+  "types": "dist/types.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch routes.ts",
+    "start": "node dist/routes.js",
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "compliance",
+    "audit",
+    "SEBI",
+    "LGPD",
+    "SOC2",
+    "ISO27001",
+    "GDPR",
+    "dApp",
+    "risk",
+    "scanner",
+    "blockchain",
+    "web3",
+    "monday.com",
+    "telegram"
+  ],
+  "author": "AuditorSEC <roman@auditorsec.io>",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "pino": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.6.0"
+  }
+}

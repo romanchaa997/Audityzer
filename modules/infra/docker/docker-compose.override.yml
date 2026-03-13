@@ -1,0 +1,40 @@
+# =============================================================================
+# AuditorSEC — Development Overrides
+# Loaded automatically by docker compose (local dev only)
+# =============================================================================
+
+services:
+  platform:
+    build:
+      target: deps
+    command: ["npm", "run", "dev"]
+    volumes:
+      - ../../src:/app/src
+      - ../../public:/app/public
+      - ../../vite.config.ts:/app/vite.config.ts
+    environment:
+      - NODE_ENV=development
+      - DEBUG=auditorsec:*
+    ports:
+      - "3000:3000"
+      - "5173:5173"     # Vite HMR
+      - "9229:9229"     # Node.js debugger
+
+  bot:
+    command: ["python", "-m", "bot", "--debug"]
+    volumes:
+      - ../../bot:/app
+    environment:
+      - LOG_LEVEL=DEBUG
+
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  mosquitto:
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf

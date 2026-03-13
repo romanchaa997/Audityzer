@@ -1,0 +1,23 @@
+apiVersion: v2
+name: monitoring
+description: Monitoring stack for AuditorSEC/DaBROIoTEXs (Prometheus, Grafana, AlertManager, Loki)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+dependencies:
+  - name: kube-prometheus-stack
+    version: "56.6.2"
+    repository: https://prometheus-community.github.io/helm-charts
+  - name: loki-stack
+    version: "2.10.1"
+    repository: https://grafana.github.io/helm-charts
+keywords:
+  - monitoring
+  - prometheus
+  - grafana
+  - alertmanager
+  - loki
+home: https://neuralinfra.digital
+maintainers:
+  - name: AuditorSEC
+    email: dev@neuralinfra.digital

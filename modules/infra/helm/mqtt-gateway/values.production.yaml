@@ -1,0 +1,23 @@
+# Production overrides for mqtt-gateway
+image:
+  tag: "2.0"
+  pullPolicy: Always
+
+mosquitto:
+  allowAnonymous: false
+  logType: error warning
+
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 200m
+  limits:
+    memory: 512Mi
+    cpu: 500m
+
+persistence:
+  size: 10Gi
+
+env:
+  MQTT_MAX_CONNECTIONS: "5000"
+  MQTT_MAX_PACKET_SIZE: "131072"

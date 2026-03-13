@@ -1,0 +1,156 @@
+# =============================================================================
+# AuditorSEC / DaBROIoTEXs — IoT Firmware Build Pipeline
+# Конвеєр збірки прошивки ESP32 для IoT-сенсорів (Бахмач)
+# =============================================================================
+# Triggers: push to iot/** paths
+# Builds ESP32 firmware with PlatformIO and uploads to Spaces
+# =============================================================================
+
+name: "IoT Firmware — ESP32 Build"
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "iot/**"
+      - "!iot/docs/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "iot/**"
+
+concurrency:
+  group: iot-firmware-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FIRMWARE_BUCKET: auditorsec-artifacts
+  FIRMWARE_PREFIX: firmware/esp32
+
+jobs:
+  # =============================================================================
+  # Збірка прошивки / Build Firmware
+  # =============================================================================
+  build:
+    name: "Build ESP32 Firmware"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: "📥 Checkout"
+        uses: actions/checkout@v4
+
+      - name: "🐍 Setup Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: "⚙️ Install PlatformIO"
+        run: |
+          python -m pip install --upgrade pip
+          pip install platformio
+
+      - name: "🔍 Lint firmware source"
+        working-directory: iot
+        run: |
+          pio check --skip-packages --severity=high || true
+
+      - name: "🔨 Build firmware — ESP32-DHT22 sensor node"
+        working-directory: iot
+        run: |
+          pio run --environment esp32-dht22
+
+      - name: "🔨 Build firmware — ESP32-MQTT gateway"
+        working-directory: iot
+        run: |
+          pio run --environment esp32-gateway
+        continue-on-error: true
+
+      - name: "📋 Generate build info"
+        id: build-info
+        working-directory: iot
+        run: |
+          FIRMWARE_VERSION=$(grep -oP 'version\s*=\s*\K[^\s]+' platformio.ini || echo "0.0.0")
+          BUILD_DATE=$(date -u +"%Y%m%d-%H%M%S")
+          FILENAME="auditorsec-iot-${FIRMWARE_VERSION}-${BUILD_DATE}-${GITHUB_SHA:0:8}"
+
+          echo "version=${FIRMWARE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "build-date=${BUILD_DATE}" >> "$GITHUB_OUTPUT"
+          echo "filename=${FILENAME}" >> "$GITHUB_OUTPUT"
+
+      - name: "📦 Package firmware artifacts"
+        working-directory: iot
+        run: |
+          mkdir -p artifacts
+          FILENAME="${{ steps.build-info.outputs.filename }}"
+
+          # Copy built binaries
+          cp .pio/build/esp32-dht22/firmware.bin "artifacts/${FILENAME}-dht22.bin" 2>/dev/null || true
+          cp .pio/build/esp32-gateway/firmware.bin "artifacts/${FILENAME}-gateway.bin" 2>/dev/null || true
+
+          # Generate checksums
+          cd artifacts && sha256sum *.bin > checksums.sha256 2>/dev/null || true
+
+          # Build manifest
+          cat > manifest.json << EOF
+          {
+            "project": "AuditorSEC IoT — Bakhmach",
+            "version": "${{ steps.build-info.outputs.version }}",
+            "build_date": "${{ steps.build-info.outputs.build-date }}",
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "files": $(ls -1 *.bin 2>/dev/null | jq -R . | jq -s . || echo "[]")
+          }
+          EOF
+
+      - name: "📤 Upload firmware artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ steps.build-info.outputs.filename }}
+          path: iot/artifacts/
+          retention-days: 90
+
+  # =============================================================================
+  # Завантаження на Spaces / Upload to DO Spaces
+  # =============================================================================
+  upload:
+    name: "Upload to Spaces"
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 10
+
+    steps:
+      - name: "📥 Download firmware artifact"
+        uses: actions/download-artifact@v4
+        with:
+          path: firmware/
+          pattern: firmware-*
+          merge-multiple: true
+
+      - name: "🔧 Install s3cmd"
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq s3cmd
+
+      - name: "📤 Upload to DigitalOcean Spaces"
+        run: |
+          s3cmd put firmware/* \
+            "s3://${{ env.FIRMWARE_BUCKET }}/${{ env.FIRMWARE_PREFIX }}/" \
+            --access_key="${{ secrets.DIGITALOCEAN_SPACES_KEY }}" \
+            --secret_key="${{ secrets.DIGITALOCEAN_SPACES_SECRET }}" \
+            --host="fra1.digitaloceanspaces.com" \
+            --host-bucket="%(bucket)s.fra1.digitaloceanspaces.com" \
+            --region="fra1" \
+            --acl-private \
+            --no-mime-magic
+
+      - name: "📨 Notify Telegram"
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d parse_mode=HTML \
+            -d text="📡 <b>IoT Firmware</b> uploaded to Spaces
+          Branch: <code>${{ github.ref_name }}</code>
+          Commit: <code>${{ github.sha }}</code>
+          <a href=\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\">View build</a>"

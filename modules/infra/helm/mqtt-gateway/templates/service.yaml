@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mqtt-gateway.fullname" . }}
+  labels:
+    {{- include "mqtt-gateway.labels" . | nindent 4 }}
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "tcp"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-port: "1883"
+    service.beta.kubernetes.io/do-loadbalancer-healthcheck-protocol: "tcp"
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.mqtt.port }}
+      targetPort: mqtt
+      protocol: TCP
+      name: mqtt
+      {{- if and (eq .Values.service.type "LoadBalancer") .Values.service.mqtt.nodePort }}
+      nodePort: {{ .Values.service.mqtt.nodePort }}
+      {{- end }}
+    - port: {{ .Values.service.mqtts.port }}
+      targetPort: mqtts
+      protocol: TCP
+      name: mqtts
+      {{- if and (eq .Values.service.type "LoadBalancer") .Values.service.mqtts.nodePort }}
+      nodePort: {{ .Values.service.mqtts.nodePort }}
+      {{- end }}
+    - port: {{ .Values.service.websocket.port }}
+      targetPort: websocket
+      protocol: TCP
+      name: websocket
+  selector:
+    {{- include "mqtt-gateway.selectorLabels" . | nindent 4 }}

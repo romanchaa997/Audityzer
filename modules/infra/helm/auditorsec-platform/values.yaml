@@ -1,0 +1,107 @@
+replicaCount: 2
+
+image:
+  repository: registry.digitalocean.com/auditorsec/platform
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: do-registry
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "5000"
+  prometheus.io/path: "/api/metrics"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+  hosts:
+    - host: api.neuralinfra.digital
+      paths:
+        - path: /api
+          pathType: Prefix
+    - host: app.neuralinfra.digital
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: auditorsec-platform-tls
+      hosts:
+        - api.neuralinfra.digital
+        - app.neuralinfra.digital
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+initContainers:
+  migrations:
+    enabled: true
+    command: ["npm", "run", "db:migrate"]
+
+env:
+  NODE_ENV: production
+  PORT: "5000"
+  LOG_LEVEL: info
+
+secrets:
+  JWT_SECRET: ""
+  DATABASE_URL: ""
+  DO_SPACES_KEY: ""
+  DO_SPACES_SECRET: ""
+  DO_SPACES_BUCKET: ""
+  DO_SPACES_REGION: ""
+  SESSION_SECRET: ""
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  path: /api/metrics

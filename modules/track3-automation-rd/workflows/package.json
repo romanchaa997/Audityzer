@@ -1,0 +1,27 @@
+{
+  "name": "@auditorsec/n8n-workflows",
+  "version": "1.0.0",
+  "description": "n8n workflow templates for AuditorSEC platform automation — audit pipeline, compliance monitoring, CRM sync, incident response",
+  "private": true,
+  "keywords": [
+    "n8n",
+    "workflow",
+    "automation",
+    "audit",
+    "compliance",
+    "incident-response",
+    "telegram",
+    "crm",
+    "brics"
+  ],
+  "author": "AuditorSEC <dev@auditorsec.io>",
+  "license": "MIT",
+  "files": [
+    "*.json",
+    "README.md"
+  ],
+  "scripts": {
+    "validate": "node -e \"const fs=require('fs');const files=fs.readdirSync('.').filter(f=>f.endsWith('-workflow.json'));files.forEach(f=>{JSON.parse(fs.readFileSync(f,'utf8'));console.log('✓',f)})\"",
+    "list": "node -e \"const fs=require('fs');const files=fs.readdirSync('.').filter(f=>f.endsWith('-workflow.json'));files.forEach(f=>{const w=JSON.parse(fs.readFileSync(f,'utf8'));console.log(w.name,'—',f)})\""
+  }
+}

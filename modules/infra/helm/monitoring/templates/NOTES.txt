@@ -1,0 +1,27 @@
+Monitoring stack has been deployed.
+
+Components:
+  - Prometheus (metrics collection & alerting rules)
+  - Grafana (dashboards & visualization)
+  - AlertManager (alert routing to Telegram)
+  - Loki + Promtail (log aggregation)
+
+Grafana:
+{{- if (index .Values "kube-prometheus-stack" "grafana" "ingress" "enabled") }}
+  URL: https://grafana.neuralinfra.digital
+{{- end }}
+  Default credentials: admin / <set via --set>
+
+Custom Dashboards:
+  - AuditorSEC API Metrics
+  - MQTT IoT Gateway Metrics
+  - Telegram Bot Usage
+  - IoT Sensor Dashboard
+  - Kubernetes Health (community)
+
+AlertManager:
+  Alerts are routed to Telegram via webhook at:
+    http://telegram-bots:80/webhook/alertmanager
+
+To check deployment status:
+  kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/part-of=auditorsec
