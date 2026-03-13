@@ -4,11 +4,12 @@ FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
-COPY package*.json ./
+RUN corepack enable && corepack prepare pnpm@9 --activate
+COPY package.json pnpm-lock.yaml ./
 COPY tsconfig.json ./
 
 # Install dependencies
-RUN npm ci --omit=dev
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy source code
 COPY src/ ./src/
@@ -17,7 +18,7 @@ COPY templates/ ./templates/
 COPY lib/ ./lib/
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # Production stage
 FROM node:20-alpine AS production

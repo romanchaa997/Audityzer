@@ -13,5 +13,5 @@ tests
 .vscode
 examples
 *.md
-pnpm-lock.yaml
+package-lock.json
 coverage
