@@ -13,6 +13,7 @@
     "templates/",
     "src/core/",
     "src/cli/",
+    "src/modules/",
     "README.md",
     "LICENSE"
   ],
