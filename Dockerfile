@@ -1,34 +1,34 @@
-<<<<<<< HEAD
-
 # Multi-stage build for Audityzer
+# Stage 1: Builder
 FROM node:20-alpine AS builder
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Set working directory
-=======
-FROM node:20-slim as builder
-
->>>>>>> 9fcef16aa3870634216e27d04154ec98e4c712a8
 WORKDIR /app
-COPY package*.json ./
-<<<<<<< HEAD
-COPY tsconfig.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Copy package files and scripts needed for postinstall
+COPY package.json pnpm-lock.yaml ./
+COPY scripts/ ./scripts/
+
+# Install dependencies (triggers postinstall which needs scripts/fix-dependencies.js)
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy source code
 COPY src/ ./src/
 COPY bin/ ./bin/
 COPY templates/ ./templates/
 COPY lib/ ./lib/
+COPY tsconfig.json ./
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
-# Production stage
+# Stage 2: Production
 FROM node:20-alpine AS production
 
-# Install security updates
+# Install security updates and runtime deps
 RUN apk update && apk upgrade && apk add --no-cache \
     dumb-init \
     curl \
@@ -45,7 +45,7 @@ WORKDIR /app
 COPY --from=builder --chown=audityzer:audityzer /app/node_modules ./node_modules
 COPY --from=builder --chown=audityzer:audityzer /app/dist ./dist
 COPY --from=builder --chown=audityzer:audityzer /app/bin ./bin
-COPY --from=builder --chown=audityzer:audityzer /app/package*.json ./
+COPY --from=builder --chown=audityzer:audityzer /app/package.json ./
 
 # Copy additional runtime files
 COPY --chown=audityzer:audityzer templates/ ./templates/
@@ -71,15 +71,3 @@ ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
 CMD ["./scripts/start.sh"]
-=======
-RUN npm install
-COPY . .
-RUN npm run build
-
-FROM node:20-slim
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-RUN npm ci --omit=dev
-
-CMD ["node", "dist/cli.js"]
->>>>>>> 9fcef16aa3870634216e27d04154ec98e4c712a8
