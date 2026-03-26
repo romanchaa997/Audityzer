@@ -4,10 +4,12 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --ignore-scripts --omit=dev
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
-EXPOSE 3000
+RUN npm run build
 
-CMD ["npm", "start"]
+EXPOSE 5000
+
+CMD ["npx", "serve", "-s", "dist", "-l", "5000"]
