@@ -3,8 +3,8 @@
 # Docs: https://docs.railway.app/reference/config-as-code
 
 [build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+builder = "NIXPACKS"
+buildCommand = "pnpm install --no-frozen-lockfile && pnpm run build"
 
 [deploy]
 startCommand = "node dist/cli.js"
