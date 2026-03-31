@@ -1,0 +1,14 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "pnpm install --no-frozen-lockfile && pnpm run build"
+
+[deploy]
+startCommand = "pnpm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[build.nixpacksPlan.variables]
+NIXPACKS_INSTALL_CMD = "pnpm install --no-frozen-lockfile"
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
+PLAYWRIGHT_BROWSERS_PATH = "0"
+NODE_ENV = "production"
