@@ -1,26 +1,29 @@
 # Multi-stage build for Audityzer
 FROM node:20-alpine AS builder
 
+# Install pnpm
+RUN npm install -g pnpm@9
+
 # Set working directory
 WORKDIR /app
 
-COPY package*.json ./
-COPY tsconfig.json ./
+# Copy package files
+COPY package*.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (no frozen lockfile to handle config mismatches)
+RUN pnpm install --no-frozen-lockfile
 
 # Copy source code
-COPY src/ ./src/
-COPY bin/ ./bin/
-COPY templates/ ./templates/
-COPY lib/ ./lib/
+COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # Production stage
 FROM node:20-alpine AS production
+
+# Install pnpm
+RUN npm install -g pnpm@9
 
 # Install security updates
 RUN apk update && apk upgrade && apk add --no-cache \
@@ -33,20 +36,18 @@ RUN addgroup -g 1001 -S nodejs && \
 
 WORKDIR /app
 
-# Copy built artifacts
-COPY --from=builder --chown=audityzer:nodejs /app/node_modules ./node_modules
+# Copy package files and install production deps
+COPY package*.json pnpm-lock.yaml ./
+RUN pnpm install --prod --no-frozen-lockfile
+
+# Copy built files from builder
+COPY --from=builder --chown=audityzer:nodejs /app/dist ./dist
 COPY --from=builder --chown=audityzer:nodejs /app/bin ./bin
 COPY --from=builder --chown=audityzer:nodejs /app/src ./src
-COPY --from=builder --chown=audityzer:nodejs /app/templates ./templates
 COPY --from=builder --chown=audityzer:nodejs /app/lib ./lib
-COPY --chown=audityzer:nodejs package*.json ./
 
 USER audityzer
 
-EXPOSE 3000
+EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/', (r) => process.exit(r.statusCode === 200 ? 0 : 1))" || exit 1
-
-ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "bin/audityzer.js", "start"]
+CMD ["dumb-init", "node", "bin/audityzer.js", "start"]
