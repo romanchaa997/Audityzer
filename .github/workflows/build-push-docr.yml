@@ -5,26 +5,21 @@ on:
     branches: [safe-improvements, main]
     paths:
       - 'src/**'
+      - 'server.js'
       - 'Dockerfile'
-      - 'Dockerfile.mcp'
       - 'package.json'
       - 'pnpm-lock.yaml'
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Image tag override'
-        required: false
-        default: ''
 
 env:
   REGISTRY: registry.digitalocean.com/auditorsec
-  IMAGE_MAIN: audityzer
+  IMAGE_NAME: audityzer
 
 jobs:
   build-and-push:
-    name: Build & Push Images
+    name: Build & Push Image
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -38,41 +33,26 @@ jobs:
 
       - name: Set image tag
         id: tag
-        run: |
-          if [ -n "${{ github.event.inputs.tag }}" ]; then
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          else
-            echo "tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
-          fi
+        run: echo "tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build & Push Audityzer
+      - name: Build & Push
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_MAIN }}:${{ steps.tag.outputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_MAIN }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          labels: |
-            org.opencontainers.image.source=https://github.com/romanchaa997/Audityzer
-            org.opencontainers.image.revision=${{ github.sha }}
 
-      - name: Update K8s deployment tag
+      - name: Summary
         run: |
-          sed -i "s|image: registry.digitalocean.com/auditorsec/audityzer:.*|image: registry.digitalocean.com/auditorsec/audityzer:${{ steps.tag.outputs.tag }}|g" k8s/deployment.yaml
-
-      - name: Commit updated manifests
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add k8s/deployment.yaml
-          git diff --cached --quiet || git commit -m "ci: update image tag to ${{ steps.tag.outputs.tag }}"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "### Audityzer Image Pushed" >> $GITHUB_STEP_SUMMARY
+          echo "- Registry: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Tag: \`${{ steps.tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Also tagged: \`latest\`" >> $GITHUB_STEP_SUMMARY
