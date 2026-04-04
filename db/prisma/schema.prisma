@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id               String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String
+  vat              String?      @db.VarChar(20)
+  diiaCityResident Boolean      @default(false) @map("diia_city_resident")
+  metadata         Json         @default("{}")
+  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  engagements      Engagement[]
+  files            File[]
+
+  @@map("accounts")
+}
+
+model Engagement {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId   String?      @map("account_id") @db.Uuid
+  name        String
+  type        String?      @db.VarChar(30)
+  status      String?      @db.VarChar(20)
+  riskLevel   String?      @map("risk_level") @db.VarChar(10)
+  deadline    DateTime?    @db.Timestamptz
+  metadata    Json         @default("{}")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  account     Account?     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  files       File[]
+  automations Automation[]
+  riskEvents  RiskEvent[]
+
+  @@index([accountId, status], map: "idx_engagements_account")
+  @@map("engagements")
+}
+
+model File {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String?        @map("tenant_id") @db.Uuid
+  engagementId  String?        @map("engagement_id") @db.Uuid
+  name          String
+  type          String?        @db.VarChar(10)
+  domain        String?        @db.VarChar(20)
+  url           String?
+  uploadDate    DateTime       @default(now()) @map("upload_date") @db.Timestamptz
+  priorityScore Decimal        @default(0) @map("priority_score") @db.Decimal(5, 2)
+  status        String         @default("active") @db.VarChar(10)
+  web3Tags      String[]       @default([]) @map("web3_tags")
+  checksum      String?        @db.VarChar(64)
+  sizeBytes     BigInt?        @map("size_bytes")
+  metadata      Json           @default("{}")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  tenant        Account?       @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  engagement    Engagement?    @relation(fields: [engagementId], references: [id], onDelete: SetNull)
+  mediaCatalog  MediaCatalog[]
+  automations   Automation[]
+
+  @@index([domain, uploadDate(sort: Desc)], map: "idx_files_domain_date")
+  @@index([tenantId, status], map: "idx_files_tenant_status")
+  @@index([type, domain], map: "idx_files_type_domain")
+  @@map("files")
+}
+
+model MediaCatalog {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fileId         String?  @map("file_id") @db.Uuid
+  mediaType      String?  @map("media_type") @db.VarChar(10)
+  project        String?  @db.VarChar(50)
+  pageCount      Int?     @map("page_count")
+  slideCount     Int?     @map("slide_count")
+  thumbnailUrl   String?  @map("thumbnail_url")
+  ocrText        String?  @map("ocr_text")
+  aiSummary      String?  @map("ai_summary")
+  classification Json     @default("{}") @db.JsonB
+  status         String   @default("active") @db.VarChar(10)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  file           File?    @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@index([project, mediaType], map: "idx_media_project_type")
+  @@map("media_catalog")
+}
+
+model Automation {
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fileId          String?     @map("file_id") @db.Uuid
+  engagementId    String?     @map("engagement_id") @db.Uuid
+  triggerType     String?     @map("trigger_type") @db.VarChar(30)
+  actionType      String?     @map("action_type") @db.VarChar(30)
+  n8nWorkflowId   String?     @map("n8n_workflow_id")
+  webhookUrl      String?     @map("webhook_url")
+  payloadTemplate Json        @default("{}") @map("payload_template")
+  isActive        Boolean     @default(true) @map("is_active")
+  lastTriggered   DateTime?   @map("last_triggered") @db.Timestamptz
+  triggerCount    Int         @default(0) @map("trigger_count")
+  metadata        Json        @default("{}")
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  file            File?       @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  engagement      Engagement? @relation(fields: [engagementId], references: [id], onDelete: SetNull)
+
+  @@index([fileId], map: "idx_automations_file")
+  @@map("automations")
+}
+
+model RiskEvent {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  engagementId  String?     @map("engagement_id") @db.Uuid
+  entityType    String?     @map("entity_type") @db.VarChar(20)
+  entityRef     String?     @map("entity_ref")
+  riskCategory  String?     @map("risk_category") @db.VarChar(20)
+  severity      Int?
+  impact        Int?
+  riskScore     Decimal?    @map("risk_score") @db.Decimal(5, 2)
+  description   String?
+  source        String?     @db.VarChar(30)
+  resolved      Boolean     @default(false)
+  metadata      Json        @default("{}")
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  engagement    Engagement? @relation(fields: [engagementId], references: [id], onDelete: SetNull)
+
+  @@index([engagementId, riskCategory], map: "idx_risk_events_engagement")
+  @@map("risk_events")
+}

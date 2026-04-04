@@ -1,0 +1,147 @@
+{
+  "name": "UHIP-2A File Classifier",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "file-classify-trigger",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.FASTAPI_BASE_URL}}/api/v1/files/classify",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "={{$json.name}}" },
+            { "name": "type", "value": "={{$json.type}}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "classify-file",
+      "name": "Classify File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.domain}}",
+              "operation": "equals",
+              "value2": "security"
+            }
+          ]
+        }
+      },
+      "id": "route-by-domain",
+      "name": "Route by Domain",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.FASTAPI_BASE_URL}}/api/v1/files/ingest",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "={{$node['Webhook Trigger'].json.name}}" },
+            { "name": "type", "value": "={{$node['Webhook Trigger'].json.type}}" },
+            { "name": "domain", "value": "={{$node['Classify File'].json.domain}}" },
+            { "name": "web3_tags", "value": "={{$node['Classify File'].json.web3_tags}}" },
+            { "name": "url", "value": "={{$node['Webhook Trigger'].json.url}}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ingest-file",
+      "name": "Ingest File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1000, 200]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.FASTAPI_BASE_URL}}/api/v1/files/ingest",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "={{$node['Webhook Trigger'].json.name}}" },
+            { "name": "type", "value": "={{$node['Webhook Trigger'].json.type}}" },
+            { "name": "domain", "value": "={{$node['Classify File'].json.domain}}" },
+            { "name": "web3_tags", "value": "={{$node['Classify File'].json.web3_tags}}" },
+            { "name": "url", "value": "={{$node['Webhook Trigger'].json.url}}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ingest-file-normal",
+      "name": "Ingest File (Normal)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1000, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.TELEGRAM_CHAT_ID}}",
+        "text": "=🔒 *Security File Ingested*\n\nFile: `{{$node['Webhook Trigger'].json.name}}`\nDomain: `{{$node['Classify File'].json.domain}}`\nTags: `{{$node['Classify File'].json.web3_tags}}`\nPriority: `{{$node['Ingest File'].json.priority_score}}`",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-notify",
+      "name": "Telegram Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1250, 200],
+      "credentials": {
+        "telegramApi": { "id": "1", "name": "Telegram Bot" }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [{ "node": "Classify File", "type": "main", "index": 0 }]
+      ]
+    },
+    "Classify File": {
+      "main": [
+        [{ "node": "Route by Domain", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Domain": {
+      "main": [
+        [{ "node": "Ingest File", "type": "main", "index": 0 }],
+        [{ "node": "Ingest File (Normal)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Ingest File": {
+      "main": [
+        [{ "node": "Telegram Notification", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "UHIP-2A" },
+    { "name": "file-management" },
+    { "name": "AuditorSEC" }
+  ]
+}
