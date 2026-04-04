@@ -31,8 +31,12 @@
     "openai": "^4.98.0",
     "path": "^0.12.7",
     "prettier": "^3.5.3",
+    "express": "^4.21.0",
+    "prom-client": "^15.1.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "cors": "^2.8.5",
+    "pg": "^8.13.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
@@ -176,17 +180,25 @@
     "cookie": "^0.7.0",
     "lodash.set": "^4.3.2",
     "@sentry/node": "^7.75.0",
+    "tar": "^7.5.11",
     "tar-fs": "^2.1.1",
     "ws": "^8.17.1",
+    "minimatch": ">=3.1.4",
+    "fast-xml-parser": ">=4.5.4",
+    "rollup": ">=4.59.0",
     "@puppeteer/browsers": "^1.4.2",
     "puppeteer-core": "^22.11.2"
   },
   "overrides": {
+    "tar": "^7.5.11",
     "tar-fs": "^2.1.1",
     "ws": "^8.17.1",
     "lodash.set": "^4.3.2",
     "@sentry/node": "^7.75.0",
     "cookie": "^0.7.0",
+    "minimatch": ">=3.1.4",
+    "fast-xml-parser": ">=4.5.4",
+    "rollup": ">=4.59.0",
     "raven": {
       "cookie": "^0.7.0"
     },

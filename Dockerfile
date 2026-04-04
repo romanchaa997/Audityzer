@@ -1,3 +1,4 @@
+FROM node:20-alpine
 
 # Single-stage build for Audityzer
 # No build step needed - Node.js runs .js source directly
@@ -27,8 +28,9 @@ COPY --chown=audityzer:audityzer templates/ ./templates/
 COPY --chown=audityzer:audityzer lib/ ./lib/
 COPY --chown=audityzer:audityzer scripts/healthcheck.sh scripts/start.sh ./scripts/
 
-# Make scripts executable
-RUN chmod +x ./scripts/*.sh
+# Railway sets PORT env var
+ENV PORT=8080
+EXPOSE 8080
 
 # Switch to non-root user
 USER audityzer

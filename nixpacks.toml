@@ -1,0 +1,11 @@
+# Nixpacks config for Railway deployment
+# Skip vite build — we only need server.js + express
+
+[phases.install]
+cmds = ["npm install --production --ignore-scripts"]
+
+[phases.build]
+cmds = ["echo 'Skipping frontend build — server-only deploy'"]
+
+[start]
+cmd = "node server.js"

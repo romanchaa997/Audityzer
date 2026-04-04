@@ -1,0 +1,349 @@
+{
+  "name": "Telegram Self-Healing Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telegram-health",
+        "options": {
+          "responseMode": "onReceived"
+        }
+      },
+      "id": "telegram-webhook",
+      "name": "Telegram Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "telegram-health"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "*/5 * * * *" }]
+        }
+      },
+      "id": "health-schedule",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "const message = $input.first().json;\n\n// Handle Telegram commands\nif (message.body && message.body.message && message.body.message.text) {\n  const text = message.body.message.text;\n  const chatId = message.body.message.chat.id;\n  \n  if (text === '/status') return [{ json: { action: 'status', chatId } }];\n  if (text === '/deploy') return [{ json: { action: 'deploy', chatId } }];\n  if (text === '/heal')   return [{ json: { action: 'heal', chatId } }];\n  if (text === '/kpi')    return [{ json: { action: 'kpi', chatId } }];\n  if (text === '/help')   return [{ json: { action: 'help', chatId } }];\n  \n  return [{ json: { action: 'unknown', chatId, text } }];\n}\n\n// Scheduled health check\nreturn [{ json: { action: 'health-check', chatId: $env.TELEGRAM_CHAT_ID } }];"
+      },
+      "id": "route-action",
+      "name": "Route Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 200]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            { "outputKey": "status",       "value": "status" },
+            { "outputKey": "deploy",       "value": "deploy" },
+            { "outputKey": "heal",         "value": "heal" },
+            { "outputKey": "kpi",          "value": "kpi" },
+            { "outputKey": "health-check", "value": "health-check" },
+            { "outputKey": "help",         "value": "help" }
+          ]
+        },
+        "dataPropertyName": "action"
+      },
+      "id": "action-switch",
+      "name": "Action Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [720, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const checks = [];\n\n// Check Railway app health\ntry {\n  const railwayResp = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://audityzer.up.railway.app/health',\n    timeout: 10000\n  });\n  checks.push({ service: 'Railway App', status: 'UP', details: railwayResp });\n} catch (e) {\n  checks.push({ service: 'Railway App', status: 'DOWN', error: e.message });\n}\n\n// Check metrics endpoint\ntry {\n  const metricsResp = await this.helpers.httpRequest({\n    method: 'GET',\n    url: 'https://audityzer.up.railway.app/metrics',\n    timeout: 10000\n  });\n  const hasMetrics = typeof metricsResp === 'string' && metricsResp.includes('audityzer_');\n  checks.push({ service: 'Prometheus Metrics', status: hasMetrics ? 'UP' : 'DEGRADED' });\n} catch (e) {\n  checks.push({ service: 'Prometheus Metrics', status: 'DOWN', error: e.message });\n}\n\n// Check Grafana\ntry {\n  await this.helpers.httpRequest({\n    method: 'GET',\n    url: $env.GRAFANA_URL + '/api/health',\n    timeout: 10000\n  });\n  checks.push({ service: 'Grafana', status: 'UP' });\n} catch (e) {\n  checks.push({ service: 'Grafana', status: 'DOWN', error: e.message });\n}\n\nconst allUp = checks.every(c => c.status === 'UP');\nconst downServices = checks.filter(c => c.status !== 'UP');\n\nreturn [{ json: {\n  checks,\n  allUp,\n  downServices,\n  chatId: $input.first().json.chatId,\n  action: $input.first().json.action\n}}];"
+      },
+      "id": "health-checks",
+      "name": "Run Health Checks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.allUp }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "all-healthy",
+      "name": "All Healthy?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1180, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.action === 'health-check' ? '' : \"\\u2705 *All Systems Operational*\\n\\n\" + $json.checks.map(c => '• ' + c.service + ': ' + c.status).join('\\n') }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "report-healthy",
+      "name": "Report Healthy",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1400, -100],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      },
+      "executeOnce": true,
+      "disabled": false,
+      "continueOnFail": true,
+      "conditions": {
+        "string": [
+          {
+            "value1": "={{ $json.action }}",
+            "operation": "notEquals",
+            "value2": "health-check"
+          }
+        ]
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ \"\\u26A0\\uFE0F *Service Alert*\\n\\n\" + $json.downServices.map(c => '\\u274C ' + c.service + ': ' + c.status + (c.error ? ' — ' + c.error.substring(0,100) : '')).join('\\n') + \"\\n\\nAttempting self-heal...\" }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "report-unhealthy",
+      "name": "Alert: Services Down",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1400, 100],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const down = $input.first().json.downServices;\nconst actions = [];\n\nfor (const svc of down) {\n  if (svc.service === 'Railway App') {\n    actions.push({\n      service: svc.service,\n      heal_action: 'railway_restart',\n      command: 'railway restart --service ' + $env.RAILWAY_SERVICE_ID\n    });\n  }\n  if (svc.service === 'Prometheus Metrics') {\n    actions.push({\n      service: svc.service,\n      heal_action: 'restart_metrics',\n      command: 'railway restart --service ' + $env.RAILWAY_SERVICE_ID\n    });\n  }\n  if (svc.service === 'Grafana') {\n    actions.push({\n      service: svc.service,\n      heal_action: 'notify_only',\n      command: null\n    });\n  }\n}\n\nreturn actions.map(a => ({ json: { ...a, chatId: $input.first().json.chatId } }));"
+      },
+      "id": "plan-healing",
+      "name": "Plan Self-Heal",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1620, 100]
+    },
+    {
+      "parameters": {
+        "command": "={{ $json.command }}",
+        "timeout": 60
+      },
+      "id": "execute-heal",
+      "name": "Execute Heal",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1840, 50],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId || $input.first().json.chatId }}",
+        "text": "={{ \"\\U0001F527 *Self-Heal Result*\\n\\nService: \" + ($json.service || 'unknown') + \"\\nAction: \" + ($json.heal_action || 'restart') + \"\\nExit code: \" + ($json.exitCode || 'N/A') + \"\\n\\nWill re-check in 5 minutes.\" }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "report-heal",
+      "name": "Report Heal Result",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2060, 50],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "railway up --service $RAILWAY_SERVICE_ID --detach"
+      },
+      "id": "force-deploy",
+      "name": "Force Deploy",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [960, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $input.first().json.chatId }}",
+        "text": "={{ \"\\U0001F680 *Deploy Triggered*\\n\\nBranch: defense-audit\\nService: \" + $env.RAILWAY_SERVICE_ID + \"\\nExit code: \" + $json.exitCode + ($json.exitCode === 0 ? '\\n\\n\\u2705 Deploy started successfully.' : '\\n\\n\\u274C Deploy command failed: ' + $json.stderr.substring(0,200)) }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "deploy-result",
+      "name": "Deploy Result",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1180, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.GRAFANA_URL + '/api/datasources/proxy/1/api/v1/query?query=audityzer_brave1_kpi_score' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "fetch-kpi",
+      "name": "Fetch KPI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "grafana-auth",
+          "name": "Grafana API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $input.first().json.chatId }}",
+        "text": "={{ \"\\U0001F4CA *BRAVE1 KPI Status*\\n\\nCurrent Score: \" + (($json.data && $json.data.result && $json.data.result[0]) ? parseFloat($json.data.result[0].value[1]).toFixed(2) : 'N/A') + \"\\nThreshold: >= 4.0\\nAuto-submit: \" + (($json.data && $json.data.result && $json.data.result[0] && parseFloat($json.data.result[0].value[1]) >= 4) ? 'ELIGIBLE' : 'NOT YET') + \"\\n\\nDashboard: \" + $env.GRAFANA_URL + '/d/brave1-kpi' }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "kpi-result",
+      "name": "KPI Result",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1180, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "*Audityzer Self-Healing Bot*\n\nCommands:\n/status — Check all service health\n/deploy — Force Railway redeploy\n/heal — Run self-healing on all services\n/kpi — Show current BRAVE1 KPI score\n/help — Show this message\n\nAuto-monitoring runs every 5 minutes.",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "help-message",
+      "name": "Help Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [960, 600],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot",
+          "name": "Audityzer Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Webhook": {
+      "main": [
+        [{ "node": "Route Action", "type": "main", "index": 0 }]
+      ]
+    },
+    "Every 5 Minutes": {
+      "main": [
+        [{ "node": "Route Action", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route Action": {
+      "main": [
+        [{ "node": "Action Switch", "type": "main", "index": 0 }]
+      ]
+    },
+    "Action Switch": {
+      "main": [
+        [{ "node": "Run Health Checks", "type": "main", "index": 0 }],
+        [{ "node": "Force Deploy", "type": "main", "index": 0 }],
+        [{ "node": "Run Health Checks", "type": "main", "index": 0 }],
+        [{ "node": "Fetch KPI", "type": "main", "index": 0 }],
+        [{ "node": "Run Health Checks", "type": "main", "index": 0 }],
+        [{ "node": "Help Message", "type": "main", "index": 0 }]
+      ]
+    },
+    "Run Health Checks": {
+      "main": [
+        [{ "node": "All Healthy?", "type": "main", "index": 0 }]
+      ]
+    },
+    "All Healthy?": {
+      "main": [
+        [{ "node": "Report Healthy", "type": "main", "index": 0 }],
+        [{ "node": "Alert: Services Down", "type": "main", "index": 0 }]
+      ]
+    },
+    "Alert: Services Down": {
+      "main": [
+        [{ "node": "Plan Self-Heal", "type": "main", "index": 0 }]
+      ]
+    },
+    "Plan Self-Heal": {
+      "main": [
+        [{ "node": "Execute Heal", "type": "main", "index": 0 }]
+      ]
+    },
+    "Execute Heal": {
+      "main": [
+        [{ "node": "Report Heal Result", "type": "main", "index": 0 }]
+      ]
+    },
+    "Force Deploy": {
+      "main": [
+        [{ "node": "Deploy Result", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch KPI": {
+      "main": [
+        [{ "node": "KPI Result", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": [
+    { "name": "telegram" },
+    { "name": "self-healing" },
+    { "name": "monitoring" }
+  ],
+  "triggerCount": 2,
+  "updatedAt": "2026-03-12T00:00:00.000Z",
+  "versionId": "1"
+}

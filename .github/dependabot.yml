@@ -1,0 +1,37 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "romanchaa997"
+    labels:
+      - "dependencies"
+      - "security"
+    groups:
+      production-deps:
+        patterns:
+          - "express"
+          - "pg"
+          - "cors"
+          - "axios"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-deps:
+        patterns:
+          - "*"
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "ci/cd"
