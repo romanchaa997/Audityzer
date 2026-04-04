@@ -57,9 +57,14 @@ async function sendTelegramAlert(text) {
   }
 }
 
-// Mount Prometheus metrics router (CommonJS module loaded via createRequire)
-const metricsRouter = require('./src/routes/metrics.js');
-app.use('/', metricsRouter);
+// Mount Prometheus metrics router (dynamic import for ESM compatibility)
+try {
+  const metricsModule = await import('./src/routes/metrics.js');
+  const metricsRouter = metricsModule.default || metricsModule;
+  app.use('/', metricsRouter);
+} catch (err) {
+  console.warn('Prometheus metrics router not loaded:', err.message);
+}
 
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
