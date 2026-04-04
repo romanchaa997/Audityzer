@@ -16,6 +16,7 @@ import cors from 'cors';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import pg from 'pg';
 const require = createRequire(import.meta.url);
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +29,19 @@ const HF_API_URL = 'https://api-inference.huggingface.co/models/microsoft/codebe
 const DATABASE_URL = process.env.DATABASE_URL || '';
 const TG_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
 const TG_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '';
+
+// ─── Database Connection ─────────────────────────────────────────────────────
+let pool = null;
+if (DATABASE_URL) {
+  pool = new pg.Pool({
+    connectionString: DATABASE_URL,
+    max: 5,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+    ssl: DATABASE_URL.includes('railway') ? { rejectUnauthorized: false } : false,
+  });
+  pool.on('error', (err) => console.error('DB pool error:', err.message));
+}
 
 // ─── Telegram Alert Helper ────────────────────────────────────────────────────
 async function sendTelegramAlert(text) {
