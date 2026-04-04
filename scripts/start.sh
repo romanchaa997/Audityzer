@@ -15,15 +15,10 @@ if [ -z "$PORT" ]; then
     export PORT=5000
 fi
 
-# Create necessary directories
-mkdir -p /app/reports
-mkdir -p /app/data
-mkdir -p /app/logs
-
-# Set permissions
-chmod 755 /app/reports
-chmod 755 /app/data
-chmod 755 /app/logs
+# Create necessary directories (may already exist from Dockerfile)
+mkdir -p /app/reports || true
+mkdir -p /app/data || true
+mkdir -p /app/logs || true
 
 echo "Directories created"
 
