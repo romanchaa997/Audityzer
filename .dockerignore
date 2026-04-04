@@ -6,12 +6,17 @@ node_modules
 build
 dist
 *.env
+*.env*
 *.DS_Store
 *.pem
 npm-debug.log
 tests
+test
 .vscode
 examples
 *.md
 package-lock.json
 coverage
+.github
+.husky
+docs
