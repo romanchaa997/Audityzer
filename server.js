@@ -19,6 +19,18 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Health check endpoint for K8s liveness/readiness probes (before all other middleware)
+const healthResponse = (req, res) => {
+  res.json({
+    status: 'ok',
+    version: '1.1.3',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+};
+app.get('/health', healthResponse);
+app.get('/api/health', healthResponse);
+
 // Parse JSON request bodies
 app.use(bodyParser.json({ limit: '10mb' }));
 
