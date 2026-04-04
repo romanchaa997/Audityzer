@@ -23,8 +23,8 @@ mkdir -p /app/logs || true
 echo "Directories created"
 
 # Check if the application source exists
-if [ ! -f "/app/bin/audityzer.js" ]; then
-    echo "Application source not found. Ensure src/ and bin/ are copied."
+if [ ! -f "/app/server.js" ]; then
+    echo "server.js not found. Ensure server.js is copied."
     exit 1
 fi
 
@@ -32,4 +32,4 @@ echo "Application files found"
 
 # Start the application
 echo "Starting Audityzer on port $PORT..."
-exec node bin/audityzer.js start
+exec node server.js

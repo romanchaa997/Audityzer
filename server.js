@@ -22,9 +22,15 @@ const port = process.env.PORT || 3000;
 // Parse JSON request bodies
 app.use(bodyParser.json({ limit: '10mb' }));
 
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'build/client')));
+// Serve static files from the public directory (directories may not exist in Docker)
+const publicDir = path.join(__dirname, 'public');
+const buildClientDir = path.join(__dirname, 'build/client');
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+}
+if (fs.existsSync(buildClientDir)) {
+  app.use(express.static(buildClientDir));
+}
 
 // Serve the fuzzer test file
 app.get('/fuzzer-test.html', (req, res) => {
