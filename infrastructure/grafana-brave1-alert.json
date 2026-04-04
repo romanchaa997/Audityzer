@@ -1,0 +1,108 @@
+{
+  "name": "BRAVE1 Readiness Score Alert",
+  "description": "Grafana Cloud alert rule configuration for AuditorSEC BRAVE1 submission readiness",
+  "alert_rule": {
+    "title": "BRAVE1 Readiness Score ≥ 4",
+    "condition": "C",
+    "data": [
+      {
+        "refId": "A",
+        "queryType": "prometheus",
+        "datasourceUid": "<PROMETHEUS_DATASOURCE_UID>",
+        "model": {
+          "expr": "auditsec_kpi_readiness_score",
+          "intervalMs": 300000,
+          "maxDataPoints": 43200
+        }
+      },
+      {
+        "refId": "B",
+        "queryType": "reduce",
+        "datasourceUid": "-100",
+        "model": {
+          "expression": "A",
+          "reducer": "last",
+          "type": "reduce"
+        }
+      },
+      {
+        "refId": "C",
+        "queryType": "threshold",
+        "datasourceUid": "-100",
+        "model": {
+          "expression": "B",
+          "type": "threshold",
+          "conditions": [
+            {
+              "evaluator": { "type": "gt", "params": [3.99] },
+              "operator": { "type": "and" },
+              "reducer": { "type": "last" }
+            }
+          ]
+        }
+      }
+    ],
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "for": "10m",
+    "labels": {
+      "alertname": "brave1_readiness_score",
+      "severity": "info",
+      "team": "auditorsec"
+    },
+    "annotations": {
+      "summary": "BRAVE1 readiness score has reached {{ $value }} (threshold: 4.0)",
+      "kpi_score": "{{ $value }}",
+      "dashboard_url": "https://grafana.com/orgs/auditorsec/dashboards"
+    }
+  },
+  "contact_point": {
+    "name": "brave1-zapier-webhook",
+    "type": "webhook",
+    "settings": {
+      "url": "<ZAPIER_WEBHOOK_URL>",
+      "httpMethod": "POST",
+      "maxAlerts": 1
+    }
+  },
+  "kpi_metrics_to_expose": {
+    "description": "Add these to /metrics/prometheus endpoint in server.js",
+    "metrics": [
+      {
+        "name": "auditsec_kpi_readiness_score",
+        "type": "gauge",
+        "help": "Composite BRAVE1 readiness score (0-5)",
+        "calculation": "(nis2_coverage*0.3 + defense_tech_coverage*0.25 + ai_agent_detection*0.25 + platform_uptime*0.2)"
+      },
+      {
+        "name": "auditsec_nis2_coverage_pct",
+        "type": "gauge",
+        "help": "NIS2 Article 21 compliance coverage percentage"
+      },
+      {
+        "name": "auditsec_defense_tech_coverage_pct",
+        "type": "gauge",
+        "help": "Defense-tech audit capability coverage percentage"
+      },
+      {
+        "name": "auditsec_ai_detection_accuracy_pct",
+        "type": "gauge",
+        "help": "AI-agent vulnerability detection accuracy percentage"
+      },
+      {
+        "name": "auditsec_security_rules_total",
+        "type": "gauge",
+        "help": "Total number of security rules in DB",
+        "labels": ["category"]
+      }
+    ]
+  },
+  "setup_steps": [
+    "1. Add KPI metrics to server.js /metrics/prometheus endpoint",
+    "2. Verify Grafana Cloud is scraping the endpoint",
+    "3. Create alert rule in Grafana Cloud → Alerting → Alert rules → New",
+    "4. Create contact point: Alerting → Contact points → New → Webhook → Zapier URL",
+    "5. Create notification policy: Route brave1_readiness_score alerts to zapier-webhook contact point",
+    "6. Test: temporarily set KPI score to 4.5 and verify Zapier receives webhook"
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "name": "AuditorSEC CI/CD Pipeline",
+  "nodes": [
+    {
+      "id": "webhook-github",
+      "name": "GitHub Push Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [250, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "github-push",
+        "authentication": "headerAuth",
+        "headerAuth": {
+          "name": "X-Hub-Signature-256",
+          "value": "={{$env.GITHUB_WEBHOOK_SECRET}}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "filter-branch",
+      "name": "Filter: defense-audit only",
+      "type": "n8n-nodes-base.if",
+      "position": [470, 300],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.ref}}",
+              "operation": "endsWith",
+              "value2": "defense-audit"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "railway-deploy",
+      "name": "Trigger Railway Deploy",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [690, 250],
+      "parameters": {
+        "url": "https://backboard.railway.com/graphql/v2",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{$env.RAILWAY_TOKEN}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "mutation { serviceInstanceRedeploy(serviceId: \"42cf6b63-c312-4b52-8e6a-d9fe98c8bbcf\", environmentId: \"c297c1a5-1ab2-4630-bf13-34c4e7e4603f\") }"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "wait-deploy",
+      "name": "Wait 90s for Deploy",
+      "type": "n8n-nodes-base.wait",
+      "position": [910, 250],
+      "parameters": {
+        "amount": 90,
+        "unit": "seconds"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "health-check",
+      "name": "Railway Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1130, 250],
+      "parameters": {
+        "url": "https://audityzer-production.up.railway.app/health",
+        "method": "GET"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "prometheus-scrape",
+      "name": "Scrape Prometheus Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1130, 450],
+      "parameters": {
+        "url": "https://audityzer-production.up.railway.app/metrics/prometheus",
+        "method": "GET"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "telegram-notify",
+      "name": "Telegram Deploy Notification",
+      "type": "n8n-nodes-base.telegram",
+      "position": [1350, 250],
+      "parameters": {
+        "chatId": "7945110778",
+        "text": "🚀 <b>Railway Deploy Complete</b>\n\nBranch: {{$node['webhook-github'].json.ref}}\nCommit: {{$node['webhook-github'].json.after.substring(0,8)}}\nAuthor: {{$node['webhook-github'].json.pusher.name}}\nMessage: {{$node['webhook-github'].json.head_commit.message}}\n\nHealth: {{$node['health-check'].json.status}}\nVersion: {{$node['health-check'].json.version}}\nDB: {{$node['health-check'].json.database}}",
+        "parseMode": "HTML"
+      },
+      "typeVersion": 1,
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "AuditorSEC Bot"
+        }
+      }
+    },
+    {
+      "id": "error-handler",
+      "name": "Deploy Failed Alert",
+      "type": "n8n-nodes-base.telegram",
+      "position": [1350, 450],
+      "parameters": {
+        "chatId": "7945110778",
+        "text": "❌ <b>Railway Deploy FAILED</b>\n\nBranch: {{$node['webhook-github'].json.ref}}\nCommit: {{$node['webhook-github'].json.after.substring(0,8)}}\nError: Health check did not return OK\n\nCheck: https://railway.app/project/cfae5288-cb86-42fb-b913-adc37df6dabf",
+        "parseMode": "HTML"
+      },
+      "typeVersion": 1,
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "AuditorSEC Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "webhook-github": { "main": [[{ "node": "filter-branch", "type": "main", "index": 0 }]] },
+    "filter-branch": {
+      "main": [
+        [{ "node": "railway-deploy", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "railway-deploy": { "main": [[{ "node": "wait-deploy", "type": "main", "index": 0 }]] },
+    "wait-deploy": { "main": [[{ "node": "health-check", "type": "main", "index": 0 }, { "node": "prometheus-scrape", "type": "main", "index": 0 }]] },
+    "health-check": { "main": [[{ "node": "telegram-notify", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "env": {
+    "RAILWAY_TOKEN": "ebad99c4-c00d-41b5-add9-79a82be3eb61",
+    "GITHUB_WEBHOOK_SECRET": "<SET_IN_N8N>",
+    "TELEGRAM_BOT_TOKEN": "8799472094:AAERluoKulpEDnEXAiF1KOvSZ6qiWCsvhwk"
+  }
+}

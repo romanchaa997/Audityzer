@@ -1,0 +1,133 @@
+{
+  "name": "BRAVE1 Auto-Submit on KPI Score ≥ 4",
+  "description": "When AuditorSEC Grafana KPI readiness score reaches ≥ 4 (out of 5), automatically prepare and trigger BRAVE1 submission flow",
+  "trigger": {
+    "type": "webhook",
+    "name": "Grafana Alert Webhook",
+    "config": {
+      "webhook_url": "<ZAPIER_WEBHOOK_URL>",
+      "method": "POST",
+      "description": "Receives Grafana alertmanager webhook when KPI threshold is met"
+    },
+    "expected_payload": {
+      "alerts": [
+        {
+          "status": "firing",
+          "labels": {
+            "alertname": "brave1_readiness_score",
+            "severity": "info",
+            "team": "auditorsec"
+          },
+          "annotations": {
+            "summary": "BRAVE1 readiness score ≥ 4",
+            "kpi_score": "4.2",
+            "compliance_nis2": "92%",
+            "defense_tech_coverage": "87%",
+            "ai_agent_detection": "95%"
+          }
+        }
+      ]
+    }
+  },
+  "filter": {
+    "condition": "alert.annotations.kpi_score >= 4",
+    "description": "Only proceed if KPI readiness score is 4 or higher"
+  },
+  "actions": [
+    {
+      "step": 1,
+      "name": "Fetch Latest Metrics",
+      "type": "http_request",
+      "config": {
+        "url": "https://audityzer-production.up.railway.app/api/metrics",
+        "method": "GET",
+        "description": "Pull current platform metrics for submission evidence"
+      }
+    },
+    {
+      "step": 2,
+      "name": "Fetch Compliance Status",
+      "type": "http_request",
+      "config": {
+        "url": "https://audityzer-production.up.railway.app/api/compliance/nis2",
+        "method": "GET",
+        "description": "Pull NIS2 compliance status for BRAVE1 requirements"
+      }
+    },
+    {
+      "step": 3,
+      "name": "Fetch Defense Capabilities",
+      "type": "http_request",
+      "config": {
+        "url": "https://audityzer-production.up.railway.app/api/defense/capabilities",
+        "method": "GET",
+        "description": "Pull defense-tech audit capabilities for submission"
+      }
+    },
+    {
+      "step": 4,
+      "name": "Compile BRAVE1 Submission Package",
+      "type": "code",
+      "config": {
+        "language": "javascript",
+        "code": "const metrics = inputData.step1;\nconst nis2 = inputData.step2;\nconst defense = inputData.step3;\nconst alert = inputData.trigger;\n\nconst submission = {\n  company_name: 'ТОВ \"Аудитор\" (LLC AuditorSEC)',\n  edrpou: '<EDRPOU>',\n  director: 'Ігор Романенко',\n  contact_phone: '+380986611070',\n  contact_email: 'romanchaa997@gmail.com',\n  project_name: 'AuditorSEC — AI-powered Web3 & Defense-Tech Security Platform',\n  category: 'Cybersecurity & Defense Technology',\n  description: 'Automated smart contract vulnerability detection with NIS2/GDPR compliance, AI-agent security assessment, and defense-tech supply chain auditing for Ukrainian defense ecosystem',\n  capabilities: {\n    smart_contract_audit: '28 vulnerability detection rules across 9 categories',\n    nis2_compliance: `${nis2.controls?.length || 10} Article 21 controls mapped`,\n    defense_tech: 'Drone firmware integrity, supply chain verification, secure comms audit',\n    ai_agent_security: '5 AI-agent specific vulnerability patterns',\n    multi_chain: '10 blockchain networks supported',\n    kpi_readiness_score: alert.annotations?.kpi_score || '4.0'\n  },\n  platform_url: 'https://audityzer-production.up.railway.app',\n  github: 'https://github.com/romanchaa997/Audityzer',\n  submission_timestamp: new Date().toISOString()\n};\n\nreturn { submission: JSON.stringify(submission, null, 2) };"
+      }
+    },
+    {
+      "step": 5,
+      "name": "Notify via Telegram",
+      "type": "http_request",
+      "config": {
+        "url": "https://api.telegram.org/bot8799472094:AAERluoKulpEDnEXAiF1KOvSZ6qiWCsvhwk/sendMessage",
+        "method": "POST",
+        "headers": { "Content-Type": "application/json" },
+        "body": {
+          "chat_id": "7945110778",
+          "parse_mode": "HTML",
+          "text": "🎯 <b>BRAVE1 Auto-Submit Triggered</b>\n\nKPI Score: {{step1.kpi_score}}\nNIS2 Controls: {{step2.controls.length}}/10\nDefense Coverage: {{step3.categories.length}} categories\n\nSubmission package compiled.\nReview at: https://brave1.gov.ua\n\n⚠️ Manual review recommended before final submission."
+        }
+      }
+    },
+    {
+      "step": 6,
+      "name": "Save to Google Sheets",
+      "type": "google_sheets",
+      "config": {
+        "action": "append_row",
+        "spreadsheet": "<BRAVE1_TRACKING_SHEET_ID>",
+        "sheet": "Submissions",
+        "columns": {
+          "Date": "={{now}}",
+          "KPI Score": "={{trigger.annotations.kpi_score}}",
+          "NIS2 %": "={{trigger.annotations.compliance_nis2}}",
+          "Defense %": "={{trigger.annotations.defense_tech_coverage}}",
+          "AI Detection %": "={{trigger.annotations.ai_agent_detection}}",
+          "Status": "Auto-triggered, Pending Review"
+        },
+        "description": "Log submission attempt to tracking sheet"
+      }
+    }
+  ],
+  "grafana_alert_rule": {
+    "name": "BRAVE1 Readiness Score",
+    "description": "Fires when composite KPI score reaches 4.0+",
+    "condition": "avg(auditsec_kpi_score) >= 4",
+    "evaluation_interval": "5m",
+    "for": "10m",
+    "labels": {
+      "alertname": "brave1_readiness_score",
+      "severity": "info",
+      "team": "auditorsec"
+    },
+    "contact_point": "zapier-webhook",
+    "note": "To configure in Grafana: Alerting → Alert Rules → New → set query to /metrics/prometheus auditsec_kpi_score, threshold ≥ 4"
+  },
+  "setup_instructions": {
+    "step_1": "Create a new Zap in Zapier with trigger: 'Webhooks by Zapier → Catch Hook'",
+    "step_2": "Copy the generated webhook URL and paste into grafana_alert_rule.contact_point",
+    "step_3": "In Grafana Cloud → Alerting → Contact Points → New → Type: Webhook → URL: <Zapier webhook URL>",
+    "step_4": "In Grafana Cloud → Alerting → Alert Rules → New alert rule using auditsec_kpi_score metric",
+    "step_5": "Configure Zapier actions: HTTP requests to AuditorSEC API + Telegram notification",
+    "step_6": "Test with: curl -X POST <ZAPIER_WEBHOOK_URL> -H 'Content-Type: application/json' -d '{\"alerts\":[{\"status\":\"firing\",\"annotations\":{\"kpi_score\":\"4.2\"}}]}'"
+  }
+}
