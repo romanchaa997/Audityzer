@@ -218,8 +218,9 @@ export class ImmunefiSubmissionGenerator {
         impact: finding.impact || this._generateImpact(finding),
         remediationSteps: finding.recommendation || ''
       };
-    } catch (error) {
-      console.error(`Error generating from template: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as { message?: string; response?: { status: number; data: unknown } };
+      console.error(`Error generating from template: ${err.message}`);
       // Fall back to standard format
       return this.formatSubmission(finding, { projectSlug: options.projectSlug });
     }
@@ -249,13 +250,14 @@ export class ImmunefiSubmissionGenerator {
       );
       
       return response.data;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as { message?: string; response?: { status: number; data: unknown } };
       console.error('Error submitting to Immunefi:');
-      if (error.response) {
-        console.error(`Status: ${error.response.status}`);
-        console.error(`Data: ${JSON.stringify(error.response.data, null, 2)}`);
+      if (err.response) {
+        console.error(`Status: ${err.response.status}`);
+        console.error(`Data: ${JSON.stringify(err.response.data, null, 2)}`);
       } else {
-        console.error(error.message);
+        console.error(err.message);
       }
       throw error;
     }
@@ -291,8 +293,9 @@ export class ImmunefiSubmissionGenerator {
       
       console.log(`Submission saved to: ${outputPath}`);
       return outputPath;
-    } catch (error) {
-      console.error(`Error saving submission: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as { message?: string; response?: { status: number; data: unknown } };
+      console.error(`Error saving submission: ${err.message}`);
       throw error;
     }
   }
@@ -368,8 +371,9 @@ export class ImmunefiSubmissionGenerator {
         }
         
         results.push({ finding, submission, response });
-      } catch (error) {
-        console.error(`Error processing finding "${finding.testName}": ${error.message}`);
+      } catch (error: unknown) {
+        const err = error as { message?: string; response?: { status: number; data: unknown } };
+        console.error(`Error processing finding "${finding.testName}": ${err.message}`);
       }
     }
     
@@ -403,8 +407,9 @@ export class ImmunefiSubmissionGenerator {
           testScriptContent: scriptContent
         }
       };
-    } catch (error) {
-      console.error(`Error attaching test script: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error as { message?: string; response?: { status: number; data: unknown } };
+      console.error(`Error attaching test script: ${err.message}`);
       return finding;
     }
   }
@@ -557,8 +562,9 @@ export class ImmunefiSubmissionGenerator {
             poc += `python ${scriptPath}\n`;
             poc += '```\n\n';
           }
-        } catch (error) {
-          poc += `Error loading test script: ${error.message}\n\n`;
+        } catch (error: unknown) {
+          const err = error as { message?: string; response?: { status: number; data: unknown } };
+          poc += `Error loading test script: ${err.message}\n\n`;
         }
       });
     } else if (finding.steps && finding.steps.length > 0) {

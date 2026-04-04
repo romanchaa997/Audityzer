@@ -19,7 +19,7 @@ RUN corepack enable && corepack prepare pnpm@9 --activate
 # Install production dependencies only
 COPY package.json pnpm-lock.yaml ./
 COPY scripts/fix-dependencies.js ./scripts/
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --no-frozen-lockfile --prod
 
 # Copy source code directly
 COPY --chown=audityzer:audityzer src/ ./src/
