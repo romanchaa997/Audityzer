@@ -135,7 +135,6 @@
     "docker:dev": "docker-compose up --build",
     "setup": "node scripts/setup.js",
     "setup:dev": "npm install && npm run setup",
-    "postinstall": "node scripts/fix-dependencies.js",
     "precommit": "npm run lint:fix && npm run format && npm run type-check",
     "prepush": "npm run test && npm run security:check",
     "ci": "npm run lint:ci && npm run type-check && npm run test:coverage && npm run security:check",
