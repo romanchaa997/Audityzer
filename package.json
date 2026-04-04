@@ -23,9 +23,11 @@
   "homepage": "https://github.com/romanchaa997/audityzer#readme",
   "dependencies": {
     "axios": "^1.9.0",
+    "body-parser": "^1.20.3",
     "chalk": "^5.4.1",
     "commander": "^12.1.0",
     "dotenv": "^16.5.0",
+    "express": "^4.21.2",
     "fs-extra": "^11.3.0",
     "open": "^10.1.2",
     "openai": "^4.98.0",

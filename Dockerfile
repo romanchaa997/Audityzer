@@ -14,10 +14,10 @@ ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV PUPPETEER_SKIP_DOWNLOAD=1
 RUN corepack enable && corepack prepare pnpm@9 --activate
 
-# Install production dependencies only
+# Install all dependencies (prod/dev categorization is unreliable)
 COPY package.json pnpm-lock.yaml ./
 COPY scripts/fix-dependencies.js ./scripts/
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile
 
 # Copy source code directly
 COPY --chown=audityzer:audityzer src/ ./src/
