@@ -1,0 +1,89 @@
+{
+  "organization": {
+    "name": "AuditorSEC",
+    "id": "31514047-fe71-45e3-8a6b-a7aab1ca19e7",
+    "account_email": "romanchaa997@gmail.com"
+  },
+  "spaces": {
+    "bucket_name": "auditsec-reports",
+    "region": "fra1",
+    "endpoint_url": "https://auditsec-reports.fra1.digitaloceanspaces.com",
+    "origin_url": "https://auditsec-reports.fra1.digitaloceanspaces.com",
+    "storage_type": "standard",
+    "access": "private",
+    "cost_monthly_usd": 5.00,
+    "included_storage_gib": 250,
+    "included_bandwidth_gib": 1000,
+    "access_key_name": "auditsec-spaces-key",
+    "status": "pending_payment_method"
+  },
+  "kubernetes": {
+    "cluster_name": "neuralinfra-k8s",
+    "cluster_id": "6ec09e54-9c16-4f92-a85e-b473a6ba240f",
+    "region": "fra1",
+    "node_pool": {
+      "name": "pool-ub1jokrq1",
+      "size": "s-2vcpu-4gb",
+      "node_count": 1,
+      "auto_scale": false
+    },
+    "load_balancer": {
+      "id": "d7e3b13a-cc44-420d-89ca-65bd98b37712",
+      "ip": "129.212.254.79",
+      "region": "fra1",
+      "size": "lb-small",
+      "forwarding_rules": [
+        { "entry": "tcp:80", "target": "tcp:80" },
+        { "entry": "tcp:443", "target": "tcp:443" }
+      ]
+    },
+    "volumes": [
+      { "name": "pvc-2e8ec4cd-ba3f-4f4b-967b-a5f2a2e8e0f3", "size_gib": 5 },
+      { "name": "pvc-d30f46b0-3f19-45e1-b7b2-57bead8fea75", "size_gib": 5 }
+    ]
+  },
+  "ai_agent": {
+    "workspace_name": "auditsec-vulnerability-agent",
+    "workspace_id": "11f12fd5-223e-347f-b074-4e013e2ddde4",
+    "workspace_url": "https://cloud.digitalocean.com/gen-ai/workspaces/11f12fd5-223e-347f-b074-4e013e2ddde4",
+    "model": "Anthropic Claude 4.5 Sonnet",
+    "model_uuid": "84ae51c6-6888-11f0-bf8f-4e013e2ddde4",
+    "region": "tor1",
+    "pricing": {
+      "input_per_1m_tokens_usd": 3.00,
+      "output_per_1m_tokens_usd": 15.00
+    },
+    "system_instruction": "You are AuditorSEC vulnerability analysis agent. Analyze smart contracts for security vulnerabilities (reentrancy, flash-loan, governance exploits, AI-agent attacks). Check NIS2 Article 21 compliance. Assess GDPR Articles 7, 33, 35. Evaluate defense-tech supply chains. Support: Ethereum, Base, Arbitrum, Solana, TON, Cosmos. Always provide severity (Critical/High/Medium/Low), CWE reference, and remediation steps.",
+    "status": "pending_payment_method"
+  },
+  "ai_inference": {
+    "models_available": 46,
+    "notable_models": [
+      "anthropic-claude-opus-4.6",
+      "anthropic-claude-4.6-sonnet",
+      "openai-gpt-5.4",
+      "openai-gpt-5.3-codex",
+      "deepseek-r1-distill-llama-70b",
+      "llama3.3-70b-instruct",
+      "alibaba-qwen3-32b"
+    ]
+  },
+  "api_token": {
+    "name": "auditsec-infra-api",
+    "expires": "2026-06-11"
+  },
+  "project": {
+    "id": "3936c886-1d60-4614-bf68-62ca0d7c2175",
+    "name": "first-project",
+    "is_default": true
+  },
+  "estimated_monthly_cost_usd": {
+    "kubernetes_node": 24.00,
+    "load_balancer": 12.00,
+    "pvc_volumes": 2.00,
+    "spaces_bucket": 5.00,
+    "ai_inference": "pay-per-use",
+    "total_fixed": 43.00
+  },
+  "last_synced": "2026-04-04T03:26:00Z"
+}
