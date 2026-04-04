@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seatunnel-configs
+  namespace: audityzer
+data:
+  postgres-cdc-sync.conf: |
+    env {
+      parallelism = 2
+      job.mode = "STREAMING"
+      checkpoint.interval = 10000
+    }
+    source {
+      Postgres-CDC {
+        hostname = "${RAILWAY_PG_HOST}"
+        port = 47123
+        username = "${RAILWAY_PG_USER}"
+        password = "${RAILWAY_PG_PASS}"
+        database-name = "railway"
+        schema-name = "public"
+        table-list = [
+          "public.files", "public.accounts", "public.engagements",
+          "public.automations", "public.risk_events", "public.media_catalog",
+          "public.notebook_catalog", "public.competitive_intelligence"
+        ]
+        decoding.plugin.name = "pgoutput"
+        slot.name = "seatunnel_cdc_slot"
+      }
+    }
+    sink {
+      Console {}
+    }

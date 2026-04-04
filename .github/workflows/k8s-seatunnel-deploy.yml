@@ -1,0 +1,48 @@
+name: Deploy SeaTunnel to K8s
+on:
+  workflow_dispatch:
+  push:
+    branches: [defense-audit, main]
+    paths: ['db/seatunnel/**', 'db/k8s/**', 'db/argocd/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      
+      - name: Configure K8s
+        run: doctl kubernetes cluster kubeconfig save neuralinfra-k8s
+      
+      - name: Create namespace
+        run: kubectl apply -f db/k8s/namespace.yaml || true
+      
+      - name: Apply secrets (with env substitution)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+        run: |
+          envsubst < db/k8s/db-secrets.yaml | kubectl apply -f - || true
+      
+      - name: Apply SeaTunnel ConfigMap
+        run: kubectl apply -f db/k8s/seatunnel-configmap.yaml || true
+      
+      - name: Apply SeaTunnel CronJob
+        run: kubectl apply -f db/seatunnel/k8s-cronjob.yaml || true
+      
+      - name: Apply ArgoCD Application
+        run: kubectl apply -f db/argocd/seatunnel-app.yaml || true
+      
+      - name: Verify
+        run: |
+          echo "=== Namespace ==="
+          kubectl get ns audityzer || true
+          echo "=== Pods ==="
+          kubectl get pods -n audityzer || true
+          echo "=== CronJobs ==="
+          kubectl get cronjobs -n audityzer || true
