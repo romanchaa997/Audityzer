@@ -1,10 +1,15 @@
 name = "audityzer-public-api"
 main = "worker.js"
 compatibility_date = "2024-09-25"
+compatibility_flags = ["nodejs_compat"]
 
+# Hyperdrive binding — replace ID after: wrangler hyperdrive create audityzer-pg ...
 [[hyperdrive]]
 binding = "HYPERDRIVE"
 id = "REPLACE_WITH_HYPERDRIVE_ID"
 
 [vars]
 ENVIRONMENT = "production"
+
+# Custom domain (optional, after DNSSEC fix)
+# routes = [{ pattern = "api.audityzer.com/*", zone_name = "bbbhhai.com" }]

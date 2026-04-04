@@ -1,0 +1,13 @@
+{
+  "name": "audityzer-public-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  }
+}

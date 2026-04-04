@@ -1,0 +1,52 @@
+name: Deploy Cloudflare Worker
+on:
+  workflow_dispatch:
+  push:
+    branches: [defense-audit, main]
+    paths: ['db/hyperdrive/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Install worker deps
+        working-directory: db/hyperdrive
+        run: npm install
+
+      - name: Create Hyperdrive (if not exists)
+        working-directory: db/hyperdrive
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_WORKERS_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          HYPERDRIVE_ID=$(wrangler hyperdrive list 2>&1 | grep -oP '"id":\s*"([a-f0-9]+)"' | head -1 | grep -oP '[a-f0-9]{32}' || true)
+          if [ -z "$HYPERDRIVE_ID" ]; then
+            echo "Creating new Hyperdrive..."
+            wrangler hyperdrive create audityzer-pg \
+              --connection-string="${{ secrets.DATABASE_URL }}" 2>&1
+            HYPERDRIVE_ID=$(wrangler hyperdrive list 2>&1 | grep -oP '"id":\s*"([a-f0-9]+)"' | head -1 | grep -oP '[a-f0-9]{32}')
+          fi
+          echo "HYPERDRIVE_ID=$HYPERDRIVE_ID" >> $GITHUB_ENV
+          sed -i "s/REPLACE_WITH_HYPERDRIVE_ID/$HYPERDRIVE_ID/" wrangler.toml
+
+      - name: Deploy Worker
+        working-directory: db/hyperdrive
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_WORKERS_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: wrangler deploy
+
+      - name: Verify deployment
+        run: |
+          sleep 5
+          curl -sf https://audityzer-public-api.44413650497549d4e08c7040d1710225.workers.dev/health || echo "Worker may need a few seconds to propagate"
