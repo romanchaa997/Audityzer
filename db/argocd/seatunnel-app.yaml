@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: seatunnel-cdc
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/romanchaa997/Audityzer
+    targetRevision: defense-audit
+    path: db/seatunnel
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: audityzer
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

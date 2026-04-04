@@ -1,0 +1,10 @@
+name = "audityzer-public-api"
+main = "worker.js"
+compatibility_date = "2024-09-25"
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "REPLACE_WITH_HYPERDRIVE_ID"
+
+[vars]
+ENVIRONMENT = "production"

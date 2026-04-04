@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: seatunnel-notebook-sync
+  namespace: audityzer
+spec:
+  schedule: "0 3 * * *"  # Daily at 03:00 UTC
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: seatunnel
+            image: apache/seatunnel:2.3.5
+            command: ["/opt/seatunnel/bin/seatunnel.sh"]
+            args: ["--config", "/etc/seatunnel/notebooklm-gdrive-sync.conf", "-m", "local"]
+            volumeMounts:
+            - name: config
+              mountPath: /etc/seatunnel
+            envFrom:
+            - secretRef:
+                name: audityzer-db-secrets
+          volumes:
+          - name: config
+            configMap:
+              name: seatunnel-configs
+          restartPolicy: OnFailure

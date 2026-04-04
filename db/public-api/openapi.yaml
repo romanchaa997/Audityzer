@@ -1,0 +1,151 @@
+openapi: 3.0.3
+info:
+  title: AuditorSEC Open Data API
+  description: Public read-only API for accessing AuditorSEC audit data, competitive intelligence, and notebook catalogs.
+  version: 1.0.0
+  contact:
+    name: AuditorSEC Team
+    url: https://github.com/romanchaa997/Audityzer
+
+servers:
+  - url: https://api.bbbhhai.com
+    description: Production (Cloudflare Worker + Hyperdrive)
+  - url: http://localhost:8000
+    description: Local development
+
+paths:
+  /api/public/files:
+    get:
+      summary: List public audit files
+      description: Returns active audit files with optional domain and project filtering.
+      parameters:
+        - name: domain
+          in: query
+          schema:
+            type: string
+          description: Filter by domain (e.g., "defi", "nft", "bridge")
+        - name: project
+          in: query
+          schema:
+            type: string
+          description: Filter by project name
+      responses:
+        '200':
+          description: List of public files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicFile'
+
+  /api/public/intelligence:
+    get:
+      summary: Competitive intelligence data
+      description: Returns top competitive intelligence entries ranked by relevance score.
+      responses:
+        '200':
+          description: List of intelligence entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IntelligenceEntry'
+
+  /api/public/notebooks:
+    get:
+      summary: Notebook catalog
+      description: Returns notebook catalog entries joined with file metadata.
+      responses:
+        '200':
+          description: List of notebooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotebookEntry'
+
+  /api/public/stats:
+    get:
+      summary: File inventory statistics
+      description: Returns aggregated file inventory from the materialized view.
+      responses:
+        '200':
+          description: Inventory statistics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryStat'
+
+components:
+  schemas:
+    PublicFile:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        domain:
+          type: string
+        web3_tags:
+          type: array
+          items:
+            type: string
+        priority_score:
+          type: number
+        upload_date:
+          type: string
+          format: date-time
+
+    IntelligenceEntry:
+      type: object
+      properties:
+        company_name:
+          type: string
+        source:
+          type: string
+        data_type:
+          type: string
+        location:
+          type: string
+        funding_total:
+          type: number
+        status:
+          type: string
+        relevance_score:
+          type: number
+
+    NotebookEntry:
+      type: object
+      properties:
+        notebook_id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        web3_tags:
+          type: array
+          items:
+            type: string
+        sync_status:
+          type: string
+
+    InventoryStat:
+      type: object
+      properties:
+        domain:
+          type: string
+        file_type:
+          type: string
+        total_files:
+          type: integer
+        avg_priority:
+          type: number

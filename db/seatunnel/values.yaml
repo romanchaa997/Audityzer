@@ -1,0 +1,18 @@
+# SeaTunnel Helm chart values for neuralinfra-k8s cluster
+replicaCount: 2
+image:
+  repository: apache/seatunnel
+  tag: "2.3.5"
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+env:
+  - name: DATABASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: audityzer-db-secrets
+        key: postgres-url

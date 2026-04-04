@@ -1,23 +1,31 @@
 """
 UHIP-2A / AuditorSEC — FastAPI Ingestion Service
 Async Postgres via asyncpg, multi-tenant file management.
+Includes /api/public/* read-only endpoints with CORS and NATS event publishing.
 """
 
 import os
 import re
+import json
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
 import asyncpg
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, APIRouter, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+try:
+    import nats as nats_lib
+except ImportError:
+    nats_lib = None
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://postgres:postgres@localhost:5432/auditorsec",
 )
+NATS_URL = os.getenv("NATS_URL", "nats://localhost:4222")
 
 app = FastAPI(title="UHIP-2A Ingestion API", version="1.0.0")
 
@@ -30,18 +38,34 @@ app.add_middleware(
 )
 
 pool: Optional[asyncpg.Pool] = None
+nats_client = None
 
 
 @app.on_event("startup")
 async def startup():
-    global pool
+    global pool, nats_client
     pool = await asyncpg.create_pool(DATABASE_URL, min_size=2, max_size=10)
+    if nats_lib:
+        try:
+            nats_client = await nats_lib.connect(NATS_URL)
+        except Exception:
+            nats_client = None
 
 
 @app.on_event("shutdown")
 async def shutdown():
     if pool:
         await pool.close()
+    if nats_client:
+        await nats_client.close()
+
+
+# ── NATS helper ────────────────────────────────────────────────
+
+async def publish_event(subject: str, data: dict):
+    """Publish a JSON event to NATS if connected."""
+    if nats_client and nats_client.is_connected:
+        await nats_client.publish(subject, json.dumps(data).encode())
 
 
 # ── Pydantic models ────────────────────────────────────────────
@@ -205,7 +229,7 @@ async def ingest_file(body: FileIngest):
             body.size_bytes,
             body.metadata,
         )
-    return {
+    result = {
         "id": str(row["id"]),
         "name": row["name"],
         "domain": row["domain"],
@@ -213,6 +237,8 @@ async def ingest_file(body: FileIngest):
         "web3_tags": row["web3_tags"],
         "status": "upserted",
     }
+    await publish_event("audityzer.files.created", result)
+    return result
 
 
 @app.post("/api/v1/files/classify")
@@ -315,6 +341,22 @@ async def n8n_webhook(body: WebhookPayload):
     return {"id": str(row["id"]), "status": "created"}
 
 
+@app.post("/api/v1/notebooks/sync")
+async def sync_notebooks(payload: dict):
+    """Mark notebook as synced and publish NATS event."""
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            """UPDATE notebook_catalog SET sync_status = 'synced'
+               WHERE notebook_id = $1 RETURNING notebook_id, sync_status""",
+            payload.get("notebook_id"),
+        )
+    if not row:
+        raise HTTPException(404, detail="Notebook not found")
+    result = dict(row)
+    await publish_event("audityzer.notebooks.synced", result)
+    return result
+
+
 @app.get("/health")
 async def health():
     try:
@@ -333,3 +375,74 @@ async def health():
         return {"status": "healthy", "database": "connected", "tables": counts}
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Database error: {e}")
+
+
+# ── Public read-only router (/api/public/*) ────────────────────
+
+public_router = APIRouter(prefix="/api/public", tags=["public"])
+
+
+@public_router.get("/files")
+async def public_files(
+    domain: Optional[str] = Query(None, description="Filter by domain"),
+    project: Optional[str] = Query(None, description="Filter by project"),
+):
+    """List active audit files with optional filtering."""
+    conditions = ["status = 'active'"]
+    args = []
+    idx = 1
+
+    if domain:
+        conditions.append(f"domain = ${idx}")
+        args.append(domain)
+        idx += 1
+    if project:
+        conditions.append(f"metadata->>'project' = ${idx}")
+        args.append(project)
+        idx += 1
+
+    where = " AND ".join(conditions)
+    query = f"""
+        SELECT id, name, type, domain, web3_tags, priority_score, upload_date
+        FROM files WHERE {where}
+        ORDER BY priority_score DESC LIMIT 100
+    """
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(query, *args)
+    return [dict(r) for r in rows]
+
+
+@public_router.get("/intelligence")
+async def public_intelligence():
+    """Top competitive intelligence entries by relevance."""
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """SELECT company_name, source, data_type, location,
+                      funding_total, status, relevance_score
+               FROM competitive_intelligence
+               ORDER BY relevance_score DESC LIMIT 50"""
+        )
+    return [dict(r) for r in rows]
+
+
+@public_router.get("/notebooks")
+async def public_notebooks():
+    """Notebook catalog with file metadata."""
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """SELECT nc.notebook_id, f.name, f.domain, f.web3_tags, nc.sync_status
+               FROM notebook_catalog nc JOIN files f ON nc.file_id = f.id
+               ORDER BY f.priority_score DESC"""
+        )
+    return [dict(r) for r in rows]
+
+
+@public_router.get("/stats")
+async def public_stats():
+    """Aggregated file inventory from materialized view."""
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("SELECT * FROM file_inventory")
+    return [dict(r) for r in rows]
+
+
+app.include_router(public_router)

@@ -1,0 +1,48 @@
+name: DB Sync & Migration
+on:
+  push:
+    branches: [defense-audit, main]
+    paths: ['db/**']
+  schedule:
+    - cron: '0 4 * * *'  # Daily at 04:00 UTC
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          for f in db/migrations/*.sql; do
+            echo "Running migration: $f"
+            psql "$DATABASE_URL" -f "$f" || true
+          done
+      - name: Run seeds (if new)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          for f in db/seeds/*.sql; do
+            echo "Running seed: $f"
+            psql "$DATABASE_URL" -f "$f" || true
+          done
+      - name: Refresh materialized views
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          psql "$DATABASE_URL" -c "REFRESH MATERIALIZED VIEW CONCURRENTLY active_media;" || true
+          psql "$DATABASE_URL" -c "REFRESH MATERIALIZED VIEW CONCURRENTLY high_risk_dashboard;" || true
+          psql "$DATABASE_URL" -c "REFRESH MATERIALIZED VIEW CONCURRENTLY file_inventory;" || true
+
+  deploy-worker:
+    runs-on: ubuntu-latest
+    needs: migrate
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Cloudflare Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          workingDirectory: db/hyperdrive
