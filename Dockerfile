@@ -1,4 +1,3 @@
-
 # Single-stage build for Audityzer
 # No build step needed - Node.js runs .js source directly
 FROM node:20-alpine
@@ -27,8 +26,9 @@ COPY --chown=audityzer:audityzer templates/ ./templates/
 COPY --chown=audityzer:audityzer lib/ ./lib/
 COPY --chown=audityzer:audityzer scripts/healthcheck.sh scripts/start.sh ./scripts/
 
-# Make scripts executable
+# Make scripts executable and fix line endings
 RUN chmod +x ./scripts/*.sh
+RUN sed -i 's/\r$//' ./scripts/*.sh
 
 # Switch to non-root user
 USER audityzer
