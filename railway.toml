@@ -4,10 +4,10 @@
 
 [build]
 builder = "NIXPACKS"
-buildCommand = "pnpm install --no-frozen-lockfile && pnpm run build"
+buildCommand = "pnpm install --no-frozen-lockfile"
 
 [deploy]
-startCommand = "node dist/cli.js"
+startCommand = "node bin/audityzer.js start"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"

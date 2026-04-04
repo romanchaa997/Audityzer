@@ -28,9 +28,9 @@ chmod 755 /app/logs
 
 echo "📁 Directories created"
 
-# Check if the application is built
-if [ ! -d "/app/dist" ] && [ ! -f "/app/bin/audityzer.js" ]; then
-    echo "❌ Application not built. Please run 'npm run build' first."
+# Check if the application source exists
+if [ ! -f "/app/bin/audityzer.js" ]; then
+    echo "❌ Application source not found. Ensure src/ and bin/ are copied."
     exit 1
 fi
 
