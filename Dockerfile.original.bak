@@ -1,5 +1,3 @@
-FROM node:20-alpine
-
 # Single-stage build for Audityzer
 # No build step needed - Node.js runs .js source directly
 FROM node:20-alpine
@@ -19,7 +17,7 @@ RUN corepack enable && corepack prepare pnpm@9 --activate
 # Install production dependencies only
 COPY package.json pnpm-lock.yaml ./
 COPY scripts/fix-dependencies.js ./scripts/
-RUN pnpm install --no-frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy source code directly
 COPY --chown=audityzer:audityzer src/ ./src/
@@ -28,9 +26,9 @@ COPY --chown=audityzer:audityzer templates/ ./templates/
 COPY --chown=audityzer:audityzer lib/ ./lib/
 COPY --chown=audityzer:audityzer scripts/healthcheck.sh scripts/start.sh ./scripts/
 
-# Railway sets PORT env var
-ENV PORT=8080
-EXPOSE 8080
+# Make scripts executable and fix line endings
+RUN chmod +x ./scripts/*.sh
+RUN sed -i 's/\r$//' ./scripts/*.sh
 
 # Switch to non-root user
 USER audityzer
