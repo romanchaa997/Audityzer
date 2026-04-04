@@ -66,9 +66,15 @@ try {
   console.warn('Prometheus metrics router not loaded:', err.message);
 }
 
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'build/client')));
+// Serve static files from the public directory (directories may not exist in Docker)
+const publicDir = path.join(__dirname, 'public');
+const buildClientDir = path.join(__dirname, 'build/client');
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+}
+if (fs.existsSync(buildClientDir)) {
+  app.use(express.static(buildClientDir));
+}
 
 async function dbQuery(text, params = []) {
   if (!pool) return null;
