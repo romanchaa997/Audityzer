@@ -30,6 +30,9 @@ COPY --chown=audityzer:audityzer scripts/healthcheck.sh scripts/start.sh ./scrip
 RUN chmod +x ./scripts/*.sh
 RUN sed -i 's/\r$//' ./scripts/*.sh
 
+# Create data directories with proper ownership before switching to non-root
+RUN mkdir -p /app/reports /app/data /app/logs && chown -R audityzer:audityzer /app/reports /app/data /app/logs
+
 # Switch to non-root user
 USER audityzer
 
