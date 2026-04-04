@@ -10,6 +10,8 @@ import path from 'path';
 import fs from 'fs';
 import bodyParser from 'body-parser';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 // Get current file directory (ESM equivalent of __dirname)
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +23,10 @@ const port = process.env.PORT || 3000;
 
 // Parse JSON request bodies
 app.use(bodyParser.json({ limit: '10mb' }));
+
+// Mount Prometheus metrics router (CommonJS module loaded via createRequire)
+const metricsRouter = require('./src/routes/metrics.js');
+app.use('/', metricsRouter);
 
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));

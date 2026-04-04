@@ -1,0 +1,130 @@
+{
+  "name": "Parallel Tasks Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "parallel-sync",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "owner": "romanchaa997",
+        "repository": "Audityzer",
+        "resource": "issue",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 50,
+        "filters": {
+          "labels": "G-STREAM,P-STREAM,R-STREAM,C-STREAM",
+          "state": "open"
+        }
+      },
+      "id": "github-issues",
+      "name": "GitHub",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [500, 300],
+      "credentials": {
+        "githubApi": {
+          "id": "github-cred-placeholder",
+          "name": "GitHub API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "comment",
+        "operation": "create",
+        "taskId": "={{ $json.taskId }}",
+        "commentText": "=## GitHub Issue Sync\n\n**Issues found:** {{ $json.length }}\n\n{{ $json.map(i => `- [${i.title}](${i.html_url}) (${i.labels.map(l => l.name).join(', ')})`).join('\\n') }}\n\n_Synced at {{ new Date().toISOString() }}_"
+      },
+      "id": "clickup-update",
+      "name": "ClickUp",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [750, 200],
+      "credentials": {
+        "clickUpApi": {
+          "id": "clickup-cred-placeholder",
+          "name": "ClickUp API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "@auditorSEC",
+        "text": "=🔄 *AuditorSEC Parallel Tasks Sync*\n\n*Issues synced:* {{ $json.length }}\n\n{{ $json.map(i => `• ${i.title} — _${i.labels.map(l => l.name).join(', ')}_`).join('\\n') }}\n\n⏰ _{{ new Date().toISOString() }}_",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-notify",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [750, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-cred-placeholder",
+          "name": "Telegram API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub": {
+      "main": [
+        [
+          {
+            "node": "ClickUp",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "id": "parallel-sync-workflow",
+  "meta": {
+    "instanceId": "auditorsec-n8n"
+  },
+  "tags": [
+    {
+      "name": "auditorsec",
+      "id": "1"
+    },
+    {
+      "name": "parallel-tasks",
+      "id": "2"
+    }
+  ]
+}
