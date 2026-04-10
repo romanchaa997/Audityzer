@@ -1,21 +1,19 @@
 [build]
-  command = "pnpm install --no-frozen-lockfile && pnpm run build"
+  command = "npm run build"
   publish = "dist"
-  
+
 [build.environment]
   NODE_VERSION = "18"
   GIT_LFS_ENABLED = "false"
-  PNPM_FLAGS = "--no-frozen-lockfile"
 
-# Build settings with correct pnpm commands
 [context.production]
-  command = "pnpm install --no-frozen-lockfile && pnpm run build"
+  command = "npm run build"
 
 [context.deploy-preview]
-  command = "pnpm install --no-frozen-lockfile && pnpm run build"
+  command = "npm run build"
 
 [context.branch-deploy]
-  command = "pnpm install --no-frozen-lockfile && pnpm run build"
+  command = "npm run build"
 
 [[redirects]]
   from = "/*"
