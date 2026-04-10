@@ -1,0 +1,30 @@
+name: Merge main into defense-audit
+on:
+  workflow_dispatch:
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout defense-audit
+        uses: actions/checkout@v4
+        with:
+          ref: defense-audit
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Merge main into defense-audit
+        run: |
+          git fetch origin main
+          git merge origin/main --no-edit -X ours || true
+          # Regenerate package-lock.json to resolve lockfile conflicts
+          if [ -f package.json ]; then
+            npm install --package-lock-only 2>/dev/null || true
+          fi
+          git add -A
+          git diff --cached --quiet || git commit -m "chore: merge main into defense-audit, regenerate package-lock.json"
+          git push origin defense-audit
