@@ -1,4 +1,5 @@
 # Multi-stage build for Audityzer
+# Stage 1: Builder
 FROM node:20-alpine AS builder
 
 # Install pnpm
@@ -7,19 +8,24 @@ RUN npm install -g pnpm@9
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json pnpm-lock.yaml ./
+# Copy package files and scripts needed for postinstall
+COPY package.json pnpm-lock.yaml ./
+COPY scripts/ ./scripts/
 
-# Install dependencies (no frozen lockfile to handle config mismatches)
-RUN pnpm install --no-frozen-lockfile
+# Install dependencies (triggers postinstall which needs scripts/fix-dependencies.js)
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy source code
-COPY . .
+COPY src/ ./src/
+COPY bin/ ./bin/
+COPY templates/ ./templates/
+COPY lib/ ./lib/
+COPY tsconfig.json ./
 
 # Build the application
 RUN pnpm run build
 
-# Production stage
+# Stage 2: Production
 FROM node:20-alpine AS production
 
 # Install pnpm
@@ -36,9 +42,11 @@ RUN addgroup -g 1001 -S nodejs && \
 
 WORKDIR /app
 
-# Copy package files and install production deps
-COPY package*.json pnpm-lock.yaml ./
-RUN pnpm install --prod --no-frozen-lockfile
+# Copy built application from builder stage
+COPY --from=builder --chown=audityzer:audityzer /app/node_modules ./node_modules
+COPY --from=builder --chown=audityzer:audityzer /app/dist ./dist
+COPY --from=builder --chown=audityzer:audityzer /app/bin ./bin
+COPY --from=builder --chown=audityzer:audityzer /app/package.json ./
 
 # Copy built files from builder
 COPY --from=builder --chown=audityzer:nodejs /app/dist ./dist
@@ -48,6 +56,15 @@ COPY --from=builder --chown=audityzer:nodejs /app/lib ./lib
 
 USER audityzer
 
-EXPOSE 8080
+# Expose port
+EXPOSE 5000
 
-CMD ["dumb-init", "node", "bin/audityzer.js", "start"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD ./scripts/healthcheck.sh
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["./scripts/start.sh"]
