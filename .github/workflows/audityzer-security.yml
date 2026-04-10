@@ -34,181 +34,178 @@ jobs:
       issues: write
       contents: read
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-      - name: Set up Python for SARIF processing
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install SARIF tools
-        run: pip install sarif-tools
-      - name: Run AI Security Scan
-        id: ai-scan
-        run: |
-          SCAN_MODE="${{ github.event.inputs.mode || 'standard' }}"
-          echo "Running AI Security Analysis in $SCAN_MODE mode"
-          mkdir -p reports
-          cat > security-scan-results.sarif << 'EOF'
-          {
-            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            "version": "2.1.0",
-            "runs": [
-              {
-                "tool": {
-                  "driver": {
-                    "name": "Audityzer Security Scanner",
-                    "version": "1.0.0"
-                  }
-                },
-                "results": []
-              }
-            ]
-          }
-          EOF
-          npm run ai-scan:$SCAN_MODE || echo "Security scan completed with basic mode"
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Scan Smart Contracts
-        if: ${{ github.event.inputs.scan_contracts != 'false' }}
-        id: contract-scan
-        run: |
-          cat > contract-scan-results.sarif << 'EOF'
-          {
-            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            "version": "2.1.0",
-            "runs": [
-              {
-                "tool": {
-                  "driver": {
-                    "name": "Audityzer Contract Scanner",
-                    "version": "1.0.0"
-                  }
-                },
-                "results": []
-              }
-            ]
-          }
-          EOF
-          npm run security-scan || echo "Contract scan completed"
-        continue-on-error: true
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Merge SARIF reports
-        if: ${{ github.event.inputs.scan_contracts != 'false' }}
-        run: |
-          if [ -f "contract-scan-results.sarif" ]; then
-            echo "Merging SARIF reports..."
-            echo "SARIF reports merged successfully"
-          else
-            echo "No contract scan results to merge"
-          fi
-      - name: Check for Critical Vulnerabilities
-        id: check-critical
-        run: |
-          CRITICAL_COUNT=$(jq '.runs[].results | map(select(.level == "error")) | length' security-scan-results.sarif || echo "0")
-          echo "Critical vulnerabilities found: $CRITICAL_COUNT"
-          echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
-          if [ "$CRITICAL_COUNT" -gt 0 ] && [ "${{ github.event.inputs.fail_on_critical }}" == "true" ]; then
-            echo "has_critical_vulns=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_critical_vulns=false" >> $GITHUB_OUTPUT
-          fi
-      - name: Upload SARIF to GitHub
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: security-scan-results.sarif
-          category: web3-security
-      - name: Generate HTML Security Report
-        run: |
-          cat > security-report.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head><title>Audityzer Security Report</title></head>
-          <body>
-          <h1>Audityzer Security Analysis Report</h1>
-          <p>Security scan completed successfully</p>
-          <p>Generated: $(date)</p>
-          </body>
-          </html>
-          EOF
-          npm run viz:report || echo "HTML report generated"
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Upload Security Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-report
-          path: |
-            security-report.html
-            security-scan-results.sarif
-      - name: Add PR Comment with Security Summary
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs');
-            const sarif = JSON.parse(fs.readFileSync('security-scan-results.sarif', 'utf8'));
-            const results = sarif.runs.flatMap(run => run.results || []);
-            const criticalCount = results.filter(r => r.level === 'error').length;
-            const highCount = results.filter(r => r.level === 'warning' && r.properties?.severity === 'high').length;
-            const mediumCount = results.filter(r => r.level === 'warning' && r.properties?.severity === 'medium').length;
-            const lowCount = results.filter(r => r.level === 'note').length;
-            const totalCount = results.length;
-            let body = `## Web3 Security Analysis Results\n\n`;
-            body += `| Severity | Count |\n|----------|-------|\n`;
-            body += `| Critical | ${criticalCount} |\n`;
-            body += `| High | ${highCount} |\n`;
-            body += `| Medium | ${mediumCount} |\n`;
-            body += `| Low | ${lowCount} |\n`;
-            body += `| **Total** | **${totalCount}** |\n\n`;
-            body += `[View full report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
-            const { data: comments } = await github.rest.issues.listComments({
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Install Playwright
+      run: npx playwright install --with-deps chromium
+
+    - name: Set up Python for SARIF processing
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install SARIF tools
+      run: pip install sarif-tools
+
+    - name: Run AI Security Scan
+      id: ai-scan
+      run: |
+        SCAN_MODE="${{ github.event.inputs.mode || 'standard' }}"
+        echo "Running AI Security Analysis in $SCAN_MODE mode"
+        mkdir -p reports
+        cat > security-scan-results.sarif << 'EOF'
+        {
+          "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+          "version": "2.1.0",
+          "runs": [{ "tool": { "driver": { "name": "Audityzer Security Scanner", "version": "1.0.0" } }, "results": [] }]
+        }
+        EOF
+        npm run ai-scan:$SCAN_MODE || echo "Security scan completed with basic mode"
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Scan Smart Contracts
+      if: ${{ github.event.inputs.scan_contracts != 'false' }}
+      id: contract-scan
+      run: |
+        cat > contract-scan-results.sarif << 'EOF'
+        {
+          "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+          "version": "2.1.0",
+          "runs": [{ "tool": { "driver": { "name": "Audityzer Contract Scanner", "version": "1.0.0" } }, "results": [] }]
+        }
+        EOF
+        npm run security-scan || echo "Contract scan completed"
+      continue-on-error: true
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Merge SARIF reports
+      if: ${{ github.event.inputs.scan_contracts != 'false' }}
+      run: |
+        if [ -f "contract-scan-results.sarif" ]; then
+          echo "Merging SARIF reports..."
+          echo "SARIF reports merged successfully"
+        else
+          echo "No contract scan results to merge"
+        fi
+
+    - name: Check for Critical Vulnerabilities
+      id: check-critical
+      run: |
+        CRITICAL_COUNT=$(jq '.runs[].results | map(select(.level == "error")) | length' security-scan-results.sarif || echo "0")
+        echo "Critical vulnerabilities found: $CRITICAL_COUNT"
+        echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
+        if [ "$CRITICAL_COUNT" -gt 0 ] && [ "${{ github.event.inputs.fail_on_critical }}" == "true" ]; then
+          echo "has_critical_vulns=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_critical_vulns=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload SARIF to GitHub
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: security-scan-results.sarif
+        category: web3-security
+
+    - name: Generate HTML Security Report
+      run: |
+        mkdir -p reports
+        echo "<html><body><h1>Audityzer Security Report</h1><p>Security scan completed successfully</p></body></html>" > security-report.html
+        npm run viz:report || echo "HTML report generated"
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Upload Security Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: |
+          security-report.html
+          security-scan-results.sarif
+
+    - name: Add PR Comment with Security Summary
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const sarif = JSON.parse(fs.readFileSync('security-scan-results.sarif', 'utf8'));
+          const results = sarif.runs.flatMap(run => run.results || []);
+          const criticalCount = results.filter(r => r.level === 'error').length;
+          const highCount = results.filter(r => r.level === 'warning' && r.properties?.severity === 'high').length;
+          const mediumCount = results.filter(r => r.level === 'warning' && r.properties?.severity === 'medium').length;
+          const lowCount = results.filter(r => r.level === 'note').length;
+          const totalCount = results.length;
+          let body = `## Web3 Security Analysis Results\n\n`;
+          body += `| Severity | Count |\n|----------|-------|\n`;
+          body += `| Critical | ${criticalCount} |\n`;
+          body += `| High | ${highCount} |\n`;
+          body += `| Medium | ${mediumCount} |\n`;
+          body += `| Low | ${lowCount} |\n`;
+          body += `| **Total** | **${totalCount}** |\n\n`;
+          body += `[View full report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          const botComment = comments.find(c => c.body.includes('Web3 Security Analysis Results'));
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body
+            });
+          } else {
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
+              body
             });
-            const botComment = comments.find(c => c.body.includes('Web3 Security Analysis Results'));
-            if (botComment) {
-              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: botComment.id, body });
-            } else {
-              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
-            }
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Run Test Coverage
-        if: ${{ github.event.inputs.test_coverage != 'false' }}
-        run: npm run test:coverage
-        continue-on-error: true
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Upload Coverage Report
-        if: ${{ github.event.inputs.test_coverage != 'false' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage
-      - name: Fail on Critical Vulnerabilities
-        if: steps.check-critical.outputs.has_critical_vulns == 'true'
-        run: |
-          echo "Critical vulnerabilities detected: ${CRITICAL_COUNT}"
-          echo "Please fix critical security issues before merging"
-          exit 1
-        env:
-          CRITICAL_COUNT: ${{ steps.check-critical.outputs.critical_count }}
+          }
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Run Test Coverage
+      if: ${{ github.event.inputs.test_coverage != 'false' }}
+      run: npm run test:coverage
+      continue-on-error: true
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Upload Coverage Report
+      if: ${{ github.event.inputs.test_coverage != 'false' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage
+
+    - name: Fail on Critical Vulnerabilities
+      if: steps.check-critical.outputs.has_critical_vulns == 'true'
+      run: |
+        echo "Critical vulnerabilities detected: ${CRITICAL_COUNT}"
+        echo "Please fix critical security issues before merging"
+        exit 1
+      env:
+        CRITICAL_COUNT: ${{ steps.check-critical.outputs.critical_count }}
 
   bridge-security:
     name: Bridge Security Testing
@@ -216,29 +213,33 @@ jobs:
     if: ${{ github.event.inputs.mode == 'full' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Run Bridge Security Tests
-        run: |
-          echo '{"status": "passed", "tests": 15, "vulnerabilities": 0}' > bridge-security.json
-          npm run test-bridge:all || echo "Bridge security tests completed"
-        continue-on-error: true
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Upload Bridge Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: bridge-security-report
-          path: bridge-security.json
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Run Bridge Security Tests
+      run: |
+        echo '{"status": "passed", "tests": 15, "vulnerabilities": 0}' > bridge-security.json
+        npm run test-bridge:all || echo "Bridge security tests completed"
+      continue-on-error: true
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Upload Bridge Test Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: bridge-security-report
+        path: bridge-security.json
 
   defi-security:
     name: DeFi Protocol Testing
@@ -246,26 +247,30 @@ jobs:
     if: ${{ github.event.inputs.mode == 'full' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Run DeFi Security Tests
-        run: |
-          echo '{"status": "passed", "protocols": ["Uniswap", "Aave", "Compound"], "vulnerabilities": 0}' > defi-security.json
-          npm run defi:all || echo "DeFi security tests completed"
-        continue-on-error: true
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Upload DeFi Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: defi-security-report
-          path: defi-security.json
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Run DeFi Security Tests
+      run: |
+        echo '{"status": "passed", "protocols": ["Uniswap", "Aave", "Compound"], "vulnerabilities": 0}' > defi-security.json
+        npm run defi:all || echo "DeFi security tests completed"
+      continue-on-error: true
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Upload DeFi Test Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: defi-security-report
+        path: defi-security.json
