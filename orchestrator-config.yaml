@@ -1,0 +1,104 @@
+# AuditorSEC Orchestrator Configuration
+# BRAVE1 Sprint BAK-COR-001 | Q2 2026
+# Version: 1.0.0 | Generated: 2026-04-10
+
+project:
+  name: AuditorSEC
+  id: BRAVE1-AuditorSEC-4.1
+  version: "1.0.0"
+  grant_track: BRAVE1
+  sprint_id: SPRINT-BAK-COR-001
+  trl_level: 4
+  owner: romanchaa997
+  company_edrpou: "46077399"
+  diia_city_status: pending
+
+orchestrator:
+  mode: parallel
+  max_parallel_tasks: 4
+  retry_on_failure: true
+  timeout_seconds: 300
+
+pipelines:
+  defense_audit:
+    branch: defense-audit
+    deploy_target: railway
+    health_check: https://auditorsec-defense.up.railway.app/health
+    nats_topics:
+      - audit.events
+      - alert.stream
+      - pqc.handshake
+    pqc_enabled: true
+    pqc_algorithm: ML-KEM-768
+
+  monitoring:
+    grafana_url: https://bbbhhai.com
+    prometheus_scrape_interval: 15s
+    dashboards:
+      - brave1-kpis.json
+    kpi_threshold: 4
+    brave1_auto_submit: true
+
+  cicd:
+    github_repo: romanchaa997/Audityzer
+    railway_service: audityzer-master-admin
+    hf_spaces:
+      - Audityzer/audityzer-demo
+      - Audityzer/brave1-risk-assistant
+    workflow_dispatch: hf-deploy.yml
+
+integrations:
+  nats:
+    url: nats://production
+    jetstream: true
+    topics:
+      audit_events: audit.events
+      alert_stream: alert.stream
+      pqc_handshake: pqc.handshake
+
+  clickup:
+    space: AuditorSEC
+    sprint: SPRINT-BAK-COR-001
+    auto_update_on_deploy: true
+
+  n8n:
+    webhook_trigger: true
+    workflows:
+      - name: deploy-notifier
+        trigger: github_push
+        actions:
+          - railway_deploy_status
+          - clickup_task_update
+          - telegram_notify
+
+  telegram:
+    bot: AuditorSECbot
+    alert_channel: AuditorSECAlertBot
+    notifications:
+      - deploy_success
+      - deploy_failure
+      - kpi_threshold_reached
+
+brave1:
+  subtypes:
+    - "4.1"  # PQC defense-audit
+    - "4.2"  # IoT ScAlN
+    - "4.3"  # GPS-denied last-mile IoT
+  kpi_metrics:
+    - name: audit_scans_completed
+      threshold: 10
+    - name: pqc_handshakes_successful
+      threshold: 5
+    - name: api_uptime_percent
+      threshold: 99
+    - name: mean_response_time_ms
+      threshold: 500
+  submission_endpoint: https://brave1.gov.ua
+  auto_submit_on_kpi_4: true
+
+security:
+  credentials_rotation:
+    railway_db: manual  # rotate via Railway dashboard
+    hf_token: audityzer-github-actions-write
+  exposed_secrets_check: true
+  pqc_handshake_validation: true
