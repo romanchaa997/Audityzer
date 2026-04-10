@@ -1,0 +1,69 @@
+name: Deploy to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+      - 'backend/**'
+      - 'audityzer-core/**'
+  workflow_dispatch:
+
+jobs:
+  deploy-audityzer-demo:
+    name: Sync audityzer-demo Space
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push to HF Space (audityzer-demo)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global user.email "ci@auditorsec.com"
+          git config --global user.name "AuditorSEC CI"
+          git remote add hf-audityzer-demo https://AuditorSEC:${HF_TOKEN}@huggingface.co/spaces/Audityzer/audityzer-demo
+          git push hf-audityzer-demo HEAD:main --force
+
+  deploy-brave1-risk-assistant:
+    name: Sync brave1-risk-assistant Space
+    runs-on: ubuntu-latest
+    needs: deploy-audityzer-demo
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push to HF Space (brave1-risk-assistant)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global user.email "ci@auditorsec.com"
+          git config --global user.name "AuditorSEC CI"
+          git remote add hf-brave1 https://AuditorSEC:${HF_TOKEN}@huggingface.co/spaces/Audityzer/brave1-risk-assistant
+          git push hf-brave1 HEAD:main --force
+
+  smoke-test:
+    name: Smoke test HF Spaces
+    runs-on: ubuntu-latest
+    needs: [deploy-audityzer-demo, deploy-brave1-risk-assistant]
+    steps:
+      - name: Check audityzer-demo is running
+        run: |
+          sleep 30
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://audityzer-audityzer-demo.hf.space)
+          echo "audityzer-demo status: $STATUS"
+          [ "$STATUS" -eq 200 ] || echo "Space may still be building"
+
+      - name: Check brave1-risk-assistant is running
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://audityzer-brave1-risk-assistant.hf.space)
+          echo "brave1-risk-assistant status: $STATUS"
+          [ "$STATUS" -eq 200 ] || echo "Space may still be building"

@@ -3,7 +3,7 @@
 FROM node:20-alpine AS builder
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 # Set working directory
 WORKDIR /app
@@ -28,17 +28,18 @@ RUN pnpm run build
 # Stage 2: Production
 FROM node:20-alpine AS production
 
-# Install security updates and runtime deps
+# Install pnpm
+RUN npm install -g pnpm@9
+
+# Install security updates
 RUN apk update && apk upgrade && apk add --no-cache \
     dumb-init \
-    curl \
     && rm -rf /var/cache/apk/*
 
 # Create non-root user
-RUN addgroup -g 1001 -S audityzer && \
+RUN addgroup -g 1001 -S nodejs && \
     adduser -S audityzer -u 1001
 
-# Set working directory
 WORKDIR /app
 
 # Copy built application from builder stage
@@ -47,16 +48,12 @@ COPY --from=builder --chown=audityzer:audityzer /app/dist ./dist
 COPY --from=builder --chown=audityzer:audityzer /app/bin ./bin
 COPY --from=builder --chown=audityzer:audityzer /app/package.json ./
 
-# Copy additional runtime files
-COPY --chown=audityzer:audityzer templates/ ./templates/
-COPY --chown=audityzer:audityzer lib/ ./lib/
-COPY --chown=audityzer:audityzer scripts/healthcheck.sh ./scripts/
-COPY --chown=audityzer:audityzer scripts/start.sh ./scripts/
+# Copy built files from builder
+COPY --from=builder --chown=audityzer:nodejs /app/dist ./dist
+COPY --from=builder --chown=audityzer:nodejs /app/bin ./bin
+COPY --from=builder --chown=audityzer:nodejs /app/src ./src
+COPY --from=builder --chown=audityzer:nodejs /app/lib ./lib
 
-# Make scripts executable
-RUN chmod +x ./scripts/*.sh
-
-# Switch to non-root user
 USER audityzer
 
 # Expose port
