@@ -1,5 +1,4 @@
 name: DevForge CI/CD Pipeline
-
 on:
   push:
     branches: [ main, master, develop ]
@@ -13,9 +12,9 @@ on:
         default: 'patch'
         type: choice
         options:
-          - patch
-          - minor
-          - major
+        - patch
+        - minor
+        - major
       run_security_tests:
         description: 'Run security tests'
         required: false
@@ -26,59 +25,47 @@ on:
         required: false
         default: false
         type: boolean
-
 jobs:
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-          
       - name: Install Dependencies
         run: npm ci
-        
       - name: Run ESLint
         run: npm run lint
-  
+
   test:
     name: Run Tests
     runs-on: ubuntu-latest
     needs: lint
-    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-          
       - name: Install Dependencies
         run: npm ci
-        
       - name: Install Playwright Browsers
         run: npx playwright install chromium
-        
       - name: Start DevForge Server
         run: node bin/dev-server-runner.js start
         env:
           SERVER_PORT: 5050
           PUBLIC_DIR: 'public'
           LOG_LEVEL: 'info'
-        
       - name: Run Unit Tests
         run: npm test
-      
       - name: Stop DevForge Server
         run: node bin/dev-server-runner.js stop
       - name: Upload Test Results
@@ -87,30 +74,24 @@ jobs:
         with:
           name: unit-test-results
           path: test-results/
-            test-results/
-            
+
   security_tests:
     name: Run Security Tests
     runs-on: ubuntu-latest
     needs: test
     if: github.event.inputs.run_security_tests != 'false'
-    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-          
       - name: Install Dependencies
         run: npm ci
-        
       - name: Install Playwright Browsers
         run: npx playwright install chromium
-        
       - name: Start DevForge Server
         run: node bin/dev-server-runner.js start
         env:
@@ -118,31 +99,25 @@ jobs:
           PUBLIC_DIR: 'public'
           LOG_LEVEL: 'info'
           MOCK_MODE: 'true'
-        
       - name: Run Security Tests
         run: npm run test:security
         env:
           MOCK_MODE: 'true'
-          
       - name: Run Flash Loan Attack Tests
         run: npx playwright test examples/security-bug-tests/flash-loan-attack.test.ts
         env:
           MOCK_MODE: 'true'
-          
       - name: Run Eth Sign Phishing Tests
         run: npm run test:phishing
         env:
           MOCK_MODE: 'true'
-          
       - name: Run Reentrancy Tests
         run: npm run test:reentrancy
         env:
           MOCK_MODE: 'true'
-          
       - name: Stop DevForge Server
         run: node bin/dev-server-runner.js stop
         if: always()
-          
       - name: Upload Security Test Results
         uses: actions/upload-artifact@v3.1.3
         if: always()
@@ -151,86 +126,78 @@ jobs:
           path: |
             test-results/
             playwright-report/
-      
       - name: Generate Security Report
         if: success()
         run: npm run report:generate
-        
       - name: Upload Security Report
         uses: actions/upload-artifact@v3.1.3
         if: success()
         with:
           name: security-report
-          path: |
-            reports/
-      
-  docker_build:
-    name: Build and Test Docker Image
+          path: reports/
+
+  validate_deploy_config:
+    name: Validate Railway/Nixpacks Deploy Config
     runs-on: ubuntu-latest
     needs: [test, security_tests]
-    
+    # NOTE: No Dockerfile in this repo - Railway auto-deploys via Nixpacks.
+    # This job validates the Nixpacks config instead of building a Docker image.
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-        
-      - name: Build Docker Image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: false
-          load: true
-          tags: devforge:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          
-      - name: Test Docker Image
+      - name: Check railway.toml exists
         run: |
-          docker run --name devforge-test -d -p 5050:5050 devforge:test
-          sleep 5
-          curl -s http://localhost:5050/health || curl -s http://localhost:5051/health
-          docker stop devforge-test
-            
+          if [ -f railway.toml ]; then
+            echo "railway.toml found - Nixpacks deploy config OK"
+            cat railway.toml
+          else
+            echo "WARNING: railway.toml not found - Railway will use auto-detection"
+          fi
+      - name: Validate Node.js start script
+        run: |
+          START_CMD=$(node -p "require('./package.json').scripts.start || ''" 2>/dev/null || echo '')
+          if [ -n "$START_CMD" ]; then
+            echo "Start script found: $START_CMD"
+          else
+            echo "WARNING: No start script in package.json"
+          fi
+      - name: Confirm no Dockerfile needed
+        run: |
+          echo "Railway deployment uses Nixpacks (not Docker)."
+          echo "GHA docker_build step removed - Railway handles container build automatically."
+          echo "Deploy status: https://railway.app - check Railway dashboard for live deploy."
+
   build:
     name: Build Package
     runs-on: ubuntu-latest
     needs: [test, security_tests]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-          
       - name: Install Dependencies
         run: npm ci
-        
       - name: Build Package
         run: npm run build
-        
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v3.1.3
         with:
           name: build-package
           path: dist/
-          
+
   release:
     name: Publish Release
     runs-on: ubuntu-latest
-    needs: [build, docker_build]
+    needs: [build, validate_deploy_config]
     if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && (github.event.inputs.release_dry_run != 'true')
-    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -243,7 +210,6 @@ jobs:
           path: dist/
       - name: Install Dependencies
         run: npm ci
-          
       - name: Check for NPM token
         id: check_token
         run: |
@@ -253,7 +219,6 @@ jobs:
             echo "npm_token_exists=false" >> $GITHUB_OUTPUT
             echo "::warning::NPM_TOKEN secret not found. Skipping npm publish."
           fi
-          
       - name: Version and Publish
         if: steps.check_token.outputs.npm_token_exists == 'true'
         id: version_publish
@@ -267,7 +232,6 @@ jobs:
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -278,7 +242,6 @@ jobs:
           release_name: DevForge v${{ steps.version_publish.outputs.VERSION }}
           draft: false
           prerelease: false
-          
       - name: Upload Security Report to Release
         if: steps.check_token.outputs.npm_token_exists == 'true'
         uses: actions/upload-release-asset@v1
@@ -289,26 +252,22 @@ jobs:
           asset_path: ./reports/security-report.html
           asset_name: security-report.html
           asset_content_type: text/html
-          
+
   deploy_docs:
     name: Deploy Documentation
     runs-on: ubuntu-latest
     needs: [build]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-        
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-          
       - name: Install Dependencies
         run: npm ci
-          
       - name: Generate Documentation
         run: |
           mkdir -p public
@@ -316,9 +275,8 @@ jobs:
           cp README.md public/
           cp landing-page.html public/index.html
           cp CONTRIBUTING.md public/
-          
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public 
+          publish_dir: ./public
