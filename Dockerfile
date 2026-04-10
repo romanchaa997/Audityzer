@@ -1,42 +1,67 @@
 # Multi-stage build for Audityzer
+# Stage 1: Builder
 FROM node:20-alpine AS builder
 
+# Install pnpm
+RUN npm install -g pnpm@9
+
+# Set working directory
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --only=production
+# Copy package files and scripts needed for postinstall
+COPY package.json pnpm-lock.yaml ./
+COPY scripts/ ./scripts/
 
+# Install dependencies (triggers postinstall which needs scripts/fix-dependencies.js)
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy source code
 COPY src/ ./src/
 COPY bin/ ./bin/
 COPY templates/ ./templates/
 COPY lib/ ./lib/
+COPY tsconfig.json ./
 
-RUN npm run build 2>/dev/null || true
+# Build the application
+RUN pnpm run build
 
-# Production stage
+# Stage 2: Production
 FROM node:20-alpine AS production
 
-RUN apk update && apk upgrade && apk add --no-cache dumb-init && rm -rf /var/cache/apk/*
+# Install pnpm
+RUN npm install -g pnpm@9
 
-RUN addgroup -g 1001 -S nodejs && adduser -S audityzer -u 1001
+# Install security updates
+RUN apk update && apk upgrade && apk add --no-cache \
+    dumb-init \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S audityzer -u 1001
 
 WORKDIR /app
 
-COPY --from=builder --chown=audityzer:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=audityzer:nodejs /app/bin ./bin
-COPY --from=builder --chown=audityzer:nodejs /app/src ./src
-COPY --from=builder --chown=audityzer:nodejs /app/templates ./templates
-COPY --from=builder --chown=audityzer:nodejs /app/lib ./lib
-COPY --chown=audityzer:nodejs package*.json ./
+# Copy built application from builder stage
+COPY --from=builder --chown=audityzer:audityzer /app/node_modules ./node_modules
+COPY --from=builder --chown=audityzer:audityzer /app/dist ./dist
+COPY --from=builder --chown=audityzer:audityzer /app/bin ./bin
+COPY --from=builder --chown=audityzer:audityzer /app/package.json ./
 
-COPY server.js ./
+# Copy scripts for healthcheck and start
+COPY --from=builder --chown=audityzer:audityzer /app/scripts ./scripts
 
 USER audityzer
 
-EXPOSE 3000
+# Expose port
+EXPOSE 5000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD ./scripts/healthcheck.sh
 
+# Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "server.js"]
+
+# Start the application
+CMD ["./scripts/start.sh"]
