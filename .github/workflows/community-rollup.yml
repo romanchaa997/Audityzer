@@ -1,0 +1,194 @@
+name: Community Rollup & Market Growth Workflows
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+  pull_request:
+    types: [opened, labeled, reopened]
+  issues:
+    types: [opened]
+  schedule:
+    # Weekly community metrics snapshot every Monday at 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      workflow:
+        description: 'Which workflow to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - label-issues
+          - community-metrics
+          - quality-check
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: Auto-label new issues for community triage
+  # ─────────────────────────────────────────────
+  auto-label-issues:
+    name: Auto-label Issues
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    permissions:
+      issues: write
+    steps:
+      - name: Label security issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body || '';
+            const title = context.payload.issue.title || '';
+            const text = (title + ' ' + body).toLowerCase();
+            const labels = [];
+
+            if (text.includes('security') || text.includes('vulnerability') || text.includes('cve')) {
+              labels.push('security');
+            }
+            if (text.includes('web3') || text.includes('solidity') || text.includes('smart contract')) {
+              labels.push('web3');
+            }
+            if (text.includes('bug') || text.includes('error') || text.includes('fail')) {
+              labels.push('bug');
+            }
+            if (text.includes('feature') || text.includes('enhancement') || text.includes('add')) {
+              labels.push('enhancement');
+            }
+            if (text.includes('docs') || text.includes('documentation') || text.includes('readme')) {
+              labels.push('documentation');
+            }
+            if (text.includes('good first issue') || text.includes('beginner') || text.includes('help wanted')) {
+              labels.push('good first issue');
+            }
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                labels: labels
+              });
+              console.log(`Added labels: ${labels.join(', ')}`);
+            }
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Welcome first-time contributors
+  # ─────────────────────────────────────────────
+  welcome-contributor:
+    name: Welcome Contributors
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Check if first-time contributor
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              creator: context.payload.pull_request.user.login
+            });
+
+            if (prs.length <= 1) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: `👋 Welcome to **Audityzer**, @${context.payload.pull_request.user.login}!\n\nThank you for your first contribution to the Web3 security community!\n\n**Quick links:**\n- [Contributing Guide](./CONTRIBUTING.md)\n- [Security Policy](./SECURITY.md)\n- [Community Rollup Campaign](./docs/COMMUNITY_ROLLUP.md)\n\nOur team will review your PR shortly. Join the community discussion in GitHub Discussions!`
+              });
+            }
+
+  # ─────────────────────────────────────────────
+  # JOB 3: Weekly community metrics snapshot
+  # ─────────────────────────────────────────────
+  community-metrics:
+    name: Community Metrics Snapshot
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.workflow == 'community-metrics' || github.event.inputs.workflow == 'all'))
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Capture GitHub metrics
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: repo } = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+
+            const { data: issues } = await github.rest.issues.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+
+            const metrics = {
+              timestamp: new Date().toISOString(),
+              stars: repo.stargazers_count,
+              forks: repo.forks_count,
+              watchers: repo.watchers_count,
+              open_issues: issues.length,
+              open_prs: prs.length,
+              description: repo.description
+            };
+
+            console.log('Community Metrics:', JSON.stringify(metrics, null, 2));
+            core.setOutput('metrics', JSON.stringify(metrics));
+
+      - name: Create metrics summary
+        run: |
+          echo "## Community Metrics - $(date -u '+%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Workflow Trigger | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository | ${{ github.repository }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "*Full metrics available in the github-script step output above.*" >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────
+  # JOB 4: Docs quality check on new docs PRs
+  # ─────────────────────────────────────────────
+  docs-quality:
+    name: Docs Quality Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for broken markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'no'
+          config-file: '.github/mlc_config.json'
+        continue-on-error: true
+
+      - name: Validate docs structure
+        run: |
+          echo "Checking docs structure..."
+          ls docs/ || echo "No docs directory yet"
+          [ -f README.md ] && echo "README.md exists" || echo "WARNING: README.md missing"
+          [ -f CONTRIBUTING.md ] && echo "CONTRIBUTING.md exists" || echo "WARNING: CONTRIBUTING.md missing"
+          [ -f SECURITY.md ] && echo "SECURITY.md exists" || echo "WARNING: SECURITY.md missing"
+          echo "Docs quality check complete."
