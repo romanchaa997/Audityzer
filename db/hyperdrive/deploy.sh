@@ -1,47 +1,47 @@
 #!/bin/bash
 set -euo pipefail
-# ========================================
+# ==========================================
 # AuditorSEC Hyperdrive + Worker Deploy
-# ========================================
+# ==========================================
 # Prereqs:
 #   npm install -g wrangler
 #   wrangler login
 #   CF API token with Workers + Hyperdrive + D1 permissions
-# ========================================
+# ==========================================
 
-ACCOUNT_ID="44413650497549d4e08c7040d1710225"
-PG_HOST="interchange.proxy.rlwy.net"
-PG_PORT="47123"
-PG_USER="postgres"
-PG_PASS="GVLphDtWHztHEvkxlpfnSINUlHnvzwPP"
-PG_DB="railway"
+# All credentials must be set as environment variables
+# NEVER hardcode credentials in this file
+ACCOUNT_ID="${CF_ACCOUNT_ID:?CF_ACCOUNT_ID env var required}"
+PG_HOST="${RAILWAY_PG_HOST:?RAILWAY_PG_HOST env var required}"
+PG_PORT="${RAILWAY_PG_PORT:-5432}"
+PG_USER="${RAILWAY_PG_USER:?RAILWAY_PG_USER env var required}"
+PG_PASS="${RAILWAY_PG_PASS:?RAILWAY_PG_PASS env var required}"
+PG_DB="${RAILWAY_PG_DATABASE:-railway}"
 
-echo ">>> Step 1: Create Hyperdrive config"
+echo "Creating Hyperdrive config..."
 HYPERDRIVE_OUTPUT=$(wrangler hyperdrive create audityzer-pg \
-  --connection-string="postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/${PG_DB}" \
+  --connection-string "postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/${PG_DB}" \
   2>&1) || true
 
-# Extract Hyperdrive ID
-HYPERDRIVE_ID=$(echo "$HYPERDRIVE_OUTPUT" | grep -oP '[a-f0-9]{32}' | head -1)
+HYPERDRIVE_ID=$(echo "$HYPERDRIVE_OUTPUT" | grep -oP '"id":\s*"([a-f0-9]{32})"' | head -1 | grep -oP '[a-f0-9]{32}' || true)
+
 if [ -z "$HYPERDRIVE_ID" ]; then
-  echo ">>> Hyperdrive may already exist, listing..."
-  HYPERDRIVE_ID=$(wrangler hyperdrive list 2>&1 | grep "audityzer-pg" -A2 | grep -oP '[a-f0-9]{32}' | head -1)
+  echo "Hyperdrive already exist, listing..."
+  HYPERDRIVE_ID=$(wrangler hyperdrive list 2>&1 | grep -A2 "audityzer-pg" | grep -oP '[a-f0-9]{32}' | head -1)
 fi
 
-echo ">>> Hyperdrive ID: $HYPERDRIVE_ID"
+if [ -z "$HYPERDRIVE_ID" ]; then
+  echo "ERROR: Could not obtain Hyperdrive ID" >&2
+  exit 1
+fi
 
-echo ">>> Step 2: Update wrangler.toml with Hyperdrive ID"
-sed -i "s/REPLACE_WITH_HYPERDRIVE_ID/$HYPERDRIVE_ID/" wrangler.toml
+echo "Hyperdrive ID: $HYPERDRIVE_ID"
 
-echo ">>> Step 3: Install dependencies"
-npm install
+# Update wrangler.toml with the real ID
+sed -i "s/REPLACE_WITH_HYPERDRIVE_ID/$HYPERDRIVE_ID/g" wrangler.toml
 
-echo ">>> Step 4: Deploy Worker"
-wrangler deploy
+echo "Deploying Cloudflare Worker..."
+wrangler deploy --compatibility-date 2024-01-01
 
-echo ""
-echo "==================================="
-echo "  Deployed: audityzer-public-api"
-echo "  URL: https://audityzer-public-api.${ACCOUNT_ID}.workers.dev"
-echo "  Hyperdrive: $HYPERDRIVE_ID"
-echo "==================================="
+echo "Deploy complete. Worker URL:"
+wrangler deployments list | head -5
