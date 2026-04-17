@@ -1,0 +1,241 @@
+# ============================================================
+# Audityzer - Kubernetes Deployment for DOKS / EKS / GKE
+# AuditorSEC Web3 Security Platform
+# Compatible with: DigitalOcean Kubernetes (DOKS)
+# ============================================================
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: audityzer
+  labels:
+    app: audityzer
+    team: auditorsec
+    environment: production
+
+---
+# ConfigMap for environment configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: audityzer-config
+  namespace: audityzer
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  LOG_LEVEL: "info"
+  AUDIT_MODE: "production"
+  MAX_CONCURRENT_SCANS: "5"
+  REPORT_FORMAT: "html,json"
+  BLOCKCHAIN_NETWORKS: "ethereum,polygon,arbitrum,optimism,base"
+
+---
+# Secret template (replace values before applying)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: audityzer-secrets
+  namespace: audityzer
+type: Opaque
+stringData:
+  FIREBASE_API_KEY: "your-firebase-api-key"
+  FIREBASE_PROJECT_ID: "your-project-id"
+  OPENAI_API_KEY: "your-openai-api-key"
+  ETHERSCAN_API_KEY: "your-etherscan-api-key"
+
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audityzer
+  namespace: audityzer
+  labels:
+    app: audityzer
+    version: "1.1.3"
+    team: auditorsec
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: audityzer
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: audityzer
+        version: "1.1.3"
+    spec:
+      containers:
+        - name: audityzer
+          image: node:20-alpine
+          workingDir: /app
+          command: ["node", "server.js"]
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: audityzer-config
+                  key: NODE_ENV
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: audityzer-config
+                  key: PORT
+            - name: FIREBASE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: audityzer-secrets
+                  key: FIREBASE_API_KEY
+                  optional: true
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: audityzer-secrets
+                  key: OPENAI_API_KEY
+                  optional: true
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: output-volume
+              mountPath: /app/output
+      volumes:
+        - name: output-volume
+          emptyDir: {}
+      restartPolicy: Always
+
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: audityzer-service
+  namespace: audityzer
+  labels:
+    app: audityzer
+spec:
+  selector:
+    app: audityzer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
+
+---
+# Ingress (for DOKS with nginx ingress controller)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: audityzer-ingress
+  namespace: audityzer
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  tls:
+    - hosts:
+        - audityzer.auditorsec.io
+      secretName: audityzer-tls
+  rules:
+    - host: audityzer.auditorsec.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: audityzer-service
+                port:
+                  number: 80
+
+---
+# HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: audityzer-hpa
+  namespace: audityzer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: audityzer
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+# NetworkPolicy (security best practice)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: audityzer-netpol
+  namespace: audityzer
+spec:
+  podSelector:
+    matchLabels:
+      app: audityzer
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    - ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+        - protocol: UDP
+          port: 53
