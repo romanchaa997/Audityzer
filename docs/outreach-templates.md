@@ -90,7 +90,6 @@ Live Demo: https://audityzer.onrender.com
 Best regards,
 Igor Rihor
 Founder, AuditorSEC
-rigoryanych@icloud.com
 ```
 
 ---
@@ -126,7 +125,7 @@ rigoryanych@icloud.com
 ## AWS Activate Application Notes
 
 **Organization**: AuditorSEC (AuditorSEC Ltd)
-**AWS Account**: rigoryanych@icloud.com
+**AWS Account**: [your-email@domain.com]
 **Company ID (PIC)**: 868176676
 **VAT**: 46077399
 **Use Case**: Kubernetes (EKS) for Audityzer Engine, RDS for report storage, Lambda for async scan workers
