@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const reportService = require('./core/services/report-service').default;
+const reportService = require('./core/services/report-service').;
 const { app, db, auth, storage } = require('./core/services/firebase');
 
 // Export the Firebase app and services
