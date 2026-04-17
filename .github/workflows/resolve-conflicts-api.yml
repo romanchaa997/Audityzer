@@ -1,0 +1,39 @@
+name: Resolve PR conflicts - merge main into safe-improvements
+
+on:
+  workflow_dispatch:
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout safe-improvements
+        uses: actions/checkout@v4
+        with:
+          ref: safe-improvements
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+
+      - name: Fetch main
+        run: git fetch origin main
+
+      - name: Merge main keeping ours for conflicts
+        run: |
+          git merge origin/main --strategy-option=ours --no-edit -m "chore: merge main into safe-improvements (resolve conflicts, keep ours)" || true
+          # If merge failed, resolve all conflicts by keeping ours
+          if git ls-files -u | grep -q .; then
+            git checkout --ours -- .
+            git add -A
+            git commit -m "chore: resolve all merge conflicts by keeping safe-improvements changes"
+          fi
+
+      - name: Push resolved branch
+        run: git push origin safe-improvements
