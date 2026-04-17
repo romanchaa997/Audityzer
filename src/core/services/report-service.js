@@ -1,8 +1,8 @@
-import { db, storage } from './firebase';
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import fs from 'fs-extra';
-import path from 'path';
+const { db, storage } = require('./firebase');
+const { collection, addDoc, getDocs, doc, getDoc, updateDoc } = require('firebase/firestore');
+const { ref, uploadBytes, getDownloadURL } = require('firebase/storage');
+const fs = require('fs-extra');
+const path = require('path');
 
 /**
  * Service for handling security report functionality with Firebase integration
@@ -20,7 +20,6 @@ class ReportService {
         ...reportData,
         timestamp: new Date(),
       });
-      
       console.log(`Report saved with ID: ${docRef.id}`);
       return docRef.id;
     } catch (error) {
@@ -40,17 +39,13 @@ class ReportService {
       const fileBuffer = await fs.readFile(localFilePath);
       const fileName = path.basename(localFilePath);
       const fileRef = ref(storage, `reports/${reportId}/${fileName}`);
-      
       const snapshot = await uploadBytes(fileRef, fileBuffer);
       const downloadUrl = await getDownloadURL(snapshot.ref);
-      
-      // Update the report document with the file URL
       const reportRef = doc(db, 'security-reports', reportId);
       await updateDoc(reportRef, {
         reportUrl: downloadUrl,
         fileName: fileName
       });
-      
       return downloadUrl;
     } catch (error) {
       console.error('Error uploading report file:', error);
@@ -65,10 +60,7 @@ class ReportService {
   async getAllReports() {
     try {
       const reportsSnapshot = await getDocs(collection(db, 'security-reports'));
-      return reportsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      return reportsSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (error) {
       console.error('Error fetching reports:', error);
       throw error;
@@ -84,10 +76,7 @@ class ReportService {
     try {
       const reportDoc = await getDoc(doc(db, 'security-reports', reportId));
       if (reportDoc.exists()) {
-        return {
-          id: reportDoc.id,
-          ...reportDoc.data()
-        };
+        return { id: reportDoc.id, ...reportDoc.data() };
       } else {
         throw new Error(`Report with ID ${reportId} not found`);
       }
@@ -98,4 +87,4 @@ class ReportService {
   }
 }
 
-export default new ReportService(); 
+module.exports = new ReportService();
