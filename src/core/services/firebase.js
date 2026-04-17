@@ -1,9 +1,9 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
-import fs from 'fs-extra';
-import path from 'path';
+const { initializeApp } = require('firebase/app');
+const { getFirestore } = require('firebase/firestore');
+const { getAuth } = require('firebase/auth');
+const { getStorage } = require('firebase/storage');
+const fs = require('fs-extra');
+const path = require('path');
 
 // Check for environment variables first
 const firebaseConfig = {
@@ -37,4 +37,4 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-export { app, db, auth, storage, firebaseConfig }; 
+module.exports = { app, db, auth, storage };
