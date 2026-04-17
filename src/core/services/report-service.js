@@ -1,8 +1,22 @@
 const { db, storage } = require('./firebase');
-const { collection, addDoc, getDocs, doc, getDoc, updateDoc } = require('firebase/firestore');
-const { ref, uploadBytes, getDownloadURL } = require('firebase/storage');
 const fs = require('fs-extra');
 const path = require('path');
+
+// Lazy-load firebase/firestore and firebase/storage only if available
+let firestoreFns = null;
+let storageFns = null;
+
+try {
+  firestoreFns = require('firebase/firestore');
+} catch (e) {
+  // firebase/firestore not available
+}
+
+try {
+  storageFns = require('firebase/storage');
+} catch (e) {
+  // firebase/storage not available
+}
 
 /**
  * Service for handling security report functionality with Firebase integration
@@ -14,7 +28,12 @@ class ReportService {
    * @returns {Promise<string>} - The ID of the saved report
    */
   async saveReport(reportData) {
+    if (!db || !firestoreFns) {
+      console.warn('Firebase not available. Report saved locally only.');
+      return `local-${Date.now()}`;
+    }
     try {
+      const { collection, addDoc } = firestoreFns;
       const reportsCollection = collection(db, 'security-reports');
       const docRef = await addDoc(reportsCollection, {
         ...reportData,
@@ -35,7 +54,13 @@ class ReportService {
    * @returns {Promise<string>} - Download URL of the uploaded file
    */
   async uploadReportFile(localFilePath, reportId) {
+    if (!storage || !storageFns || !firestoreFns) {
+      console.warn('Firebase not available. File upload skipped.');
+      return null;
+    }
     try {
+      const { ref, uploadBytes, getDownloadURL } = storageFns;
+      const { doc, updateDoc } = firestoreFns;
       const fileBuffer = await fs.readFile(localFilePath);
       const fileName = path.basename(localFilePath);
       const fileRef = ref(storage, `reports/${reportId}/${fileName}`);
@@ -58,7 +83,12 @@ class ReportService {
    * @returns {Promise<Array>} - Array of report objects
    */
   async getAllReports() {
+    if (!db || !firestoreFns) {
+      console.warn('Firebase not available. Returning empty reports list.');
+      return [];
+    }
     try {
+      const { getDocs, collection } = firestoreFns;
       const reportsSnapshot = await getDocs(collection(db, 'security-reports'));
       return reportsSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (error) {
@@ -73,7 +103,11 @@ class ReportService {
    * @returns {Promise<Object>} - The report data
    */
   async getReportById(reportId) {
+    if (!db || !firestoreFns) {
+      throw new Error('Firebase not available');
+    }
     try {
+      const { getDoc, doc } = firestoreFns;
       const reportDoc = await getDoc(doc(db, 'security-reports', reportId));
       if (reportDoc.exists()) {
         return { id: reportDoc.id, ...reportDoc.data() };
