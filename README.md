@@ -1,3 +1,8 @@
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-audityzer.onrender.com-brightgreen?style=for-the-badge)](https://audityzer.onrender.com)
+[![Health](https://img.shields.io/badge/Health-OK-success?style=for-the-badge)](https://audityzer.onrender.com/health)
+[![Deploy on Render](https://img.shields.io/badge/Deploy%20on-Render-46E3B7?style=for-the-badge&logo=render)](https://dashboard.render.com)
+[![Kubernetes Ready](https://img.shields.io/badge/Kubernetes-Ready-326CE5?style=for-the-badge&logo=kubernetes)](https://kubernetes.io)
+
 
 # Audityzer - Web3 Security Testing Toolkit
 
