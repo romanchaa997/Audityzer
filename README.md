@@ -197,11 +197,11 @@ Audityzer integrates with **AuditorSEC** — an AI-assisted compliance and secur
 > AuditorSEC MVP is a running FastAPI microservice with Dockerized deployment on a production-grade VPS (PostgreSQL, Redis cache, MinIO object storage). The `/api/v1/audit` and `/api/v1/report` endpoints are live and can be integrated into defense and fintech infrastructures as a standalone compliance engine.
 
 **BRAVE1 Roadmap:**
-The BRAVE1 roadmap targets Tier 3 (UAH 2M) with TRL 4-5 validation and phased scaling to Tier 4a/4b, using AuditorSEC as the core security and compliance layer for defense-grade systems.
+The BRAVE1 roadmap targets an initial Tier 3 tranche (UAH 2M) within the broader 8,000,000 UAH 2026 BRAVE1 program, with TRL 4-5 validation and phased scaling to Tier 4a/4b using AuditorSEC as the core security and compliance layer for defense-grade systems.
 
 | Timeline | Milestone | TRL |
 |----------|-----------|-----|
-| Now | MVP deployed: `/audit` + `/report` | **4** |
+| Now | MVP deployed: `/api/v1/audit` + `/api/v1/report` | **4** |
 | May 2026 | Defense/crypto pilot audits | **5** |
 | Q3 2026 | Multi-site deployments + PQC | **6** |
 
