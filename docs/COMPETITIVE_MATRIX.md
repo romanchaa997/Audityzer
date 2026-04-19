@@ -77,8 +77,8 @@ manual audit firms (slow/expensive) and basic static scanners (no AI, no reports
 |---|---|---|---|
 | DeFi Security Audits | $2.1B | $180M | $1.8M |
 | VASP Compliance (BRICS) | $850M | $120M | $600K |
-| Defense/BRAVE1 | UAH 100M | UAH 8M | UAH 2M |
-| **Total** | **~$3B** | **~$300M** | **~$2.4M** |
+| Defense/BRAVE1 | ~$2.5M (UAH 100M) | ~$0.2M (UAH 8M) | ~$50K (UAH 2M) |
+| **Total** | **~$3B** (all USD) | **~$300M** (all USD) | **~$2.45M** (all USD) |
 
 *Source estimates: DeFiLlama security spend data, BRAVE1 program docs, FIU-IND reports 2025*
 
