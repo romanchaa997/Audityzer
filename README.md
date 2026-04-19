@@ -291,7 +291,7 @@ Part of the **AuditorSEC Academy** — free educational track for Ukrainian cybe
 | 3 | Vishing simulation lab — defending the helpdesk | 90 min |
 | 4 | Okta / Azure AD hardening against TTAP-class attacks | 75 min |
 | 5 | Incident response for social engineering breaches | 60 min |
-| 6 | Legal & ethical framework — Ukraine CPC Art. 361-363 | 45 min |
+| 6 | Legal & ethical framework — Ukraine Criminal Code Art. 361-363 | 45 min |
 
 **Certification:** AuditorSEC Anti-Social-Engineering Specialist (ASES)
 
