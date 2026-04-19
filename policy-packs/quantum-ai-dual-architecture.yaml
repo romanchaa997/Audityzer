@@ -1,0 +1,187 @@
+# AuditorSEC Policy Pack v1.0
+# quantum-ai-dual-architecture.yaml
+# Author: AuditorSEC R&D
+# Date: 2026-04-19
+# Status: BASELINE FROZEN
+# PPE Phase 2 smoke test baseline: 2026-04-18
+
+meta:
+  pack_id: quantum-ai-dual-architecture
+  version: "1.0.0"
+  author: AuditorSEC R&D
+  ppe_baseline_modelhash: "5b755eb6d308fb24d9c9c8b68fe9b21e21574523edf84e03da34215e9856318c"
+  ppe_baseline_commitment: "0x9cf4c685c410c2bff9694c45aded915249fa2f79f2455a673def78aa18039c40"
+  ppe_baseline_pred: 8.38
+  clickup_epic: "PPE Phase 2 - Dynamo zk-SNARKs on-chain attestation"
+  brave1_tier: 3
+  pilot_domain: "bakhmach.auditorsec.local"
+
+deep_dives:
+
+  pqcteehsm:
+    title: "PQC TEE/HSM Hybrid KEM"
+    clickup_field: pqcteehsmlevel
+    ppe_anchor: mldsapublickeyprefix
+    space_file: "docs/pqc-tee-hsm.md"
+    policies:
+      hybridkem:
+        description: "Hybrid KEM (X25519+ML-KEM-768) MUST be used for all key exchange"
+        severity: critical
+        hndl_relevant: true
+        checks:
+          - id: pqc-001
+            rule: "tls_kem_algorithm IN ['X25519MLKEM768', 'X25519Kyber768']"
+            failure_msg: "Classical-only KEM detected - HNDL exposure risk"
+          - id: pqc-002
+            rule: "hsm_fips_level >= 3"
+            failure_msg: "HSM FIPS 140-3 Level 3 required for MoD-grade ops"
+      mldsa_signature:
+        description: "ML-DSA-65 (FIPS 204) for all signing ops in production"
+        severity: high
+        checks:
+          - id: pqc-003
+            rule: "signature_algorithm == 'ML-DSA-65' OR fallback_documented == true"
+            failure_msg: "ML-DSA-65 not active; HMAC fallback must be documented"
+            baseline_note: "public_key_prefix=4445565f46414c4c (DEVFALL) - liboqs not installed"
+
+  aisupplychain:
+    title: "AI Supply Chain / SBOM"
+    clickup_field: aisbomstatus
+    ppe_anchor: modelhash
+    space_file: "docs/ai-supply-chain.md"
+    policies:
+      sbomformat:
+        description: "SBOM in CycloneDX or SPDX format for all ML models"
+        severity: high
+        checks:
+          - id: ai-sc-001
+            rule: "sbom_format IN ['CycloneDX', 'SPDX']"
+            failure_msg: "No SBOM found for ML model"
+          - id: ai-sc-002
+            rule: "model_hash_pinned == true"
+            failure_msg: "Model hash not pinned - drift risk"
+      model_drift:
+        description: "Model hash MUST match PPE Phase 2 baseline (regression guard)"
+        severity: critical
+        checks:
+          - id: ai-sc-003
+            rule: "runtime_modelhash == '5b755eb6d308fb24d9c9c8b68fe9b21e21574523edf84e03da34215e9856318c'"
+            failure_msg: "Model drift detected - baselinepred invariant broken"
+          - id: ai-sc-004
+            rule: "baselinepred_delta <= 0.02"
+            failure_msg: "Prediction drift exceeds 2% tolerance from baseline 8.38"
+
+  rlhfrailnis2:
+    title: "RLHF/RAIL NIS2 Controls"
+    clickup_field: nis2compliancelevel
+    space_file: "docs/rlhf-rail-nis2.md"
+    policies:
+      nis2_audit_trail:
+        description: "All AI decisions must emit audit events to PostgreSQL"
+        severity: high
+        checks:
+          - id: nis2-001
+            rule: "audit_events_table_present == true AND critical_actions_logged == true"
+            failure_msg: "Audit event logging not configured per NIS2 Art.21"
+          - id: nis2-002
+            rule: "rlhf_feedback_loop_documented == true"
+            failure_msg: "RLHF feedback not documented for NIS2 AI Act compliance"
+          - id: nis2-003
+            rule: "telegram_audit_bot_active == true"
+            failure_msg: "AuditorSECAlertBot not forwarding audit events"
+
+  dfirqai:
+    title: "DFIR QAI Response"
+    clickup_field: dfirreadinessscore
+    space_file: "docs/dfir-qai.md"
+    policies:
+      incident_response:
+        description: "Quantum-AI Incident Response playbook active"
+        severity: high
+        checks:
+          - id: dfir-001
+            rule: "ir_playbook_version >= '1.0'"
+            failure_msg: "No DFIR playbook found"
+          - id: dfir-002
+            rule: "crm_risk_score_escalation_threshold == 13"
+            failure_msg: "CRM Risk escalation threshold not set to 13 (monday.com Risk Score)"
+          - id: dfir-003
+            rule: "clickup_risk_register_linked == true"
+            failure_msg: "ClickUp Risk Register not linked to CRM high-risk alerts"
+
+  govtwin:
+    title: "Governance Twin Attestation"
+    clickup_field: govtwinlastrun
+    space_file: "docs/governance-twin.md"
+    policies:
+      attestation:
+        description: "On-chain attestation via PPEComplianceVerifier.sol on Polygon Amoy"
+        severity: critical
+        checks:
+          - id: gov-001
+            rule: "onchain_event_emitted == 'PPEAttestationRegistered'"
+            failure_msg: "On-chain attestation not emitted - Polygon Amoy"
+            gas_budget: "300000-500000"
+            network: "Polygon Amoy testnet"
+          - id: gov-002
+            rule: "journal_commitment == '0x9cf4c685c410c2bff9694c45aded915249fa2f79f2455a673def78aa18039c40'"
+            failure_msg: "Commitment mismatch vs PPE Phase 2 baseline"
+          - id: gov-003
+            rule: "zk_receipt_verify_passes == true AND proof_time_seconds <= 60"
+            failure_msg: "RISC Zero receipt verify failed or exceeded 60s dev-mode limit"
+
+  agentiam:
+    title: "Agentic IAM Zero Trust"
+    clickup_field: iamcompliancestatus
+    space_file: "docs/agentic-iam.md"
+    policies:
+      zerotrustscope:
+        description: "All agent API calls must use JWT + INTERNALSIGNINGKEY"
+        severity: critical
+        checks:
+          - id: iam-001
+            rule: "auth_method == 'JWT' AND signing_key_env == 'INTERNALSIGNINGKEY'"
+            failure_msg: "Agent IAM not using JWT with INTERNALSIGNINGKEY"
+          - id: iam-002
+            rule: "telegram_webhook_secret_set == true"
+            failure_msg: "TELEGRAMWEBHOOKSECRET not configured"
+          - id: iam-003
+            rule: "allowed_chat_ids_configured == true"
+            failure_msg: "TELEGRAMALLOWEDCHATIDS not set - open relay risk"
+
+  productization:
+    title: "Productization Paths"
+    clickup_field: revenuetrackactive
+    space_file: "docs/productization.md"
+    policies:
+      revenue_tracks:
+        description: "At least one revenue track must be active"
+        severity: medium
+        checks:
+          - id: prod-001
+            rule: "track_immunefi_active == true OR track_brave1_active == true OR track_saas_active == true"
+            failure_msg: "No active revenue track configured"
+          - id: prod-002
+            rule: "brave1_tier >= 3"
+            failure_msg: "BRAVE1 Tier 3+ not achieved"
+          - id: prod-003
+            rule: "saas_first_paid_client == true OR immunefi_first_submission == true"
+            failure_msg: "No first revenue event recorded"
+
+---
+# Fallback behavior
+fallback:
+  hash_algorithm: SHA256  # Poseidon BN254 when poseidon-hash lib available
+  signature_algorithm: HMAC-SHA256  # ML-DSA-65 when liboqs installed
+  llm_reestimation: disabled  # Enabled when Dynamo/vLLM online
+  onchain_attestation: local_event_log  # Polygon Amoy when RPC available
+
+# Bakhmach pilot scoring config
+bakhmach_pilot:
+  domain: bakhmach.auditorsec.local
+  project_id: bakhmach-pilot-001
+  classification: municipal-pilot
+  brave1_tier: 3
+  hndl_mitigation: true
+  urgent_threshold: 75
+  evidence_output: diia_city_horizon_annex
