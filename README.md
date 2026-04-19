@@ -1,5 +1,40 @@
 # Audityzer — AI-Powered Web3 Security Platform
 
+
+## 🛡️ AuditorSEC — Enterprise Web3 Security Auditing Platform
+
+> **TRL4 PoC** | BRAVE1 Cybersecurity Track | Deadline: 30.04.2026
+
+[![Railway](https://img.shields.io/badge/Railway-deployed-success)](https://audityzer-production-5112.up.railway.app)
+[![BRAVE1 Tier](https://img.shields.io/badge/BRAVE1-Tier%202%20(UAH%208M%20total)-blue)](https://brave1.gov.ua)
+[![GTM Strategy](https://img.shields.io/badge/docs-GTM%20Strategy-informational)](docs/GTM_STRATEGY.md)
+[![API](https://img.shields.io/badge/FastAPI-/api/v1/audit-green)](https://audityzer.onrender.com/health)
+
+### What is AuditorSEC?
+
+AuditorSEC is a security auditing platform for Web3/dApp smart contracts, built on top of Audityzer. It provides:
+
+- 🔍 **Automated vulnerability scanning** via Slither + Foundry (Optimism, EVM chains)
+- 📄 **PDF audit reports** with MinIO-backed storage and presigned URLs
+- 🧠 **AI-powered analysis** (GPT-4) for log interpretation and anomaly detection
+- 🌐 **Multi-chain support**: Optimism, Ethereum, Polygon (UHIP-2A schema)
+- 🇺🇦 **BRAVE1 / DIANA compliant**: dual-use security tooling for Ukrainian defense sector
+
+### Quick Start
+
+```bash
+# API (FastAPI)
+curl -X POST https://audityzer.onrender.com/api/v1/audit \
+  -H "Content-Type: application/json" \
+  -d '{"project_name": "MyDeFiProtocol", "log_text": "transfer(0x..., 1000000)"}'
+
+# Health check
+curl https://audityzer.onrender.com/health
+```
+
+---
+
+
 [![npm version](https://badge.fury.io/js/audityzer.svg)](https://www.npmjs.com/package/audityzer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/romanchaa997/Audityzer/actions/workflows/ci.yml/badge.svg)](https://github.com/romanchaa997/Audityzer/actions)
