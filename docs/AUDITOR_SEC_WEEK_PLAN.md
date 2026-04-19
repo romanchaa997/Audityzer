@@ -8,7 +8,7 @@ Merge safe-improvements → main + ship BRAVE1 TRL4 PoC deliverables by 30.04.20
 
 ## 📆 Daily Schedule (2 blocks/day)
 
-### Monday 21.04 — Day 1
+### Monday 21.04 — Day 1 (Sprint Day 1)
 **Block 1 (10:00–12:00):** Potik A — CI/CD
 - [ ] Merge PR #176 (main.py P1/P2 fix) into safe-improvements
 - [ ] Merge PR #177 (report.py MinIO fix) into safe-improvements
@@ -38,7 +38,7 @@ Merge safe-improvements → main + ship BRAVE1 TRL4 PoC deliverables by 30.04.20
 ### Wednesday 23.04 — Day 3
 **Block 1 (10:00–12:00):** Merge Sprint
 - [ ] Resolve Dockerfile + README.md conflicts in PR #153
-- [ ] Bypass branch protection → merge PR #153 (safe-improvements → main)
+- [ ] Merge PR #153 via standard branch-protection checks (safe-improvements → main)
 - [ ] Verify Railway deploy: audityzer-production-5112.up.railway.app/health
 - [ ] Verify Render deploy: audityzer.onrender.com/health
 
