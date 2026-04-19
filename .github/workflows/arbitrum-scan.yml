@@ -1,0 +1,93 @@
+name: Arbitrum Chain Security Scanner
+
+on:
+  schedule:
+    - cron: '0 7 * * 2'
+  workflow_dispatch:
+    inputs:
+      scan_depth:
+        description: 'Scan depth: quick | full'
+        required: false
+        default: 'full'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  arbitrum-security-scan:
+    name: Arbitrum Wolf-Pack Scanner
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Slither
+        run: |
+          pip install slither-analyzer==0.10.4
+          slither --version
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Run Slither on Arbitrum contracts
+        run: |
+          mkdir -p reports/arbitrum
+          slither . \
+            --json reports/arbitrum/slither-report.json \
+            --sarif reports/arbitrum/slither.sarif \
+            --filter-paths "node_modules,test,lib" \
+            --exclude-informational \
+            2>&1 | tee reports/arbitrum/slither-output.txt || true
+        env:
+          ARBITRUM_RPC_URL: ${{ secrets.ARBITRUM_RPC_URL }}
+
+      - name: Upload Slither SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/arbitrum/slither.sarif
+          category: slither-arbitrum
+        continue-on-error: true
+
+      - name: Run Foundry fork tests (Arbitrum)
+        run: |
+          forge test \
+            --fork-url ${{ secrets.ARBITRUM_RPC_URL }} \
+            --match-path "test/arbitrum/**" \
+            --json > reports/arbitrum/foundry-results.json 2>&1 || true
+        continue-on-error: true
+
+      - name: Generate Step Summary
+        if: always()
+        run: |
+          echo "## Arbitrum Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "**Chain:** Arbitrum One (Chain ID: 42161)" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Date:** $(date -u '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          if [ -f reports/arbitrum/slither-report.json ]; then
+            HIGH=$(cat reports/arbitrum/slither-report.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(len([r for r in d.get('results',{}).get('detectors',[]) if r.get('impact')=='High']))" 2>/dev/null || echo 0)
+            MED=$(cat reports/arbitrum/slither-report.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(len([r for r in d.get('results',{}).get('detectors',[]) if r.get('impact')=='Medium']))" 2>/dev/null || echo 0)
+            echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| High | $HIGH |" >> $GITHUB_STEP_SUMMARY
+            echo "| Medium | $MED |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "**Wolf-Pack Status:** Arbitrum scanner active" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload scan artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: arbitrum-scan-report-${{ github.run_id }}
+          path: reports/arbitrum/
+          retention-days: 30
