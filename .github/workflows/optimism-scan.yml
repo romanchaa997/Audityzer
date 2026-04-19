@@ -1,0 +1,95 @@
+# optimism-scan.yml — AuditorSEC Optimism Chain Security Scanner
+# Stream D (Potik D) — Sprint 260h Monday microtask
+name: Optimism Chain Security Scan
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      scan_depth:
+        description: 'quick | full'
+        required: false
+        default: 'quick'
+
+env:
+  CHAIN_ID: '10'
+
+jobs:
+  optimism-scan:
+    name: Optimism Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Slither
+        run: pip install slither-analyzer
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Scan Solidity contracts with Slither
+        run: |
+          echo "=== Optimism Chain Scan: $(date -u) ==="
+          if [ -d "contracts" ]; then
+            slither contracts/ \
+              --json slither-optimism-report.json \
+              --checklist --no-fail-pedantic \
+              2>&1 | tee slither-output.txt || true
+          else
+            echo "No contracts/ directory - skipping Slither"
+            echo '{"success":true,"results":{"detectors":[]}}' > slither-optimism-report.json
+          fi
+
+      - name: Run Foundry fork tests on Optimism
+        env:
+          OPTIMISM_RPC: ${{ secrets.OPTIMISM_RPC_URL }}
+        run: |
+          if [ -f "foundry.toml" ] && [ -n "$OPTIMISM_RPC" ]; then
+            forge test \
+              --fork-url "$OPTIMISM_RPC" \
+              --fork-block-number latest \
+              2>&1 | tee foundry-optimism-output.txt || true
+          else
+            echo "Skipping Foundry: no foundry.toml or OPTIMISM_RPC_URL not set"
+            echo 'Skipped' > foundry-optimism-output.txt
+          fi
+
+      - name: Summarize results
+        run: |
+          echo "## Optimism Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "Chain: Optimism (ID: $CHAIN_ID) | $(date -u)" >> $GITHUB_STEP_SUMMARY
+          if [ -f slither-optimism-report.json ]; then
+            python3 -c "
+import json
+data = json.load(open('slither-optimism-report.json'))
+d = data.get('results',{}).get('detectors',[])
+high = sum(1 for x in d if x.get('impact')=='High')
+med = sum(1 for x in d if x.get('impact')=='Medium')
+print(f'High: {high} | Medium: {med} | Total: {len(d)}')
+" >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo 'Could not parse report' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: optimism-scan-${{ github.run_number }}
+          path: |
+            slither-optimism-report.json
+            slither-output.txt
+            foundry-optimism-output.txt
+          retention-days: 30
