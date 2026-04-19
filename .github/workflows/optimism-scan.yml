@@ -14,6 +14,7 @@ on:
 
 env:
   CHAIN_ID: '10'
+  RPC_URL: 'https://mainnet.optimism.io'
 
 jobs:
   optimism-scan:
@@ -34,62 +35,57 @@ jobs:
           python-version: '3.11'
 
       - name: Install Slither
-        run: pip install slither-analyzer
+        run: pip install slither-analyzer==0.10.4
 
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
+      - name: Install Node dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run Slither on Optimism contracts
+        id: slither
+        run: |
+          slither . \
+            --checklist \
+            --sarif slither-results.sarif \
+            --exclude-dependencies \
+            --filter-paths 'node_modules|test' \
+            2>&1 | tee slither-output.txt || true
+
+      - name: Upload Slither SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
         with:
-          version: nightly
+          sarif_file: slither-results.sarif
+          category: slither-optimism
 
-      - name: Scan Solidity contracts with Slither
-        run: |
-          echo "=== Optimism Chain Scan: $(date -u) ==="
-          if [ -d "contracts" ]; then
-            slither contracts/ \
-              --json slither-optimism-report.json \
-              --checklist --no-fail-pedantic \
-              2>&1 | tee slither-output.txt || true
-          else
-            echo "No contracts/ directory - skipping Slither"
-            echo '{"success":true,"results":{"detectors":[]}}' > slither-optimism-report.json
-          fi
-
-      - name: Run Foundry fork tests on Optimism
+      - name: Run Audityzer chain scan
         env:
-          OPTIMISM_RPC: ${{ secrets.OPTIMISM_RPC_URL }}
+          CHAIN_ID: ${{ env.CHAIN_ID }}
+          RPC_URL: ${{ env.RPC_URL }}
+          SCAN_DEPTH: ${{ github.event.inputs.scan_depth || 'quick' }}
         run: |
-          if [ -f "foundry.toml" ] && [ -n "$OPTIMISM_RPC" ]; then
-            forge test \
-              --fork-url "$OPTIMISM_RPC" \
-              --fork-block-number latest \
-              2>&1 | tee foundry-optimism-output.txt || true
-          else
-            echo "Skipping Foundry: no foundry.toml or OPTIMISM_RPC_URL not set"
-            echo 'Skipped' > foundry-optimism-output.txt
-          fi
+          node src/cli/index.js chain-scan \
+            --chain optimism \
+            --depth "$SCAN_DEPTH" \
+            --output scan-report.json
 
-      - name: Summarize results
-        run: |
-          echo "## Optimism Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "Chain: Optimism (ID: $CHAIN_ID) | $(date -u)" >> $GITHUB_STEP_SUMMARY
-          if [ -f slither-optimism-report.json ]; then
-            python3 -c "
-import json
-data = json.load(open('slither-optimism-report.json'))
-d = data.get('results',{}).get('detectors',[])
-high = sum(1 for x in d if x.get('impact')=='High')
-med = sum(1 for x in d if x.get('impact')=='Medium')
-print(f'High: {high} | Medium: {med} | Total: {len(d)}')
-" >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo 'Could not parse report' >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Upload artifacts
+      - name: Upload scan report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: optimism-scan-${{ github.run_number }}
+          name: optimism-scan-report-${{ github.run_number }}
           path: |
-            slither-optimism-report.json
+            scan-report.json
             slither-output.txt
-            foundry-optimism-output.txt
           retention-days: 30
+
+      - name: Post summary
+        if: always()
+        run: |
+          echo '## Optimism Chain Security Scan' >> $GITHUB_STEP_SUMMARY
+          echo "- Chain ID: $CHAIN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "- Depth: ${{ github.event.inputs.scan_depth || 'quick' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Run: #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          if [ -f slither-output.txt ]; then
+            ISSUES=$(grep -c 'Reference:' slither-output.txt || echo 0)
+            echo "- Slither issues: $ISSUES" >> $GITHUB_STEP_SUMMARY
+          fi
