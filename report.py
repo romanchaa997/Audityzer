@@ -1,0 +1,227 @@
+# report.py — PDF generation + MinIO upload
+# AuditorSEC / Audityzer — BRAVE1 TRL4 PoC
+# 2026-04-19
+
+import io
+import os
+import uuid
+from datetime import datetime, timedelta
+
+from minio import Minio
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import cm
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+    HRFlowable,
+)
+
+# ── MinIO client ─────────────────────────────────────────────────────────────────────
+
+minio = Minio(
+    os.getenv("MINIO_ENDPOINT", "minio:9000"),
+    access_key=os.getenv("MINIO_ACCESS_KEY", "minioadmin"),
+    secret_key=os.getenv("MINIO_SECRET_KEY", "minioadmin"),
+    secure=os.getenv("MINIO_SECURE", "false").lower() == "true",
+)
+
+BUCKET_NAME = "audit-reports"
+
+
+def _ensure_bucket() -> None:
+    """Create bucket if it doesn't exist."""
+    if not minio.bucket_exists(BUCKET_NAME):
+        minio.make_bucket(BUCKET_NAME)
+
+
+# ── Risk colour map ──────────────────────────────────────────────────────────────────
+
+RISK_COLORS = {
+    "CRITICAL": colors.HexColor("#C0392B"),
+    "HIGH": colors.HexColor("#E67E22"),
+    "MEDIUM": colors.HexColor("#F1C40F"),
+    "LOW": colors.HexColor("#27AE60"),
+    "UNKNOWN": colors.HexColor("#7F8C8D"),
+}
+
+
+# ── PDF builder ──────────────────────────────────────────────────────────────────────
+
+def _build_pdf(
+    project_name: str,
+    audit_type: str,
+    risk_level: str,
+    anomalies: list[str],
+    recommendations: list[str],
+    token_count: int,
+    timestamp: str,
+) -> bytes:
+    """Build PDF in memory and return bytes."""
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        leftMargin=2 * cm,
+        rightMargin=2 * cm,
+        topMargin=2 * cm,
+        bottomMargin=2 * cm,
+    )
+
+    styles = getSampleStyleSheet()
+    risk_color = RISK_COLORS.get(risk_level.upper(), RISK_COLORS["UNKNOWN"])
+
+    title_style = ParagraphStyle(
+        "Title",
+        parent=styles["Heading1"],
+        fontSize=18,
+        textColor=colors.HexColor("#1A1A2E"),
+        spaceAfter=6,
+    )
+    risk_style = ParagraphStyle(
+        "Risk",
+        parent=styles["Normal"],
+        fontSize=14,
+        textColor=risk_color,
+        fontName="Helvetica-Bold",
+        spaceAfter=4,
+    )
+    section_style = ParagraphStyle(
+        "Section",
+        parent=styles["Heading2"],
+        fontSize=12,
+        textColor=colors.HexColor("#2C3E50"),
+        spaceBefore=12,
+        spaceAfter=4,
+    )
+    body_style = ParagraphStyle(
+        "Body",
+        parent=styles["Normal"],
+        fontSize=10,
+        leading=14,
+    )
+    footer_style = ParagraphStyle(
+        "Footer",
+        parent=styles["Normal"],
+        fontSize=8,
+        textColor=colors.grey,
+    )
+
+    story = []
+
+    # Header
+    story.append(Paragraph("AuditorSEC — Security Audit Report", title_style))
+    story.append(HRFlowable(width="100%", thickness=2, color=risk_color))
+    story.append(Spacer(1, 0.3 * cm))
+
+    # Meta table
+    meta = [
+        ["Project", project_name],
+        ["Audit Type", audit_type],
+        ["Timestamp", timestamp],
+        ["AI Tokens Used", str(token_count)],
+    ]
+    meta_table = Table(meta, colWidths=[4 * cm, 13 * cm])
+    meta_table.setStyle(
+        TableStyle([
+            ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#ECF0F1")),
+            ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#BDC3C7")),
+            ("ROWBACKGROUNDS", (0, 0), (-1, -1), [colors.white, colors.HexColor("#F9F9F9")]),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ])
+    )
+    story.append(meta_table)
+    story.append(Spacer(1, 0.4 * cm))
+
+    # Risk level badge
+    story.append(Paragraph("RISK LEVEL", section_style))
+    story.append(Paragraph(f"●  {risk_level}", risk_style))
+    story.append(Spacer(1, 0.2 * cm))
+
+    # Anomalies
+    story.append(Paragraph("Detected Anomalies", section_style))
+    if anomalies:
+        for i, a in enumerate(anomalies, 1):
+            story.append(Paragraph(f"{i}. {a}", body_style))
+    else:
+        story.append(Paragraph("No anomalies detected.", body_style))
+    story.append(Spacer(1, 0.2 * cm))
+
+    # Recommendations
+    story.append(Paragraph("Recommendations", section_style))
+    if recommendations:
+        for i, r in enumerate(recommendations, 1):
+            story.append(Paragraph(f"{i}. {r}", body_style))
+    else:
+        story.append(Paragraph("No recommendations.", body_style))
+
+    story.append(Spacer(1, 0.5 * cm))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#BDC3C7")))
+    story.append(Spacer(1, 0.2 * cm))
+    story.append(
+        Paragraph(
+            "Generated by AuditorSEC Audityzer — BRAVE1 TRL4 PoC — Bakhmach, Ukraine — "
+            "github.com/romanchaa997/Audityzer",
+            footer_style,
+        )
+    )
+
+    doc.build(story)
+    return buffer.getvalue()
+
+
+# ── Public API ─────────────────────────────────────────────────────────────────────────
+
+def generate_pdf_report(
+    project_name: str,
+    audit_type: str,
+    anomalies: list[str],
+    risk_level: str,
+    recommendations: list[str],
+    token_count: int,
+    timestamp: str,
+) -> tuple[str, str]:
+    """
+    Build PDF, upload to MinIO, return (object_name, presigned_url).
+    Presigned URL is valid for 24 hours.
+    """
+    _ensure_bucket()
+
+    # Object path: reports/YYYY/MM/DD/{project}_{uuid8}.pdf
+    date_path = datetime.utcnow().strftime("%Y/%m/%d")
+    safe_name = "".join(c if c.isalnum() else "_" for c in project_name)
+    object_name = f"reports/{date_path}/{safe_name}_{uuid.uuid4().hex[:8]}.pdf"
+
+    pdf_bytes = _build_pdf(
+        project_name=project_name,
+        audit_type=audit_type,
+        risk_level=risk_level,
+        anomalies=anomalies,
+        recommendations=recommendations,
+        token_count=token_count,
+        timestamp=timestamp,
+    )
+
+    minio.put_object(
+        BUCKET_NAME,
+        object_name,
+        io.BytesIO(pdf_bytes),
+        length=len(pdf_bytes),
+        content_type="application/pdf",
+    )
+
+    url = minio.presigned_get_object(
+        BUCKET_NAME,
+        object_name,
+        expires=timedelta(hours=24),
+    )
+
+    return object_name, url
