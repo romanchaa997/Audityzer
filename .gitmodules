@@ -1,0 +1,11 @@
+[submodule "audityzer-core"]
+	path = audityzer-core
+	url = https://github.com/romanchaa997/Audityzer.git
+
+[submodule "audityzer-platform"]
+	path = audityzer-platform
+	url = https://github.com/romanchaa997/Audityzer.git
+
+[submodule "web-platform"]
+	path = web-platform
+	url = https://github.com/romanchaa997/Audityzer.git
