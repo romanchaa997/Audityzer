@@ -24,7 +24,7 @@ COPY --chown=audityzer:audityzer src/ ./src/
 COPY --chown=audityzer:audityzer bin/ ./bin/
 COPY --chown=audityzer:audityzer templates/ ./templates/
 COPY --chown=audityzer:audityzer lib/ ./lib/
-COPY --chown=audityzer:audityzer server.js .
+COPY --chown=audityzer:audityzer server.js ./
 COPY --chown=audityzer:audityzer scripts/healthcheck.sh scripts/start.sh ./scripts/
 
 # Make scripts executable and fix line endings
