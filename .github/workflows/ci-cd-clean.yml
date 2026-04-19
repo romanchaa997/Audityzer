@@ -161,6 +161,7 @@ jobs:
         git push origin gh-pages --force || echo "Push failed, continuing..."
 
     - name: Notify deployment success
+          if: github.repository_owner == 'romanchaa997' && success()
       run: |
         echo "✅ Production deployment successful!"
         echo "🚀 Application deployed to: https://romanchaa997.github.io/Audityzer"
