@@ -1,19 +1,15 @@
 name: CI Fast Pipeline
-
 on:
   push:
     branches: [main, develop, safe-improvements]
   pull_request:
     branches: [main, safe-improvements]
   workflow_dispatch:
-
 concurrency:
   group: ci-fast-${{ github.ref }}
   cancel-in-progress: true
-
 env:
   NODE_VERSION: "20"
-
 jobs:
   lint:
     name: Lint & Format
@@ -21,20 +17,14 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
+        run: npm install -g pnpm@9
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-
       - name: Run ESLint
         run: |
           if pnpm run lint:ci 2>/dev/null; then
@@ -42,10 +32,8 @@ jobs:
           elif pnpm run lint 2>/dev/null; then
             echo "lint passed"
           else
-            echo "No lint script found, running eslint directly"
             npx eslint src/ --ext .js,.ts,.tsx --max-warnings 50 || true
           fi
-
       - name: Check formatting
         run: |
           if pnpm run format:check 2>/dev/null; then
@@ -53,27 +41,20 @@ jobs:
           else
             npx prettier --check "src/**/*.{js,ts,tsx}" || true
           fi
-
   typecheck:
     name: TypeScript Check
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
+        run: npm install -g pnpm@9
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-
       - name: Type check
         run: |
           if pnpm run type-check 2>/dev/null; then
@@ -81,27 +62,20 @@ jobs:
           else
             npx tsc --noEmit || true
           fi
-
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
+        run: npm install -g pnpm@9
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-
       - name: Run unit tests
         run: |
           if pnpm run test:unit 2>/dev/null; then
@@ -114,7 +88,6 @@ jobs:
         env:
           CI: true
           MOCK_MODE: true
-
       - name: Upload coverage
         if: always()
         uses: codecov/codecov-action@v4
@@ -122,32 +95,24 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
         continue-on-error: true
-
   security-tests:
     name: Security Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
+        run: npm install -g pnpm@9
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-
       - name: Run security tests
         run: pnpm run test:security || true
         env:
           MOCK_MODE: true
-
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -155,20 +120,14 @@ jobs:
     needs: [lint, typecheck]
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
+        run: npm install -g pnpm@9
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-
       - name: Build application
         run: |
           if pnpm run build 2>/dev/null; then
@@ -179,14 +138,12 @@ jobs:
             echo "Build failed"
             exit 1
           fi
-
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-output
           path: dist/
           retention-days: 7
-
   ci-gate:
     name: CI Gate
     runs-on: ubuntu-latest
