@@ -184,3 +184,156 @@ Built in Ukraine with love and resilience. Bakhmach, Chernihiv Oblast — Audito
 [![GitHub stars](https://img.shields.io/github/stars/romanchaa997/Audityzer?style=social)](https://github.com/romanchaa997/Audityzer/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/romanchaa997/Audityzer?style=social)](https://github.com/romanchaa997/Audityzer/network)
 [![GitHub watchers](https://img.shields.io/github/watchers/romanchaa997/Audityzer?style=social)](https://github.com/romanchaa997/Audityzer/watchers)
+
+
+---
+
+## AuditorSEC — Advanced Threat Intelligence Modules
+
+### Support & SSO Attack Surface
+
+Detects identity-layer attacks inspired by real-world threat actors (Scattered Spider / The Com).
+
+**Scope:**
+- SaaS SSO providers: Okta, Azure AD, Google Workspace, Duo
+- Help desk / support portal impersonation vectors
+- MFA bypass: SIM-swap, SS7, push-fatigue, voice phishing
+- Identity provider (IdP) federation misconfigurations
+
+**Automated Checks:**
+- `sso:mfa-fatigue` — detects repeated push notification abuse patterns
+- `sso:helpdesk-impersonation` — maps support ticket flows for social engineering risk
+- `sso:sim-swap-exposure` — flags SMS-based 2FA as high-risk for telco-adjacent targets
+- `sso:idp-misconfiguration` — SAML/OIDC trust chain validation
+- `sso:vishing-surface` — enumerates publicly exposed org charts and employee directories
+
+---
+
+### Teenage Threat Actor Profile (TTAP) Model
+
+Risk scoring model for organizations targeted by young, financially-motivated threat actors.
+
+**Profile Indicators:**
+- Target sector: Telecom, SaaS, Crypto exchanges, Gaming platforms
+- Attack vectors: Social engineering, credential stuffing, insider recruitment
+- Motivation: Financial gain, peer status (The Com / Lapsus$ behavioral patterns)
+- Age cohort risk: 16-24 operators with high OPSEC variance
+
+**TTAP Risk Scoring:**
+```
+TTAP Score = (SSO_Surface × 0.4) + (HelpDesk_Exposure × 0.3) + (Crypto_Assets × 0.3)
+```
+- Score 0-3: Low — standard controls sufficient
+- Score 4-6: Medium — MFA hardening + SOC monitoring recommended
+- Score 7-10: High — emergency IdP review + vishing simulation required
+
+---
+
+### Ransomware Alliance Risk (RaaS) Finding Type
+
+New finding category for organizations exposed to RaaS affiliate networks.
+
+**Finding Types:**
+- `RAAS-001`: Initial Access Broker (IAB) credential exposure
+- `RAAS-002`: RaaS affiliate recruitment surface (dark web job board exposure)
+- `RAAS-003`: Double-extortion data exfil pathway identified
+- `RAAS-004`: Backup/recovery infrastructure reachable from compromised segment
+- `RAAS-005`: Cyber insurance disclosure risk (ransom negotiation surface)
+
+**SARIF Integration:**
+```json
+{
+  "ruleId": "RAAS-001",
+  "level": "error",
+  "message": "Initial Access Broker credential exposure detected via combo-list match",
+  "properties": {
+    "threat-actor-profile": "RaaS-Affiliate",
+    "ttap-score": 8,
+    "recommended-action": "Immediate credential rotation + dark web monitoring activation"
+  }
+}
+```
+
+---
+
+### Human Stories in Reports
+
+AuditorSEC reports include real-world context sections that connect technical findings to human impact.
+
+**Format per finding:**
+```
+## Human Story — [Finding ID]
+**What happened in the real world:**
+[Brief anonymized case study — e.g., MGM Resorts breach via 10-minute vishing call]
+
+**Why this matters for your organization:**
+[Contextual paragraph connecting the finding to the client's sector]
+
+**The people at risk:**
+[Who in the organization is targeted — helpdesk staff, executives, IT admins]
+```
+
+**Example — SSO MFA Fatigue:**
+> In 2023, a major US casino operator lost control of their Okta tenant after attackers called the IT helpdesk posing as an employee. The attack took under 10 minutes and resulted in $100M+ in damages. AuditorSEC detected equivalent exposure in your support portal flow.
+
+---
+
+### Anti-Lapsus$ / Anti-TheCom Security Course
+
+Part of the **AuditorSEC Academy** — free educational track for Ukrainian cybersecurity professionals.
+
+**Module: Social Engineering & Identity Attacks**
+
+| Lesson | Topic | Duration |
+|--------|-------|----------|
+| 1 | How The Com operates — recruitment, hierarchy, targets | 45 min |
+| 2 | SIM-swap mechanics and telecom vulnerabilities | 60 min |
+| 3 | Vishing simulation lab — defending the helpdesk | 90 min |
+| 4 | Okta / Azure AD hardening against TTAP-class attacks | 75 min |
+| 5 | Incident response for social engineering breaches | 60 min |
+| 6 | Legal & ethical framework — Ukraine Criminal Code Art. 361-363 | 45 min |
+
+**Certification:** AuditorSEC Anti-Social-Engineering Specialist (ASES)
+
+---
+
+### Talent Pipeline: від школяра до white-hat через AuditorSEC
+
+**Mission:** Convert curious Ukrainian teenagers into certified ethical hackers — not threat actors.
+
+**3-Stage Pipeline:**
+
+**Stage 1 — Школяр (Age 14-17):**
+- Free CTF platform with Web3 + OSINT challenges
+- Mentorship from AuditorSEC community
+- Monthly hackathons with BRAVE1 recognition
+
+**Stage 2 — Стажер (Age 17-21):**
+- Paid bug bounty program on Audityzer platform
+- Supervised real-world audit participation
+- AuditorSEC Certified Junior Auditor (ACJA) credential
+
+**Stage 3 — White-Hat (21+):**
+- Full employment pipeline to AuditorSEC partner firms
+- NIS2/DORA compliance specialization
+- BRAVE1 defense project contributions
+
+> "The same curiosity that makes a teenager pick a lock should be channeled into picking apart smart contracts legally." — AuditorSEC Initiative
+
+---
+
+## 7-Day AuditorSEC Integration Roadmap
+
+| Day | Task | Output |
+|-----|------|--------|
+| 1 | Document SSO Attack Surface module spec | `/docs/modules/sso-attack-surface.md` |
+| 2 | Implement TTAP risk scoring engine | `src/analyzers/ttap-scorer.ts` |
+| 3 | Add RaaS finding types to SARIF schema | `src/sarif/raas-findings.json` |
+| 4 | Build Human Stories template engine | `src/reports/human-stories.ts` |
+| 5 | Create Anti-TheCom course outline + first lesson | `academy/anti-thecom/lesson-01.md` |
+| 6 | Launch talent pipeline landing page | `docs/talent-pipeline.md` |
+| 7 | Integration test: full audit report with new modules | `tests/e2e/full-report-with-ttap.spec.ts` |
+
+---
+
+*AuditorSEC Initiative — Захищаємо Web3. Виховуємо наступне покоління. Built in Ukraine.*
