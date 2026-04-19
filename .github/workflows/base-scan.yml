@@ -1,0 +1,85 @@
+name: Base Chain Security Scanner
+
+on:
+  schedule:
+    - cron: '0 8 * * 3'
+  workflow_dispatch:
+    inputs:
+      scan_depth:
+        description: 'Scan depth: quick | full'
+        required: false
+        default: 'full'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  base-security-scan:
+    name: Base Wolf-Pack Scanner
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Slither
+        run: |
+          pip install slither-analyzer==0.10.4
+          slither --version
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Run Slither on Base contracts
+        run: |
+          mkdir -p reports/base
+          slither . \
+            --json reports/base/slither-report.json \
+            --sarif reports/base/slither.sarif \
+            --filter-paths "node_modules,test,lib" \
+            --exclude-informational \
+            2>&1 | tee reports/base/slither-output.txt || true
+        env:
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+
+      - name: Upload Slither SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/base/slither.sarif
+          category: slither-base
+        continue-on-error: true
+
+      - name: Run Foundry fork tests (Base)
+        run: |
+          forge test \
+            --fork-url ${{ secrets.BASE_RPC_URL }} \
+            --match-path "test/base/**" \
+            --json > reports/base/foundry-results.json 2>&1 || true
+        continue-on-error: true
+
+      - name: Generate Step Summary
+        if: always()
+        run: |
+          echo "## Base Chain Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "**Chain:** Base (Chain ID: 8453)" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Date:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "**Wolf-Pack Status:** Base scanner active" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload scan artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: base-scan-report-${{ github.run_id }}
+          path: reports/base/
+          retention-days: 30
