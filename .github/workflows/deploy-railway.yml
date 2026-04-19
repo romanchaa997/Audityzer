@@ -1,5 +1,4 @@
 name: Deploy to Railway
-
 on:
   push:
     branches: [main]
@@ -12,14 +11,11 @@ on:
           - staging
           - production
         default: staging
-
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: false  # Never cancel in-progress deploys
-
+  cancel-in-progress: false
 env:
   NODE_VERSION: "20"
-
 jobs:
   build-and-validate:
     name: Build & Validate
@@ -27,36 +23,27 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
+        run: npm install -g pnpm@9
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-
       - name: Run tests
         run: pnpm test || true
         env:
           CI: true
           MOCK_MODE: true
-
       - name: Build
         run: pnpm run build
-
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
           name: deploy-build
           path: dist/
           retention-days: 3
-
   deploy-railway:
     name: Deploy to Railway
     runs-on: ubuntu-latest
@@ -66,10 +53,8 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v4
-
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-
       - name: Determine service ID
         id: service
         run: |
@@ -78,7 +63,6 @@ jobs:
           else
             echo "service_id=${{ secrets.RAILWAY_SERVICE_ID }}" >> $GITHUB_OUTPUT
           fi
-
       - name: Deploy to Railway
         id: deploy
         run: |
@@ -86,7 +70,6 @@ jobs:
           echo "url=https://audityzer.up.railway.app" >> $GITHUB_OUTPUT
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
       - name: Post-deploy health check
         run: |
           echo "Waiting 30s for deployment to stabilize..."
@@ -98,89 +81,20 @@ jobs:
               echo "Health check passed (attempt $i)"
               exit 0
             fi
-            echo "Health check attempt $i/$RETRIES returned $HTTP_STATUS, retrying in 15s..."
+            echo "Attempt $i/$RETRIES returned $HTTP_STATUS, retrying..."
             sleep 15
           done
           echo "::warning::Health check did not return 200 after $RETRIES attempts"
-
-  deploy-fly:
-    name: Deploy to Fly.io
-    runs-on: ubuntu-latest
-    needs: [build-and-validate]
-    if: github.ref == 'refs/heads/main' && github.event.inputs.environment != 'staging'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Fly CLI
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Deploy to Fly.io
-        run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-      - name: Health check
-        run: |
-          sleep 30
-          curl -sf https://audityzeroman.fly.dev/health || echo "::warning::Fly health check failed"
-
-  deploy-netlify:
-    name: Deploy to Netlify
-    runs-on: ubuntu-latest
-    needs: [build-and-validate]
-    if: github.ref == 'refs/heads/main' && github.event.inputs.environment != 'staging'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build
-        uses: actions/download-artifact@v4
-        with:
-          name: deploy-build
-          path: dist/
-
-      - name: Deploy to Netlify
-        run: |
-          npm install -g netlify-cli
-          netlify deploy --prod --dir=dist --site=${{ secrets.NETLIFY_SITE_ID }}
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-
   post-deploy:
     name: Post-Deploy Validation
     runs-on: ubuntu-latest
-    needs: [deploy-railway, deploy-fly, deploy-netlify]
+    needs: [deploy-railway]
     if: always() && needs.deploy-railway.result == 'success'
     steps:
-      - name: Smoke test all endpoints
+      - name: Smoke test endpoints
         run: |
-          echo "## Post-Deploy Smoke Tests" > deploy-report.txt
-          ENDPOINTS=(
-            "https://audityzer.com"
-            "https://audityzeroman.fly.dev"
-          )
-          FAILED=0
+          ENDPOINTS=("https://audityzer.com")
           for URL in "${ENDPOINTS[@]}"; do
             STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "$URL" 2>/dev/null || echo "000")
-            if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
-              echo "PASS: $URL ($STATUS)" | tee -a deploy-report.txt
-            else
-              echo "FAIL: $URL ($STATUS)" | tee -a deploy-report.txt
-              FAILED=$((FAILED + 1))
-            fi
+            echo "$URL: $STATUS"
           done
-          echo "" >> deploy-report.txt
-          echo "Total failed: $FAILED" >> deploy-report.txt
-
-      - name: Notify Slack
-        if: always()
-        run: |
-          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
-            STATUS="${{ needs.deploy-railway.result }}"
-            EMOJI=":white_check_mark:"
-            [ "$STATUS" != "success" ] && EMOJI=":x:"
-            curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
-              -H 'Content-Type: application/json' \
-              -d "{
-                \"text\": \"${EMOJI} Deploy to ${{ github.event.inputs.environment || 'production' }}: ${STATUS}\nCommit: \`${{ github.sha }}\`\nBy: ${{ github.actor }}\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
-              }" || true
-          fi
