@@ -1,7 +1,7 @@
 # main.py — AuditorSEC FastAPI: /audit + /report + /health
 # AuditorSEC / Audityzer — BRAVE1 TRL4 PoC
 # Branch: safe-improvements | 2026-04-19
-# fix(security): address cubic-dev-ai P1/P2 issues — async handlers, secrets, input validation
+# fix(api): fix async blocking + security fixes — asyncio.to_thread for OpenAI+PDF calls; add log_text size limit; P1/P2
 
 import asyncio
 import os
