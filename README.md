@@ -184,3 +184,27 @@ Bakhmach, Chernihiv Oblast — AuditorSEC Initiative 2024-2026
 [![GitHub watchers](https://img.shields.io/github/watchers/romanchaa997/Audityzer?style=social)](https://github.com/romanchaa997/Audityzer/watchers)
 
 </div>
+
+
+---
+
+## 🔐 AuditorSEC Security Layer
+
+Audityzer integrates with **AuditorSEC** — an AI-assisted compliance and security audit platform that provides automated key management auditing, AML/KYC compliance checks and threat modeling for Web3/crypto projects.
+
+**Technology Readiness Level: TRL-4** · April 2026
+
+> AuditorSEC MVP is a running FastAPI microservice with Dockerized deployment on a production-grade VPS (PostgreSQL, Redis cache, MinIO object storage). The `/api/v1/audit` and `/api/v1/report` endpoints are live and can be integrated into defense and fintech infrastructures as a standalone compliance engine.
+
+**BRAVE1 Roadmap:**
+The BRAVE1 roadmap targets an initial Tier 3 tranche (UAH 2M) within the broader 8,000,000 UAH 2026 BRAVE1 program, with TRL 4-5 validation and phased scaling to Tier 4a/4b using AuditorSEC as the core security and compliance layer for defense-grade systems.
+
+| Timeline | Milestone | TRL |
+|----------|-----------|-----|
+| Now | MVP deployed: `/api/v1/audit` + `/api/v1/report` | **4** |
+| May 2026 | Defense/crypto pilot audits | **5** |
+| Q3 2026 | Multi-site deployments + PQC | **6** |
+
+**Dual-use:** AuditorSEC is a dual-use security layer: the same audit engine that protects BRAVE1 defense systems also secures municipal IoT and fintech infrastructures.
+
+**Repository:** [romanchaa997/auditorsec](https://github.com/romanchaa997/auditorsec)
