@@ -1,7 +1,7 @@
 # main.py — AuditorSEC FastAPI: /audit + /report + /health
 # AuditorSEC / Audityzer — BRAVE1 TRL4 PoC
 # Branch: safe-improvements | 2026-04-19
-# fix(api): fix async blocking - use asyncio.to_thread for OpenAI+PDF calls; add log_text size limit
+# fix(api): fix async blocking + security fixes — asyncio.to_thread, P1/P2, input validation
 
 import asyncio
 import os
