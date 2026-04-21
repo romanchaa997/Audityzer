@@ -337,3 +337,46 @@ Part of the **AuditorSEC Academy** — free educational track for Ukrainian cybe
 ---
 
 *AuditorSEC Initiative — Захищаємо Web3. Виховуємо наступне покоління. Built in Ukraine.*
+
+
+---
+
+## Perplexity SoT + Views
+
+> **ADR:** [ADR-0001-perplexity-sot.md](docs/adr/ADR-0001-perplexity-sot.md) | **Phase:** UHIP-2A | **Status:** Accepted
+
+Audityzer / AuditorSEC uses **Perplexity `thread_id`** as the canonical, machine-readable Source of Truth for architecture decisions, grant applications, and operational runbooks.
+
+### Identifier Model
+
+| Ref Type | Purpose | Use in CI/Helm/Make |
+|---|---|---|
+| `thread_id` | Stable SoT identifier | **YES** |
+| `#N` anchor | UI scroll position only | NO |
+| Search URL | Human docs / README only | NO |
+
+### Example (correct usage in configs)
+
+```yaml
+# infra/perplexity-sot.yaml
+perplexity:
+  sotThreadId: "tejeBGviQ22LHy04IEf6Gw"   # UHIP-2A design thread
+  entryMessageId: "1"                       # optional UI anchor
+```
+
+### Key Threads (registry: [`infra/perplexity-sot.yaml`](infra/perplexity-sot.yaml))
+
+| Key | thread_id | Label |
+|---|---|---|
+| `uhip-2a-design` | `tejeBGviQ22LHy04IEf6Gw` | UHIP-2A Phase design + SoT model |
+| `nl-ua-cybersec-fund` | `uSncsLPPSiGyQOOyl9doCQ` | NL-UA Cybersecurity Fund matchmaking |
+| `cloudflare-infra-design` | `613SjKAXTmS2SeB397pSRQ` | Cloudflare infra — AuditorSEC 4 scenarios |
+
+### Audit Command
+
+```bash
+# Should return 0 results in machine configs:
+grep -r "perplexity.ai/search" helm/ .github/ Makefile
+```
+
+> Search URLs (`perplexity.ai/search/...`) are **read-only human-navigable views** and must never be hardcoded in CI, Helm values, or Makefiles — they drift on slug rotation and may leak sensitive data to logs.
