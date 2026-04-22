@@ -39,9 +39,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
+      - name: Generate package-lock.json if missing
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "package-lock.json not found — generating via npm install"
+            npm install --legacy-peer-deps --package-lock-only
+          else
+            echo "package-lock.json exists — skipping generation"
+          fi
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
           PUPPETEER_SKIP_DOWNLOAD: 'true'
@@ -52,6 +57,11 @@ jobs:
           git add package-lock.json || true
           git diff --staged --quiet || git commit -m 'ci: regenerate package-lock.json [skip ci]'
           git push origin defense-audit || true
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
       - name: TypeScript type check
         run: npx tsc --noEmit --project tsconfig.json 2>/dev/null || echo 'TS check completed (non-blocking)'
   # ---- JOB 2: Build & Push Docker image ----
