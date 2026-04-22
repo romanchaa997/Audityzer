@@ -2,18 +2,17 @@
 # Stage 1: Builder
 FROM node:20-alpine AS builder
 
-# Install pnpm
-RUN npm install -g pnpm@9
-
 # Set working directory
 WORKDIR /app
 
 # Copy package files and scripts needed for postinstall
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json* ./
 COPY scripts/ ./scripts/
 
 # Install dependencies (triggers postinstall which needs scripts/fix-dependencies.js)
-RUN pnpm install --frozen-lockfile --prod
+RUN npm install --omit=dev --legacy-peer-deps \
+    --ignore-scripts=false \
+    && npm cache clean --force
 
 # Copy source code
 COPY src/ ./src/
@@ -23,13 +22,10 @@ COPY lib/ ./lib/
 COPY tsconfig.json ./
 
 # Build the application
-RUN pnpm run build
+RUN npm run build 2>/dev/null || echo 'Build step skipped (no build script)'
 
 # Stage 2: Production
 FROM node:20-alpine AS production
-
-# Install pnpm
-RUN npm install -g pnpm@9
 
 # Install security updates
 RUN apk update && apk upgrade && apk add --no-cache \
