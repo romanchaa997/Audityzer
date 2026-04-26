@@ -1,210 +1,84 @@
-<div align="center">
+# Audityzer – AI-powered multi-chain Web3 security toolkit
 
-# Audityzer — AI-Powered Web3 Security Platform
+[![GitHub stars](https://img.shields.io/github/stars/romanchaa997/Audityzer?style=social)](https://github.com/romanchaa997/Audityzer)
+[![CI](https://img.shields.io/github/actions/workflow/status/romanchaa997/Audityzer/ci.yml?label=CI)](https://github.com/romanchaa997/Audityzer/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[![npm version](https://badge.fury.io/js/audityzer.svg)](https://www.npmjs.com/package/audityzer)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://github.com/romanchaa997/Audityzer/actions/workflows/ci.yml/badge.svg)](https://github.com/romanchaa997/Audityzer/actions)
-[![HF Spaces](https://img.shields.io/badge/HuggingFace-Spaces-blue)](https://huggingface.co/Audityzer)
-[![BRAVE1](https://img.shields.io/badge/BRAVE1-Cybersecurity%20Track-red)](https://brave1.gov.ua)
-[![NIS2](https://img.shields.io/badge/NIS2-Compliant%20Design-green)](https://www.nis2directive.eu)
-[![PQC](https://img.shields.io/badge/PQC-ML--KEM--768%20Ready-purple)](https://audityzer.com)
-
-**The most advanced open-source Web3 security testing toolkit**
-Smart contract auditing · AI vulnerability detection · Post-Quantum Cryptography · Defense-grade compliance
-
-[Live Demo](https://audityzer.com) · [HF Spaces](https://huggingface.co/spaces/Audityzer/audityzer-demo) · [BRAVE1 PoC](https://brave1.gov.ua) · [Documentation](https://audityzer.com/docs) · [bbbhhai.com](https://bbbhhai.com)
-
-</div>
+Multi-chain smart contract auditing with 20+ detection algorithms. Audityzer combines AI/ML detection with static analysis to find vulnerabilities across 6 EVM chains (Ethereum, BSC, Polygon, Arbitrum, Optimism, Avalanche).
 
 ---
 
-## What is Audityzer?
+## Why Audityzer
 
-Audityzer is a **production-grade, AI-enhanced Web3 security testing platform** built for DeFi protocols, smart contract auditors, and defense-adjacent cybersecurity teams. Built under the AuditorSEC initiative, it combines:
+- 3.7B+ lost to smart contract exploits in 2024 (Chainalysis).
+- Traditional audits cost 20K–150K and take 4–8 weeks.
+- 85% of Web3 projects launch without proper security audits.
 
-- **AI-powered vulnerability detection** with Playwright-based browser automation
-- **Post-Quantum Cryptography (PQC)** readiness — ML-KEM-768, ML-DSA-87, hybrid X25519+PQC
-- **Multi-tenant Kubernetes deployment** on DigitalOcean (fra1) with ArgoCD GitOps
-- **NATS JetStream event bus** for real-time security telemetry
-- **BRAVE1 defense PoC** — Bakhmach cybersecurity overlay, TRL-4→TRL-6
-- **NIS2 / DORA compliance** framework with automated audit trails
+Audityzer automates security reviews from weeks to minutes, so you can ship faster without sacrificing security.
 
----
+## Key features
+
+- **20+ detection algorithms**: reentrancy, integer overflow/underflow, access control flaws, oracle manipulation, flash loan exploits, front-running and more.
+- **Multi-chain native**: Ethereum, BSC, Polygon, Arbitrum, Optimism, Avalanche.
+- **AI-assisted analysis**: pattern recognition trained on tens of thousands of real exploits.
+- **CI/CD friendly**: CLI-first design, easy to plug into GitHub Actions and other pipelines.
+
+## Quick start
+
+1. Install CLI:
+   ```bash
+   npm install -g audityzer
+   # or
+   pip install audityzer-cli
+   ```
+2. Scan a Solidity project:
+   ```bash
+   audityzer scan ./contracts --chain ethereum
+   # or npm variant
+   npx audityzer scan --target ./contracts --mode advanced
+   ```
+3. Review report:
+   - High / Medium / Low findings
+   - Suggested fixes
+   - Links to docs and best practices.
 
 ## Architecture
 
 ```
 Audityzer Platform
-├── AI Security Engine         # Playwright + OpenAI + custom SARIF scanner
-├── Smart Contract Scanner     # Slither, Mythril, Echidna, Foundry fuzz
-├── PQC Module                 # ML-KEM-768, ML-DSA-87, hybrid TLS
-├── Multi-tenant API           # FastAPI + PostgreSQL RLS + Cloudflare Hyperdrive
-├── NATS JetStream Bus         # Real-time event streaming (3 topics)
-├── K8s Orchestration          # DigitalOcean fra1, ArgoCD, Prometheus/Grafana
-├── Defense Branch             # BRAVE1 SPRINT-BAK-COR-001, drone cybersecurity
-└── Compliance Layer           # NIS2 Art.20/21/23, DORA, SOC/MDR
+├── AI Security Engine (Playwright + OpenAI + SARIF scanner)
+├── Smart Contract Scanner (Slither, Mythril, Echidna, Foundry fuzz)
+├── Multi-chain API (FastAPI + PostgreSQL)
+├── NATS JetStream (real-time events)
+└── K8s (DigitalOcean fra1, ArgoCD)
 ```
 
----
+CLI integrates Slither/Foundry for static+fuzz analysis; AI layer flags patterns like reentrancy (external calls before state updates).
 
-## Features
+## Installation
 
-### Security Testing
-- 20+ vulnerability detection algorithms (reentrancy, flash loans, access control, oracle manipulation, MEV)
-- Cross-chain support: Ethereum, Solana, Optimism L2, Arbitrum, BSC
-- AI-powered SARIF report generation with severity scoring
-- OWASP / NIST CSF / SCA / DAST / SAST pipelines
-- Web3 wallet integration: MetaMask, WalletConnect, Coinbase Wallet
+- **NPM**: `npm install audityzer`
+- **Docker**: `docker run -p 3000:3000 audityzer/platform:latest`
+- **From source**: `git clone https://github.com/romanchaa997/Audityzer && npm install && npm run dev`
 
-### Infrastructure & DevSecOps
-- Kubernetes (DigitalOcean neuralinfra-k8s, fra1) + ArgoCD GitOps
-- GitHub Actions CI/CD with CodeQL, Semgrep, dependency audit
-- Multi-tenant PostgreSQL with Row Level Security (RLS)
-- Apache SeaTunnel CDC sync + NATS JetStream streaming
-- Cloudflare DNS / Workers / Hyperdrive connection pooling
-- Telegram bot ecosystem: `audityzerbot`, `AuditorSECAlertBot`, `audityzeralertsbot`
+## Live Demo
 
-### Post-Quantum Cryptography (PQC)
-- ML-KEM-768 (CRYSTALS-Kyber) key encapsulation
-- ML-DSA-87 (CRYSTALS-Dilithium) digital signatures
-- Hybrid X25519 + PQC for backwards-compatible TLS
-- NIS2-aligned crypto-agility policy engine
-- IoT edge PQC (ESP32/RPi) via BRAVE1 defense track
-
-### Compliance & Governance
-- NIS2 Directive (EU 2022/2555) — Art. 20 management, Art. 21 risk/crypto, Art. 23 incident reporting
-- DORA-aligned incident response workflows
-- ForestESG governance layer — ESG risk scoring, resource tracking
-- SOC/MDR telemetry with Grafana + ClickHouse dashboards
-- UHIP-2A justice/compliance integration
-
----
-
-## Quick Start
-
-```bash
-# Install
-npm install audityzer
-
-# Run security scan
-npx audityzer scan --target https://your-protocol.com --mode advanced
-
-# Docker
-docker run -p 3000:3000 audityzer/platform:latest
-
-# Helm (K8s)
-helm install audityzer ./charts/audityzer -n audityzer
-helm install nats nats/nats -n audityzer --set nats.jetstream.enabled=true
-```
-
----
-
-## Live Infrastructure
-
-| Service | Status | URL |
-|---------|--------|-----|
-| Main Platform | Production | [audityzer.com](https://audityzer.com) |
-| Grafana Dashboard | Live | [bbbhhai.com](https://bbbhhai.com) |
-| HF Demo Space | Running | [audityzer-demo](https://huggingface.co/spaces/Audityzer/audityzer-demo) |
-| BRAVE1 Risk Assistant | Running | [brave1-risk-assistant](https://huggingface.co/spaces/Audityzer/brave1-risk-assistant) |
-| K8s Cluster | fra1 DO | neuralinfra-k8s |
-| Load Balancer | Active | 129.212.254.79 |
-
----
-
-## Grant & Program Track
-
-- **BRAVE1** — Cybersecurity track, 8,000,000 UAH, 2026 (SPRINT-BAK-COR-001 Bakhmach PoC)
-- **Diia.City** — R&D grant matching, innovation track 2026
-- **USF Startup EDGE** — 2026 program
-- **Horizon Europe** — Civic-Tech / Quantum-Safe Governance track
-- **EU4UA / WNISEF** — Defense-adjacent technology
-
----
-
-## Revenue Model (GTM 2026)
-
-| Tier | Scope | Price |
-|------|-------|-------|
-| MVP Audit | Early-stage protocols | $2,000–$12,000 |
-| DeFi Audit | Production DeFi | $40,000–$150,000 |
-| Enterprise | Institutional Web3 | $120,000–$400,000 |
-
-Target: **300,000 UAH/month Q2 2026** | ICP: Immunefi, BRAVE1, EU institutions, PeckShield/Spearbit-adjacent
-
----
+- Platform: [https://audityzer.com](https://audityzer.com)
+- HF Spaces: https://huggingface.co/spaces/Audityzer/audityzer-demo
 
 ## Tech Stack
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat&logo=kubernetes&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat&logo=postgresql&logoColor=white)
-![Solidity](https://img.shields.io/badge/Solidity-363636?style=flat&logo=solidity&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat&logo=grafana&logoColor=white)
-![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=flat&logo=argo&logoColor=white)
-
----
-
-## Community & Rollup
-
-- Star this repo to support open-source Web3 security
-- Join the **BRAVE1 defense-tech community**
-- Follow [AuditorSEC](https://auditorsec.hub) for security research updates
-- Telegram: [@romanchaa997](https://t.me/romanchaa997)
-- LinkedIn: [in/romanchaa997](https://linkedin.com/in/romanchaa997)
-- HuggingFace: [Audityzer org](https://huggingface.co/Audityzer)
-
----
+Python, TypeScript/Node.js, Solidity, FastAPI, Kubernetes, Docker, Slither, Foundry, OpenAI.
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Focus: new detectors, chain support, CLI plugins.
 
-```bash
-git clone https://github.com/romanchaa997/Audityzer
-cd Audityzer
-npm install
-npm run dev
-```
+## Community & support
 
----
+- Star this repo to support the project 💫
+- Join the Discord: [link soon]
+- Follow on X/Twitter: [https://twitter.com/audityzer](https://twitter.com/audityzer)
+- Docs: [https://audityzer.com/docs](https://audityzer.com/docs)
 
-<div align="center">
-
-Built in Ukraine with love and resilience.
-Bakhmach, Chernihiv Oblast — AuditorSEC Initiative 2024-2026
-
-[![GitHub stars](https://img.shields.io/github/stars/romanchaa997/Audityzer?style=social)](https://github.com/romanchaa997/Audityzer/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/romanchaa997/Audityzer?style=social)](https://github.com/romanchaa997/Audityzer/network)
-[![GitHub watchers](https://img.shields.io/github/watchers/romanchaa997/Audityzer?style=social)](https://github.com/romanchaa997/Audityzer/watchers)
-
-</div>
-
-
----
-
-## 🔐 AuditorSEC Security Layer
-
-Audityzer integrates with **AuditorSEC** — an AI-assisted compliance and security audit platform that provides automated key management auditing, AML/KYC compliance checks and threat modeling for Web3/crypto projects.
-
-**Technology Readiness Level: TRL-4** · April 2026
-
-> AuditorSEC MVP is a running FastAPI microservice with Dockerized deployment on a production-grade VPS (PostgreSQL, Redis cache, MinIO object storage). The `/api/v1/audit` and `/api/v1/report` endpoints are live and can be integrated into defense and fintech infrastructures as a standalone compliance engine.
-
-**BRAVE1 Roadmap:**
-The BRAVE1 roadmap targets an initial Tier 3 tranche (UAH 2M) within the broader 8,000,000 UAH 2026 BRAVE1 program, with TRL 4-5 validation and phased scaling to Tier 4a/4b using AuditorSEC as the core security and compliance layer for defense-grade systems.
-
-| Timeline | Milestone | TRL |
-|----------|-----------|-----|
-| Now | MVP deployed: `/api/v1/audit` + `/api/v1/report` | **4** |
-| May 2026 | Defense/crypto pilot audits | **5** |
-| Q3 2026 | Multi-site deployments + PQC | **6** |
-
-**Dual-use:** AuditorSEC is a dual-use security layer: the same audit engine that protects BRAVE1 defense systems also secures municipal IoT and fintech infrastructures.
-
-**Repository:** [romanchaa997/auditorsec](https://github.com/romanchaa997/auditorsec)
+Together, we're making Web3 safer for everyone.
