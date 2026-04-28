@@ -1,0 +1,127 @@
+{
+  "name": "AuditorSEC UptimeRobot -> Telegram + ClickUp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "uptimerobot-alert",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "UptimeRobot Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.alertType }}",
+              "operation": "contains",
+              "value2": "down"
+            }
+          ]
+        }
+      },
+      "id": "if-node",
+      "name": "Is Downtime?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=DOWNTIME ALERT\n\nSite: {{ $json.monitorURL }}\nStatus: {{ $json.alertType }}\nTime: {{ $json.alertDateTime }}\n\nCheck: https://auditorsec.com",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-down",
+      "name": "Telegram: Site Down",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [680, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "AuditorSEC Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "list": "={{ $env.CLICKUP_LIST_ID }}",
+        "name": "=DOWNTIME: {{ $json.monitorURL }} - {{ $json.alertDateTime }}",
+        "additionalFields": {
+          "description": "=Automatic downtime alert.\nURL: {{ $json.monitorURL }}\nType: {{ $json.alertType }}\nTime: {{ $json.alertDateTime }}",
+          "priority": 1,
+          "tags": ["downtime", "auto-generated", "infrastructure"]
+        }
+      },
+      "id": "clickup-task",
+      "name": "ClickUp: Create Task",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [680, 320],
+      "credentials": {
+        "clickUpApi": {
+          "id": "clickup-creds",
+          "name": "AuditorSEC ClickUp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "=SITE RESTORED\n\nSite: {{ $json.monitorURL }}\nStatus: {{ $json.alertType }}\nTime: {{ $json.alertDateTime }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-up",
+      "name": "Telegram: Site Up",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [680, 440],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "AuditorSEC Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "UptimeRobot Webhook": {
+      "main": [[{"node": "Is Downtime?", "type": "main", "index": 0}]]
+    },
+    "Is Downtime?": {
+      "main": [
+        [{"node": "Telegram: Site Down", "type": "main", "index": 0}, {"node": "ClickUp: Create Task", "type": "main", "index": 0}],
+        [{"node": "Telegram: Site Up", "type": "main", "index": 0}]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateId": "auditorsec-uptime-monitor",
+    "description": "UptimeRobot webhook -> Telegram alerts + ClickUp task creation for AuditorSEC downtime monitoring",
+    "version": "1.0.0",
+    "author": "romanchaa997",
+    "setup": {
+      "1_deploy_n8n": "docker run -d -p 5678:5678 -v n8n_data:/home/node/.n8n n8nio/n8n",
+      "2_import": "n8n UI -> Workflows -> Import -> paste this JSON",
+      "3_credentials": "Add Telegram Bot Token + ClickUp API Token in n8n credentials",
+      "4_webhook_url": "Copy webhook URL from n8n: https://your-n8n.domain/webhook/uptimerobot-alert",
+      "5_uptimerobot": "UptimeRobot -> Integrations -> Add Webhook -> paste URL -> POST JSON",
+      "6_post_params": "monitorURL=$url$&alertType=$alertTypeFriendlyName$&alertDateTime=$alertDateTime$"
+    }
+  }
+}
