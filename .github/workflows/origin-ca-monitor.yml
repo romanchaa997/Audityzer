@@ -1,0 +1,81 @@
+name: SSL Origin CA Expiry Monitor
+
+on:
+  schedule:
+    - cron: '0 8 1 * *'
+  workflow_dispatch:
+
+jobs:
+  ssl-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check SSL expiry for auditorsec.com
+        id: ssl_auditorsec
+        run: |
+          EXPIRY=$(echo | openssl s_client \
+            -connect auditorsec.com:443 \
+            -servername auditorsec.com 2>/dev/null \
+            | openssl x509 -noout -enddate 2>/dev/null \
+            | cut -d= -f2)
+          if [ -z "$EXPIRY" ]; then
+            echo "::error::Cannot reach auditorsec.com:443"
+            echo "days_left=-1" >> $GITHUB_OUTPUT
+            echo "expiry=UNREACHABLE" >> $GITHUB_OUTPUT
+          else
+            DAYS=$(( ($(date -d "$EXPIRY" +%s) - $(date +%s)) / 86400 ))
+            echo "days_left=$DAYS" >> $GITHUB_OUTPUT
+            echo "expiry=$EXPIRY" >> $GITHUB_OUTPUT
+            echo "SSL expiry: $EXPIRY ($DAYS days left)"
+          fi
+
+      - name: Check SSL expiry for audityzer.com
+        id: ssl_audityzer
+        run: |
+          EXPIRY=$(echo | openssl s_client \
+            -connect audityzer.com:443 \
+            -servername audityzer.com 2>/dev/null \
+            | openssl x509 -noout -enddate 2>/dev/null \
+            | cut -d= -f2)
+          if [ -z "$EXPIRY" ]; then
+            echo "days_left=-1" >> $GITHUB_OUTPUT
+          else
+            DAYS=$(( ($(date -d "$EXPIRY" +%s) - $(date +%s)) / 86400 ))
+            echo "days_left=$DAYS" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Telegram alert if expiry critical
+        if: always()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          DAYS="${{ steps.ssl_auditorsec.outputs.days_left }}"
+          EXPIRY="${{ steps.ssl_auditorsec.outputs.expiry }}"
+          if [ -z "$DAYS" ]; then exit 0; fi
+          if [ "$DAYS" = "-1" ]; then
+            MSG="CRITICAL: auditorsec.com port 443 unreachable! Fix Cloudflare SSL."
+          elif [ "$DAYS" -lt "14" ]; then
+            MSG="URGENT: SSL cert expires in ${DAYS} days (${EXPIRY})! Renew Origin CA now."
+          elif [ "$DAYS" -lt "60" ]; then
+            MSG="WARNING: SSL cert expires in ${DAYS} days (${EXPIRY}). Schedule renewal."
+          else
+            MSG="OK: SSL cert valid for ${DAYS} more days."
+          fi
+          if [ -n "$TELEGRAM_TOKEN" ] && [ -n "$CHAT_ID" ]; then
+            curl -s -X POST \
+              "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+              -d chat_id="${CHAT_ID}" \
+              -d text="[AuditorSEC SSL Monitor] ${MSG}"
+          fi
+
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## SSL Certificate Status" >> $GITHUB_STEP_SUMMARY
+          echo "| Domain | Days Left | Expiry |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| auditorsec.com | ${{ steps.ssl_auditorsec.outputs.days_left }} | ${{ steps.ssl_auditorsec.outputs.expiry }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| audityzer.com | ${{ steps.ssl_audityzer.outputs.days_left }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> Cloudflare Origin CA does NOT send expiry emails. This monitor is the only alert." >> $GITHUB_STEP_SUMMARY
