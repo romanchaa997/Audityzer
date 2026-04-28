@@ -24,6 +24,9 @@ on:
           - twitter
           - all
 
+
+permissions:
+  contents: read
 env:
   LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
   LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
