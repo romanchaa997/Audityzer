@@ -1,0 +1,132 @@
+name: Diia.City Compliance Monitor
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      notify:
+        description: 'Send Telegram notification'
+        required: false
+        default: 'true'
+
+jobs:
+  compliance-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Audityzer
+        run: npm ci --prefer-offline || npm install
+
+      - name: Check Diia.City portal availability
+        id: diia_status
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --connect-timeout 10 --max-time 30 \
+            https://my.diia.gov.ua)
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "Diia.City portal HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::Diia.City portal returned $STATUS"
+          fi
+
+      - name: Run Audityzer compliance scan
+        id: scan
+        run: |
+          npx audityzer scan \
+            --target https://auditorsec.com \
+            --chains ethereum,polygon,arbitrum \
+            --output json \
+            --report compliance-report.json \
+            --tags reentrancy,flash-loan,access-control || true
+          if [ -f compliance-report.json ]; then
+            RISK=$(cat compliance-report.json | jq -r '.riskScore // "N/A"')
+            VULNS=$(cat compliance-report.json | jq -r '.vulnerabilities | length // 0')
+            echo "risk_score=$RISK" >> $GITHUB_OUTPUT
+            echo "vuln_count=$VULNS" >> $GITHUB_OUTPUT
+          else
+            echo "risk_score=N/A" >> $GITHUB_OUTPUT
+            echo "vuln_count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check Q2 2026 Diia.City deadline
+        id: deadline
+        run: |
+          DEADLINE="2026-07-10"
+          TODAY=$(date +%Y-%m-%d)
+          DAYS_LEFT=$(( ($(date -d "$DEADLINE" +%s) - $(date -d "$TODAY" +%s)) / 86400 ))
+          echo "days_left=$DAYS_LEFT" >> $GITHUB_OUTPUT
+          echo "Days until Q2 Diia.City deadline: $DAYS_LEFT"
+          if [ "$DAYS_LEFT" -lt "30" ]; then
+            echo "::error::CRITICAL - Diia.City Q2 deadline in $DAYS_LEFT days!"
+          elif [ "$DAYS_LEFT" -lt "60" ]; then
+            echo "::warning::Diia.City Q2 deadline in $DAYS_LEFT days"
+          fi
+
+      - name: Send Telegram notification
+        if: always()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          DIIA_STATUS="${{ steps.diia_status.outputs.status }}"
+          RISK="${{ steps.scan.outputs.risk_score }}"
+          VULNS="${{ steps.scan.outputs.vuln_count }}"
+          DAYS="${{ steps.deadline.outputs.days_left }}"
+
+          if [ "$DIIA_STATUS" = "200" ]; then
+            PORTAL_ICON="✅"
+          else
+            PORTAL_ICON="🔴"
+          fi
+
+          if [ -n "$TELEGRAM_TOKEN" ] && [ -n "$CHAT_ID" ]; then
+            curl -s -X POST \
+              "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"chat_id\": \"${CHAT_ID}\",
+                \"parse_mode\": \"HTML\",
+                \"text\": \"<b>\u{1F4CB} AuditorSEC Diia.City Weekly Report</b>\n\n${PORTAL_ICON} Diia.City Portal: HTTP ${DIIA_STATUS}\n\u26a0\ufe0f Risk Score: ${RISK}\n\ud83d\udd0d Vulnerabilities: ${VULNS}\n\ud83d\udcc5 Q2 2026 Deadline: ${DAYS} days left\n\n<i>$(date +\'%Y-%m-%d %H:%M UTC\')</i>\"
+              }"
+          else
+            echo "Telegram secrets not configured - skipping notification"
+          fi
+
+      - name: Create ClickUp task if issues found
+        if: steps.scan.outputs.vuln_count != '0'
+        env:
+          CLICKUP_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+          CLICKUP_LIST_ID: ${{ secrets.CLICKUP_LIST_ID }}
+        run: |
+          if [ -n "$CLICKUP_TOKEN" ] && [ -n "$CLICKUP_LIST_ID" ]; then
+            curl -s -X POST \
+              "https://api.clickup.com/api/v2/list/${CLICKUP_LIST_ID}/task" \
+              -H "Authorization: ${CLICKUP_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"name\": \"[AUTO] Compliance issues found - $(date +%Y-%m-%d)\",
+                \"description\": \"Audityzer scan found ${{ steps.scan.outputs.vuln_count }} vulnerabilities. Risk score: ${{ steps.scan.outputs.risk_score }}\",
+                \"priority\": 2,
+                \"tags\": [\"diia-compliance\", \"auto-generated\"]
+              }"
+          fi
+
+      - name: Upload compliance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-report-${{ github.run_number }}-${{ github.run_attempt }}
+          path: compliance-report.json
+          retention-days: 90
+          if-no-files-found: warn
