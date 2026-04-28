@@ -8,103 +8,109 @@ on:
         required: false
         default: 'false'
         type: choice
-        options: ['true', 'false']
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
   fix-audityzer-io-dns:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
+      - name: Set up job
+        run: echo "Starting audityzer.io DNS fix workflow"
+
       - name: Check current DNS status
-        id: dns_check
         run: |
-          RESULT=$(dig +short audityzer.io A @1.1.1.1 2>/dev/null)
-          echo "Current DNS: ${RESULT:-NXDOMAIN}"
-          echo "result=${RESULT:-NXDOMAIN}" >> $GITHUB_OUTPUT
+          echo "=== Current DNS for audityzer.io ==="
+          dig audityzer.io A +short || echo "NXDOMAIN - domain not resolving"
+          dig www.audityzer.io CNAME +short || echo "No CNAME found"
 
       - name: Get audityzer.io zone ID
-        id: zone
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        id: get-zone
         run: |
-          ZONES=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=audityzer.io" \
-            -H "Authorization: Bearer ${CF_API_TOKEN}")
-          ZONE_ID=$(echo $ZONES | jq -r '.result[0].id // empty')
+          ZONES=$(curl -s \
+            "https://api.cloudflare.com/client/v4/zones?name=audityzer.io" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json")
+          echo "Response: $ZONES"
+          ZONE_ID=$(echo $ZONES | python3 -c "import sys,json; data=json.load(sys.stdin); print(data['result'][0]['id'] if data.get('result') else '')" 2>/dev/null || echo "")
           if [ -z "$ZONE_ID" ]; then
-            echo "::error::Zone audityzer.io not found in Cloudflare. Add domain first."
-            exit 1
+            echo "WARNING: Zone audityzer.io not found in Cloudflare."
+            echo "ACTION REQUIRED: Add audityzer.io to your Cloudflare account first."
+            echo "Steps: Cloudflare Dashboard -> Add Site -> audityzer.io -> Free plan"
+            echo "Then update nameservers at your domain registrar."
+            echo "zone_found=false" >> $GITHUB_OUTPUT
+          else
+            echo "zone_id=$ZONE_ID" >> $GITHUB_OUTPUT
+            echo "zone_found=true" >> $GITHUB_OUTPUT
+            echo "Found zone ID: $ZONE_ID"
           fi
-          echo "zone_id=$ZONE_ID" >> $GITHUB_OUTPUT
-          echo "Zone: $ZONE_ID"
 
       - name: Add GitHub Pages A records
-        if: inputs.dry_run != 'true'
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        if: steps.get-zone.outputs.zone_found == 'true' && inputs.dry_run != 'true'
         run: |
-          ZONE_ID="${{ steps.zone.outputs.zone_id }}"
+          ZONE_ID="${{ steps.get-zone.outputs.zone_id }}"
           for IP in 185.199.108.153 185.199.109.153 185.199.110.153 185.199.111.153; do
-            EXISTING=$(curl -s \
-              "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?name=audityzer.io&type=A&content=${IP}" \
-              -H "Authorization: Bearer ${CF_API_TOKEN}")
-            if echo $EXISTING | jq -e '.result[0].id' > /dev/null 2>&1; then
-              echo "A ${IP} already exists"
-            else
-              RESP=$(curl -s -X POST \
-                "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
-                -H "Authorization: Bearer ${CF_API_TOKEN}" \
-                -H "Content-Type: application/json" \
-                -d "{\"type\":\"A\",\"name\":\"@\",\"content\":\"${IP}\",\"ttl\":1,\"proxied\":false}")
-              echo "Created A ${IP}: $(echo $RESP | jq -r '.success')"
-            fi
+            curl -s -X POST \
+              "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              --data "{\"type\":\"A\",\"name\":\"audityzer.io\",\"content\":\"$IP\",\"ttl\":1,\"proxied\":false}"
+            echo ""
           done
 
       - name: Add CNAME www -> romanchaa997.github.io
-        if: inputs.dry_run != 'true'
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        if: steps.get-zone.outputs.zone_found == 'true' && inputs.dry_run != 'true'
         run: |
-          ZONE_ID="${{ steps.zone.outputs.zone_id }}"
-          EXISTING=$(curl -s \
-            "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?name=www.audityzer.io&type=CNAME" \
-            -H "Authorization: Bearer ${CF_API_TOKEN}")
-          if echo $EXISTING | jq -e '.result[0].id' > /dev/null 2>&1; then
-            echo "CNAME www already exists"
-          else
-            RESP=$(curl -s -X POST \
-              "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
-              -H "Authorization: Bearer ${CF_API_TOKEN}" \
-              -H "Content-Type: application/json" \
-              -d '{"type":"CNAME","name":"www","content":"romanchaa997.github.io","ttl":1,"proxied":false}')
-            echo "Created CNAME www: $(echo $RESP | jq -r '.success')"
-          fi
+          ZONE_ID="${{ steps.get-zone.outputs.zone_id }}"
+          curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{"type":"CNAME","name":"www","content":"romanchaa997.github.io","ttl":1,"proxied":false}'
 
       - name: Add 301 redirect Page Rule io -> com
-        if: inputs.dry_run != 'true'
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        if: steps.get-zone.outputs.zone_found == 'true' && inputs.dry_run != 'true'
         run: |
-          ZONE_ID="${{ steps.zone.outputs.zone_id }}"
-          RESP=$(curl -s -X POST \
-            "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/pagerules" \
-            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+          ZONE_ID="${{ steps.get-zone.outputs.zone_id }}"
+          curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/pagerules" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{"targets":[{"target":"url","constraint":{"operator":"matches","value":"audityzer.io/*"}}],"actions":[{"id":"forwarding_url","value":{"url":"https://audityzer.com/$1","status_code":301}}],"status":"active"}')
-          echo "301 redirect rule: $(echo $RESP | jq -r '.success')"
+            --data '{"targets":[{"target":"url","constraint":{"operator":"matches","value":"audityzer.io/*"}}],"actions":[{"id":"forwarding_url","value":{"url":"https://audityzer.com/$1","status_code":301}}],"priority":1,"status":"active"}'
+
+      - name: Dry run summary
+        if: inputs.dry_run == 'true'
+        run: |
+          echo "=== DRY RUN SUMMARY ==="
+          echo "Zone found: ${{ steps.get-zone.outputs.zone_found }}"
+          if [ "${{ steps.get-zone.outputs.zone_found }}" = "true" ]; then
+            echo "Would add: 4x A records (GitHub Pages IPs)"
+            echo "Would add: CNAME www -> romanchaa997.github.io"
+            echo "Would add: Page Rule redirect audityzer.io -> audityzer.com"
+          else
+            echo "BLOCKED: Cannot add DNS records - audityzer.io zone missing in Cloudflare"
+            echo "Manual action required: Add audityzer.io domain to Cloudflare account"
+          fi
 
       - name: Verify propagation
-        if: inputs.dry_run != 'true'
+        if: steps.get-zone.outputs.zone_found == 'true' && inputs.dry_run != 'true'
         run: |
+          echo "Waiting 10s for propagation..."
           sleep 10
-          RESULT=$(dig +short audityzer.io A @1.1.1.1 2>/dev/null)
-          echo "audityzer.io -> ${RESULT:-still propagating}"
+          echo "=== Verification ==="
+          dig audityzer.io A +short
+          dig www.audityzer.io CNAME +short
 
       - name: Summary
-        if: always()
         run: |
-          echo "## audityzer.io DNS Fix" >> $GITHUB_STEP_SUMMARY
-          echo "| Record | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| A @ | 185.199.108-111.153 (GitHub Pages) |" >> $GITHUB_STEP_SUMMARY
-          echo "| CNAME www | romanchaa997.github.io |" >> $GITHUB_STEP_SUMMARY
-          echo "| Page Rule | audityzer.io/* -> 301 -> audityzer.com |" >> $GITHUB_STEP_SUMMARY
+          echo "## DNS Fix Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Domain: audityzer.io" >> $GITHUB_STEP_SUMMARY
+          echo "- Zone found: ${{ steps.get-zone.outputs.zone_found }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Dry run: ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.get-zone.outputs.zone_found }}" != 'true' ]; then
+            echo "- **ACTION REQUIRED**: Add audityzer.io to Cloudflare first" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Complete job
+        run: echo "Workflow completed. Check summary above."
