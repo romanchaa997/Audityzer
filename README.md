@@ -380,3 +380,56 @@ grep -r "perplexity.ai/search" helm/ .github/ Makefile
 ```
 
 > Search URLs (`perplexity.ai/search/...`) are **read-only human-navigable views** and must never be hardcoded in CI, Helm values, or Makefiles — they drift on slug rotation and may leak sensitive data to logs.
+
+
+---
+
+## 🌐 Infrastructure Status
+
+> **Last Updated:** April 2026
+
+### Site Status
+
+| Site | Status | Issue | Fix |
+|------|--------|-------|-----|
+| auditorsec.com | ❌ Error 525 | Cloudflare SSL handshake failed | Generate Origin CA cert via Terraform |
+| audityzer.io | ❌ NXDOMAIN | Domain not in Cloudflare | Add domain to Cloudflare, configure DNS |
+| romanchaa997.github.io/Audityzer | ✅ Active | — | GitHub Pages (fallback) |
+
+### Immediate Actions (Week 1)
+
+1. **Fix auditorsec.com SSL (Error 525)**
+   - Generate Cloudflare Origin CA certificate
+   - Install cert on origin server
+   - Workflow: `.github/workflows/origin-ca-monitor.yml`
+
+2. **Fix audityzer.io DNS (NXDOMAIN)**
+   - Add `audityzer.io` to Cloudflare account manually
+   - Run workflow: `.github/workflows/add-audityzer-io-dns.yml`
+   - Adds: 4x GitHub Pages A records + CNAME www
+
+3. **Monitoring & Alerts**
+   - UptimeRobot + Telegram + ClickUp integration
+   - n8n workflow: `.github/n8n/uptimerobot-telegram-clickup.json`
+   - Workflow: `.github/workflows/uptimerobot-telegram-clickup.yml`
+
+### Required GitHub Secrets
+
+See [`docs/SECRETS_SETUP.md`](docs/SECRETS_SETUP.md) for full setup guide.
+
+| Secret | Purpose |
+|--------|----------|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare DNS + Zone management |
+| `CLOUDFLARE_ZONE_ID` | auditorsec.com zone ID |
+| `TELEGRAM_BOT_TOKEN` | Downtime alert notifications |
+| `TELEGRAM_CHAT_ID` | Target Telegram chat |
+| `UPTIMEROBOT_API_KEY` | UptimeRobot monitor management |
+
+### Compliance Workflows
+
+| Workflow | Schedule | Purpose |
+|----------|----------|----------|
+| `diia-compliance.yml` | Sundays 06:00 UTC | Diia.City compliance scan |
+| `origin-ca-monitor.yml` | Manual | SSL cert monitoring |
+| `add-audityzer-io-dns.yml` | Manual | DNS fix for audityzer.io |
+| `uptimerobot-telegram-clickup.yml` | Manual | Setup monitoring stack |
