@@ -1,0 +1,110 @@
+name: Fix audityzer.io DNS (NXDOMAIN)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run only'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['true', 'false']
+
+jobs:
+  fix-audityzer-io-dns:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check current DNS status
+        id: dns_check
+        run: |
+          RESULT=$(dig +short audityzer.io A @1.1.1.1 2>/dev/null)
+          echo "Current DNS: ${RESULT:-NXDOMAIN}"
+          echo "result=${RESULT:-NXDOMAIN}" >> $GITHUB_OUTPUT
+
+      - name: Get audityzer.io zone ID
+        id: zone
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          ZONES=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=audityzer.io" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}")
+          ZONE_ID=$(echo $ZONES | jq -r '.result[0].id // empty')
+          if [ -z "$ZONE_ID" ]; then
+            echo "::error::Zone audityzer.io not found in Cloudflare. Add domain first."
+            exit 1
+          fi
+          echo "zone_id=$ZONE_ID" >> $GITHUB_OUTPUT
+          echo "Zone: $ZONE_ID"
+
+      - name: Add GitHub Pages A records
+        if: inputs.dry_run != 'true'
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          ZONE_ID="${{ steps.zone.outputs.zone_id }}"
+          for IP in 185.199.108.153 185.199.109.153 185.199.110.153 185.199.111.153; do
+            EXISTING=$(curl -s \
+              "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?name=audityzer.io&type=A&content=${IP}" \
+              -H "Authorization: Bearer ${CF_API_TOKEN}")
+            if echo $EXISTING | jq -e '.result[0].id' > /dev/null 2>&1; then
+              echo "A ${IP} already exists"
+            else
+              RESP=$(curl -s -X POST \
+                "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
+                -H "Authorization: Bearer ${CF_API_TOKEN}" \
+                -H "Content-Type: application/json" \
+                -d "{\"type\":\"A\",\"name\":\"@\",\"content\":\"${IP}\",\"ttl\":1,\"proxied\":false}")
+              echo "Created A ${IP}: $(echo $RESP | jq -r '.success')"
+            fi
+          done
+
+      - name: Add CNAME www -> romanchaa997.github.io
+        if: inputs.dry_run != 'true'
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          ZONE_ID="${{ steps.zone.outputs.zone_id }}"
+          EXISTING=$(curl -s \
+            "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?name=www.audityzer.io&type=CNAME" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}")
+          if echo $EXISTING | jq -e '.result[0].id' > /dev/null 2>&1; then
+            echo "CNAME www already exists"
+          else
+            RESP=$(curl -s -X POST \
+              "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
+              -H "Authorization: Bearer ${CF_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d '{"type":"CNAME","name":"www","content":"romanchaa997.github.io","ttl":1,"proxied":false}')
+            echo "Created CNAME www: $(echo $RESP | jq -r '.success')"
+          fi
+
+      - name: Add 301 redirect Page Rule io -> com
+        if: inputs.dry_run != 'true'
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          ZONE_ID="${{ steps.zone.outputs.zone_id }}"
+          RESP=$(curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/pagerules" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"targets":[{"target":"url","constraint":{"operator":"matches","value":"audityzer.io/*"}}],"actions":[{"id":"forwarding_url","value":{"url":"https://audityzer.com/$1","status_code":301}}],"status":"active"}')
+          echo "301 redirect rule: $(echo $RESP | jq -r '.success')"
+
+      - name: Verify propagation
+        if: inputs.dry_run != 'true'
+        run: |
+          sleep 10
+          RESULT=$(dig +short audityzer.io A @1.1.1.1 2>/dev/null)
+          echo "audityzer.io -> ${RESULT:-still propagating}"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## audityzer.io DNS Fix" >> $GITHUB_STEP_SUMMARY
+          echo "| Record | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| A @ | 185.199.108-111.153 (GitHub Pages) |" >> $GITHUB_STEP_SUMMARY
+          echo "| CNAME www | romanchaa997.github.io |" >> $GITHUB_STEP_SUMMARY
+          echo "| Page Rule | audityzer.io/* -> 301 -> audityzer.com |" >> $GITHUB_STEP_SUMMARY
