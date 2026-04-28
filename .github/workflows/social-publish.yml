@@ -1,0 +1,166 @@
+name: AuditorSEC Social Media Auto-Publish
+
+on:
+  schedule:
+    # Mon 09:00 UTC — LinkedIn post
+    - cron: '0 7 * * 1'
+    # Wed 09:00 UTC — LinkedIn post
+    - cron: '0 7 * * 3'
+    # Fri 09:00 UTC — LinkedIn post
+    - cron: '0 7 * * 5'
+  workflow_dispatch:
+    inputs:
+      post_index:
+        description: 'Post index (0-based) from content plan'
+        required: false
+        default: 'auto'
+      platform:
+        description: 'Platform to publish to'
+        required: false
+        default: 'linkedin'
+        type: choice
+        options:
+          - linkedin
+          - twitter
+          - all
+
+env:
+  LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+  LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+  LINKEDIN_ORG_URN: ${{ secrets.LINKEDIN_ORG_URN }}
+
+jobs:
+  publish-linkedin:
+    name: Publish to LinkedIn
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install node-fetch@3
+
+      - name: Determine post index
+        id: post-index
+        run: |
+          if [ "${{ github.event.inputs.post_index }}" = "auto" ] || [ -z "${{ github.event.inputs.post_index }}" ]; then
+            # Auto-rotate based on day of week
+            DOW=$(date +%u)  # 1=Mon, 3=Wed, 5=Fri
+            WEEK=$(date +%U)
+            INDEX=$(( (WEEK * 3 + DOW / 2) % 12 ))
+            echo "index=$INDEX" >> $GITHUB_OUTPUT
+          else
+            echo "index=${{ github.event.inputs.post_index }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to LinkedIn
+        run: |
+          cat > publish.mjs << 'SCRIPT_EOF'
+          import { readFileSync } from 'fs';
+
+          const POSTS = [
+            {
+              text: `AuditorSEC just deployed Team, Pilot Case Study & Theory of Change sections on our site!\n\nSee how we solve cybersecurity for IoT & Web3 with measurable impact.\n\n- 23 IoT devices secured in pilot\n- 47 smart contracts audited\n- 61% attack surface reduction\n\nauditorsec.com\n\n#AuditorSEC #Web3Security #IoT #Cybersecurity #Ukraine`,
+              url: 'https://auditorsec.com/#team'
+            },
+            {
+              text: `Why Ukraine's critical infrastructure needs Post-Quantum Cryptography NOW.\n\n4,500+ cyberattacks hit Ukraine DAILY. Classic encryption won't hold against quantum threats.\n\nAuditorSEC's ASEC-PQC-IoT framework protects municipal IoT, smart grids & defense systems.\n\nLearn more: auditorsec.com\n\n#PQC #QuantumSecurity #IoTSecurity #CriticalInfrastructure #Ukraine #Cybersecurity`,
+              url: 'https://auditorsec.com/#impact'
+            },
+            {
+              text: `What does TRL 6 mean for a Ukrainian cybersecurity startup?\n\nIt means we went from prototype to real deployment.\nOur pilot at Bakhmach municipal infrastructure:\n- 6 weeks deployment\n- 14 critical vulnerabilities found\n- Zero breaches post-audit\n\nNow scaling to 50 enterprise clients in 2026.\n\nauditorsec.com\n\n#GovTech #Cybersecurity #TRL6 #Startup #Ukraine #SME`,
+              url: 'https://auditorsec.com/#pilots'
+            },
+            {
+              text: `AuditorSEC Audityzer: Web3 security audit in 4 hours vs industry avg 2 weeks.\n\nHow?\n- AI-powered static analysis\n- Multi-chain scanning (ETH, Polygon, BSC, Arbitrum)\n- Automated vulnerability detection\n- Instant PDF report\n\nTry it free: auditorsec.com\n\n#Web3 #SmartContracts #SecurityAudit #DeFi #Ethereum #Audityzer`,
+              url: 'https://auditorsec.com'
+            },
+            {
+              text: `Our Theory of Change for cybersecurity:\n\nSecured infrastructure = operational continuity\n= reduced breach costs = protected society\n\nEach audit prevents avg €85K in breach costs.\nTarget: 500 audits/year = €42.5M in protected value for Ukraine.\n\nThis is why we applied to GCIP2 & COP-PILOT EU grants.\n\nauditorsec.com/#impact\n\n#ImpactInvesting #Cybersecurity #Ukraine #GreenTech #EU`,
+              url: 'https://auditorsec.com/#impact'
+            },
+            {
+              text: `Looking for IoT Security researchers, Web3 auditors & legal advisors to join AuditorSEC Advisory Board.\n\nWe offer: equity option, EU grant co-authorship, meaningful work protecting Ukraine's digital infrastructure.\n\nDM or email: romanchaa997@auditorSEC.com\n\n#Hiring #Advisory #Cybersecurity #Web3 #Ukraine #OpenSource`,
+              url: 'https://auditorsec.com/#team'
+            },
+            {
+              text: `NIS2 directive compliance: are you ready?\n\nBy October 2024, 18 sectors across EU must comply with NIS2 cybersecurity requirements.\n\nAuditorSEC provides automated NIS2 gap analysis and remediation roadmaps.\n\nBook a free consultation: auditorsec.com\n\n#NIS2 #Compliance #GovTech #Cybersecurity #EU #RegTech`,
+              url: 'https://auditorsec.com'
+            },
+            {
+              text: `AuditorSEC joins COP-PILOT EU Open Call for sustainable IoT security.\n\nOur ASEC-PQC-IoT project: advanced security for smart environments using post-quantum cryptography.\n\nBudget: €200K | Cluster: CL2 Smart Sustainable IoT\nDeadline: May 4, 2026\n\nFull proposal: auditorsec.com\n\n#COPPILOT #EUFunding #IoT #PQC #Innovation #Ukraine`,
+              url: 'https://auditorsec.com'
+            },
+            {
+              text: `Open source + commercial = the AuditorSEC model.\n\nAudityzer core is MIT-licensed on GitHub (9+ stars, 3 forks growing).\nEnterprise features: custom audits, SLA, compliance reports, API access.\n\nContribute or upgrade: github.com/romanchaa997/Audityzer\n\n#OpenSource #Web3 #SecurityTools #GitHub #Cybersecurity`,
+              url: 'https://github.com/romanchaa997/Audityzer'
+            },
+            {
+              text: `Zero Trust + Post-Quantum + AI = AuditorSEC's security trinity.\n\nMost vendors offer one layer. We integrate all three:\n- Zero Trust Architecture for access control\n- PQC for future-proof encryption\n- AI for real-time threat detection\n\nProtect what matters: auditorsec.com\n\n#ZeroTrust #PQC #AIinCybersecurity #IoT #Ukraine`,
+              url: 'https://auditorsec.com'
+            },
+            {
+              text: `Case study: Smart contract audit saved a DeFi protocol €180K.\n\nOur Audityzer tool detected a reentrancy vulnerability 3 hours before mainnet launch.\n\nTime-to-detect: 3.5h | Severity: Critical | Status: Fixed\n\nAudit your contracts before launch: auditorsec.com\n\n#DeFi #SmartContracts #Web3Security #Ethereum #CaseStudy`,
+              url: 'https://auditorsec.com'
+            },
+            {
+              text: `Building cybersecurity from Bakhmach, Ukraine — in wartime.\n\nWhy it matters:\n- Ukraine faces the most cyberattacks per capita globally\n- Local talent is world-class\n- Battle-tested security has real meaning here\n\nSupport Ukrainian innovation: auditorsec.com\n\n#Ukraine #TechForGood #Startup #Resilience #Cybersecurity`,
+              url: 'https://auditorsec.com'
+            }
+          ];
+
+          const index = parseInt(process.env.POST_INDEX || '0') % POSTS.length;
+          const post = POSTS[index];
+
+          const body = {
+            author: process.env.LINKEDIN_PERSON_URN,
+            lifecycleState: 'PUBLISHED',
+            specificContent: {
+              'com.linkedin.ugc.ShareContent': {
+                shareCommentary: { text: post.text },
+                shareMediaCategory: 'ARTICLE',
+                media: [{
+                  status: 'READY',
+                  originalUrl: post.url,
+                  title: { text: 'AuditorSEC — Web3 & IoT Security Platform' },
+                  description: { text: 'AI-powered cybersecurity audits for Web3, IoT & critical infrastructure.' }
+                }]
+              }
+            },
+            visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' }
+          };
+
+          const res = await fetch('https://api.linkedin.com/v2/ugcPosts', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
+              'Content-Type': 'application/json',
+              'X-Restli-Protocol-Version': '2.0.0'
+            },
+            body: JSON.stringify(body)
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            console.log('SUCCESS: LinkedIn post published!', data.id);
+            console.log(`Post index: ${index}`);
+            console.log(`Content: ${post.text.substring(0, 100)}...`);
+          } else {
+            console.error('FAILED:', JSON.stringify(data));
+            process.exit(1);
+          }
+          SCRIPT_EOF
+          POST_INDEX=${{ steps.post-index.outputs.index }} node publish.mjs
+
+      - name: Log publication result
+        if: always()
+        run: |
+          echo "Publication attempt completed at $(date)"
+          echo "Post index: ${{ steps.post-index.outputs.index }}"
+          echo "Workflow run: ${{ github.run_id }}"
