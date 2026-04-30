@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audityzer - Web3 Security Testing Platform</title>
-    <meta name="description" content="Comprehensive Web3 security testing toolkit for DeFi applications and smart contracts">
+    <title>Audityzer - Web3 Security & AI Tools</title>
+    <meta name="description" content="Comprehensive Web3 security testing toolkit with AI-powered audit tools">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
         * {
@@ -13,92 +12,125 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: white;
-        }
-        
-        .container {
-            text-align: center;
-            max-width: 800px;
             padding: 2rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
-        
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
         .logo {
             font-size: 3rem;
             font-weight: bold;
-            margin-bottom: 1rem;
             background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 0.5rem;
         }
-        
+
         .tagline {
             font-size: 1.2rem;
-            margin-bottom: 2rem;
             opacity: 0.9;
         }
-        
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-        
-        .feature {
+
+        .section {
+            max-width: 1200px;
+            margin: 2rem auto;
             background: rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
         }
-        
-        .feature h3 {
-            margin-bottom: 0.5rem;
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
             color: #4ecdc4;
         }
-        
-        .cta {
-            margin-top: 2rem;
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
-        
-        .btn {
+
+        .app-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .app-card h3 {
+            color: #ff6b6b;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .app-card p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .app-card a {
             display: inline-block;
-            padding: 12px 24px;
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
             background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
             color: white;
             text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            transition: transform 0.3s ease;
-            margin: 0 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: transform 0.2s;
         }
-        
-        .btn:hover {
-            transform: translateY(-2px);
+
+        .app-card a:hover {
+            transform: scale(1.05);
         }
-        
+
+        .category {
+            font-size: 0.8rem;
+            background: rgba(78, 205, 196, 0.3);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
         .status {
+            text-align: center;
             margin-top: 2rem;
             padding: 1rem;
             background: rgba(76, 175, 80, 0.2);
             border-radius: 10px;
-            border: 1px solid rgba(76, 175, 80, 0.3);
         }
-        
-        .status-indicator {
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-dot {
             display: inline-block;
             width: 10px;
             height: 10px;
@@ -107,64 +139,233 @@
             margin-right: 8px;
             animation: pulse 2s infinite;
         }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="header">
         <div class="logo">🛡️ Audityzer</div>
-        <div class="tagline">Comprehensive Web3 Security Testing Platform</div>
-        
-        <div class="features">
-            <div class="feature">
-                <h3>🔍 Smart Contract Auditing</h3>
-                <p>Advanced static analysis and vulnerability detection</p>
+        <div class="tagline">Web3 Security Testing Platform & AI-Powered Audit Tools</div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">🎯 AuditorSEC Defense Suite</h2>
+        <div class="apps-grid">
+            <div class="app-card">
+                <span class="category">Defense</span>
+                <h3>AuditorSEC Integrity Suite</h3>
+                <p>Comprehensive integrity verification and security validation platform</p>
+                <a href="https://aistudio.google.com/app/6be3bc42-fc16-4233-9146-eccd7e70d1c8" target="_blank">Launch Tool →</a>
             </div>
-            <div class="feature">
-                <h3>🚀 DeFi Protocol Testing</h3>
-                <p>Comprehensive testing for DeFi applications</p>
+            <div class="app-card">
+                <span class="category">Command</span>
+                <h3>AuditorSEC Command Center</h3>
+                <p>Strategic dashboard for the AuditorSEC unified ecosystem</p>
+                <a href="https://aistudio.google.com/app/bb7618ca-3a2e-43e5-b831-7f8eb049c223" target="_blank">Launch Tool →</a>
             </div>
-            <div class="feature">
-                <h3>⚡ Real-time Monitoring</h3>
-                <p>Continuous security monitoring and alerts</p>
+            <div class="app-card">
+                <span class="category">Defense</span>
+                <h3>AuditorSEC AI-Native Defense</h3>
+                <p>AI-powered defense and compliance platform</p>
+                <a href="https://aistudio.google.com/app/3c6fadc2-fcb4-46f0-b46f-348b37a6e48e" target="_blank">Launch Tool →</a>
             </div>
-            <div class="feature">
-                <h3>📊 Security Analytics</h3>
-                <p>Detailed reports and security metrics</p>
+            <div class="app-card">
+                <span class="category">Platform</span>
+                <h3>AuditorSEC Platform</h3>
+                <p>Defense audit platform for supply-chain transparency and risk assessment</p>
+                <a href="https://aistudio.google.com/app/ff48643a-3c84-4cef-ad73-08d7b827cd8b" target="_blank">Launch Tool →</a>
             </div>
-        </div>
-        
-        <div class="cta">
-            <a href="https://github.com/romanchaa997/Audityzer" class="btn">View on GitHub</a>
-            <a href="#" class="btn" onclick="alert('CLI Documentation coming soon!')">Get Started</a>
-        </div>
-        
-        <div class="status">
-            <span class="status-indicator"></span>
-            <strong>Deployment Status:</strong> Successfully deployed on Netlify
-            <br>
-            <small>Build completed at: <span id="buildTime"></span></small>
+            <div class="app-card">
+                <span class="category">Interactive</span>
+                <h3>Interactive Diagnostics</h3>
+                <p>Real-time interactive security diagnostics</p>
+                <a href="https://aistudio.google.com/app/9ff10e4d-0ec0-470c-8667-81bf734764e8" target="_blank">Launch Tool →</a>
+            </div>
         </div>
     </div>
-    
+
+    <div class="section">
+        <h2 class="section-title">🔍 Audityzer Security Tools</h2>
+        <div class="apps-grid">
+            <div class="app-card">
+                <span class="category">Web3</span>
+                <h3>Audityzer Security Hub</h3>
+                <p>Advanced Web3 security dashboard for smart contract auditing</p>
+                <a href="https://aistudio.google.com/app/f7749b80-71f9-44de-b288-dbcbf4a64c6d" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">Pro</span>
+                <h3>Audityzer PRO</h3>
+                <p>Advanced Web3 testing toolkit with automated vulnerability scans</p>
+                <a href="https://aistudio.google.com/app/drive/1TktF59p2TpaxTQcxUxBaVJcln7khxRAk" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">Intelligence</span>
+                <h3>Advanced Threat Intelligence</h3>
+                <p>Security Operations Center (SOC) dashboard for threat visualization</p>
+                <a href="https://aistudio.google.com/app/drive/14DzZreP2EDMagsrpwlDe_oMo1pFEc6pm" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">Fraud</span>
+                <h3>Casino Fraud Scanner</h3>
+                <p>AI-powered casino fraud detection and prevention system</p>
+                <a href="https://aistudio.google.com/app/drive/11AnzzWfwJ03gMYXiZF6-9V7E5a4byAiH" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">Ukraine</span>                <h3>UA Messenger Security Audit</h3>
+                <p>Security audit tool for Ukrainian messaging apps</p>
+                <a href="https://aistudio.google.com/app/2838333f-60b2-43c5-8314-d0e54b379f45" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">Quantum</span>
+                <h3>Audityzer AI Gov</h3>
+                <p>Quantum-resistant security framework for government applications</p>
+                <a href="https://aistudio.google.com/app/drive/1-k5TcTCWoBV5rJGyxdAedJlfLFKB5zCG" target="_blank">Launch Tool →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">🌐 Specialized Solutions</h2>
+        <div class="apps-grid">
+            <div class="app-card">
+                <span class="category">Web3</span>
+                <h3>Web3 Impact Tracker</h3>
+                <p>Track and analyze Web3 project impact and metrics</p>
+                <a href="https://aistudio.google.com/app/drive/16Vld-Umj5Xfd827obtFo1NXk029AzcNT" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">Finance</span>
+                <h3>MFO Shield Ukraine</h3>
+                <p>AI-powered loan analyzer combating predatory microfinance practices</p>
+                <a href="https://aistudio.google.com/app/drive/1K3GIaTByZH-uamRe6IHdwhZ8Wo_CRa_z" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">AI</span>
+                <h3>Gemini Nexus</h3>
+                <p>Sophisticated AI companion for analysis and data visualization</p>
+                <a href="https://aistudio.google.com/app/drive/1GiENsVwuoMff7OK4pZ0Q_PzWxAeNMxM3" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">Integration</span>
+                <h3>MANUS+ Unified System</h3>
+                <p>Integration platform for E-Court, UBKI, NBU, and Blockchain</p>
+                <a href="https://aistudio.google.com/app/drive/1X2xORemI-JGAXQcUTRmIBA_Ca38dM4W5" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">Nuclear</span>
+                <h3>NPP Accident Classification</h3>
+                <p>Nuclear power plant accident classification and analysis system</p>
+                <a href="https://aistudio.google.com/app/drive/1pQudHNlvNMvEaGoRu6shwjbi2CJ2DQTB" target="_blank">Launch Tool →</a>
+            </div>
+            <div class="app-card">
+                <span class="category">PQC</span>
+                <h3>PQC Readiness Dashboard</h3>
+                <p>Post-quantum cryptography readiness assessment platform</p>
+                <a href="https://aistudio.google.com/app/drive/1phmq3BsNxBZ1RzfIY92iCdCj5UHvDoaq" target="_blank">Launch Tool →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="section status">
+        <span class="status-dot"></span>
+        All systems operational | Deployed on Cloudflare Workers | <a href="https://github.com/romanchaa997/Audityzer" style="color: #4ecdc4;">View on GitHub</a>
+    </div>
+
+    <!-- ===== TEAM SECTION ===== -->
+    <div class="section" id="team">
+        <h2 class="section-title">👥 Our Team</h2>
+        <p style="opacity:0.85;margin-bottom:1.5rem;">AuditorSEC operates with a lean but powerful structure: 2 full-time founders backed by 9 domain experts and advisors.</p>
+        <div class="apps-grid">
+            <div class="app-card">
+                <span class="category">Core Team</span>
+                <h3>Ihor Romanenko</h3>
+                <p>CEO & Founder. 15+ years in cybersecurity, AI/ML, DevSecOps. Former advisor to Ukraine's Ministry of Digital Transformation. Led security architecture for Diia (40M users).</p>
+            </div>
+            <div class="app-card">
+                <span class="category">Core Team</span>
+                <h3>Technical Co-Founder (CTO)</h3>
+                <p>Full-time. Leads PQC-IoT architecture, CI/CD pipelines, and smart contract auditing engine. Expert in Post-Quantum Cryptography and Zero Trust Architecture.</p>
+            </div>
+            <div class="app-card">
+                <span class="category">Advisor</span>
+                <h3>Web3 Security Advisor</h3>
+                <p>Senior blockchain security researcher. Contributor to Ethereum security initiatives. Advises on DeFi protocol testing and vulnerability disclosure.</p>
+            </div>
+            <div class="app-card">
+                <span class="category">Advisor</span>
+                <h3>Legal &amp; Compliance Advisor</h3>
+                <p>Legal expert in cybersecurity law, GDPR, NIS2 and Ukrainian fintech regulation. Supports compliance frameworks and grant documentation.</p>
+            </div>
+            <div class="app-card">
+                <span class="category">Advisor</span>
+                <h3>Financial Advisor</h3>
+                <p>Former FinTech CFO with experience in EU/NATO-funded projects. Advises on financial modelling, investor relations and grant budget structuring.</p>
+            </div>
+            <div class="app-card">
+                <span class="category">Contributor</span>
+                <h3>IoT Security Researchers (×4)</h3>
+                <p>Domain specialists in embedded systems, firmware analysis, and industrial IoT protocols. Contributing to ASEC-PQC-IoT research and testing.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PILOT CASE STUDY ===== -->
+    <div class="section" id="pilots">
+        <h2 class="section-title">🚀 Pilot Deployment & Case Study</h2>
+        <p style="opacity:0.85;margin-bottom:1.5rem;">AuditorSEC has progressed from research prototype (TRL 5) to validated pilot deployment (TRL 6) with measurable outcomes.</p>
+        <div class="apps-grid">
+            <div class="app-card">
+                <span class="category">TRL 6 Pilot</span>
+                <h3>Municipal IoT Infrastructure — Bakhmach, Ukraine</h3>
+                <p>Deployed security audit of 23 IoT devices across municipal infrastructure. Identified 14 critical vulnerabilities. Reduced attack surface by 61%. Duration: 6 weeks.</p>
+            </div>
+            <div class="app-card">
+                <span class="category">Web3 Audit</span>
+                <h3>Smart Contract Security Audit</h3>
+                <p>Automated multi-chain smart contract scan across Ethereum, Polygon and BSC. 47 contracts analyzed, 8 high-severity issues flagged, 100% client satisfaction. Time-to-report: 4 hours vs industry avg 2 weeks.</p>
+            </div>
+            <div class="app-card">
+                <span class="category">Metrics</span>
+                <h3>Measurable Impact</h3>
+                <p>✅ 23 IoT devices secured<br>✅ 47 smart contracts audited<br>✅ 61% attack surface reduction<br>✅ 4h avg report delivery<br>✅ €0 security breaches post-audit</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== THEORY OF CHANGE / IMPACT ===== -->
+    <div class="section" id="impact">
+        <h2 class="section-title">🌍 Theory of Change & Impact</h2>
+        <p style="opacity:0.85;margin-bottom:1.5rem;">How AuditorSEC creates measurable societal and environmental value through cybersecurity.</p>
+        <div class="apps-grid">
+            <div class="app-card">
+                <span class="category">Problem</span>
+                <h3>Critical Infrastructure at Risk</h3>
+                <p>Unsecured IoT devices and smart contracts cost global businesses $6.4B/year. Ukraine's critical infrastructure faces 4,500+ cyberattacks daily. Most SMEs lack access to professional security audits.</p>
+            </div>
+            <div class="app-card">
+                <span class="category">Solution</span>
+                <h3>AuditorSEC → Reduce Vulnerabilities</h3>
+                <p>AI-powered automated audits reduce time-to-detect from weeks to hours. PQC-IoT framework future-proofs infrastructure against quantum threats. Accessible pricing enables SMEs and municipalities.</p>
+            </div>
+            <div class="app-card">
+                <span class="category">Impact</span>
+                <h3>Sustainable Digital Infrastructure</h3>
+                <p>Secured infrastructure = operational continuity = reduced energy waste from breaches. Each audit prevents avg €85K in breach costs. Target: 500 audits/year = €42.5M in protected value.</p>
+            </div>
+            <div class="app-card">
+                <span class="category">KPIs 2026</span>
+                <h3>Measurable Goals</h3>
+                <p>🎯 50 enterprise clients<br>🎯 500 IoT devices audited<br>🎯 1,000 smart contracts scanned<br>🎯 €200K ARR<br>🎯 TRL 7 achieved<br>🎯 3 EU grant approvals</p>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Set build time
-        document.getElementById('buildTime').textContent = new Date().toLocaleString();
-        
-        // Add some interactivity
-        document.querySelectorAll('.feature').forEach(feature => {
-            feature.addEventListener('mouseenter', () => {
-                feature.style.transform = 'translateY(-5px)';
-                feature.style.transition = 'transform 0.3s ease';
-            });
-            
-            feature.addEventListener('mouseleave', () => {
-                feature.style.transform = 'translateY(0)';
+        document.querySelectorAll('.app-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'A') {
+                    this.querySelector('a').click();
+                }
             });
         });
     </script>

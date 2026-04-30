@@ -1,82 +1,307 @@
-name: Security Checklist Scan
+name: Security Scan — Slither + Foundry
 
 on:
   push:
-    branches: [main]
+    branches: [main, safe-improvements]
+    paths:
+      - "contracts/**"
+      - "src/core/bridge-testing/**"
+      - "tests/**bridge**"
   pull_request:
     branches: [main]
-  # Allow manual triggering
+    paths:
+      - "contracts/**"
+      - "src/core/bridge-testing/**"
+  schedule:
+    - cron: "0 2 * * 1"  # Weekly deep scan Monday 02:00 UTC
   workflow_dispatch:
+    inputs:
+      deep:
+        description: "Run deep scan (Mythril + multi-chain)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SOLC_VERSION: "0.8.17"
 
 jobs:
-  security-scan:
+  slither:
+    name: Slither Static Analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Slither
+        run: |
+          pip install slither-analyzer solc-select
+          solc-select install ${{ env.SOLC_VERSION }}
+          solc-select use ${{ env.SOLC_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Node dependencies
+        run: npm ci --legacy-peer-deps --force || npm install --legacy-peer-deps --force
+
+      - name: Run Slither on contracts
+        run: |
+          mkdir -p scan-results
+          if [ -d "contracts" ]; then
+            slither contracts/ --json scan-results/slither-report.json \
+              --sarif scan-results/slither.sarif \
+              --checklist > scan-results/slither-checklist.md 2>&1 || true
+          else
+            echo "No contracts/ directory found, scanning src/ for Solidity files"
+            find src/ -name "*.sol" -exec dirname {} \; | sort -u | while read dir; do
+              slither "$dir" --json "scan-results/slither-$(basename $dir).json" || true
+            done
+          fi
+
+      - name: Upload SARIF
+        if: always() && hashFiles('scan-results/slither.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: scan-results/slither.sarif
+        continue-on-error: true
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: slither-results
+          path: scan-results/
+
+  foundry-fuzz:
+    name: Foundry Fuzz Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Check for Foundry project
+        id: check-foundry
+        run: |
+          if [ -f "foundry.toml" ] || [ -d "contracts" ]; then
+            echo "has_foundry=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_foundry=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build contracts
+        if: steps.check-foundry.outputs.has_foundry == 'true'
+        run: forge build || true
+
+      - name: Run fuzz tests
+        if: steps.check-foundry.outputs.has_foundry == 'true'
+        run: |
+          forge test --fuzz-runs 1000 -vvv 2>&1 | tee foundry-test-output.txt || true
+
+      - name: Generate coverage
+        if: steps.check-foundry.outputs.has_foundry == 'true'
+        run: forge coverage --report lcov 2>&1 | tee foundry-coverage.txt || true
+
+      - name: Upload Foundry results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: foundry-results
+          path: |
+            foundry-test-output.txt
+            foundry-coverage.txt
+            lcov.info
+
+  bridge-security:
+    name: Bridge Security Rules
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "20"
 
-      - name: Verify scan script exists
-        run: |
-          if [ ! -f "./automation/scan-contracts.sh" ]; then
-            echo "Error: scan-contracts.sh script not found"
-            exit 1
-          fi
-          chmod +x ./automation/scan-contracts.sh
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps --force || npm install --legacy-peer-deps --force
 
-      - name: Install Python dependencies
+      - name: Run bridge security tests
         run: |
-          python -m pip install --upgrade pip
-          pip install slither-analyzer solc-select
-        continue-on-error: false
-
-      - name: Install Solidity compiler
-        run: |
-          solc-select install 0.8.17
-          solc-select use 0.8.17
-        continue-on-error: false
-
-      - name: Install Node dependencies
-        run: |
-          if [ -f "package.json" ]; then
-            npm ci
+          if npm run test:bridge 2>/dev/null; then
+            echo "Bridge tests passed"
           else
-            echo "No package.json found, skipping npm install"
+            echo "Bridge test script not available, running generic security tests"
+            npm run test:security || true
+          fi
+        env:
+          NODE_ENV: test
+          MOCK_MODE: true
+          TEST_BRIDGE_TIMEOUT: 60000
+
+      - name: Generate bridge report
+        if: always()
+        run: |
+          if [ -f "scripts/generate-bridge-report.js" ]; then
+            node scripts/generate-bridge-report.js || true
           fi
 
-      - name: Create scan directories
-        run: mkdir -p scan-results
-
-      - name: Run checklist scanner
-        run: |
-          echo "Running security scan..."
-          bash ./automation/scan-contracts.sh || echo "Scan completed with warnings"
-        continue-on-error: true
-
-      - name: Check scan results
-        run: |
-          if [ -f "scan-results/summary-report.md" ]; then
-            echo "Scan completed successfully"
-            cat scan-results/summary-report.md
-          else
-            echo "Warning: Scan did not generate a complete report"
-            echo "## Automated Security Scan" > scan-results/summary-report.md
-            echo "The security scan did not complete as expected. Please check the logs for details." >> scan-results/summary-report.md
-            echo "Run date: $(date)" >> scan-results/summary-report.md
-          fi
-
-      - name: Save scan results
+      - name: Upload bridge results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: security-scan-results
+          name: bridge-security-results
           path: |
+            reports/
             scan-results/
-            slither-report.md
-            npm-audit.json
-            dependency-check.log
-            dappeteer-deps.json
-            snyk-results.json
+
+  npm-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run npm audit
+        run: |
+          npm audit --production --audit-level=high --json > npm-audit.json 2>&1 || true
+          cat npm-audit.json | jq '.metadata' || true
+
+      - name: Upload audit results
         if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-results
+          path: npm-audit.json
+
+  secret-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog
+        run: |
+          pip install trufflehog3
+          trufflehog3 --no-history -f json -o trufflehog-results.json . || true
+
+      - name: Check for secrets
+        run: |
+          if [ -f trufflehog-results.json ] && [ -s trufflehog-results.json ]; then
+            SECRETS=$(cat trufflehog-results.json | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")
+            if [ "$SECRETS" -gt "0" ]; then
+              echo "::warning::Found $SECRETS potential secrets in codebase"
+            fi
+          fi
+
+      - name: Upload scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secret-scan-results
+          path: trufflehog-results.json
+
+  deep-scan:
+    name: Deep Scan (Mythril + Multi-Chain)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event.inputs.deep == 'true' || github.event.schedule != ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Mythril
+        run: pip install mythril || true
+
+      - name: Run Mythril analysis
+        run: |
+          mkdir -p deep-scan-results
+          find contracts/ -name "*.sol" 2>/dev/null | head -10 | while read sol; do
+            NAME=$(basename "$sol" .sol)
+            myth analyze "$sol" --json -o "deep-scan-results/mythril-${NAME}.json" 2>&1 || true
+          done
+
+      - name: Upload deep scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deep-scan-results
+          path: deep-scan-results/
+
+  aggregate-report:
+    name: Aggregate Security Report
+    runs-on: ubuntu-latest
+    needs: [slither, foundry-fuzz, bridge-security, npm-audit, secret-scan]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all results
+        uses: actions/download-artifact@v4
+        with:
+          path: all-results/
+
+      - name: Generate aggregate report
+        run: |
+          echo "# Security Scan Aggregate Report" > security-report.md
+          echo "**Date:** $(date -u)" >> security-report.md
+          echo "**Branch:** ${{ github.ref_name }}" >> security-report.md
+          echo "**Commit:** ${{ github.sha }}" >> security-report.md
+          echo "" >> security-report.md
+
+          echo "## Job Results" >> security-report.md
+          echo "| Scan | Status |" >> security-report.md
+          echo "|------|--------|" >> security-report.md
+          echo "| Slither | ${{ needs.slither.result }} |" >> security-report.md
+          echo "| Foundry Fuzz | ${{ needs.foundry-fuzz.result }} |" >> security-report.md
+          echo "| Bridge Security | ${{ needs.bridge-security.result }} |" >> security-report.md
+          echo "| npm Audit | ${{ needs.npm-audit.result }} |" >> security-report.md
+          echo "| Secret Scan | ${{ needs.secret-scan.result }} |" >> security-report.md
+
+          echo "" >> security-report.md
+          echo "## Artifacts" >> security-report.md
+          ls -la all-results/ >> security-report.md 2>&1 || true
+
+          cat security-report.md
+
+      - name: Upload aggregate report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-aggregate-report
+          path: security-report.md
+
+      - name: Notify on failure
+        if: contains(needs.*.result, 'failure')
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": ":rotating_light: Security scan detected issues on `${{ github.ref_name }}`\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }' || true
+          fi

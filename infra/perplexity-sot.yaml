@@ -1,0 +1,54 @@
+# Perplexity Source of Truth Registry
+# UHIP Infra — Audityzer / AuditorSEC
+# Rule: use thread_id as machine ref; search URLs are human-nav views only
+# See: docs/adr/ADR-0001-perplexity-sot.md
+
+apiVersion: v1
+kind: PerplexitySoTRegistry
+metadata:
+  project: Audityzer
+  phase: UHIP-2A
+  updated: "2026-04-21"
+  owner: Ihor
+  adr: docs/adr/ADR-0001-perplexity-sot.md
+
+threads:
+  # --- UHIP Core ---
+  uhip-2a-design:
+    threadId: "tejeBGviQ22LHy04IEf6Gw"
+    label: "UHIP-2A Phase design + Perplexity SoT model"
+    space: "go-digital-web3cloud-neuralinf-S_tMPNJoSyOojl4dn6bKNg"
+    status: active
+    entryMessageId: "1"  # optional UI anchor only
+    tags: [uhip, sot, infra, pmo]
+
+  # --- Grant Applications ---
+  brave1-trl4-grant:
+    threadId: ""  # TODO: fill after thread creation
+    label: "BRAVE1 TRL4 Grant Application — AuditorSEC"
+    space: "ycombinator-auditorsec"  # reference only
+    status: draft
+    tags: [grant, brave1, auditorsec]
+
+  nl-ua-cybersec-fund:
+    threadId: "uSncsLPPSiGyQOOyl9doCQ"
+    label: "NL-UA Cybersecurity Fund matchmaking + pitch"
+    space: "go-digital-web3cloud-neuralinf-S_tMPNJoSyOojl4dn6bKNg"
+    status: active
+    tags: [grant, nl-ua, partnership]
+
+  # --- Cloudflare Infra ---
+  cloudflare-infra-design:
+    threadId: "613SjKAXTmS2SeB397pSRQ"
+    label: "Cloudflare infra design — AuditorSEC 4 scenarios"
+    space: "ycombinator-auditorsec"
+    status: accepted
+    tags: [infra, cloudflare, auditorsec]
+
+# --- Usage rules (enforce in CI/Helm/Make) ---
+# CORRECT:   sotThreadId: "tejeBGviQ22LHy04IEf6Gw"
+# INCORRECT: url: "https://www.perplexity.ai/search/..."
+#
+# Audit command:
+#   grep -r "perplexity.ai/search" helm/ .github/ Makefile
+# Should return 0 matches in machine configs.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const reportService = require('./core/services/report-service').default;
+const reportService = require('./core/services/report-service');
 const { app, db, auth, storage } = require('./core/services/firebase');
 
 // Export the Firebase app and services
@@ -10,18 +10,18 @@ module.exports = {
   auth,
   storage,
   reportService,
-  
-  // Additional exports for main functionality 
+
+  // Additional exports for main functionality
   generateReport: async (reportData, format = 'html') => {
     console.log('Generating security report...');
-    
+
     try {
       const reportId = await reportService.saveReport({
         ...reportData,
         format,
         timestamp: new Date().toISOString()
       });
-      
+
       return {
         success: true,
         reportId,
@@ -35,7 +35,7 @@ module.exports = {
       };
     }
   },
-  
+
   // Main function for CLI
   main: async () => {
     // Main CLI logic would go here

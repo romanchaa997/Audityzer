@@ -1,0 +1,91 @@
+# optimism-scan.yml — AuditorSEC Optimism Chain Security Scanner
+# Stream D (Potik D) — Sprint 260h Monday microtask
+name: Optimism Chain Security Scan
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      scan_depth:
+        description: 'quick | full'
+        required: false
+        default: 'quick'
+
+env:
+  CHAIN_ID: '10'
+  RPC_URL: 'https://mainnet.optimism.io'
+
+jobs:
+  optimism-scan:
+    name: Optimism Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Slither
+        run: pip install slither-analyzer==0.10.4
+
+      - name: Install Node dependencies
+        run: npm ci --prefer-offline
+
+      - name: Run Slither on Optimism contracts
+        id: slither
+        run: |
+          slither . \
+            --checklist \
+            --sarif slither-results.sarif \
+            --exclude-dependencies \
+            --filter-paths 'node_modules|test' \
+            2>&1 | tee slither-output.txt || true
+
+      - name: Upload Slither SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: slither-results.sarif
+          category: slither-optimism
+
+      - name: Run Audityzer chain scan
+        env:
+          CHAIN_ID: ${{ env.CHAIN_ID }}
+          RPC_URL: ${{ env.RPC_URL }}
+          SCAN_DEPTH: ${{ github.event.inputs.scan_depth || 'quick' }}
+        run: |
+          node src/cli/index.js chain-scan \
+            --chain optimism \
+            --depth "$SCAN_DEPTH" \
+            --output scan-report.json
+
+      - name: Upload scan report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: optimism-scan-report-${{ github.run_number }}
+          path: |
+            scan-report.json
+            slither-output.txt
+          retention-days: 30
+
+      - name: Post summary
+        if: always()
+        run: |
+          echo '## Optimism Chain Security Scan' >> $GITHUB_STEP_SUMMARY
+          echo "- Chain ID: $CHAIN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "- Depth: ${{ github.event.inputs.scan_depth || 'quick' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Run: #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          if [ -f slither-output.txt ]; then
+            ISSUES=$(grep -c 'Reference:' slither-output.txt || echo 0)
+            echo "- Slither issues: $ISSUES" >> $GITHUB_STEP_SUMMARY
+          fi

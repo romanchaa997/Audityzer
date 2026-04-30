@@ -1,0 +1,56 @@
+
+name: 'Audityzer Security Scan'
+description: 'Automated Web3 smart contract security scanning with Audityzer'
+author: 'Audityzer Team'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  api-key:
+    description: 'Audityzer API key for authentication'
+    required: true
+  repository-url:
+    description: 'Repository URL (auto-detected if not provided)'
+    required: false
+    default: ${{ github.server_url }}/${{ github.repository }}
+  scan-path:
+    description: 'Path to scan for smart contracts (default: contracts/)'
+    required: false
+    default: 'contracts/'
+  fail-on-severity:
+    description: 'Fail the build on vulnerabilities of this severity or higher (CRITICAL, HIGH, MEDIUM, LOW)'
+    required: false
+    default: 'HIGH'
+  output-format:
+    description: 'Output format for results (sarif, json, html)'
+    required: false
+    default: 'sarif'
+  upload-to-github-security:
+    description: 'Upload SARIF results to GitHub Security tab'
+    required: false
+    default: 'true'
+  comment-on-pr:
+    description: 'Add scan results as PR comment'
+    required: false
+    default: 'true'
+  incremental-scan:
+    description: 'Only scan changed files (faster for large repos)'
+    required: false
+    default: 'true'
+
+outputs:
+  scan-results:
+    description: 'JSON string containing scan results'
+  vulnerabilities-found:
+    description: 'Number of vulnerabilities found'
+  critical-count:
+    description: 'Number of critical vulnerabilities'
+  high-count:
+    description: 'Number of high severity vulnerabilities'
+  scan-report-url:
+    description: 'URL to detailed scan report'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

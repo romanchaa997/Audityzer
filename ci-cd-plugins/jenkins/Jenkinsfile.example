@@ -1,0 +1,271 @@
+
+// Audityzer Jenkins Pipeline Example
+// Web3 Security Scanning Integration
+
+pipeline {
+    agent any
+    
+    environment {
+        AUDITYZER_API_KEY = credentials('audityzer-api-key')
+        AUDITYZER_API_URL = 'https://api.audityzer.com'
+        SCAN_PATH = 'contracts/'
+        FAIL_ON_SEVERITY = 'HIGH'
+    }
+    
+    parameters {
+        choice(
+            name: 'SCAN_TYPE',
+            choices: ['incremental', 'full'],
+            description: 'Type of security scan to perform'
+        )
+        choice(
+            name: 'SEVERITY_THRESHOLD',
+            choices: ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'],
+            description: 'Minimum severity level to fail the build'
+        )
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+        
+        stage('Setup') {
+            steps {
+                script {
+                    // Install Audityzer CLI
+                    sh '''
+                        if ! command -v audityzer &> /dev/null; then
+                            echo "Installing Audityzer CLI..."
+                            npm install -g @audityzer/cli
+                        fi
+                    '''
+                }
+            }
+        }
+        
+        stage('Find Smart Contracts') {
+            steps {
+                script {
+                    def contractFiles = sh(
+                        script: "find ${SCAN_PATH} -name '*.sol' -o -name '*.vy' -o -name '*.cairo' 2>/dev/null || echo ''",
+                        returnStdout: true
+                    ).trim()
+                    
+                    if (contractFiles.isEmpty()) {
+                        currentBuild.result = 'SUCCESS'
+                        echo "⚠️ No smart contract files found in ${SCAN_PATH}"
+                        return
+                    }
+                    
+                    echo "📄 Found smart contract files:"
+                    echo contractFiles
+                    env.CONTRACT_FILES = contractFiles
+                }
+            }
+        }
+        
+        stage('Determine Changed Files') {
+            when {
+                expression { params.SCAN_TYPE == 'incremental' }
+            }
+            steps {
+                script {
+                    def changedFiles = ""
+                    
+                    if (env.CHANGE_ID) {
+                        // Pull Request - compare with target branch
+                        changedFiles = sh(
+                            script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD | grep -E '\\.(sol|vy|cairo)\$' || echo ''",
+                            returnStdout: true
+                        ).trim()
+                    } else if (env.GIT_PREVIOUS_COMMIT) {
+                        // Regular push - compare with previous commit
+                        changedFiles = sh(
+                            script: "git diff --name-only ${env.GIT_PREVIOUS_COMMIT}..HEAD | grep -E '\\.(sol|vy|cairo)\$' || echo ''",
+                            returnStdout: true
+                        ).trim()
+                    }
+                    
+                    if (!changedFiles.isEmpty()) {
+                        echo "📝 Changed smart contract files:"
+                        echo changedFiles
+                        env.CHANGED_FILES = changedFiles
+                    } else {
+                        echo "ℹ️ No smart contract files changed, performing full scan"
+                    }
+                }
+            }
+        }
+        
+        stage('Security Scan') {
+            steps {
+                script {
+                    def scanStartTime = System.currentTimeMillis()
+                    
+                    echo "🔍 Starting Audityzer security scan..."
+                    echo "📁 Scanning path: ${SCAN_PATH}"
+                    echo "🎯 Severity threshold: ${params.SEVERITY_THRESHOLD}"
+                    
+                    def triggerData = [
+                        build_number: env.BUILD_NUMBER,
+                        job_name: env.JOB_NAME,
+                        git_commit: env.GIT_COMMIT,
+                        git_branch: env.GIT_BRANCH,
+                        change_id: env.CHANGE_ID ?: '',
+                        changed_files: env.CHANGED_FILES ?: ''
+                    ]
+                    
+                    sh """
+                        audityzer scan \\
+                            --api-key "\$AUDITYZER_API_KEY" \\
+                            --repository-url "${env.GIT_URL}" \\
+                            --scan-path "${SCAN_PATH}" \\
+                            --output-format "json" \\
+                            --incremental="${params.SCAN_TYPE == 'incremental'}" \\
+                            --trigger-type "JENKINS" \\
+                            --trigger-data '${groovy.json.JsonBuilder(triggerData).toString()}' \\
+                            --output-file "audityzer-results.json"
+                    """
+                    
+                    def scanEndTime = System.currentTimeMillis()
+                    def scanDuration = (scanEndTime - scanStartTime) / 1000
+                    echo "⏱️ Scan completed in ${scanDuration}s"
+                }
+            }
+        }
+        
+        stage('Process Results') {
+            steps {
+                script {
+                    if (fileExists('audityzer-results.json')) {
+                        def results = readJSON file: 'audityzer-results.json'
+                        def vulnerabilities = results.vulnerabilities ?: []
+                        
+                        def criticalCount = vulnerabilities.count { it.severity == 'CRITICAL' }
+                        def highCount = vulnerabilities.count { it.severity == 'HIGH' }
+                        def mediumCount = vulnerabilities.count { it.severity == 'MEDIUM' }
+                        def lowCount = vulnerabilities.count { it.severity == 'LOW' }
+                        
+                        echo "📊 Scan Results:"
+                        echo "   🛡️ Total vulnerabilities: ${vulnerabilities.size()}"
+                        echo "   🔴 Critical: ${criticalCount}"
+                        echo "   🟠 High: ${highCount}"
+                        echo "   🟡 Medium: ${mediumCount}"
+                        echo "   🟢 Low: ${lowCount}"
+                        
+                        // Store results for reporting
+                        env.TOTAL_VULNS = vulnerabilities.size().toString()
+                        env.CRITICAL_COUNT = criticalCount.toString()
+                        env.HIGH_COUNT = highCount.toString()
+                        env.MEDIUM_COUNT = mediumCount.toString()
+                        env.LOW_COUNT = lowCount.toString()
+                        
+                        // Generate HTML report
+                        sh '''
+                            audityzer format \\
+                                --input audityzer-results.json \\
+                                --output audityzer-report.html \\
+                                --format html
+                        '''
+                        
+                        // Check if build should fail
+                        def shouldFail = false
+                        switch (params.SEVERITY_THRESHOLD) {
+                            case 'CRITICAL':
+                                shouldFail = criticalCount > 0
+                                break
+                            case 'HIGH':
+                                shouldFail = criticalCount > 0 || highCount > 0
+                                break
+                            case 'MEDIUM':
+                                shouldFail = criticalCount > 0 || highCount > 0 || mediumCount > 0
+                                break
+                            case 'LOW':
+                                shouldFail = vulnerabilities.size() > 0
+                                break
+                        }
+                        
+                        if (shouldFail) {
+                            def failCount = 0
+                            switch (params.SEVERITY_THRESHOLD) {
+                                case 'CRITICAL': failCount = criticalCount; break
+                                case 'HIGH': failCount = criticalCount + highCount; break
+                                case 'MEDIUM': failCount = criticalCount + highCount + mediumCount; break
+                                case 'LOW': failCount = vulnerabilities.size(); break
+                            }
+                            error("❌ Build failed: ${failCount} ${params.SEVERITY_THRESHOLD}+ severity vulnerabilities found")
+                        } else {
+                            echo "✅ Security scan completed successfully"
+                        }
+                    } else {
+                        error "❌ Scan results file not found"
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                // Archive scan results
+                archiveArtifacts artifacts: 'audityzer-results.json,audityzer-report.html', 
+                                allowEmptyArchive: true
+                
+                // Publish HTML report
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: 'audityzer-report.html',
+                    reportName: 'Audityzer Security Report',
+                    reportTitles: 'Security Scan Results'
+                ])
+                
+                // Send notifications
+                if (env.TOTAL_VULNS) {
+                    def message = """
+🛡️ Audityzer Security Scan Results
+
+📊 Summary:
+• Total vulnerabilities: ${env.TOTAL_VULNS}
+• 🔴 Critical: ${env.CRITICAL_COUNT}
+• 🟠 High: ${env.HIGH_COUNT}
+• 🟡 Medium: ${env.MEDIUM_COUNT}
+• 🟢 Low: ${env.LOW_COUNT}
+
+📋 Build: ${env.BUILD_URL}
+📄 Report: ${env.BUILD_URL}Audityzer_Security_Report/
+                    """.trim()
+                    
+                    // Add to build description
+                    currentBuild.description = "Vulnerabilities: ${env.TOTAL_VULNS} (🔴${env.CRITICAL_COUNT} 🟠${env.HIGH_COUNT} 🟡${env.MEDIUM_COUNT} 🟢${env.LOW_COUNT})"
+                }
+            }
+        }
+        
+        success {
+            echo "✅ Pipeline completed successfully"
+        }
+        
+        failure {
+            script {
+                // Send failure notifications
+                if (env.TOTAL_VULNS) {
+                    echo "❌ Pipeline failed due to security vulnerabilities"
+                    // You can add Slack, email, or other notifications here
+                }
+            }
+        }
+    }
+}

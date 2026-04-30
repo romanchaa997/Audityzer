@@ -1,40 +1,42 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
-import fs from 'fs-extra';
-import path from 'path';
+/**
+ * Firebase service stub for Audityzer
+ * Full Firebase integration requires FIREBASE_* environment variables
+ * and the firebase npm package to be installed.
+ */
 
-// Check for environment variables first
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
-  measurementId: process.env.FIREBASE_MEASUREMENT_ID
-};
+let app = null;
+let db = null;
+let auth = null;
+let storage = null;
 
-// Fallback to local config file if it exists
 try {
-  const configPath = path.join(process.cwd(), '.firebase-config.json');
-  if (fs.existsSync(configPath)) {
-    const localConfig = fs.readJSONSync(configPath);
-    Object.keys(firebaseConfig).forEach(key => {
-      if (!firebaseConfig[key] && localConfig[key]) {
-        firebaseConfig[key] = localConfig[key];
-      }
-    });
+  // Only attempt to load Firebase if the package is available
+  const firebase = require('firebase/app');
+  const firestore = require('firebase/firestore');
+  const firebaseAuth = require('firebase/auth');
+  const firebaseStorage = require('firebase/storage');
+
+  const firebaseConfig = {
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID
+  };
+
+  if (firebaseConfig.apiKey) {
+    app = firebase.initializeApp(firebaseConfig);
+    db = firestore.getFirestore(app);
+    auth = firebaseAuth.getAuth(app);
+    storage = firebaseStorage.getStorage(app);
+    console.log('Firebase initialized successfully');
+  } else {
+    console.warn('Firebase not configured: FIREBASE_API_KEY environment variable not set. Running without Firebase.');
   }
 } catch (err) {
-  console.warn('Could not load local Firebase configuration file');
+  console.warn('Firebase package not available. Running without Firebase integration:', err.message);
 }
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
-
-export { app, db, auth, storage, firebaseConfig }; 
+module.exports = { app, db, auth, storage };
