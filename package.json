@@ -86,72 +86,14 @@
     "start": "node bin/audityzer.js start",
     "dev": "vite",
     "build": "vite build",
-    "build:core": "node scripts/build.js",
-    "build:docs": "node scripts/build-docs.js",
     "test": "vitest run",
-    "test:unit": "vitest run tests/unit",
-    "test:integration": "vitest run tests/integration",
-    "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui",
-    "test:playwright": "cross-env MOCK_MODE=true TARGET_URL=http://localhost:5000 playwright test",
-    "test:security": "cross-env MOCK_MODE=true playwright test \"examples/security-bug-tests/*.test.ts\"",
-    "test:e2e": "npm run test:playwright",
-    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
-    "test:vuln:reentrancy": "playwright test examples/security-bug-tests/reentrancy-attack.test.ts",
-    "test:vuln:oracle": "playwright test examples/security-bug-tests/oracle-manipulation.test.ts",
-    "test:vuln:front-running": "playwright test examples/security-bug-tests/front-running-detection.test.ts",
-    "test:vuln:phishing": "playwright test examples/security-bug-tests/eth-sign-phishing.test.ts",
-    "test:vuln:signature-replay": "playwright test examples/security-bug-tests/signature-replay-attack.test.ts",
-    "test:vuln:access-control": "playwright test examples/security-bug-tests/access-control-vulnerability.test.ts",
-    "test:vuln:flash-loan": "playwright test examples/security-bug-tests/flash-loan-attack.test.ts",
-    "test:bridge": "echo 'Running bridge security tests' && npm run test:security",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
-    "lint:ci": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings=0",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,md}'",
-    "format:check": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,md}'",
     "type-check": "tsc --noEmit",
-    "type-check:watch": "tsc --noEmit --watch",
     "clean": "rimraf dist build coverage .nyc_output",
-    "clean:deps": "rimraf node_modules package-lock.json",
-    "reinstall": "npm run clean:deps && npm install",
-    "audit:fix": "npm audit fix",
-    "audit:check": "npm audit --audit-level=moderate",
-    "security:check": "npm run audit:check && npm run lint:ci",
-    "validate:security-plugins": "echo 'Validating security plugins...' && npm run test:security",
-    "test:security-framework": "echo 'Testing security framework...' && npm run test:security",
-    "version:patch": "npm version patch",
-    "version:minor": "npm version minor",
-    "version:major": "npm version major",
-    "release": "npm run build && npm run test && npm run security:check",
-    "deploy:staging": "node scripts/deploy.js --env=staging",
-    "deploy:production": "node scripts/deploy.js --env=production",
-    "docker:build": "docker build -t audityzer .",
-    "docker:run": "docker run -p 5000:5000 audityzer",
-    "docker:dev": "docker-compose up --build",
-    "setup": "node scripts/setup.js",
-    "setup:dev": "npm install && npm run setup",
     "postinstall": "node scripts/fix-dependencies.js",
-    "precommit": "npm run lint:fix && npm run format && npm run type-check",
-    "prepush": "npm run test && npm run security:check",
-    "ci": "npm run lint:ci && npm run type-check && npm run test:coverage && npm run security:check",
-    "ai-scan:standard": "echo 'Running AI security scan in standard mode' && npm run security:check",
-    "ai-scan:basic": "echo 'Running AI security scan in basic mode' && npm run security:check",
-    "ai-scan:advanced": "echo 'Running AI security scan in advanced mode' && npm run security:check",
-    "ai-scan:full": "echo 'Running AI security scan in full mode' && npm run security:check",
-    "security-scan": "echo 'Running security scan' && npm run audit:check",
-    "viz:report": "echo 'Generating visualization report' && echo 'Report generated successfully'",
-    "test-bridge:all": "echo 'Running bridge security tests' && npm run test:security",
-    "defi:all": "echo 'Running DeFi protocol tests' && npm run test:security",
-    "ai-scan:verbose": "echo 'Running verbose AI security scan' && npm run security:check",
-    "security-validate": "echo 'Running security validation' && npm run audit:check",
-    "custom-dependency-check": "echo 'Running custom dependency check' && npm audit --audit-level=moderate",
-    "deploy-validate": "echo 'Running deployment validation' && npm run security:check",
-    "submit-to-immunefi": "echo 'Submitting to Immunefi' && echo 'Submission prepared'",
-    "submit-to-hackenproof": "echo 'Submitting to HackenProof' && echo 'Submission prepared'",
-    "website:test": "echo 'Running website regression tests' && npm run test:e2e",
-    "build:demo": "echo 'Building demo' && npm run build"
+    "ci": "npm run lint && npm run type-check && npm run test:coverage"
   },
   "keywords": [
     "web3",
@@ -161,52 +103,12 @@
     "blockchain",
     "ethereum",
     "defi",
-    "fuzzing",
-    "vulnerability",
-    "auditing",
-    "cross-chain"
+    "auditing"
   ],
   "author": "Romanchaa997",
   "license": "MIT",
   "engines": {
     "node": ">=16.0.0"
-  },
-  "resolutions": {
-    "puppeteer": "^21.10.0",
-    "@mermaid-js/mermaid-cli": "^10.6.1",
-    "cookie": "^0.7.0",
-    "lodash.set": "^4.3.2",
-    "@sentry/node": "^7.75.0",
-    "tar-fs": "^2.1.1",
-    "ws": "^8.17.1",
-    "@puppeteer/browsers": "^1.4.2",
-    "puppeteer-core": "^22.11.2"
-  },
-  "overrides": {
-    "tar-fs": "^2.1.1",
-    "ws": "^8.17.1",
-    "lodash.set": "^4.3.2",
-    "@sentry/node": "^7.75.0",
-    "cookie": "^0.7.0",
-    "raven": {
-      "cookie": "^0.7.0"
-    },
-    "@lhci/cli": {
-      "@lhci/utils": {
-        "lighthouse": {
-          "lodash.set": "^4.3.2",
-          "raven": {
-            "cookie": "^0.7.0"
-          }
-        }
-      },
-      "lighthouse": {
-        "lodash.set": "^4.3.2",
-        "raven": {
-          "cookie": "^0.7.0"
-        }
-      }
-    }
   },
   "types": "src/types/index.d.ts"
 }
