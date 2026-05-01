@@ -1,86 +1,87 @@
-# Security Policy
+# AuditorSEC Security Policy
 
-## Dependency Security Management
+## Security Cockpit v1.0 — Status 2026-05-01
 
-This project has implemented several layers of protection to manage and mitigate security vulnerabilities in dependencies:
+### Infrastructure Security (auditorsec.com)
 
-### Automated Vulnerability Fixes
+| Check | Status | Notes |
+|-------|--------|-------|
+| SSL/TLS Grade | **A+** | All 3 IPs, isExceptional, no warnings |
+| TLS Version | **1.2+** | TLS 1.0/1.1 disabled via Cloudflare |
+| HTTP→HTTPS | **Enabled** | Cloudflare redirect rule deployed |
+| HSTS | **Enabled** | max-age=31536000; includeSubDomains; preload |
+| PQC Readiness | **TLS 1.3** | Verified via Intel Monitor |
+| Security Headers | **Configured** | CSP, X-Frame-Options, X-Content-Type, Referrer-Policy |
 
-When you install dependencies with `npm install`, our post-install scripts automatically:
+### Automated Security Workflows
 
-1. Resolve dependency conflicts that could cause compatibility issues
-2. Fix known security vulnerabilities by upgrading affected packages to safe versions
-3. Configure npm to ignore low/moderate severity issues that only affect development dependencies
+#### intel-monitor.yml (Every Monday 08:00 UTC)
+- Semgrep SAST static analysis
+- SSL Labs API grade check
+- Security headers audit
+- DeFi bridges monitoring via DeFiLlama API
+- PQC TLS 1.3 readiness
+- Auto-creates GitHub Issue on critical findings
+- **First run:** SUCCESS, SSL A+, no critical findings
 
-### Running Security Audits
+#### promptfoo-ai-security.yml (Wednesday + PRs)
+- Prompt injection resistance test
+- Reentrancy detection accuracy
+- Hallucination prevention check
+- Requires `OPENROUTER_API_KEY` secret (free at openrouter.ai)
 
-To check for security vulnerabilities:
+#### docker-compose.changedetection.yml (Self-hosted)
+```bash
+docker compose -f docker/docker-compose.changedetection.yml up -d
+# Web UI: http://localhost:5000
+```
+Monitors: DeFi bridges, OpenZeppelin advisories, NIST PQC, Solidity releases, auditorsec.com
+
+### Security Cockpits
+
+1. **Solidity Engineering Cockpit** — Smart contract audit reports (reentrancy, overflow, access control, front-running)
+2. **California DROP Privacy Cockpit** — CCPA/CALOPPA compliance, PII exposure, data retention audit
+3. **AuditorSEC Intel Monitor** — SSL, DeFi bridges, PQC, security advisories — weekly automation
+
+### DeFi Bridge Intelligence (2026-05-01)
+
+| Bridge | 24h Volume | Risk Notes |
+|--------|-----------|------------|
+| USDT0 | $182M | Liquidity concentration risk |
+| Relay | $88M | Cross-chain message validation |
+| Hyperliquid | $85M | Centralization risk |
+| Polygon PoS | $45M | Validator set monitoring |
+| Across | $27M | Optimistic bridge model risk |
+
+### Vulnerability Reporting
+
+**DO NOT** open public GitHub issues for security vulnerabilities.
+
+Report privately via:
+- GitHub Advisory: https://github.com/romanchaa997/Audityzer/security/advisories/new
+- Email: security@auditorsec.com
+
+Response SLA: 48h acknowledgment, 7 days for critical issues.
+
+### Known Issues
+
+CodeQL scan: **32 alerts (6 high severity)** — remediation in progress.
+See: [Security & Quality](https://github.com/romanchaa997/Audityzer/security) tab.
+
+### Dependency Security
+
+This project uses automated vulnerability management:
+- Post-install scripts resolve dependency conflicts
+- Critical vulns auto-upgraded to safe versions
+- Production-only audit: `npm audit --production`
+
+### Setup OPENROUTER_API_KEY (for AI red-team)
 
 ```bash
-# Regular audit (may show known dev dependency issues)
-npm audit
-
-# Production-only audit (ignores dev dependencies)
-npm audit --production
-
-# Audit only for critical issues
-npm run audit:all
-
-# Fix critical vulnerabilities (be careful with breaking changes)
-npm run fix:vulnerabilities
+# 1. Register free: https://openrouter.ai/keys
+# 2. Add secret:
+gh secret set OPENROUTER_API_KEY --body "sk-or-..."
 ```
 
-### Handling Known Issues
-
-Some development dependencies (like testing tools) may have vulnerabilities that don't affect production code. These are tracked and managed through:
-
-1. Package resolutions in `package.json`
-2. Specific settings in `.npmrc`
-3. CI-specific configuration in `.npmrc-ci`
-4. Acknowledged exceptions in `.nsprc`
-
-#### Known Development Dependencies with Vulnerabilities
-
-The following development dependencies have vulnerabilities that don't affect production code:
-
-1. **lodash.set** - Has a prototype pollution vulnerability (GHSA-p6mc-m468-83gw)
-   - Used by: lighthouse in @lhci/cli (development testing tool)
-   - Mitigation: Overridden in package.json, exceptions tracked in .nsprc
-   - Production impact: None (not included in production builds)
-
-2. **cookie** - Accept cookie with out of bounds characters (GHSA-pxg6-pf52-xh8x)
-   - Used by: raven in lighthouse in @lhci/cli (development testing tool)
-   - Mitigation: Overridden in package.json, exceptions tracked in .nsprc
-   - Production impact: None (not included in production builds)
-
-### CI Security Checking
-
-Our GitHub workflow automatically checks for security issues on:
-- Every push to main branches
-- Pull requests to protected branches
-- Weekly scheduled scans
-
-### Reporting New Vulnerabilities
-
-If you discover a security vulnerability in this project, please report it by:
-
-1. **DO NOT** create a public GitHub issue
-2. Send details to [security@example.com](mailto:security@example.com)
-3. Include steps to reproduce and potential impact
-
-## Security Best Practices
-
-When working with this codebase:
-
-1. Keep all dependencies updated
-2. Run security audits before deploying
-3. Never expose sensitive credentials in code
-4. Follow the security patterns established in the codebase
-
-## Responsible Disclosure
-
-We follow responsible disclosure practices and will:
-- Acknowledge receipt within 48 hours
-- Provide regular updates on progress
-- Credit discoverers (if desired)
-- Publish details after fixes are available 
+---
+*AuditorSEC Security Cockpit v1.0 | Updated: 2026-05-01 | Adaptive Security Development Initiative*
