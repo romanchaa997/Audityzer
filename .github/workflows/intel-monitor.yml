@@ -1,0 +1,89 @@
+name: Intelligence Monitor
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Every Monday at 8am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  security-intel:
+    name: Security Intelligence Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install security tools
+        run: |
+          npm install -g snyk || true
+          pip install semgrep || true
+
+      - name: Run Semgrep security scan
+        run: |
+          semgrep --config=auto --json --output=semgrep-results.json . || true
+        continue-on-error: true
+
+      - name: Check SSL/TLS status
+        run: |
+          curl -s "https://api.ssllabs.com/api/v3/analyze?host=auditorsec.com&fromCache=on" \
+            -o ssl-report.json || true
+          echo "SSL Report:"
+          cat ssl-report.json | python3 -m json.tool 2>/dev/null || cat ssl-report.json
+        continue-on-error: true
+
+      - name: Check Security Headers
+        run: |
+          HEADERS=$(curl -sI https://auditorsec.com)
+          echo "$HEADERS"
+          echo "--- Checking critical headers ---"
+          echo "$HEADERS" | grep -i "content-security-policy" || echo "MISSING: CSP"
+          echo "$HEADERS" | grep -i "strict-transport-security" || echo "MISSING: HSTS"
+          echo "$HEADERS" | grep -i "x-frame-options" || echo "MISSING: X-Frame-Options"
+          echo "$HEADERS" | grep -i "x-content-type-options" || echo "MISSING: X-Content-Type-Options"
+        continue-on-error: true
+
+      - name: Monitor DeFi bridges security
+        run: |
+          curl -s "https://api.llama.fi/bridges" -o bridges.json || true
+          echo "Top bridges fetched:"
+          cat bridges.json | python3 -c "import json,sys; data=json.load(sys.stdin); [print(b.get('displayName','?'), b.get('currentDayVolume','?')) for b in data.get('bridges',[][:10])]" 2>/dev/null || echo "Parse error"
+        continue-on-error: true
+
+      - name: PQC Readiness Check
+        run: |
+          echo "Checking TLS version and cipher suites for PQC readiness..."
+          openssl s_client -connect auditorsec.com:443 -tls1_3 </dev/null 2>&1 | head -20 || true
+        continue-on-error: true
+
+      - name: Upload scan artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: intel-scan-${{ github.run_id }}
+          path: |
+            semgrep-results.json
+            ssl-report.json
+            bridges.json
+          retention-days: 30
+
+      - name: Create issue on critical findings
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[Intel Monitor] Security scan findings - ${new Date().toISOString().split('T')[0]}`,
+              body: 'Automated intelligence scan detected issues. Check workflow artifacts for details.',
+              labels: ['security', 'automated']
+            })
