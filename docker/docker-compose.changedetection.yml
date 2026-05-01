@@ -1,0 +1,80 @@
+# AuditorSEC - changedetection.io
+# Monitors: smart contract addresses, DeFi protocol pages, security advisories
+# Free self-hosted web change detection
+#
+# Usage:
+#   docker compose -f docker/docker-compose.changedetection.yml up -d
+#   Access at: http://localhost:5000
+
+version: '3.8'
+
+services:
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io:latest
+    container_name: audityzer-changedetection
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - changedetection-data:/datastore
+    environment:
+      - BASE_URL=http://localhost:5000
+      - PLAYWRIGHT_DRIVER_URL=ws://playwright-chrome:3000
+      # Optional: Telegram notifications
+      # - NOTIFICATION_URL=tgram://BOT_TOKEN/CHAT_ID
+    networks:
+      - changedetection-net
+    depends_on:
+      - playwright-chrome
+
+  playwright-chrome:
+    image: browserless/chrome:latest
+    container_name: audityzer-playwright
+    restart: unless-stopped
+    environment:
+      - SCREEN_WIDTH=1920
+      - SCREEN_HEIGHT=1024
+      - SCREEN_DEPTH=16
+      - MAX_CONCURRENT_SESSIONS=5
+      - CONNECTION_TIMEOUT=300000
+    networks:
+      - changedetection-net
+
+volumes:
+  changedetection-data:
+    driver: local
+
+networks:
+  changedetection-net:
+    driver: bridge
+
+# ============================================================
+# MONITORED TARGETS - Configure via UI at localhost:5000
+# ============================================================
+# Suggested watches for AuditorSEC:
+#
+# 1. DeFi Bridge Security:
+#    https://defillama.com/bridges
+#    Filter: 'Hacked' keyword alert
+#
+# 2. Ethereum Security Advisories:
+#    https://github.com/ethereum/go-ethereum/security/advisories
+#
+# 3. OpenZeppelin Security Advisories:
+#    https://github.com/OpenZeppelin/openzeppelin-contracts/security/advisories
+#
+# 4. Immunefi Bug Bounty Programs:
+#    https://immunefi.com/explore/
+#
+# 5. AuditorSEC Landing Page:
+#    https://auditorsec.com
+#    Verify uptime + content integrity
+#
+# 6. NIST PQC Standards:
+#    https://csrc.nist.gov/projects/post-quantum-cryptography
+#    Alert on new standard publications
+#
+# 7. Solidity Changelog:
+#    https://github.com/ethereum/solidity/releases
+#    Alert on new compiler versions
+# ============================================================
