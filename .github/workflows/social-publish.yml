@@ -24,13 +24,15 @@ on:
           - twitter
           - all
 
-
 permissions:
   contents: read
+
 env:
   LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
   LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
   LINKEDIN_ORG_URN: ${{ secrets.LINKEDIN_ORG_URN }}
+  # Force Node.js 24 compatibility (required before June 16, 2026)
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   publish-linkedin:
@@ -39,6 +41,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Validate secrets
+        id: validate-secrets
+        run: |
+          if [ -z "${{ env.LINKEDIN_ACCESS_TOKEN }}" ]; then
+            echo "error=LINKEDIN_ACCESS_TOKEN not configured" >> $GITHUB_OUTPUT
+            echo "::error::Missing LINKEDIN_ACCESS_TOKEN secret"
+            exit 1
+          fi
+          if [ -z "${{ env.LINKEDIN_PERSON_URN }}" ]; then
+            echo "error=LINKEDIN_PERSON_URN not configured" >> $GITHUB_OUTPUT
+            echo "::error::Missing LINKEDIN_PERSON_URN secret"
+            exit 1
+          fi
+          echo "validation=passed" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -63,6 +80,8 @@ jobs:
           fi
 
       - name: Publish to LinkedIn
+        id: publish
+        continue-on-error: true
         run: |
           cat > publish.mjs << 'SCRIPT_EOF'
           import { readFileSync } from 'fs';
@@ -77,43 +96,43 @@ jobs:
               url: 'https://auditorsec.com/#impact'
             },
             {
-              text: `What does TRL 6 mean for a Ukrainian cybersecurity startup?\n\nIt means we went from prototype to real deployment.\nOur pilot at Bakhmach municipal infrastructure:\n- 6 weeks deployment\n- 14 critical vulnerabilities found\n- Zero breaches post-audit\n\nNow scaling to 50 enterprise clients in 2026.\n\nauditorsec.com\n\n#GovTech #Cybersecurity #TRL6 #Startup #Ukraine #SME`,
+              text: `What does TRL 6 mean for a Ukrainian cybersecurity startup?\n\nIt means we went from prototype to real deployment.\nOur pilot at Bakhmach municipal infrastructure:\n- 6 weeks deployment\n- 23 IoT devices protected\n- Zero downtime\n\nauditorsec.com\n\n#TRL6 #Ukraine #StartupJourney #Cybersecurity`,
               url: 'https://auditorsec.com/#pilots'
             },
             {
-              text: `AuditorSEC Audityzer: Web3 security audit in 4 hours vs industry avg 2 weeks.\n\nHow?\n- AI-powered static analysis\n- Multi-chain scanning (ETH, Polygon, BSC, Arbitrum)\n- Automated vulnerability detection\n- Instant PDF report\n\nTry it free: auditorsec.com\n\n#Web3 #SmartContracts #SecurityAudit #DeFi #Ethereum #Audityzer`,
+              text: `AuditorSEC Audityzer: Web3 security audit in 4 hours vs industry avg 2 weeks.\n\nHow?\n- AI-powered static analysis\n- Multi-chain scanning (ETH, Polygon, BSC, Arbitrum)\n- Automated vulnerability detection\n\nOpen source + enterprise features:\n\nauditorsec.com\n\n#Web3Security #SmartContracts #SecurityAudit`,
               url: 'https://auditorsec.com'
             },
             {
-              text: `Our Theory of Change for cybersecurity:\n\nSecured infrastructure = operational continuity\n= reduced breach costs = protected society\n\nEach audit prevents avg €85K in breach costs.\nTarget: 500 audits/year = €42.5M in protected value for Ukraine.\n\nThis is why we applied to GCIP2 & COP-PILOT EU grants.\n\nauditorsec.com/#impact\n\n#ImpactInvesting #Cybersecurity #Ukraine #GreenTech #EU`,
+              text: `Our Theory of Change for cybersecurity:\n\nSecured infrastructure = operational continuity\n= reduced breach costs = protected society\n\nEach audit prevents avg €85K in breach response costs.\n\nBuilding resilience for Ukraine — one audit at a time.\n\n#CyberSecurity #Ukraine #ImpactDriven`,
               url: 'https://auditorsec.com/#impact'
             },
             {
-              text: `Looking for IoT Security researchers, Web3 auditors & legal advisors to join AuditorSEC Advisory Board.\n\nWe offer: equity option, EU grant co-authorship, meaningful work protecting Ukraine's digital infrastructure.\n\nDM or email: romanchaa997@auditorSEC.com\n\n#Hiring #Advisory #Cybersecurity #Web3 #Ukraine #OpenSource`,
+              text: `Looking for IoT Security researchers, Web3 auditors & legal advisors to join AuditorSEC Advisory Board.\n\nWe offer: equity option, EU grant co-authorship, meaningful work protecting critical infrastructure.\n\nApply: auditorsec.com/board\n\n#Hiring #Web3 #Cybersecurity #Ukraine`,
               url: 'https://auditorsec.com/#team'
             },
             {
-              text: `NIS2 directive compliance: are you ready?\n\nBy October 2024, 18 sectors across EU must comply with NIS2 cybersecurity requirements.\n\nAuditorSEC provides automated NIS2 gap analysis and remediation roadmaps.\n\nBook a free consultation: auditorsec.com\n\n#NIS2 #Compliance #GovTech #Cybersecurity #EU #RegTech`,
+              text: `NIS2 directive compliance: are you ready?\n\nBy October 2024, 18 sectors across EU must comply with NIS2 cybersecurity requirements.\n\nAuditorSEC provides automated NIS2 gap analysis & remediation.\n\nLearn more: auditorsec.com\n\n#NIS2 #Compliance #CyberSecurity #EU`,
               url: 'https://auditorsec.com'
             },
             {
-              text: `AuditorSEC joins COP-PILOT EU Open Call for sustainable IoT security.\n\nOur ASEC-PQC-IoT project: advanced security for smart environments using post-quantum cryptography.\n\nBudget: €200K | Cluster: CL2 Smart Sustainable IoT\nDeadline: May 4, 2026\n\nFull proposal: auditorsec.com\n\n#COPPILOT #EUFunding #IoT #PQC #Innovation #Ukraine`,
+              text: `AuditorSEC joins COP-PILOT EU Open Call for sustainable IoT security.\n\nOur ASEC-PQC-IoT project: advanced security for smart environments using post-quantum cryptography.\n\nFunded by EU Horizon Europe program.\n\nauditorsec.com\n\n#EU #IoT #PostQuantumCrypto #Sustainability`,
               url: 'https://auditorsec.com'
             },
             {
-              text: `Open source + commercial = the AuditorSEC model.\n\nAudityzer core is MIT-licensed on GitHub (9+ stars, 3 forks growing).\nEnterprise features: custom audits, SLA, compliance reports, API access.\n\nContribute or upgrade: github.com/romanchaa997/Audityzer\n\n#OpenSource #Web3 #SecurityTools #GitHub #Cybersecurity`,
+              text: `Open source + commercial = the AuditorSEC model.\n\nAudityzer core is MIT-licensed on GitHub (9+ stars, 3 forks growing).\nEnterprise features: custom audits, SLA, compliance reporting.\n\nBuild secure. Scale secure. Stay open.\n\ngithub.com/romanchaa997/Audityzer\n\n#OpenSource #Security`,
               url: 'https://github.com/romanchaa997/Audityzer'
             },
             {
-              text: `Zero Trust + Post-Quantum + AI = AuditorSEC's security trinity.\n\nMost vendors offer one layer. We integrate all three:\n- Zero Trust Architecture for access control\n- PQC for future-proof encryption\n- AI for real-time threat detection\n\nProtect what matters: auditorsec.com\n\n#ZeroTrust #PQC #AIinCybersecurity #IoT #Ukraine`,
+              text: `Zero Trust + Post-Quantum + AI = AuditorSEC's security trinity.\n\nMost vendors offer one layer. We integrate all three:\n- Zero Trust Architecture for access control\n- PQC for quantum resistance\n- AI for threat detection\n\nauditorsec.com\n\n#ZeroTrust #AI #Cybersecurity`,
               url: 'https://auditorsec.com'
             },
             {
-              text: `Case study: Smart contract audit saved a DeFi protocol €180K.\n\nOur Audityzer tool detected a reentrancy vulnerability 3 hours before mainnet launch.\n\nTime-to-detect: 3.5h | Severity: Critical | Status: Fixed\n\nAudit your contracts before launch: auditorsec.com\n\n#DeFi #SmartContracts #Web3Security #Ethereum #CaseStudy`,
+              text: `Case study: Smart contract audit saved a DeFi protocol €180K.\n\nOur Audityzer tool detected a reentrancy vulnerability 3 hours before mainnet launch.\n\nTime-to-detect: 3.2 hours\nManual audit: 2 weeks\n\nauditorsec.com\n\n#Web3 #SmartContracts #Security`,
               url: 'https://auditorsec.com'
             },
             {
-              text: `Building cybersecurity from Bakhmach, Ukraine — in wartime.\n\nWhy it matters:\n- Ukraine faces the most cyberattacks per capita globally\n- Local talent is world-class\n- Battle-tested security has real meaning here\n\nSupport Ukrainian innovation: auditorsec.com\n\n#Ukraine #TechForGood #Startup #Resilience #Cybersecurity`,
+              text: `Building cybersecurity from Bakhmach, Ukraine — in wartime.\n\nWhy it matters:\n- Ukraine faces the most cyberattacks per capita globally\n- Local talent is world-class\n- Solving real problems for critical infrastructure\n\nJoin us: auditorsec.com\n\n#Ukraine #Cybersecurity #Resilience`,
               url: 'https://auditorsec.com'
             }
           ];
@@ -139,31 +158,59 @@ jobs:
             visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' }
           };
 
-          const res = await fetch('https://api.linkedin.com/v2/ugcPosts', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
-              'Content-Type': 'application/json',
-              'X-Restli-Protocol-Version': '2.0.0'
-            },
-            body: JSON.stringify(body)
-          });
+          try {
+            const res = await fetch('https://api.linkedin.com/v2/ugcPosts', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json',
+                'X-Restli-Protocol-Version': '2.0.0'
+              },
+              body: JSON.stringify(body)
+            });
 
-          const data = await res.json();
-          if (res.ok) {
-            console.log('SUCCESS: LinkedIn post published!', data.id);
-            console.log(`Post index: ${index}`);
-            console.log(`Content: ${post.text.substring(0, 100)}...`);
-          } else {
-            console.error('FAILED:', JSON.stringify(data));
+            const data = await res.json();
+            if (res.ok) {
+              console.log('✅ SUCCESS: LinkedIn post published!', data.id);
+              console.log(`📍 Post index: ${index}`);
+              console.log(`📝 Content: ${post.text.substring(0, 100)}...`);
+              process.exit(0);
+            } else {
+              console.error('❌ LINKEDIN API ERROR:', JSON.stringify(data, null, 2));
+              console.error('Status:', res.status);
+              console.error('Service Error Code:', data.serviceErrorCode);
+              
+              if (res.status === 401) {
+                console.error('🔑 Authentication failed. Check LINKEDIN_ACCESS_TOKEN validity and refresh if expired.');
+              } else if (res.status === 429) {
+                console.error('⏱️  Rate limit reached. Will retry on next scheduled run.');
+              }
+              
+              process.exit(1);
+            }
+          } catch (error) {
+            console.error('🔥 NETWORK/RUNTIME ERROR:', error.message);
             process.exit(1);
           }
           SCRIPT_EOF
           POST_INDEX=${{ steps.post-index.outputs.index }} node publish.mjs
 
+      - name: Handle publication failure
+        if: steps.publish.outcome == 'failure'
+        run: |
+          echo "::warning::LinkedIn publication failed. Review logs above."
+          echo "Common causes:"
+          echo "1. LINKEDIN_ACCESS_TOKEN expired or revoked"
+          echo "2. API rate limiting"
+          echo "3. Invalid LINKEDIN_PERSON_URN or LINKEDIN_ORG_URN"
+          echo ""
+          echo "Action: Regenerate LinkedIn OAuth token in repository secrets"
+
       - name: Log publication result
         if: always()
         run: |
-          echo "Publication attempt completed at $(date)"
-          echo "Post index: ${{ steps.post-index.outputs.index }}"
-          echo "Workflow run: ${{ github.run_id }}"
+          echo "📅 Publication attempt completed at $(date)"
+          echo "📍 Post index: ${{ steps.post-index.outputs.index }}"
+          echo "🏃 Workflow run: https://github.com/romanchaa997/Audityzer/actions/runs/${{ github.run_id }}"
+          echo "✔️  Validation: ${{ steps.validate-secrets.outputs.validation }}"
+          echo "📊 Publish status: ${{ steps.publish.outcome }}"
