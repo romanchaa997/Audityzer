@@ -15,7 +15,7 @@
     "solid-js": "^1.8.15"
   },
   "devDependencies": {
-    "@codecov/solidstart-plugin": "^1.0.2",
+    "@codecov/solidstart-plugin": "^2.0.1",
     "typescript": "^5.3.3",
     "vite": "^8.0.8",
     "vite-plugin-solid": "^2.9.1"
