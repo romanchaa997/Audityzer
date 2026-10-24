@@ -1,0 +1,9 @@
+# Critical paths ownership
+
+# Default: no explicit owner for all files outside of listed paths.
+# Reviewers must be assigned by maintainers for any sensitive change.
+
+/.github/ @romanchaa997
+/SECURITY.md @romanchaa997
+/THREAT-MODEL.md @romanchaa997
+/AUTOMATION-POLICY.md @romanchaa997
