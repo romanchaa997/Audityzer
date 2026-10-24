@@ -1,5 +1,28 @@
-
 {
+  "expo": {
+    "name": "AudityzerMobile",
+    "slug": "audityzer-mobile",
+    "scheme": "audityzer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios", "android"],
+    "android": {
+      "package": "com.audityzer.mobile",
+      "versionCode": 1
+    },
+    "ios": {
+      "bundleIdentifier": "com.audityzer.mobile",
+      "buildNumber": "1"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "jsEngine": "hermes"
+  },
   "name": "AudityzerMobile",
   "displayName": "Audityzer Security Platform",
   "version": "1.0.0",
