@@ -19,6 +19,74 @@ AuditorSEC is a security auditing platform for Web3/dApp smart contracts, built 
 - 🌐 **Multi-chain support**: Optimism, Ethereum, Polygon (UHIP-2A schema)
 - 🇺🇦 **BRAVE1 / DIANA compliant**: dual-use security tooling for Ukrainian defense sector
 
+## 🔐 Security & Governance
+
+This repository follows a secure-by-default model. The project includes the core security baseline and governance documents required for responsible development, automation control, and risk management.
+
+### Security documentation
+
+- [SECURITY.md](./SECURITY.md) — private vulnerability reporting policy
+- [THREAT-MODEL.md](./THREAT-MODEL.md) — main threat actors, attack vectors, and mitigation model
+- [AUTOMATION-POLICY.md](./AUTOMATION-POLICY.md) — rules for GitHub Actions, Copilot/AI automation, and secret handling
+
+### Repository baseline controls
+
+- [ ] Branch protection enabled for `main` and `develop`
+- [ ] `CODEOWNERS` configured for critical paths
+- [ ] Secret scanning enabled
+- [ ] Dependency review enabled
+- [ ] Workflow approvals required before privileged execution
+- [ ] Automation limited to the triggering resource only
+- [ ] Secrets stored only in GitHub Secrets or a dedicated vault
+- [ ] Critical risks assigned to an owner with a remediation deadline
+
+### Security reporting
+
+Please do not open a public issue for security vulnerabilities. Follow the process in [SECURITY.md](./SECURITY.md) and report privately to the maintainers.
+
+### Automation safety policy
+
+Automation is treated as privileged infrastructure. AI-assisted workflows must use minimal permissions, require approval before execution, and must not expose secrets in logs, prompts, or generated artifacts. The default policy is: restrict automation scope, require human review, and keep secrets out of the repository and out of prompts.
+
+---
+
+## 📊 AuditorSEC Product Packages
+
+AuditorSEC offers three service tiers tailored to different stages of customer maturity and risk exposure.
+
+| Package | Focus | Core capabilities | Value delivered |
+|---|---|---|---|
+| Quick Scan | Rapid baseline assessment | Domain and public exposure review, asset discovery, email and access risk review, executive summary | Fast visibility into key risks and immediate next steps |
+| Full Audit | Deep assessment with remediation roadmap | Code review, dependency checks, CI/CD analysis, access review, compliance alignment, 30/60/90-day remediation plan | Clear risk map, accountability, and executive-ready documentation |
+| Managed Security Monitoring | Continuous protection and response | Ongoing monitoring, incident tracking, escalation playbooks, KPI reporting, remediation verification | Continuous security coverage and faster incident response |
+
+### Positioning
+
+- **Quick Scan** — for fast start and rapid risk visibility.
+- **Full Audit** — for teams that need a detailed remediation roadmap and compliance-ready reporting.
+- **Managed Security Monitoring** — for organizations requiring continuous control, resilience, and response readiness.
+
+### Enterprise value
+
+- Transparent risk map with priorities and ownership
+- Regulatory alignment support (ISO 27001, NIS2, CIS, SOC-oriented practices)
+- Evidence-based reporting for leadership and auditors
+- Reduction of critical risk exposure and faster remediation cycles
+
+---
+
+## Strategic Positioning
+
+Audityzer is positioned not as a single vulnerability scanner, but as a modular security assessment platform for digital exposure, access risk, code quality, compliance readiness, and incident response planning. The platform converts fragmented security signals into a unified risk model with clear priorities, owners, evidence, and remediation steps.
+
+The product lifecycle is organized as:
+
+Discover → Assess → Prioritize → Remediate → Verify → Report
+
+This model supports more than technical scanning; it creates a repeatable operating system for security improvement.
+
+---
+
 ### Quick Start
 
 ```bash
