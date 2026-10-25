@@ -1,86 +1,146 @@
 # Security Policy
 
-## Dependency Security Management
+This repository is used for the development of Audityzer / AuditorSEC. The goal of this policy is to define the minimum security expectations for repository access, code quality, automation, secrets handling, and vulnerability disclosure.
 
-This project has implemented several layers of protection to manage and mitigate security vulnerabilities in dependencies:
+## 1. Scope
 
-### Automated Vulnerability Fixes
+This policy applies to:
+- all contributors and maintainers;
+- all GitHub workflows and automation;
+- environment variables, tokens, API keys, and secrets;
+- dependency management and CI/CD configuration;
+- code, infrastructure, and security-sensitive product assets.
 
-When you install dependencies with `npm install`, our post-install scripts automatically:
+## 2. Security principles
 
-1. Resolve dependency conflicts that could cause compatibility issues
-2. Fix known security vulnerabilities by upgrading affected packages to safe versions
-3. Configure npm to ignore low/moderate severity issues that only affect development dependencies
+We follow these principles:
+- least privilege for access and permissions;
+- no secrets in source code, PR descriptions, issues, logs, or prompts;
+- all risk-bearing changes must be reviewed before merge;
+- protected automation must require explicit approval;
+- production data and secrets must be isolated from untrusted automation.
 
-### Running Security Audits
+## 3. Repository access
 
-To check for security vulnerabilities:
+All repositories handling production or sensitive assets must enforce:
+- branch protection on the default branch;
+- required pull request reviews before merge;
+- required status checks before merge;
+- CODEOWNERS for critical content paths;
+- secret scanning enabled;
+- dependency review enabled;
+- vulnerability alerts enabled.
 
-```bash
-# Regular audit (may show known dev dependency issues)
-npm audit
+Changes involving:
+- CI/CD configuration;
+- workflow files;
+- authentication or access logic;
+- dependencies or supply-chain security;
+- customer data handling;
+- compliance policies;
 
-# Production-only audit (ignores dev dependencies)
-npm audit --production
+must be reviewed by at least one maintainer.
 
-# Audit only for critical issues
-npm run audit:all
+## 4. Secure development standards
 
-# Fix critical vulnerabilities (be careful with breaking changes)
-npm run fix:vulnerabilities
-```
+### Code review
+- No direct push to protected branches without review.
+- Every change must include a clear purpose and rationale.
+- Security-sensitive changes require maintainer review.
+- Breaking changes must be documented in the PR description.
 
-### Handling Known Issues
+### Dependencies
+- Keep dependencies updated and reviewed.
+- Address known vulnerabilities promptly.
+- Prefer supported and maintained libraries.
+- Use lockfiles and reproducible build workflows.
 
-Some development dependencies (like testing tools) may have vulnerabilities that don't affect production code. These are tracked and managed through:
+### Secrets handling
+Secrets must never be:
+- committed into source code;
+- pasted into issues, PRs, or comments;
+- printed in logs or generated output;
+- included in prompts sent to external tools or models.
 
-1. Package resolutions in `package.json`
-2. Specific settings in `.npmrc`
-3. CI-specific configuration in `.npmrc-ci`
-4. Acknowledged exceptions in `.nsprc`
+Secrets must be stored only in:
+- GitHub Secrets;
+- a dedicated secret manager or vault;
+- environment-specific secure storage with restricted access.
 
-#### Known Development Dependencies with Vulnerabilities
+## 5. GitHub automation and AI policy
 
-The following development dependencies have vulnerabilities that don't affect production code:
+All automation must:
+- have a stated purpose and owner;
+- use the minimum required permissions;
+- avoid access to production secrets unless necessary and approved;
+- be restricted to the triggering resource whenever possible;
+- generate audit logs and outputs;
+- support rollback or disablement.
 
-1. **lodash.set** - Has a prototype pollution vulnerability (GHSA-p6mc-m468-83gw)
-   - Used by: lighthouse in @lhci/cli (development testing tool)
-   - Mitigation: Overridden in package.json, exceptions tracked in .nsprc
-   - Production impact: None (not included in production builds)
+Automated tools must not:
+- run unreviewed code with broad repository access;
+- write to arbitrary repository paths by default;
+- expose tokens, credentials, or customer data in logs;
+- operate on production systems without explicit approval.
 
-2. **cookie** - Accept cookie with out of bounds characters (GHSA-pxg6-pf52-xh8x)
-   - Used by: raven in lighthouse in @lhci/cli (development testing tool)
-   - Mitigation: Overridden in package.json, exceptions tracked in .nsprc
-   - Production impact: None (not included in production builds)
+## 6. Vulnerability disclosure
 
-### CI Security Checking
+Security problems must be reported privately and responsibly.
 
-Our GitHub workflow automatically checks for security issues on:
-- Every push to main branches
-- Pull requests to protected branches
-- Weekly scheduled scans
+Do not disclose vulnerabilities in public issues or public pull requests.
 
-### Reporting New Vulnerabilities
+Contact repository maintainers or the designated security contact with:
+- affected component or area;
+- reproduction steps;
+- severity and impact assessment;
+- suggested remediation when known.
 
-If you discover a security vulnerability in this project, please report it by:
+We will acknowledge valid reports and work toward remediation in a reasonable timeframe.
 
-1. **DO NOT** create a public GitHub issue
-2. Send details to [security@example.com](mailto:security@example.com)
-3. Include steps to reproduce and potential impact
+## 7. Workflow security
 
-## Security Best Practices
+Workflows must:
+- use minimal permissions;
+- avoid unnecessary secret access;
+- validate third-party actions before use;
+- pin actions to commit SHAs when possible;
+- avoid curl-based execution of remote scripts from untrusted sources;
+- run static security checks in CI.
 
-When working with this codebase:
+No workflow should execute untrusted code in a way that could affect protected repository resources.
 
-1. Keep all dependencies updated
-2. Run security audits before deploying
-3. Never expose sensitive credentials in code
-4. Follow the security patterns established in the codebase
+## 8. Incident handling
 
-## Responsible Disclosure
+If a security issue is identified:
+1. Contain the issue and reduce exposure.
+2. Preserve evidence and logs.
+3. Notify maintainers and stakeholders.
+4. Assess whether secrets, data, or credentials were exposed.
+5. Create a remediation plan.
+6. Record findings and lessons learned.
 
-We follow responsible disclosure practices and will:
-- Acknowledge receipt within 48 hours
-- Provide regular updates on progress
-- Credit discoverers (if desired)
-- Publish details after fixes are available 
+## 9. Exceptions
+
+Exceptions to this policy require:
+- a reasoned justification;
+- maintainer approval;
+- time-bound validity;
+- compensating security controls.
+
+## 10. Enforcement
+
+Violations of this policy may result in:
+- restriction of access;
+- PR rejection;
+- removal of automation privileges;
+- escalation to maintainers and compliance stakeholders if necessary.
+
+Audityzer is expected to operate with secure-by-default practices at all times.
+
+## 11. Related documents
+
+- THREAT-MODEL.md
+- AUTOMATION-POLICY.md
+- CODEOWNERS
+- README.md
+- workflows and CI configuration
