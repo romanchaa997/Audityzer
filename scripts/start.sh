@@ -1,35 +1,50 @@
-#!/bin/sh
+# Single-stage build for Audityzer
+# No build step needed - Node.js runs .js source directly
+FROM node:20-alpine
 
-# Audityzer startup script
+# Install security updates
+RUN apk update && apk upgrade && apk add --no-cache dumb-init curl && rm -rf /var/cache/apk/*
 
-set -e
+# Create non-root user
+RUN addgroup -g 1001 -S audityzer && adduser -S audityzer -u 1001
 
-echo "Starting Audityzer..."
+# Set working directory
+WORKDIR /app
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV PUPPETEER_SKIP_DOWNLOAD=1
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
-# Check if required environment variables are set
-if [ -z "$NODE_ENV" ]; then
-    export NODE_ENV=production
-fi
+# Install all dependencies (prod/dev categorization is unreliable)
+COPY package.json pnpm-lock.yaml ./
+COPY scripts/fix-dependencies.js ./scripts/
+RUN pnpm install --frozen-lockfile
 
-if [ -z "$PORT" ]; then
-    export PORT=5000
-fi
+# Copy source code directly
+COPY --chown=audityzer:audityzer src/ ./src/
+COPY --chown=audityzer:audityzer bin/ ./bin/
+COPY --chown=audityzer:audityzer templates/ ./templates/
+COPY --chown=audityzer:audityzer lib/ ./lib/
+COPY --chown=audityzer:audityzer server.js ./
+COPY --chown=audityzer:audityzer scripts/healthcheck.sh scripts/start.sh ./scripts/
 
-# Create necessary directories (may already exist from Dockerfile)
-mkdir -p /app/reports || true
-mkdir -p /app/data || true
-mkdir -p /app/logs || true
+# Make scripts executable and fix line endings
+RUN chmod +x ./scripts/*.sh
+RUN sed -i 's/\r$//' ./scripts/*.sh
 
-echo "Directories created"
+# Create data directories with proper ownership before switching to non-root
+RUN mkdir -p /app/reports /app/data /app/logs && chown -R audityzer:audityzer /app/reports /app/data /app/logs
 
-# Check if the application source exists
-if [ ! -f "/app/server.js" ]; then
-    echo "server.js not found. Ensure server.js is copied."
-    exit 1
-fi
+# Switch to non-root user
+USER audityzer
 
-echo "Application files found"
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD sh -c 'curl -fsS http://localhost:${PORT:-3000}/health || exit 1'
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
-echo "Starting Audityzer on port $PORT..."
-exec node server.js
+CMD ["./scripts/start.sh"]

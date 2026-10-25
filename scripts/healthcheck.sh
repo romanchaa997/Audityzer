@@ -1,5 +1,36 @@
 #!/bin/sh
 
-# Health check script for Audityzer
+# Audityzer startup script
 
-curl -f http://localhost:5000/health || exit 1
+set -e
+
+echo "Starting Audityzer..."
+
+# Check if required environment variables are set
+if [ -z "$NODE_ENV" ]; then
+    export NODE_ENV=production
+fi
+
+if [ -z "$PORT" ]; then
+    export PORT=3000
+fi
+
+# Create necessary directories (may already exist from Dockerfile)
+mkdir -p /app/reports || true
+mkdir -p /app/data || true
+mkdir -p /app/logs || true
+
+echo "Directories created"
+
+# Check if the application source exists
+if [ ! -f "/app/server.js" ]; then
+    echo "server.js not found. Ensure server.js is copied."
+    exit 1
+fi
+
+echo "Application files found"
+
+# Start the application
+PORT=${PORT:-3000}
+echo "Starting Audityzer on port $PORT..."
+exec node server.js
