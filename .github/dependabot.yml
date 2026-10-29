@@ -1,0 +1,81 @@
+version: 2
+
+updates:
+  # Root project
+  - package-ecosystem: "npm"
+    directory: "/"
+    target-branch: "safe-improvements"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/Kyiv"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "direct"
+    groups:
+      production-security:
+        applies-to: security-updates
+        dependency-type: "production"
+      dev-tooling:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # SolidStart app
+  - package-ecosystem: "npm"
+    directory: "/SolidStartApp"
+    target-branch: "safe-improvements"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/Kyiv"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    groups:
+      solidstart-updates:
+        patterns:
+          - "*"
+
+  # Docs site
+  - package-ecosystem: "npm"
+    directory: "/docs-site"
+    target-branch: "safe-improvements"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/Kyiv"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    groups:
+      docs-updates:
+        patterns:
+          - "*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "safe-improvements"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/Kyiv"
+    groups:
+      actions:
+        patterns:
+          - "*"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    target-branch: "safe-improvements"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/Kyiv"
